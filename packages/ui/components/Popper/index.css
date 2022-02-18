@@ -1,0 +1,52 @@
+.popper {
+    @apply will-change-transform;
+}
+
+.popper.default {
+    @apply px-[12px] py-[6px] rounded-[2px] text-[12px] text-white bg-[#1B1B1C];
+}
+.popper.custom {
+    @apply w-fit p-0 rounded-none text-inherit;
+}
+
+.popper[data-placement ^= top] {
+    @apply origin-bottom;
+}
+
+.popper[data-placement ^= top] > .popper-arrow {
+    @apply -bottom-[3px];
+}
+
+.popper[data-placement ^= bottom] {
+    @apply origin-top;
+}
+
+.popper[data-placement ^= bottom] > .popper-arrow {
+    @apply -top-[3px];
+}
+
+.popper[data-placement ^= left] {
+    @apply origin-right;
+}
+
+.popper[data-placement ^= left] > .popper-arrow {
+    @apply -right-[3px];
+}
+
+.popper[data-placement ^= right] {
+    @apply origin-left;
+}
+
+.popper[data-placement ^= right] > .popper-arrow {
+    @apply -left-[3px]
+}
+
+.popper-arrow {
+    @apply absolute w-[6px] h-[6px] bg-inherit -z-10 invisible;
+}
+
+.popper-arrow::before {
+    @apply absolute w-[6px] h-[6px] bg-inherit rotate-45 visible;
+
+    content: '';
+}

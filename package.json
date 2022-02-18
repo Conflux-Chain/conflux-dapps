@@ -1,0 +1,27 @@
+{
+    "name": "conflux-dapps",
+    "version": "0.0.0",
+    "private": true,
+    "workspaces": [
+        "dapps/*",
+        "packages/*"
+    ],
+    "scripts": {
+        "build": "turbo run build",
+        "dev": "turbo run dev --parallel",
+        "lint": "turbo run lint",
+        "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+        "dev:cross-space": "turbo run dev --scope=cross-space"
+    },
+    "devDependencies": {
+        "@types/node": "^10.17.60",
+        "prettier": "^2.5.1",
+        "prettier-plugin-tailwindcss": "^0.1.7",
+        "turbo": "latest"
+    },
+    "engines": {
+        "npm": ">=7.0.0",
+        "node": ">=14.0.0"
+    },
+    "packageManager": "pnpm@6.30.0"
+}

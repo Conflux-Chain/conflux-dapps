@@ -1,0 +1,3 @@
+packages:
+    - 'dapps/*'
+    - 'packages/*'

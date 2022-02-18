@@ -1,0 +1,43 @@
+{
+    "name": "cross-space",
+    "version": "0.0.0",
+    "scripts": {
+        "dev": "vite --port 3001",
+        "build": "vite build"
+    },
+    "dependencies": {
+        "@cfxjs/use-wallet": "^0.0.13",
+        "@fluent-wallet/estimate-tx": "^0.0.7",
+        "@fluent-wallet/shorten-address": "^0.1.2",
+        "@react-spring/web": "^9.4.2",
+        "@tippyjs/react": "^4.2.6",
+        "clsx": "^1.1.1",
+        "custom-react-scrollbar": "^0.0.2",
+        "decimal.js": "^10.3.1",
+        "js-conflux-sdk": "^2.0.2",
+        "lodash-es": "^4.17.21",
+        "react": "^17.0.2",
+        "react-dom": "^17.0.2",
+        "react-hook-form": "^7.27.0",
+        "tippy.js": "^6.3.7",
+        "ui": "workspace:*",
+        "zustand": "^3.6.9"
+    },
+    "devDependencies": {
+        "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
+        "@esbuild-plugins/node-modules-polyfill": "^0.1.4",
+        "@types/lodash-es": "^4.17.6",
+        "@types/react": "^17.0.38",
+        "@types/react-dom": "^17.0.11",
+        "@vitejs/plugin-react": "^1.1.4",
+        "autoprefixer": "^10.4.2",
+        "config": "workspace:*",
+        "eslint": "^7.32.0",
+        "postcss": "^8.4.6",
+        "tailwindcss": "^3.0.21",
+        "tsconfig": "workspace:*",
+        "typescript": "^4.5.4",
+        "vite": "^2.7.12"
+    },
+    "license": "MIT"
+}

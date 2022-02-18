@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+    font-family: 'SF Pro Display', sans-serif;
+    overflow-x: hidden;
+}
+
+body {
+    background-color: #f8f9ff;
+}
+
+.backface-visible {
+    backface-visibility: visible;
+}
+
+.contain-strict {
+    contain: strict;
+}
+
+.contain-content {
+    contain: layout paint style;
+}
+
+button:disabled {
+    @apply opacity-50 cursor-not-allowed;
+}
