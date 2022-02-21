@@ -1,23 +1,27 @@
 import { cloneElement, CSSProperties, HTMLAttributes, useRef } from 'react';
 import { a, useTransition } from '@react-spring/web';
-import classNames from 'clsx';
+import cx from 'clsx';
 import { transitionAnimation, TransitionAnimationType } from '../Animation';
 type OverWrite<T, U> = Omit<T, keyof U> & U;
 
 export interface ItemProps {
-    key: string | number;
+    key?: string | number;
     animationType?: TransitionAnimationType;
     animationDuration?: number | { enter: number; leave: number };
     ItemWrapperClassName?: string;
     ItemWrapperStyle?: CSSProperties;
+    [other: string]: any;
 }
 
 export type Props<T> = OverWrite<
     HTMLAttributes<HTMLDivElement>,
     {
         list: T[];
+        mainDirection?: 'x' | 'y';
+        itemKey?: string;
         children: (item: T, index: number) => JSX.Element;
-        animatedHeight?: boolean;
+        animatedRecord?: boolean;
+        animatedSize?: boolean;
         animationType?: TransitionAnimationType;
         animationDuration?: number | { enter: number; leave: number };
         ItemWrapperClassName?: string;
@@ -27,25 +31,30 @@ export type Props<T> = OverWrite<
 
 const List = <T extends ItemProps>({
     list,
+    itemKey,
+    mainDirection = 'y',
     children,
-    animatedHeight,
+    animatedRecord,
+    animatedSize,
     animationType = 'zoom',
     animationDuration,
     ItemWrapperClassName,
     ItemWrapperStyle,
     ...props
 }: Props<T>) => {
-    const heightMap = useRef(new WeakMap());
+    const mainSizeType = mainDirection === 'x' ? 'width' : 'height';
+    const mainSizeMap = useRef(new WeakMap());
+
     const render = useTransition(list, {
-        keys: (item: T) => item.key,
+        keys: (item: T) => item.key ?? ((item as any)[itemKey as string]) as string,
         from: (item: T) => ({
             ...transitionAnimation[item?.animationType ?? animationType].from,
-            height: animatedHeight ? 0 : undefined,
+            [mainSizeType]: animatedSize ? 0 : undefined,
         }),
         enter: (item: T) => async (next) =>
             await next({
                 ...transitionAnimation[item?.animationType ?? animationType].enter,
-                height: animatedHeight ? heightMap.current.get(item) : undefined,
+                [mainSizeType]: animatedSize ? mainSizeMap.current.get(item) : undefined,
                 config: {
                     ...transitionAnimation[item?.animationType ?? animationType].enter?.config,
                     duration:
@@ -59,7 +68,7 @@ const List = <T extends ItemProps>({
             }),
         leave: (item: T) => ({
             ...transitionAnimation[item?.animationType ?? animationType].leave,
-            height: animatedHeight ? 0 : undefined,
+            [mainSizeType]: animatedSize ? 0 : undefined,
             margin: 0,
             overflow: 'hidden',
             config: {
@@ -79,14 +88,15 @@ const List = <T extends ItemProps>({
         <div {...props}>
             {render((style, item, _, index) => (
                 <a.div
-                    className={classNames(
-                        'w-fit bg-transparent origin-center overflow-visible backface-visible will-change-transform',
+                    className={cx(
+                        'w-fit h-fit bg-transparent origin-center overflow-visible backface-visible will-change-auto',
+                        animatedRecord && 'absolute',
                         item?.ItemWrapperClassName ?? ItemWrapperClassName
                     )}
-                    style={{ ...(item?.ItemWrapperStyle ?? ItemWrapperStyle), ...style }}
+                    style={{ ...(item?.ItemWrapperStyle ?? ItemWrapperStyle), ...style, zIndex: animatedRecord ? (list.length - index) : undefined }}
                 >
-                    {animatedHeight ? (
-                        <a.div className="w-fit will-change-[height]" ref={(r: HTMLDivElement) => heightMap.current?.set(item, r?.offsetHeight)}>
+                    {(animatedSize || animatedRecord) ? (
+                        <a.div className={cx("w-fit", mainSizeType === 'width' ? 'will-change-[width]' : 'will-change-[height]')} ref={(r: HTMLDivElement) => mainSizeMap.current?.set(item, r?.[mainDirection === 'x' ? 'offsetWidth' : 'offsetHeight'])}>
                             {cloneElement(children(item, index))}
                         </a.div>
                     ) : (

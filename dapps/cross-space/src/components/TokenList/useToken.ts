@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import create from 'zustand';
 import NativeTokenList from './native-tokenlist.json';
 import LocalStorage from 'ui/utils/LocalStorage';
@@ -18,7 +18,7 @@ interface TokenStore {
 }
 
 const useCurrentTokenStore = create<TokenStore>(() => ({
-    core: (LocalStorage.get('current-core-token', 'cross-space') as Token) ?? NativeTokenList.core[0],
+    core: (LocalStorage.get('current-core-token', 'cross-space') as Token) ?? coreNative,
     eSpace: (LocalStorage.get('current-eSpace-token', 'cross-space') as Token) ?? NativeTokenList.eSpace[0],
 }));
 
@@ -27,8 +27,9 @@ const selectors = {
     eSpace: (state: TokenStore) => state.eSpace,
 };
 
-const coreCommonTokensCache = new Cache<Token>(4, 'cross-space-common-tokens-core');
-const eSpaceCommonTokensCache = new Cache<Token>(4, 'cross-space-common-tokens-eSpace');
+const CommonTokenCount = 10;
+const coreCommonTokensCache = new Cache<Token>(CommonTokenCount - 1, 'cross-space-common-tokens-core');
+const eSpaceCommonTokensCache = new Cache<Token>(CommonTokenCount - 1, 'cross-space-common-tokens-eSpace');
 ([{
     cacheKey: 'cross-space-common-tokens-core',
     cache: coreCommonTokensCache,
@@ -39,7 +40,7 @@ const eSpaceCommonTokensCache = new Cache<Token>(4, 'cross-space-common-tokens-e
     key: 'eSpace'
 }] as const).forEach((cacheConf) => {
     if (cacheConf.cache.toArr().length === 0) {
-        NativeTokenList[cacheConf.key].forEach(token => {
+        NativeTokenList[cacheConf.key].slice(0, CommonTokenCount - 1).reverse().forEach(token => {
             cacheConf.cache.set(token.symbol, token);
         });
     }
@@ -53,7 +54,7 @@ const coreNative = {
 const useToken = (space: 'core' | 'eSpace' = 'core') => {
     const currentToken = useCurrentTokenStore(selectors[space]);
 
-    const [commonTokens, updateCommonTokens] = useState(() => [coreNative, ...(space === 'core' ? coreCommonTokensCache : eSpaceCommonTokensCache).toArr()]);
+    const [commonTokens, _updateCommonTokens] = useState(() => [coreNative, ...(space === 'core' ? coreCommonTokensCache : eSpaceCommonTokensCache).toArr()]);
 
     const setCurrentToken = useCallback((token: Token) => {
         if (space === 'core') {
@@ -68,10 +69,14 @@ const useToken = (space: 'core' | 'eSpace' = 'core') => {
             currentCache.set(token.symbol, token);
         }
 
-        updateCommonTokens([coreNative, ...currentCache.toArr()]);
     }, [space]);
 
-    return { currentToken, setCurrentToken, commonTokens };
+    const updateCommonTokens = useCallback(() => {
+        const currentCache = (space === 'core' ? coreCommonTokensCache : eSpaceCommonTokensCache);
+        _updateCommonTokens([coreNative, ...currentCache.toArr()]);
+    }, [space]);
+
+    return { currentToken, setCurrentToken, commonTokens, updateCommonTokens };
 }
 
 export default useToken;

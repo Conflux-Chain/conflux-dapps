@@ -33,7 +33,7 @@ export interface PopupMethods {
 
 const PopupItem = forwardRef<HTMLDivElement, PopupProps & { handleClose: () => void; }>(({ handleClose, Content, duration }, ref) => {
     useEffect(() => {
-        let timer: NodeJS.Timeout;
+        let timer: number;
         if (duration !== 0) timer = setTimeout(handleClose, duration);
         return () => clearTimeout(timer);
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -114,7 +114,7 @@ const PopupContainer = forwardRef<PopupMethods>((_, ref) => {
             <List
                 className={classNames('fixed flex flex-col items-center w-fit left-[50%] top-[30%] translate-x-[-50%] z-[201]', listClassName)}
                 list={popupList}
-                animatedHeight
+                animatedSize
                 style={listStyle}
                 ItemWrapperClassName={itemWrapperClassName}
                 ItemWrapperStyle={{ marginBottom: 12, ...itemWrapperStyle }}

@@ -20,6 +20,106 @@
 			"name": "conflux ETH",
 			"symbol": "cETH",
 			"decimals": "18"
+		},
+		{
+			"native_address": "cfxtest:ace19hkyevhkkd1usar01j2207xh28ag9y1z37t534",
+			"mapped_address": "0x11adb1DEc33e86396FaE5F5C305f630145BdCd5A",
+			"name": "Conflux Test 1",
+			"symbol": "CTest1",
+			"decimals": "18"
+		},
+		{
+			"native_address": "cfxtest:acepe88unk7fvs18436178up33hb4zkuf62a9dk1gv",
+			"mapped_address": "0xb10e6a3d4d088Aa89FA19a678F5112Fcd4263C95",
+			"name": "conflux Test 2",
+			"symbol": "cTest2",
+			"decimals": "18"
+		},
+		{
+			"native_address": "cfxtest:acceftennya582450e1g227dthfvp8zz1p370pvb6r",
+			"mapped_address": "0x4E54E9a1FBa1926B443A6baB42d459267bEe2B50",
+			"name": "conflux Test3",
+			"symbol": "cTe3",
+			"decimals": "18"
+		},
+
+		{
+			"native_address": "cfxtest:acepe88unk7fvs18436178up33hb4zkuf62a9dk1gv",
+			"mapped_address": "0xb10e6a3d4d088Aa89FA19a678F5112Fcd4263C95",
+			"name": "conflux Test4",
+			"symbol": "cTest4",
+			"decimals": "18"
+		},
+		{
+			"native_address": "cfxtest:acceftennya582450e1g227dthfvp8zz1p370pvb6r",
+			"mapped_address": "0x4E54E9a1FBa1926B443A6baB42d459267bEe2B50",
+			"name": "conflux Test5",
+			"symbol": "cTest5",
+			"decimals": "18"
+		},
+		{
+			"native_address": "cfxtest:acceftennya582450e1g227dthfvp8zz1p370pvb6r",
+			"mapped_address": "0x4E54E9a1FBa1926B443A6baB42d459267bEe2B50",
+			"name": "conflux Test6",
+			"symbol": "cTest6",
+			"decimals": "18"
+		},
+		{
+			"native_address": "cfxtest:acceftennya582450e1g227dthfvp8zz1p370pvb6r",
+			"mapped_address": "0x4E54E9a1FBa1926B443A6baB42d459267bEe2B50",
+			"name": "conflux Test7",
+			"symbol": "cTest7",
+			"decimals": "18"
+		},
+				{
+			"native_address": "cfxtest:ace19hkyevhkkd1usar01j2207xh28ag9y1z37t534",
+			"mapped_address": "0x11adb1DEc33e86396FaE5F5C305f630145BdCd5A",
+			"name": "Conflux Test 8",
+			"symbol": "CTest8",
+			"decimals": "18"
+		},
+		{
+			"native_address": "cfxtest:acepe88unk7fvs18436178up33hb4zkuf62a9dk1gv",
+			"mapped_address": "0xb10e6a3d4d088Aa89FA19a678F5112Fcd4263C95",
+			"name": "conflux Test 9",
+			"symbol": "cTest9",
+			"decimals": "18"
+		},
+		{
+			"native_address": "cfxtest:acceftennya582450e1g227dthfvp8zz1p370pvb6r",
+			"mapped_address": "0x4E54E9a1FBa1926B443A6baB42d459267bEe2B50",
+			"name": "conflux Test10",
+			"symbol": "cTe10",
+			"decimals": "18"
+		},
+
+		{
+			"native_address": "cfxtest:acepe88unk7fvs18436178up33hb4zkuf62a9dk1gv",
+			"mapped_address": "0xb10e6a3d4d088Aa89FA19a678F5112Fcd4263C95",
+			"name": "conflux Test11",
+			"symbol": "cTest11",
+			"decimals": "18"
+		},
+		{
+			"native_address": "cfxtest:acceftennya582450e1g227dthfvp8zz1p370pvb6r",
+			"mapped_address": "0x4E54E9a1FBa1926B443A6baB42d459267bEe2B50",
+			"name": "conflux Test12",
+			"symbol": "cTest12",
+			"decimals": "18"
+		},
+		{
+			"native_address": "cfxtest:acceftennya582450e1g227dthfvp8zz1p370pvb6r",
+			"mapped_address": "0x4E54E9a1FBa1926B443A6baB42d459267bEe2B50",
+			"name": "conflux Test13",
+			"symbol": "cTest13",
+			"decimals": "18"
+		},
+		{
+			"native_address": "cfxtest:acceftennya582450e1g227dthfvp8zz1p370pvb6r",
+			"mapped_address": "0x4E54E9a1FBa1926B443A6baB42d459267bEe2B50",
+			"name": "conflux Test14",
+			"symbol": "cTest14",
+			"decimals": "18"
 		}
 	],
 	"eSpace": [

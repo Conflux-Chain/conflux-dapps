@@ -36,5 +36,5 @@
 }
 
 .connector.dropdown-visible .arrow-down {
-    @apply rotate-180;
+    @apply -rotate-180;
 }

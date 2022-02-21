@@ -4,6 +4,7 @@ import CFX from '@assets/CFX.svg';
 import ArrowRight from '@assets/arrow-right.svg';
 import useToken from './useToken';
 import TokenListDropdown from './TokenListDropdown';
+import './index.css';
 
 const TokenList: React.FC<{ space: 'core' | 'eSpace'; }> = ({ space }) => {
     const { currentToken } = useToken(space);

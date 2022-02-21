@@ -1,4 +1,4 @@
-import LocalStorage from 'ui/utils/LocalStorage';
+import LocalStorage from './LocalStorage';
 
 class LRUCache<T> {
     private capacity: number;

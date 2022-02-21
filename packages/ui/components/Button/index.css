@@ -1,0 +1,7 @@
+.button-contained {
+    @apply flex justify-center items-center px-[16px] py-[10px] rounded-[4px] bg-[#808BE7] hover:bg-opacity-90 text-[16px] text-white transition-colors;
+}
+
+button:disabled {
+    @apply opacity-30 cursor-not-allowed;
+}

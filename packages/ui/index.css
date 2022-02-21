@@ -1,10 +1,11 @@
+@import './components/Button/index.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 html {
     font-family: 'SF Pro Display', sans-serif;
-    overflow-x: hidden;
+    overflow: hidden;
 }
 
 body {
@@ -21,8 +22,4 @@ body {
 
 .contain-content {
     contain: layout paint style;
-}
-
-button:disabled {
-    @apply opacity-50 cursor-not-allowed;
 }
