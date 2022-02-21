@@ -33,6 +33,17 @@ const TokenListDropdown: React.FC<{ children: (triggerDropdown: () => void, visi
     const triggerDropdown = useCallback(() => setVisible(pre => !pre), []);
     const hideDropdown = useCallback(() => setVisible(false), []);
 
+    useEffect(() => {
+        function onKeyDown(evt: KeyboardEvent) {
+            if (evt.keyCode === 27) {
+                hideDropdown();
+            }
+        }
+
+        document.addEventListener('keydown', onKeyDown);
+        return () => document.removeEventListener('keydown', onKeyDown);
+    }, []);
+
     return (
         <Dropdown
             visible={visible}
@@ -40,6 +51,7 @@ const TokenListDropdown: React.FC<{ children: (triggerDropdown: () => void, visi
             className="relative flex flex-col w-[432px] pt-[16px] rounded-[4px] bg-white shadow contain-content overflow-hidden"
             Content={<DropdownContent space={space} visible={visible} />}
             appendTo={document.body}
+            
         >
             {children(triggerDropdown, visible)}
         </Dropdown>
@@ -49,6 +61,7 @@ const TokenListDropdown: React.FC<{ children: (triggerDropdown: () => void, visi
 const DropdownContent: React.FC<{ space: 'core' | 'eSpace'; visible: boolean; }>= ({ visible, space }) => {
     const i18n = useI18n(transitions);
     const { currentToken, setCurrentToken, commonTokens, updateCommonTokens } = useToken(space);
+
     useEffect(() => {
         if (visible) {
             updateCommonTokens();
@@ -77,6 +90,7 @@ const DropdownContent: React.FC<{ space: 'core' | 'eSpace'; visible: boolean; }>
                 />
 
                 <p className="mt-[12px] mb-[8px] text-[14px] text-[#A9ABB2]">{i18n.common_tokens}</p>
+                
                 <CustomScrollbar contentClassName="items-center pb-[16px] gap-[12px]" direction='horizontal'>
                     {commonTokens.map(commonToken => 
                         <div
@@ -96,21 +110,21 @@ const DropdownContent: React.FC<{ space: 'core' | 'eSpace'; visible: boolean; }>
 
             <p className='mt-[12px] mb-[4px] px-[16px]'>{i18n.token_list}</p>
             <CustomScrollbar className='token-list'>
-                {filterTokenList.map(token => <TokenItem key={token.symbol} setCurrentToken={setCurrentToken} {...token} />)}
+                {filterTokenList.map(token => <TokenItem key={token.symbol} isCurrent={token.symbol === currentToken.symbol} setCurrentToken={setCurrentToken} {...token} />)}
             </CustomScrollbar>
         </>
     );
 };
 
 
-const TokenItem = memo<Token & { setCurrentToken: (token: Token) => void; }>(({ setCurrentToken, ...token}) => {
+const TokenItem = memo<Token & { setCurrentToken: (token: Token) => void; isCurrent: boolean; }>(({ isCurrent, setCurrentToken, ...token}) => {
     const { symbol, name, native_address } = token;
 
     const [isCopied, setCopied] = useClipboard(native_address ?? '', { successDuration: 1500 });
 
     return (
         <div
-            className="flex justify-between items-center h-[56px] pl-[16px] pr-[20px] bg-white hover:bg-[#808BE7] hover:bg-opacity-10 cursor-pointer"
+            className={cx("flex justify-between items-center h-[56px] pl-[16px] pr-[20px] bg-white", isCurrent ? 'bg-[#808BE7] bg-opacity-30' : 'hover:bg-[#808BE7] hover:bg-opacity-10 cursor-pointer')}
             onClick={() => setCurrentToken(token)}
         >
             <div className="inline-flex items-center">

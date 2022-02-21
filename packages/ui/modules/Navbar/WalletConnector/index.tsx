@@ -7,7 +7,7 @@ import useI18n from '../../../hooks/useI18n';
 import FluentLogo from '../../../assets/Fluent.svg';
 import MetaMaskLogo from '../../../assets/MetaMask.svg';
 import ArrowDown from '../../../assets/arrow-down.svg';
-import ConnectorDropdown from './ConnectorDropdown.';
+import ConnectorDropdown from './ConnectorDropdown';
 import './index.css';
 
 const transitions = {

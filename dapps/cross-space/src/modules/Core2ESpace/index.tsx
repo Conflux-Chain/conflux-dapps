@@ -2,12 +2,13 @@ import React, {useCallback, memo, useEffect} from 'react';
 import {a} from '@react-spring/web';
 import {useForm, type UseFormRegister, type FieldValues} from 'react-hook-form';
 import cx from 'clsx';
-import { shortenAddress } from '@fluent-wallet/shorten-address';
-import { useAccount, useBalance, useStatus, sendTransaction, trackBalanceChangeOnce, Unit } from '@cfxjs/use-wallet';
+import { connect as connectFluent, useAccount as useFluentAccount, useBalance as useFluentBalance, useStatus as useFluentStatus, sendTransaction, trackBalanceChangeOnce, Unit } from '@cfxjs/use-wallet';
 import { connect as connectMetaMask, useStatus as useMetaMaskStatus, useAccount as useMetaMaskAccount } from '@cfxjs/use-wallet/dist/ethereum';
 import { useCrossSpaceContract, useCrossSpaceContractAddress, useMaxAvailableBalance } from '@store/index';
+import useToken from '@components/TokenList/useToken';
 import { showWaitFluent, showActionSubmitted, hideWaitFluent, hideActionSubmitted } from 'ui/components/tools/Modal';
 import { showToast } from 'ui/components/tools/Toast';
+import { AuthConnectButton } from 'ui/modules/Navbar/WalletConnector/ConnectorDropdown';
 import Input from 'ui/components/Input';
 import Tooltip from 'ui/components/Tooltip';
 import useI18n from 'ui/hooks/useI18n';
@@ -22,36 +23,42 @@ const transitions = {
 		not_connect: 'Fluent Not Connected',
 		between_space: 'Between Conflux Core and Conflux eSpace.',
 		use_metamask: 'Use current address',
-		connect_fluent_first: 'Please connect Fluent first',
+		transfer: 'Transfer',
 	},
 	zh: {
 		not_connect: 'Fluent 未连接',
 		between_space: '在 Conflux Core 和 Conflux eSpace 之间。',
 		use_metamask: '使用当前地址',
-		connect_fluent_first: '请先连接 Fluent',
-	},
+		transfer: '转账',
+	}
 } as const;
+
+
+let eSpaceReceived: HTMLSpanElement | null = null;
 
 const Core2ESpace: React.FC<{ style: any; handleClickFlipped: () => void; }> = ({ style, handleClickFlipped }) => {
 	const i18n = useI18n(transitions);
+	const { register, handleSubmit, setValue, watch } = useForm();
 
-	const { register, handleSubmit, setValue, watch } = useForm()
-	const account = useAccount()
+	const { currentToken } = useToken();
+
+	const fluentAccount = useFluentAccount();
 	const crossSpaceContract = useCrossSpaceContract();
 	const crossSpaceContractAddress = useCrossSpaceContractAddress();
 	const metaMaskAccount = useMetaMaskAccount();
 	const metaMaskStatus = useMetaMaskStatus();
 
 	const setAmount = useCallback((val: string) => {
-		const _val = val.replace(/(?:\.0*|(\.\d+?)0+)$/, '$1')
-		setValue('amount', _val)
-		const receivedCFX = document.querySelector('#receivedCFX')
-		if (receivedCFX) {
-			receivedCFX.textContent = _val ? `${_val} CFX` : '--'
-		}
-	}, [])
+		const _val = val.replace(/(?:\.0*|(\.\d+?)0+)$/, '$1');
+		setValue('amount', _val);
 
-	useEffect(() => setAmount(''), [account])
+		if (!eSpaceReceived) {
+			eSpaceReceived = document.querySelector('#eSpace-received') as HTMLSpanElement;
+		}
+		eSpaceReceived.textContent = _val ? `${_val} ${currentToken.symbol}` : '--';
+	}, [currentToken])
+
+	useEffect(() => setAmount(''), [fluentAccount])
 
 	const isUsedCurrentMetaMaskAccount = metaMaskStatus === 'active' && watch("eSpaceAddress") === metaMaskAccount;
 	const onClickUseMetaMaskAccount = useCallback(() => {
@@ -62,9 +69,9 @@ const Core2ESpace: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 		}
 	}, [metaMaskAccount, metaMaskStatus]);
 
-	const onSubmit = useCallback(() => {
-
-	}, []);
+	const onSubmit = useCallback(handleSubmit(() => {
+		console.log('onSubmit')
+	}), []);
 
 	return (
 		<a.div className="cross-space-module" style={style}>
@@ -72,16 +79,19 @@ const Core2ESpace: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 				<div className="p-[16px] rounded-[8px] border border-[#EAECEF] mb-[16px]">
 					<p className='relative flex items-center mb-[12px]'>
 						<span className='mr-[8px] text-[14px] text-[#A9ABB2]'>To:</span>
-						<span className='mr-[8px] text-[16px] text-[#15C184] font-medium'> Conflux eSpace</span>
+						<span className='ml-[4px] mr-[8px] text-[16px] text-[#15C184] font-medium'>Conflux eSpace</span>
 						
-						<span className='turn-page flex justify-center items-center w-[28px] h-[28px] rounded-full cursor-pointer transition-transform hover:scale-105'>
-							<img src={TurnPage} alt="turn page" className='w-[14px] h-[14px]'/>
+						<span
+							className='turn-page flex justify-center items-center w-[28px] h-[28px] rounded-full cursor-pointer transition-transform hover:scale-105'
+							onClick={handleClickFlipped}
+						>
+							<img src={TurnPage} alt="turn page" className='w-[14px] h-[14px]' draggable="false"/>
 						</span>
 					</p>
 
 					<div className='relative flex items-center'>
 						<Input
-							id="eSpaceAddress"
+							id="core2ESpace-eSpaceAddress"
 							outerPlaceholder={
 								<p className='input-placeholder text-[14px]'>
 									<span className='font-semibold text-[#15C184]'>Conflux eSpace</span> <span className='text-[#979797]'>Destination Address</span>
@@ -115,19 +125,20 @@ const Core2ESpace: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 
 				<TokenList space="core"/>
 
-				<Transfer register={register} setAmount={setAmount}/>
+				<Transfer2ESpace register={register} setAmount={setAmount}/>
 			</form>
 		</a.div>
 )
 }
 
-const Transfer: React.FC<{ register: UseFormRegister<FieldValues>; setAmount: (val: string) => void; }> = memo(({register, setAmount}) => {
+const Transfer2ESpace: React.FC<{ register: UseFormRegister<FieldValues>; setAmount: (val: string) => void; }> = memo(({register, setAmount}) => {
 	const i18n = useI18n(transitions);
 
-	const status = useStatus();
-	const balance = useBalance();
+	const { currentToken } = useToken();
+
+	const fluentStatus = useFluentStatus();
+	const fluentBalance = useFluentBalance();
 	const maxAvailableBalance = useMaxAvailableBalance();
-	console.log(status);
 
 	const handleCheckAmount = useCallback(async (evt: React.FocusEvent<HTMLInputElement, Element>) => {
 		if (!evt.target.value) return;
@@ -153,7 +164,7 @@ const Transfer: React.FC<{ register: UseFormRegister<FieldValues>; setAmount: (v
 		<>
 			<Input
 				wrapperClassName='mt-[16px] mb-[12px]'
-				id="input-amount"
+				id="core2ESpace-transfer-amount"
 				placeholder="Amount you want to transfer"
 				type="number"
 				step={1e-18}
@@ -171,34 +182,37 @@ const Transfer: React.FC<{ register: UseFormRegister<FieldValues>; setAmount: (v
 			/>
 
 			<p className="text-[14px] leading-[18px] text-[#3D3F4C]">
-				<span className="text-[#2959B4]" id="core-chain-balance">Core</span> Balance:
-				{balance ? 
+				<span className="text-[#2959B4]" id="core-balance">Core</span> Balance:
+				{fluentBalance ? 
 					(
-						(balance.toDecimalMinUnit() !== '0' && Unit.lessThan(balance, Unit.fromStandardUnit('0.000001'))) ?
-						<Tooltip text={`${balance.toDecimalStandardUnit()} CFX`} placement="right">
+						(fluentBalance.toDecimalMinUnit() !== '0' && Unit.lessThan(fluentBalance, Unit.fromStandardUnit('0.000001'))) ?
+						<Tooltip text={`${fluentBalance.toDecimalStandardUnit()} ${currentToken.symbol}`} placement="right">
 							<span
 								className="ml-[4px]"
 							>
-								＜0.000001 CFX
+								＜0.000001 {currentToken.symbol}
 							</span>
 						</Tooltip>
-						: <span className="ml-[4px]">{`${balance} CFX`}</span>
+						: <span className="ml-[4px]">{`${fluentBalance} ${currentToken.symbol}`}</span>
 					)
 					: <span className="ml-[4px]">--</span>
 				}
 			</p>
-			<p className="mt-[20px] text-[14px] text-[#3D3F4C]" id="will-receive">
+			<p className="mt-[20px] text-[14px] leading-[18px] text-[#3D3F4C]" id="will-receive">
 				Will receive on <span className="text-[#15C184]">eSpace</span>:
-				<span className="ml-[4px]" id="receivedCFX" />
+				<span className="ml-[4px]" id="eSpace-received" />
 			</p>
 
-			<button
-				id="btn-transfer"
-				className="mt-[24px] w-full h-[48px] button-contained"
-				disabled={!canTransfer}
-			>
-				{status === 'active' ? 'Transfer' : i18n.connect_fluent_first}
-			</button>
+			<AuthConnectButton
+				id="btn-transfer-2eSpace"
+				className="mt-[24px]"
+				wallet="Fluent"
+				buttonType="contained"
+				buttonSize="normal"
+				fullWidth
+				disabled={fluentStatus === 'active' ? !canTransfer : fluentStatus !== 'not-active'}
+				authContent={i18n.transfer}
+			/>
 		</>
 	)
 });

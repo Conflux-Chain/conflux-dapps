@@ -20,7 +20,6 @@ export type Props<T> = OverWrite<
         mainDirection?: 'x' | 'y';
         itemKey?: string;
         children: (item: T, index: number) => JSX.Element;
-        animatedRecord?: boolean;
         animatedSize?: boolean;
         animationType?: TransitionAnimationType;
         animationDuration?: number | { enter: number; leave: number };
@@ -34,7 +33,6 @@ const List = <T extends ItemProps>({
     itemKey,
     mainDirection = 'y',
     children,
-    animatedRecord,
     animatedSize,
     animationType = 'zoom',
     animationDuration,
@@ -44,7 +42,7 @@ const List = <T extends ItemProps>({
 }: Props<T>) => {
     const mainSizeType = mainDirection === 'x' ? 'width' : 'height';
     const mainSizeMap = useRef(new WeakMap());
-
+    
     const render = useTransition(list, {
         keys: (item: T) => item.key ?? ((item as any)[itemKey as string]) as string,
         from: (item: T) => ({
@@ -89,14 +87,17 @@ const List = <T extends ItemProps>({
             {render((style, item, _, index) => (
                 <a.div
                     className={cx(
-                        'w-fit h-fit bg-transparent origin-center overflow-visible backface-visible will-change-auto',
-                        animatedRecord && 'absolute',
+                        'bg-transparent origin-center overflow-visible backface-visible',
+                        mainSizeType === 'width' ? 'h-fit will-change-[width]' : 'w-fit will-change-[height]',
                         item?.ItemWrapperClassName ?? ItemWrapperClassName
                     )}
-                    style={{ ...(item?.ItemWrapperStyle ?? ItemWrapperStyle), ...style, zIndex: animatedRecord ? (list.length - index) : undefined }}
+                    style={{ ...(item?.ItemWrapperStyle ?? ItemWrapperStyle), ...style }}
                 >
-                    {(animatedSize || animatedRecord) ? (
-                        <a.div className={cx("w-fit", mainSizeType === 'width' ? 'will-change-[width]' : 'will-change-[height]')} ref={(r: HTMLDivElement) => mainSizeMap.current?.set(item, r?.[mainDirection === 'x' ? 'offsetWidth' : 'offsetHeight'])}>
+                    {animatedSize ? (
+                        <a.div
+                            className={cx('w-fit h-fit', mainSizeType === 'width' ? 'will-change-[width]' : 'will-change-[height]')}
+                            ref={(r: HTMLDivElement) => mainSizeMap.current?.set(item, r?.[mainDirection === 'x' ? 'clientWidth' : 'offsetHeight'])}
+                        >
                             {cloneElement(children(item, index))}
                         </a.div>
                     ) : (

@@ -1,7 +1,9 @@
 import React, { useState, useCallback } from 'react';
 import { useSpring } from '@react-spring/web';
 import useI18n from 'ui/hooks/useI18n';
-import Core2ESpace from './Core2ESpace'
+import LocalStorage from 'ui/utils/LocalStorage';
+import Core2ESpace from './Core2ESpace';
+import ESpace2Core from './ESpace2Core'
 import './index.css';
 
 const transitions = {
@@ -19,25 +21,24 @@ const Apps: React.FC = () => {
     const i18n = useI18n(transitions);
 
     const [flipped, setFlipped] = useState(() => {
-        return false;
         if (window.location.hash.slice(1).indexOf('source=fluent-wallet') !== -1) {
-            localStorage.setItem('filpped', 'false');
+            LocalStorage.set('flipped', false, 0, 'cross-space');
             history.pushState('', document.title, window.location.pathname + window.location.search);
             return false;
         }
-        return localStorage.getItem('filpped') === 'true';
+        return LocalStorage.get('flipped', 'cross-space') === true;
     });
 
     const { transform, opacity } = useSpring({
         opacity: flipped ? 1 : 0,
-        transform: `perspective(600px) rotateX(${flipped ? 180 : 0}deg)`,
+        transform: `perspective(600px) rotateY(${flipped ? 180 : 0}deg)`,
         config: { mass: 5, tension: 500, friction: 80, clamp: true },
     });
 
     const handleClickFlipped = useCallback(
         () =>
             setFlipped((pre) => {
-                localStorage.setItem('filpped', !pre ? 'true' : 'false');
+                LocalStorage.set('flipped', !pre, 0, 'cross-space');
                 return !pre;
             }),
         []
@@ -54,6 +55,15 @@ const Apps: React.FC = () => {
                         zIndex: flipped ? 0 : 1,
                         opacity: opacity.to(o => 1 - o),
                         transform,
+                    }}
+                    handleClickFlipped={handleClickFlipped}
+                />
+                <ESpace2Core
+                    style={{
+                        zIndex: flipped ? 1 : 0,
+                        opacity,
+                        transform,
+                        rotateY: '180deg',
                     }}
                     handleClickFlipped={handleClickFlipped}
                 />

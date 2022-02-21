@@ -4,6 +4,11 @@ import NativeTokenList from './native-tokenlist.json';
 import LocalStorage from 'ui/utils/LocalStorage';
 import Cache from 'ui/utils/LRUCache';
 
+const coreNative = {
+    name: "Conflux Network",
+    symbol: "CFX",
+} as Token;
+
 export interface Token {
     native_address: string;
     mapped_address: string;
@@ -39,22 +44,27 @@ const eSpaceCommonTokensCache = new Cache<Token>(CommonTokenCount - 1, 'cross-sp
     cache: eSpaceCommonTokensCache,
     key: 'eSpace'
 }] as const).forEach((cacheConf) => {
-    if (cacheConf.cache.toArr().length === 0) {
-        NativeTokenList[cacheConf.key].slice(0, CommonTokenCount - 1).reverse().forEach(token => {
-            cacheConf.cache.set(token.symbol, token);
-        });
-    }
+    // if (cacheConf.cache.toArr().length === 0) {
+    //     NativeTokenList[cacheConf.key].slice(0, CommonTokenCount - 1).reverse().forEach(token => {
+    //         cacheConf.cache.set(token.symbol, token);
+    //     });
+    // }
 });
 
-const coreNative = {
-    name: "Conflux Network",
-    symbol: "CFX",
-} as Token;
 
 const useToken = (space: 'core' | 'eSpace' = 'core') => {
     const currentToken = useCurrentTokenStore(selectors[space]);
 
     const [commonTokens, _updateCommonTokens] = useState(() => [coreNative, ...(space === 'core' ? coreCommonTokensCache : eSpaceCommonTokensCache).toArr()]);
+
+    const updateCommonTokens = useCallback(() => {
+        const currentCache = (space === 'core' ? coreCommonTokensCache : eSpaceCommonTokensCache);
+        const currentToken = useCurrentTokenStore.getState()[space];
+        if (currentToken.symbol !== coreNative.symbol) {
+            currentCache.set(currentToken.symbol, currentToken);
+        }
+        _updateCommonTokens([coreNative, ...currentCache.toArr()]);
+    }, [space]);
 
     const setCurrentToken = useCallback((token: Token) => {
         if (space === 'core') {
@@ -63,18 +73,9 @@ const useToken = (space: 'core' | 'eSpace' = 'core') => {
             useCurrentTokenStore.setState({ eSpace: token });
         }
         LocalStorage.set(`current-${space}-token`, token, 0, 'cross-space');
-
-        const currentCache = (space === 'core' ? coreCommonTokensCache : eSpaceCommonTokensCache);
-        if (token.symbol !== coreNative.symbol) {
-            currentCache.set(token.symbol, token);
-        }
-
     }, [space]);
 
-    const updateCommonTokens = useCallback(() => {
-        const currentCache = (space === 'core' ? coreCommonTokensCache : eSpaceCommonTokensCache);
-        _updateCommonTokens([coreNative, ...currentCache.toArr()]);
-    }, [space]);
+
 
     return { currentToken, setCurrentToken, commonTokens, updateCommonTokens };
 }
