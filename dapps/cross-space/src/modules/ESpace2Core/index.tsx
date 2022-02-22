@@ -5,9 +5,9 @@ import cx from 'clsx';
 import useClipboard from 'react-use-clipboard'
 import { shortenAddress } from '@fluent-wallet/shorten-address';
 import { useAccount as useFluentAccount, Unit } from '@cfxjs/use-wallet';
-import { useStatus as useMetaMaskStatus, useAccount as useMetaMaskAccount, useBalance as useMetaMaskBalance } from '@cfxjs/use-wallet/dist/ethereum';
-import { useCrossSpaceContract, useCrossSpaceContractAddress, useMaxAvailableBalance, useESpaceMirrorAddress } from '@store/index';
-import useToken from '@components/TokenList/useToken';
+import { useStatus as useMetaMaskStatus, useAccount as useMetaMaskAccount } from '@cfxjs/use-wallet/dist/ethereum';
+import { useCrossSpaceContract, useCrossSpaceContractAddress, useMaxAvailableBalance, useCurrentTokenBalance, useESpaceMirrorAddress, useESpaceWithdrawableBalance } from '@store/index';
+import { useToken } from '@store/index';
 import LocalStorage from 'common/utils/LocalStorage';
 import { showWaitFluent, showActionSubmitted, hideWaitFluent, hideActionSubmitted } from 'common/components/tools/Modal';
 import { showToast } from 'common/components/tools/Toast';
@@ -150,8 +150,8 @@ const TransferNormalMode: React.FC = () => {
 
 	const metaMaskAccount = useMetaMaskAccount();
 	const metaMaskStatus = useMetaMaskStatus();
-	const metaMaskBalance = useMetaMaskBalance();
-	const maxAvailableBalance = useMaxAvailableBalance();
+	const currentTokenBalance = useCurrentTokenBalance('eSpace');
+	const maxAvailableBalance = useMaxAvailableBalance('eSpace');
 
 	const setAmount = useCallback((val: string) => {
 		const _val = val.replace(/(?:\.0*|(\.\d+?)0+)$/, '$1');
@@ -163,7 +163,7 @@ const TransferNormalMode: React.FC = () => {
 		bridgeReceived.textContent = _val ? `${_val} ${currentToken.symbol}` : '--';
 	}, [currentToken])
 
-	useEffect(() => setAmount(''), [metaMaskAccount]);
+	useEffect(() => setAmount(''), [metaMaskAccount, currentToken]);
 
 	const handleCheckAmount = useCallback(async (evt: React.FocusEvent<HTMLInputElement, Element>) => {
 		if (!evt.target.value) return;
@@ -222,19 +222,19 @@ const TransferNormalMode: React.FC = () => {
 			
 			<p className="text-[14px] leading-[18px] text-[#3D3F4C]">
 				<span className="text-[#15C184]" id="eSpace-balance">eSpace</span> Balance:
-				{metaMaskBalance ? 
+				{currentTokenBalance ? 
 					(
-						(metaMaskBalance.toDecimalMinUnit() !== '0' && Unit.lessThan(metaMaskBalance, Unit.fromStandardUnit('0.000001'))) ?
-						<Tooltip text={`${metaMaskBalance.toDecimalStandardUnit()} ${currentToken.symbol}`} placement="right">
+						(currentTokenBalance.toDecimalMinUnit() !== '0' && Unit.lessThan(currentTokenBalance, Unit.fromStandardUnit('0.000001'))) ?
+						<Tooltip text={`${currentTokenBalance.toDecimalStandardUnit()} ${currentToken.symbol}`} placement="right">
 							<span
 								className="ml-[4px]"
 							>
 								＜0.000001 {currentToken.symbol}
 							</span>
 						</Tooltip>
-						: <span className="ml-[4px]">{`${metaMaskBalance} ${currentToken.symbol}`}</span>
+						: <span className="ml-[4px]">{`${currentTokenBalance} ${currentToken.symbol}`}</span>
 					)
-					: <span className="ml-[4px]">--</span>
+					: <span className="ml-[4px]">{metaMaskStatus === 'active' ? 'loading...' : '--'}</span>
 				}
 			</p>
 			<p className="mt-[8px] text-[14px] leading-[18px] text-[#3D3F4C]" id="will-receive">
@@ -295,6 +295,8 @@ const TransferAdvancedMode: React.FC = () => {
 
 const Withdraw2Core: React.FC = memo(() => {
 	const { currentToken } = useToken('eSpace');
+	const hasESpaceMirrorAddress = useESpaceMirrorAddress();
+	const withdrawableBalance = useESpaceWithdrawableBalance();
 
 	return (
 		<>
@@ -315,7 +317,7 @@ const Withdraw2Core: React.FC = memo(() => {
 
 			<div className='flex items-center mb-[20px]'>
 				<span className='mr-[8px] text-[14px] text-[#A9ABB2]'>Withdrawable:</span>
-				<span className='text-[16px] text-[#3D3F4C] font-medium'>{`-- ${currentToken.symbol}`}</span>
+				<span className='text-[16px] text-[#3D3F4C] font-medium'>{`${withdrawableBalance ? withdrawableBalance.toDecimalStandardUnit() : (hasESpaceMirrorAddress ? 'loading...' : '--')} ${currentToken.symbol}`}</span>
 			</div>
 
 			<AuthConnectButton

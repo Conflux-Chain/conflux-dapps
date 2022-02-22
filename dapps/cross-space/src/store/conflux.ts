@@ -1,32 +1,9 @@
 import create from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { store as fluentStore } from '@cfxjs/use-wallet';
-import { Conflux, format, address } from 'js-conflux-sdk'
-import { CrossSpaceCall } from 'js-conflux-sdk/src/contract/internal/index.js'
-
-const confluxNetworkConfig = {
-    '1029': {
-        networkId: 1029,
-        url: 'https://main.confluxrpc.com',
-        eSpace: {
-            name: 'Conflux eSpace',
-            url: 'https://evm.confluxrpc.com',
-            networkId: 1030,
-            scan: 'https://evm.confluxscan.net',
-        },
-    },
-    '1': {
-        networkId: 1,
-        url: 'https://test.confluxrpc.com',
-        eSpace: {
-            name: 'Conflux eSpace (Testnet)',
-            url: 'https://evmtestnet.confluxrpc.com',
-            networkId: 71,
-            scan: 'https://evmtestnet.confluxscan.net',
-        },
-    },
-} as const;
-
+import { Conflux, format, address } from 'js-conflux-sdk';
+import { CrossSpaceCall } from 'js-conflux-sdk/src/contract/internal/index.js';
+import { currentNetworkStore } from './currentNetwork';
 
 interface ConfluxStore {
     conflux?: Conflux;
@@ -57,15 +34,20 @@ fluentStore.subscribe(state => state.accounts, accounts => {
     confluxStore.setState({ eSpaceMirrorAddress: (address as any).cfxMappedEVMSpaceAddress(account) });
 });
 
-// get conflux & crossSpaceContractAddress & crossSpaceContract
-fluentStore.subscribe(state => state.chainId, chainId => {
-    if (!confluxNetworkConfig[chainId as '1']) return;
-    const conflux = new Conflux(confluxNetworkConfig[chainId as '1']);
+// get conflux & crossSpaceContract
+currentNetworkStore.subscribe(state => state.core, coreNetwork => {
+    if (!coreNetwork) return;
+    const conflux = new Conflux(coreNetwork as any);
     confluxStore.setState({
         conflux,
-        crossSpaceContractAddress: format.address(CrossSpaceCall.address, +chainId!),
         crossSpaceContract: conflux.Contract(CrossSpaceCall) as unknown as ConfluxStore['crossSpaceContract'],
     });
+});
+
+// get crossSpaceContractAddress
+fluentStore.subscribe(state => state.chainId, chainId => {
+    if (!chainId) return;
+    confluxStore.setState({ crossSpaceContractAddress: format.address(CrossSpaceCall.address, +chainId!) });
 });
 
 const selectors = {

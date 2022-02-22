@@ -1,0 +1,26 @@
+{
+    "1029": {
+        "name": "Conflux Hydra", 
+        "url": "https://main.confluxrpc.com",
+        "networkId": "1029",
+        "scan": "",
+        "eSpace": {
+            "name": "Conflux eSpace",
+            "url": "https://evm.confluxrpc.com",
+            "networkId": "1030",
+            "scan": "https://evm.confluxscan.net"
+        }
+    },
+    "1": {
+        "name": "Conflux Testnet", 
+        "url": "https://test.confluxrpc.com",
+        "networkId": "1",
+        "scan": "",
+        "eSpace": {
+            "name": "Conflux eSpace (Testnet)",
+            "url": "https://evmtestnet.confluxrpc.com",
+            "networkId": "71",
+            "scan": "https://evmtestnet.confluxscan.net"
+        }
+    }
+}

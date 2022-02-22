@@ -3,10 +3,12 @@ import create from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import LocalStorage from 'common/utils/LocalStorage';
 import Cache from 'common/utils/LRUCache';
+import CFX from '@assets/CFX.svg';
 
 const nativeToken = {
     name: "Conflux Network",
     symbol: "CFX",
+    icon: CFX,
     isNative: true
 } as Token;
 
@@ -16,6 +18,7 @@ export interface Token {
     name: string;
     symbol: string;
     decimals: string;
+    icon: string;
     isNative?: true;
 }
 
@@ -38,7 +41,7 @@ const CommonTokenCount = 10;
 const coreCommonTokensCache = new Cache<Token>(CommonTokenCount - 1, 'cross-space-common-tokens-core');
 const eSpaceCommonTokensCache = new Cache<Token>(CommonTokenCount - 1, 'cross-space-common-tokens-eSpace');
 
-const useToken = (space: 'core' | 'eSpace') => {
+export const useToken = (space: 'core' | 'eSpace') => {
     const currentToken = currentTokenStore(selectors[space]);
 
     const [commonTokens, _updateCommonTokens] = useState(() => [nativeToken, ...(space === 'core' ? coreCommonTokensCache : eSpaceCommonTokensCache).toArr()]);
@@ -65,5 +68,3 @@ const useToken = (space: 'core' | 'eSpace') => {
 
     return { currentToken, setCurrentToken, commonTokens, updateCommonTokens };
 }
-
-export default useToken;

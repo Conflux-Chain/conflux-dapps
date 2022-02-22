@@ -1,14 +1,13 @@
 import React from 'react';
 import cx from 'clsx';
-import CFX from '@assets/CFX.svg';
 import ArrowRight from '@assets/arrow-right.svg';
-import useToken from './useToken';
+import { useToken } from '@store/index';
 import TokenListDropdown from './TokenListDropdown';
 import './index.css';
 
 const TokenList: React.FC<{ space: 'core' | 'eSpace'; }> = ({ space }) => {
     const { currentToken } = useToken(space);
-
+    
     return (
         <TokenListDropdown space={space}>
             {(triggerDropdown, visible) => 
@@ -16,7 +15,7 @@ const TokenList: React.FC<{ space: 'core' | 'eSpace'; }> = ({ space }) => {
                     className="relative flex items-center h-[48px] pl-[12px] rounded-[2px] border border-[#EAECEF] text-[14px] text-[#3D3F4C] cursor-pointer"
                     onClick={triggerDropdown}
                 >
-                    <img src={CFX} alt="token img" className="mr-[8px] w-[24px] h-[24px]" />
+                    <img src={currentToken.icon} alt="token img" className="mr-[8px] w-[24px] h-[24px]" />
         
                     <span className="mr-[6px]">{currentToken.symbol}</span>
         

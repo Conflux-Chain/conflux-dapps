@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect, memo, useMemo } from 'react';
+import create from 'zustand';
 import cx from 'clsx';
 import { shortenAddress } from '@fluent-wallet/shorten-address';
 import useClipboard from 'react-use-clipboard'
@@ -7,11 +8,30 @@ import CustomScrollbar from 'custom-react-scrollbar';
 import Dropdown from 'common/components/Dropdown';
 import Input from 'common/components/Input';
 import useI18n from 'common/hooks/useI18n';
-import InnerTokenList from './native-tokenlist.json';
-import useToken, { type Token } from './useToken';
-import CFX from '@assets/CFX.svg';
+import { useToken, type Token } from '@store/index';
 import Copy from 'common/assets/copy.svg';
 import Search from 'common/assets/search.svg';
+
+interface TokenListStore {
+    tokenList: { core_native_tokens: Array<Token>; evm_native_tokens: Array<Token>; };
+    fetchTokenList: () => Promise<void>;
+}
+const tokenListStore = create<TokenListStore>((set) => ({
+    tokenList: { core_native_tokens: [], evm_native_tokens: [] },
+    fetchTokenList: async () => {
+        try {
+            const res = await fetch('https://raw.githubusercontent.com/Conflux-Chain/conflux-evm-bridge/main/native_token_list_testnet.json').then(data => data.json());
+            set({ tokenList: res });
+        } catch (err) {
+            console.log('fetchTokenList error: ', err);
+        }
+    }
+}));
+tokenListStore.getState().fetchTokenList();
+
+const tokenListSelector = (state: TokenListStore) => state.tokenList
+const useTokenList = () => tokenListStore(tokenListSelector);
+
 
 const transitions = {
     en: {
@@ -71,10 +91,12 @@ const DropdownContent: React.FC<{ space: 'core' | 'eSpace'; visible: boolean; }>
     const [filter, setFilter] = useState('');
     const handleFilterChange = useCallback<React.FormEventHandler<HTMLInputElement>>(debounce((evt) => setFilter((evt.target as HTMLInputElement).value), 200), []);
 
+    const tokenList = useTokenList();
     const filterTokenList = useMemo(() => {
-        if (!filter) return InnerTokenList[space];
-        return InnerTokenList[space].filter(token => [token.name, token.symbol, token.native_address].some(str => str.toLowerCase().indexOf(filter.toLocaleLowerCase()) !== -1));
-    }, [filter]);
+        const key = space === 'core' ? 'core_native_tokens' : 'evm_native_tokens';
+        if (!filter) return tokenList[key];
+        return tokenList[key].filter(token => [token.name, token.symbol, token.native_address].some(str => str.search(new RegExp(filter, 'i')) !== -1));
+    }, [filter, tokenList]);
     
     return (
         <>
@@ -128,7 +150,7 @@ const TokenItem = memo<Token & { setCurrentToken: (token: Token) => void; isCurr
             onClick={() => setCurrentToken(token)}
         >
             <div className="inline-flex items-center">
-                <img src={CFX} alt="token img" className="w-[28px] h-[28px] mr-[8px]" />
+                <img src={token.icon} alt="token img" className="w-[28px] h-[28px] mr-[8px]" />
 
                 <div className='h-[36px]'>
                     <p className='text-[14px] text-[#3D3F4C]'>{symbol}</p>

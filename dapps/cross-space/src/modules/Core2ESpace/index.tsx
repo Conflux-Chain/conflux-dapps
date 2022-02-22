@@ -5,7 +5,7 @@ import cx from 'clsx';
 import { useAccount as useFluentAccount, useStatus as useFluentStatus, sendTransaction, trackBalanceChangeOnce, Unit } from '@cfxjs/use-wallet';
 import { connect as connectMetaMask, useStatus as useMetaMaskStatus, useAccount as useMetaMaskAccount } from '@cfxjs/use-wallet/dist/ethereum';
 import { useCrossSpaceContract, useCrossSpaceContractAddress, useMaxAvailableBalance, useCurrentTokenBalance } from '@store/index';
-import useToken from '@components/TokenList/useToken';
+import { useToken } from '@store/index';
 import { showWaitFluent, showActionSubmitted, hideWaitFluent, hideActionSubmitted } from 'common/components/tools/Modal';
 import { showToast } from 'common/components/tools/Toast';
 import AuthConnectButton from 'common/modules/AuthConnectButton';
@@ -59,7 +59,7 @@ const Core2ESpace: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 		eSpaceReceived.textContent = _val ? `${_val} ${currentToken.symbol}` : '--';
 	}, [currentToken])
 
-	useEffect(() => setAmount(''), [fluentAccount])
+	useEffect(() => setAmount(''), [fluentAccount, currentToken])
 
 	const onClickUseMetaMaskAccount = useCallback(() => {
 		if (metaMaskStatus === 'active') {
@@ -138,7 +138,7 @@ const Transfer2ESpace: React.FC<{ register: UseFormRegister<FieldValues>; setAmo
 
 	const fluentStatus = useFluentStatus();
 	const currentTokenBalance = useCurrentTokenBalance('core');
-	const maxAvailableBalance = useMaxAvailableBalance();
+	const maxAvailableBalance = useMaxAvailableBalance('core');
 
 	const handleCheckAmount = useCallback(async (evt: React.FocusEvent<HTMLInputElement, Element>) => {
 		if (!evt.target.value) return;
@@ -195,7 +195,7 @@ const Transfer2ESpace: React.FC<{ register: UseFormRegister<FieldValues>; setAmo
 						</Tooltip>
 						: <span className="ml-[4px]">{`${currentTokenBalance} ${currentToken.symbol}`}</span>
 					)
-					: <span className="ml-[4px]">--</span>
+					: <span className="ml-[4px]">{fluentStatus === 'active' ? 'loading...' : '--'}</span>
 				}
 			</p>
 			<p className="mt-[20px] text-[14px] leading-[18px] text-[#3D3F4C]" id="will-receive">
