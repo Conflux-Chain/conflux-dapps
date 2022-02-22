@@ -4,14 +4,14 @@ import { shortenAddress } from '@fluent-wallet/shorten-address';
 import useClipboard from 'react-use-clipboard'
 import { debounce } from 'lodash-es';
 import CustomScrollbar from 'custom-react-scrollbar';
-import Dropdown from 'ui/components/Dropdown';
-import Input from 'ui/components/Input';
-import useI18n from 'ui/hooks/useI18n';
-import NativeTokenList from './native-tokenlist.json';
+import Dropdown from 'common/components/Dropdown';
+import Input from 'common/components/Input';
+import useI18n from 'common/hooks/useI18n';
+import InnerTokenList from './native-tokenlist.json';
 import useToken, { type Token } from './useToken';
 import CFX from '@assets/CFX.svg';
-import Copy from 'ui/assets/copy.svg';
-import Search from 'ui/assets/search.svg';
+import Copy from 'common/assets/copy.svg';
+import Search from 'common/assets/search.svg';
 
 const transitions = {
     en: {
@@ -72,8 +72,8 @@ const DropdownContent: React.FC<{ space: 'core' | 'eSpace'; visible: boolean; }>
     const handleFilterChange = useCallback<React.FormEventHandler<HTMLInputElement>>(debounce((evt) => setFilter((evt.target as HTMLInputElement).value), 200), []);
 
     const filterTokenList = useMemo(() => {
-        if (!filter) return NativeTokenList[space];
-        return NativeTokenList[space].filter(token => [token.name, token.symbol, token.native_address].some(str => str.toLowerCase().indexOf(filter.toLocaleLowerCase()) !== -1));
+        if (!filter) return InnerTokenList[space];
+        return InnerTokenList[space].filter(token => [token.name, token.symbol, token.native_address].some(str => str.toLowerCase().indexOf(filter.toLocaleLowerCase()) !== -1));
     }, [filter]);
     
     return (

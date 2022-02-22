@@ -1,9 +1,9 @@
 import { useState, useCallback, useEffect } from 'react';
 import CustomScrollbar from 'custom-react-scrollbar';
-import Navbar from 'ui/modules/Navbar';
+import Navbar from 'common/modules/Navbar';
 import Modules from '@modules/index';
-import { LocaleContext } from 'ui/hooks/useI18n';
-import { ModeContext } from 'ui/hooks/useMode';
+import { LocaleContext } from 'common/hooks/useI18n';
+import { ModeContext } from 'common/hooks/useMode';
 
 const AppRouter = () => {
     const [mode, setMode] = useState<'light' | 'dark'>(() => {

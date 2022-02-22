@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useSpring } from '@react-spring/web';
-import useI18n from 'ui/hooks/useI18n';
-import LocalStorage from 'ui/utils/LocalStorage';
+import useI18n from 'common/hooks/useI18n';
+import LocalStorage from 'common/utils/LocalStorage';
 import Core2ESpace from './Core2ESpace';
 import ESpace2Core from './ESpace2Core'
 import './index.css';

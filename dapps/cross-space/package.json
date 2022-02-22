@@ -21,7 +21,7 @@
         "react-hook-form": "^7.27.0",
         "react-use-clipboard": "^1.0.7",
         "tippy.js": "^6.3.7",
-        "ui": "workspace:*",
+        "common": "workspace:*",
         "zustand": "^3.6.9"
     },
     "devDependencies": {

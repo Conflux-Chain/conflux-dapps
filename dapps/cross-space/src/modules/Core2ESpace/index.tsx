@@ -1,18 +1,18 @@
-import React, {useCallback, memo, useEffect} from 'react';
-import {a} from '@react-spring/web';
-import {useForm, type UseFormRegister, type FieldValues} from 'react-hook-form';
+import React, { useCallback, useEffect, memo } from 'react';
+import { a } from '@react-spring/web';
+import { useForm, type UseFormRegister, type FieldValues } from 'react-hook-form';
 import cx from 'clsx';
-import { connect as connectFluent, useAccount as useFluentAccount, useBalance as useFluentBalance, useStatus as useFluentStatus, sendTransaction, trackBalanceChangeOnce, Unit } from '@cfxjs/use-wallet';
+import { useAccount as useFluentAccount, useStatus as useFluentStatus, sendTransaction, trackBalanceChangeOnce, Unit } from '@cfxjs/use-wallet';
 import { connect as connectMetaMask, useStatus as useMetaMaskStatus, useAccount as useMetaMaskAccount } from '@cfxjs/use-wallet/dist/ethereum';
-import { useCrossSpaceContract, useCrossSpaceContractAddress, useMaxAvailableBalance } from '@store/index';
+import { useCrossSpaceContract, useCrossSpaceContractAddress, useMaxAvailableBalance, useCurrentTokenBalance } from '@store/index';
 import useToken from '@components/TokenList/useToken';
-import { showWaitFluent, showActionSubmitted, hideWaitFluent, hideActionSubmitted } from 'ui/components/tools/Modal';
-import { showToast } from 'ui/components/tools/Toast';
-import { AuthConnectButton } from 'ui/modules/Navbar/WalletConnector/ConnectorDropdown';
-import Input from 'ui/components/Input';
-import Tooltip from 'ui/components/Tooltip';
-import useI18n from 'ui/hooks/useI18n';
-import MetaMask from 'ui/assets/MetaMask.svg';
+import { showWaitFluent, showActionSubmitted, hideWaitFluent, hideActionSubmitted } from 'common/components/tools/Modal';
+import { showToast } from 'common/components/tools/Toast';
+import AuthConnectButton from 'common/modules/AuthConnectButton';
+import Input from 'common/components/Input';
+import Tooltip from 'common/components/Tooltip';
+import useI18n from 'common/hooks/useI18n';
+import MetaMask from 'common/assets/MetaMask.svg';
 import TokenList from '@components/TokenList';
 import TurnPage from '@assets/turn-page.svg';
 import ArrowLeft from '@assets/arrow-left.svg';
@@ -40,13 +40,14 @@ const Core2ESpace: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 	const i18n = useI18n(transitions);
 	const { register, handleSubmit, setValue, watch } = useForm();
 
-	const { currentToken } = useToken();
+	const { currentToken } = useToken('core');
 
 	const fluentAccount = useFluentAccount();
 	const crossSpaceContract = useCrossSpaceContract();
 	const crossSpaceContractAddress = useCrossSpaceContractAddress();
 	const metaMaskAccount = useMetaMaskAccount();
 	const metaMaskStatus = useMetaMaskStatus();
+	const isUsedCurrentMetaMaskAccount = metaMaskStatus === 'active' && watch("eSpaceAddress") === metaMaskAccount;
 
 	const setAmount = useCallback((val: string) => {
 		const _val = val.replace(/(?:\.0*|(\.\d+?)0+)$/, '$1');
@@ -60,7 +61,6 @@ const Core2ESpace: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 
 	useEffect(() => setAmount(''), [fluentAccount])
 
-	const isUsedCurrentMetaMaskAccount = metaMaskStatus === 'active' && watch("eSpaceAddress") === metaMaskAccount;
 	const onClickUseMetaMaskAccount = useCallback(() => {
 		if (metaMaskStatus === 'active') {
 			setValue('eSpaceAddress', metaMaskAccount!);
@@ -79,7 +79,7 @@ const Core2ESpace: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 				<div className="p-[16px] rounded-[8px] border border-[#EAECEF] mb-[16px]">
 					<p className='relative flex items-center mb-[12px]'>
 						<span className='mr-[8px] text-[14px] text-[#A9ABB2]'>To:</span>
-						<span className='ml-[4px] mr-[8px] text-[16px] text-[#15C184] font-medium'>Conflux eSpace</span>
+						<span className='mr-[8px] text-[16px] text-[#15C184] font-medium'>Conflux eSpace</span>
 						
 						<span
 							className='turn-page flex justify-center items-center w-[28px] h-[28px] rounded-full cursor-pointer transition-transform hover:scale-105'
@@ -134,10 +134,10 @@ const Core2ESpace: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 const Transfer2ESpace: React.FC<{ register: UseFormRegister<FieldValues>; setAmount: (val: string) => void; }> = memo(({register, setAmount}) => {
 	const i18n = useI18n(transitions);
 
-	const { currentToken } = useToken();
+	const { currentToken } = useToken('core');
 
 	const fluentStatus = useFluentStatus();
-	const fluentBalance = useFluentBalance();
+	const currentTokenBalance = useCurrentTokenBalance('core');
 	const maxAvailableBalance = useMaxAvailableBalance();
 
 	const handleCheckAmount = useCallback(async (evt: React.FocusEvent<HTMLInputElement, Element>) => {
@@ -183,17 +183,17 @@ const Transfer2ESpace: React.FC<{ register: UseFormRegister<FieldValues>; setAmo
 
 			<p className="text-[14px] leading-[18px] text-[#3D3F4C]">
 				<span className="text-[#2959B4]" id="core-balance">Core</span> Balance:
-				{fluentBalance ? 
+				{currentTokenBalance ? 
 					(
-						(fluentBalance.toDecimalMinUnit() !== '0' && Unit.lessThan(fluentBalance, Unit.fromStandardUnit('0.000001'))) ?
-						<Tooltip text={`${fluentBalance.toDecimalStandardUnit()} ${currentToken.symbol}`} placement="right">
+						(currentTokenBalance.toDecimalMinUnit() !== '0' && Unit.lessThan(currentTokenBalance, Unit.fromStandardUnit('0.000001'))) ?
+						<Tooltip text={`${currentTokenBalance.toDecimalStandardUnit()} ${currentToken.symbol}`} placement="right">
 							<span
 								className="ml-[4px]"
 							>
 								＜0.000001 {currentToken.symbol}
 							</span>
 						</Tooltip>
-						: <span className="ml-[4px]">{`${fluentBalance} ${currentToken.symbol}`}</span>
+						: <span className="ml-[4px]">{`${currentTokenBalance} ${currentToken.symbol}`}</span>
 					)
 					: <span className="ml-[4px]">--</span>
 				}
