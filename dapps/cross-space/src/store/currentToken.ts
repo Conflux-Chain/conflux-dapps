@@ -7,7 +7,7 @@ import CFX from '@assets/CFX.svg';
 import { confluxStore } from './conflux';
 import CRC20TokenABI from '@contracts/abi/ERC20.json'
 
-const nativeToken = {
+export const nativeToken = {
     name: "Conflux Network",
     symbol: "CFX",
     icon: CFX,
@@ -82,11 +82,13 @@ export const useToken = (space: 'core' | 'eSpace') => {
     }, [space]);
 
     const setCurrentToken = useCallback((token: Token) => {
+        // currentTokenStore.setState({ core: token, eSpace: token });
         if (space === 'core') {
             currentTokenStore.setState({ core: token });
         } else {
             currentTokenStore.setState({ eSpace: token });
         }
+
         LocalStorage.set(`current-${space}-token`, token, 0, 'cross-space');
     }, [space]);
 

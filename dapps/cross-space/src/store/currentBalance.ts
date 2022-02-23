@@ -86,7 +86,7 @@ const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
                 method: `${rpcPrefix as 'cfx'}_call`,
                 params: [{
                     data:  '0x70a08231000000000000000000000000' + format.hexAddress(account).slice(2),
-                    to: currentToken.native_address
+                    to: currentToken.nativeSpace === space ? currentToken.native_address : currentToken.mapped_address
                 }, 
                 space === 'core' ? 'latest_state' : 'latest']
             });

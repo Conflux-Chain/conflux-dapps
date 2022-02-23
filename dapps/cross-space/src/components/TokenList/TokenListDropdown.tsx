@@ -1,15 +1,21 @@
 import React, { useState, useCallback, useEffect, memo, useMemo } from 'react';
 import create from 'zustand';
 import cx from 'clsx';
+import { useStatus as useFluentStatus, watchAsset as watchAssetFluent } from '@cfxjs/use-wallet';
+import { useStatus as useMetaMaskStatus, watchAsset as watchAssetMetaMask } from '@cfxjs/use-wallet/dist/ethereum';
 import { shortenAddress } from '@fluent-wallet/shorten-address';
 import useClipboard from 'react-use-clipboard'
 import { debounce } from 'lodash-es';
+import { useSingleton } from '@tippyjs/react';
 import CustomScrollbar from 'custom-react-scrollbar';
 import Dropdown from 'common/components/Dropdown';
+import Tooltip from 'common/components/Tooltip';
 import Input from 'common/components/Input';
+import { showToast } from 'common/components/tools/Toast';
 import useI18n from 'common/hooks/useI18n';
-import { useToken, type Token } from '@store/index';
+import { useToken, nativeToken, type Token } from '@store/index';
 import Copy from 'common/assets/copy.svg';
+import Add from 'common/assets/add-to-wallet.svg';
 import Search from 'common/assets/search.svg';
 
 interface TokenListStore {
@@ -20,17 +26,16 @@ interface TokenListStore {
 type FetchRes = { core_native_tokens: Array<Token>; evm_native_tokens: Array<Token>; };
 
 const tokenListStore = create<TokenListStore>((set) => ({
-    tokenList: [],
+    tokenList: [nativeToken],
     fetchTokenList: async () => {
         try {
             const res: FetchRes = await fetch('https://raw.githubusercontent.com/Conflux-Chain/conflux-evm-bridge/main/native_token_list_testnet.json').then(data => data.json());
-            const tokenList = [...res?.core_native_tokens, ...res?.evm_native_tokens]
+            const fetchedTokenList = [...res?.core_native_tokens, ...res?.evm_native_tokens]
                 .map(token => ({
                     ...token,
                     nativeSpace: token.native_address.startsWith('0x') ? 'eSpace' : 'core'
                 }) as Token);
-            set({ tokenList: tokenList });
-            console.log('fetchTokenList: ', tokenList);
+            set({ tokenList: [nativeToken, ...fetchedTokenList] });
         } catch (err) {
             console.error('fetchTokenList error: ', err);
         }
@@ -105,7 +110,11 @@ const DropdownContent: React.FC<{ space: 'core' | 'eSpace'; visible: boolean; }>
         if (!filter) return tokenList;
         return tokenList.filter(token => [token.name, token.symbol, token.native_address].some(str => str.search(new RegExp(filter, 'i')) !== -1));
     }, [filter, tokenList]);
-    
+
+    const [copyAddressSource, copyAddressSingleton] = useSingleton();
+    const [addToWalletSource, addToWalletSingleton] = useSingleton();
+    const walletStatus = (space === 'core' ? useFluentStatus : useMetaMaskStatus)();
+
     return (
         <>
             <div className='px-[16px]'>
@@ -140,17 +149,62 @@ const DropdownContent: React.FC<{ space: 'core' | 'eSpace'; visible: boolean; }>
 
             <p className='mt-[12px] mb-[4px] px-[16px]'>{i18n.token_list}</p>
             <CustomScrollbar className='token-list'>
-                {filterTokenList.map(token => <TokenItem key={token.symbol} isCurrent={token.symbol === currentToken.symbol} setCurrentToken={setCurrentToken} {...token} />)}
+                {filterTokenList.map(token =>
+                    <TokenItem
+                        key={token.symbol}
+                        isCurrent={token.symbol === currentToken.symbol}
+                        setCurrentToken={setCurrentToken}
+                        space={space}
+                        copyAddressSingleton={copyAddressSingleton}
+                        addToWalletSingleton={addToWalletSingleton}
+                        walletStatus={walletStatus}
+                        {...token}
+                    />
+                )}
             </CustomScrollbar>
+            <Tooltip text="Copy Address" singleton={copyAddressSource} />
+            <Tooltip text={`Add To ${space === 'core' ? 'Fluent' : 'MetaMask'}`} singleton={addToWalletSource} />
         </>
     );
 };
 
 
-const TokenItem = memo<Token & { setCurrentToken: (token: Token) => void; isCurrent: boolean; }>(({ isCurrent, setCurrentToken, ...token}) => {
-    const { symbol, name, native_address } = token;
+interface TokenItemProps extends Token {
+    setCurrentToken: (token: Token) => void;
+    isCurrent: boolean;
+    space: 'core' | 'eSpace';
+    walletStatus: ReturnType<typeof useFluentStatus>;
+    copyAddressSingleton: ReturnType<typeof useSingleton>[1];
+    addToWalletSingleton: ReturnType<typeof useSingleton>[1];
+}
 
-    const [isCopied, setCopied] = useClipboard(native_address ?? '', { successDuration: 1500 });
+const TokenItem = memo<TokenItemProps>(({ isCurrent, setCurrentToken, space, walletStatus, copyAddressSingleton, addToWalletSingleton, ...token}) => {
+    const { symbol, name, native_address, mapped_address, nativeSpace, icon, isNative } = token;
+    const usedAddress = nativeSpace === space ? native_address : mapped_address;
+
+    const [isCopied, setCopied] = useClipboard(usedAddress ?? '', { successDuration: 1500 });
+    const handleClickCopy = useCallback<React.MouseEventHandler<HTMLImageElement>>((evt) => {
+        evt.stopPropagation();
+        setCopied();
+    }, []);
+
+    const handleClickAddToWallet = useCallback<React.MouseEventHandler<HTMLImageElement>>(async (evt) => {
+        evt.stopPropagation();
+        try {
+            await (space === 'core' ? watchAssetFluent : watchAssetMetaMask)({
+                type: 'ERC20',
+                options: {
+                    address: usedAddress,
+                    symbol: symbol,
+                    decimals: 18,
+                    image: icon
+                },
+            });
+            space === 'core' && showToast(`Add ${symbol} to ${space === 'core' ? 'Fluent' : 'MetaMask'} success!`);
+        } catch (err) {
+            console.error((`Add ${symbol} to ${space === 'core' ? 'Fluent' : 'MetaMask'} failed!`));
+        }
+    }, [space]);
 
     return (
         <div
@@ -166,10 +220,20 @@ const TokenItem = memo<Token & { setCurrentToken: (token: Token) => void; isCurr
                 </div>
             </div>
 
-            <div className='flex items-center'>
-                <span className='text-[12px] text-[#808BE7]'>{shortenAddress(native_address)}</span>
-                <img src={Copy} alt="copy image" className='ml-[8px] w-[18px] h-[18px]'/>
-            </div>
+
+            {!token.isNative &&
+                <div className='flex items-center'>
+                    <span className='text-[12px] text-[#808BE7]'>{shortenAddress(usedAddress)}</span>
+                    {walletStatus === 'active' &&
+                        <Tooltip singleton={addToWalletSingleton}>
+                            <img src={Add} alt="copy image" className='ml-[8px] w-[16px] h-[16px] cursor-pointer' onClick={handleClickAddToWallet}/>
+                        </Tooltip>
+                    }
+                    <Tooltip singleton={copyAddressSingleton}>
+                        <img src={Copy} alt="copy image" className='ml-[8px] w-[18px] h-[18px] cursor-pointer' onClick={handleClickCopy}/>
+                    </Tooltip>
+                </div>
+            }
         </div>
     );
 });

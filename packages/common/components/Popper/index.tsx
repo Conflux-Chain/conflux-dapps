@@ -7,7 +7,7 @@ import './index.css';
 
 interface PropsEnhance {
     Content: React.ReactNode;
-    children: React.ReactElement<any>;
+    children?: React.ReactElement<any>;
     className?: string;
     style?: CSSProperties;
     arrow?: boolean;
