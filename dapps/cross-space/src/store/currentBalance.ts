@@ -1,15 +1,16 @@
 import create from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
-import shallow from 'zustand/shallow'
+import shallow from 'zustand/shallow';
 import { store as fluentStore, Unit, provider as fluentProvider } from '@cfxjs/use-wallet';
 import { store as metaMaskStore, provider as metaMaskProvider } from '@cfxjs/use-wallet/dist/ethereum';
 import { confluxStore } from './conflux';
-import { format } from 'js-conflux-sdk'
-import { estimate } from '@fluent-wallet/estimate-tx'
+import { format } from 'js-conflux-sdk';
+import { estimate } from '@fluent-wallet/estimate-tx';
 import { currentTokenStore } from './currentToken';
 
 interface CoreBalanceStore {
     currentTokenBalance?: Unit;
+    needApprove?: boolean;
     maxAvailableBalance?: Unit;
 }
 
@@ -19,12 +20,14 @@ interface ESpaceBalanceStore extends CoreBalanceStore {
 
 const coreBalanceStore = create(subscribeWithSelector(() => ({
     currentTokenBalance: undefined,
+    needApprove: undefined,
     maxAvailableBalance: undefined,
 } as CoreBalanceStore)));
 
 
 const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
     currentTokenBalance: undefined,
+    needApprove: undefined,
     maxAvailableBalance: undefined,
     withdrawableBalance: undefined
 } as ESpaceBalanceStore)));
@@ -40,7 +43,7 @@ const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
 
     const getAccount = () => type === 'eSpaceMirrorAddress' ? confluxStore.getState().eSpaceMirrorAddress : walletStore.getState().accounts?.[0]
 
-    const handleBalanceChanged = (newBalance?: Unit) => {
+    const handleTokenBalanceChanged = (newBalance?: Unit) => {
         if (!newBalance) return;
         const preBalance = balanceStore.getState()[balanceKey];
 
@@ -56,14 +59,17 @@ const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
         }
 
         const currentToken = currentTokenStore.getState()[space];
+        const currentTokenContract = currentTokenStore.getState()[space + 'TokenContract' as 'coreTokenContract'];
+        const confluxSideContractAddress = confluxStore.getState().confluxSideContractAddress;
+
         if (currentToken.isNative) {
             if (type === 'eSpaceMirrorAddress') {
                 try {
-                    const minUnitBalance = await provider?.request({
+                    const minUnitBalance = await provider!.request({
                         method: 'eth_getBalance',
                         params: [account, 'latest'],
                     });
-                    
+
                     return Unit.fromMinUnit(minUnitBalance);
                 }  catch (err) {
                     console.error('Get eSpaceMirrorAddress token balance error: ', err);
@@ -76,16 +82,32 @@ const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
         }
 
         try {
-            const minUnitBalance = await provider?.request({
-                method: `${rpcPrefix}_call`,
+            const minUnitBalance = await provider!.request({
+                method: `${rpcPrefix as 'cfx'}_call`,
                 params: [{
                     data:  '0x70a08231000000000000000000000000' + format.hexAddress(account).slice(2),
                     to: currentToken.native_address
                 }, 
                 space === 'core' ? 'latest_state' : 'latest']
             });
-            
-            return Unit.fromMinUnit(minUnitBalance);
+
+            const balance = Unit.fromMinUnit(minUnitBalance);
+
+            if (type !== 'eSpaceMirrorAddress' && currentTokenContract && confluxSideContractAddress) {
+                const approvalMinUnitBalance = await provider!.request({
+                    method: `${rpcPrefix as 'cfx'}_call`,
+                    params: [{
+                        data: currentTokenContract.allowance(account, confluxSideContractAddress).data,
+                        to: currentToken.native_address
+                    }, 
+                    space === 'core' ? 'latest_state' : 'latest']
+                });
+
+                const approvalBalance = Unit.fromMinUnit(approvalMinUnitBalance);
+                balanceStore.setState({ needApprove: !Unit.lessThan(balance, approvalBalance)})
+            }
+
+            return balance;
         } catch (err) {
             console.error('Get current crc20 token balance error: ', err);
             throw err;
@@ -95,10 +117,17 @@ const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
     let balanceTimer: NodeJS.Timeout | null = null;
     let setUndefinedTimer: NodeJS.Timeout | null = null;
     const trackCurrentTokenBalance = async () => {
+        if (type !== 'eSpaceMirrorAddress') {
+            const currentToken = currentTokenStore.getState()[space];
+            if (currentToken.isNative) {
+                balanceStore.setState({ needApprove: false });
+            }
+        }
+
         // Prevent interface jitter from having a value to undefined to having a value again in a short time when switching tokens.
         // Shortly fail to get the value and then turn to undefined
         setUndefinedTimer = setTimeout(() => {
-            balanceStore.setState({ [balanceKey]: undefined });
+            balanceStore.setState({ [balanceKey]: undefined, needApprove: undefined });
             setUndefinedTimer = null;
         }, 50);
 
@@ -116,7 +145,7 @@ const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
             return;
         }
 
-        const getAndSetBalance = () => getBalance().then(balance => handleBalanceChanged(balance));
+        const getAndSetBalance = () => getBalance().then(balance => handleTokenBalanceChanged(balance));
         getAndSetBalance().then(() => {
             if (setUndefinedTimer !== null) {
                 clearTimeout(setUndefinedTimer);
@@ -175,10 +204,16 @@ const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
 const selectors = {
     currentTokenBalance: (state: CoreBalanceStore) => state.currentTokenBalance,
     maxAvailableBalance: (state: CoreBalanceStore) => state.maxAvailableBalance,
-    withdrawableBalance: (state: ESpaceBalanceStore) => state.withdrawableBalance
+    withdrawableBalance: (state: ESpaceBalanceStore) => state.withdrawableBalance,
+    needApprove: (state: CoreBalanceStore) => state.needApprove
 };
 
 
+export const recheckApproval = (space: 'core' | 'eSpace') =>
+(space === 'core' ? coreBalanceStore as typeof eSpaceBalanceStore : eSpaceBalanceStore).setState({ needApprove: undefined });
+
+export const useNeedApprove = (space: 'core' | 'eSpace') =>
+    (space === 'core' ? coreBalanceStore as typeof eSpaceBalanceStore : eSpaceBalanceStore)(selectors.needApprove);
 export const useCurrentTokenBalance = (space: 'core' | 'eSpace') =>
     (space === 'core' ? coreBalanceStore as typeof eSpaceBalanceStore : eSpaceBalanceStore)(selectors.currentTokenBalance);
 

@@ -13,17 +13,26 @@ import Copy from 'common/assets/copy.svg';
 import Search from 'common/assets/search.svg';
 
 interface TokenListStore {
-    tokenList: { core_native_tokens: Array<Token>; evm_native_tokens: Array<Token>; };
+    tokenList: Array<Token>;
     fetchTokenList: () => Promise<void>;
 }
+
+type FetchRes = { core_native_tokens: Array<Token>; evm_native_tokens: Array<Token>; };
+
 const tokenListStore = create<TokenListStore>((set) => ({
-    tokenList: { core_native_tokens: [], evm_native_tokens: [] },
+    tokenList: [],
     fetchTokenList: async () => {
         try {
-            const res = await fetch('https://raw.githubusercontent.com/Conflux-Chain/conflux-evm-bridge/main/native_token_list_testnet.json').then(data => data.json());
-            set({ tokenList: res });
+            const res: FetchRes = await fetch('https://raw.githubusercontent.com/Conflux-Chain/conflux-evm-bridge/main/native_token_list_testnet.json').then(data => data.json());
+            const tokenList = [...res?.core_native_tokens, ...res?.evm_native_tokens]
+                .map(token => ({
+                    ...token,
+                    nativeSpace: token.native_address.startsWith('0x') ? 'eSpace' : 'core'
+                }) as Token);
+            set({ tokenList: tokenList });
+            console.log('fetchTokenList: ', tokenList);
         } catch (err) {
-            console.log('fetchTokenList error: ', err);
+            console.error('fetchTokenList error: ', err);
         }
     }
 }));
@@ -93,9 +102,8 @@ const DropdownContent: React.FC<{ space: 'core' | 'eSpace'; visible: boolean; }>
 
     const tokenList = useTokenList();
     const filterTokenList = useMemo(() => {
-        const key = space === 'core' ? 'core_native_tokens' : 'evm_native_tokens';
-        if (!filter) return tokenList[key];
-        return tokenList[key].filter(token => [token.name, token.symbol, token.native_address].some(str => str.search(new RegExp(filter, 'i')) !== -1));
+        if (!filter) return tokenList;
+        return tokenList.filter(token => [token.name, token.symbol, token.native_address].some(str => str.search(new RegExp(filter, 'i')) !== -1));
     }, [filter, tokenList]);
     
     return (

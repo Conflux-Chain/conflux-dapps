@@ -12,8 +12,8 @@
             "@components/*": ["src/components/*"],
             "@router/*": ["src/router/*"],
             "@store/*": ["src/store/*"],
-            "@modules/*": ["src/modules/*"]
-
+            "@modules/*": ["src/modules/*"],
+            "@contracts/*": ["src/contracts/*"]
         }
     }
 }

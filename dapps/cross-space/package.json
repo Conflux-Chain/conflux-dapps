@@ -6,7 +6,7 @@
         "build": "vite build"
     },
     "dependencies": {
-        "@cfxjs/use-wallet": "^0.0.15",
+        "@cfxjs/use-wallet": "^0.0.17",
         "@fluent-wallet/estimate-tx": "^0.0.7",
         "@fluent-wallet/shorten-address": "^0.1.2",
         "@react-spring/web": "^9.4.2",

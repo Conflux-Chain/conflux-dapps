@@ -1,5 +1,5 @@
 .modal-spin {
-    @apply relative w-[40px] h-[40px] rounded-full m-auto;
+    @apply relative w-[40px] h-[40px] rounded-full mx-auto;
 
     background: linear-gradient(0deg, rgba(21 193 132 / 20%) 33%, #15c184 100%);
     animation: modal-spin-rotation 1s linear infinite;

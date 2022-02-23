@@ -1,0 +1,104 @@
+[
+    {
+        "anonymous": false,
+        "inputs": [
+            { "indexed": true, "internalType": "address", "name": "token", "type": "address" },
+            { "indexed": true, "internalType": "address", "name": "cfxAccount", "type": "address" },
+            { "indexed": true, "internalType": "address", "name": "evmAccount", "type": "address" },
+            { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }
+        ],
+        "name": "CrossFromEvm",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            { "indexed": true, "internalType": "address", "name": "token", "type": "address" },
+            { "indexed": true, "internalType": "address", "name": "cfxAccount", "type": "address" },
+            { "indexed": true, "internalType": "address", "name": "evmAccount", "type": "address" },
+            { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }
+        ],
+        "name": "CrossToEvm",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            { "indexed": true, "internalType": "address", "name": "token", "type": "address" },
+            { "indexed": true, "internalType": "address", "name": "cfxAccount", "type": "address" },
+            { "indexed": true, "internalType": "address", "name": "evmAccount", "type": "address" },
+            { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }
+        ],
+        "name": "WithdrawFromEvm",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            { "indexed": true, "internalType": "address", "name": "token", "type": "address" },
+            { "indexed": true, "internalType": "address", "name": "cfxAccount", "type": "address" },
+            { "indexed": true, "internalType": "address", "name": "evmAccount", "type": "address" },
+            { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }
+        ],
+        "name": "WithdrawToEvm",
+        "type": "event"
+    },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "_evmToken", "type": "address" },
+            { "internalType": "address", "name": "_evmAccount", "type": "address" },
+            { "internalType": "uint256", "name": "_amount", "type": "uint256" }
+        ],
+        "name": "crossFromEvm",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "contract IERC20", "name": "_token", "type": "address" },
+            { "internalType": "address", "name": "_evmAccount", "type": "address" },
+            { "internalType": "uint256", "name": "_amount", "type": "uint256" }
+        ],
+        "name": "crossToEvm",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "evmSide",
+        "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [{ "internalType": "contract IERC20", "name": "_token", "type": "address" }],
+        "name": "registerMetadata",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "contract IERC20", "name": "_token", "type": "address" },
+            { "internalType": "address", "name": "_evmAccount", "type": "address" },
+            { "internalType": "uint256", "name": "_amount", "type": "uint256" }
+        ],
+        "name": "withdrawFromEvm",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "_evmToken", "type": "address" },
+            { "internalType": "address", "name": "_evmAccount", "type": "address" },
+            { "internalType": "uint256", "name": "_amount", "type": "uint256" }
+        ],
+        "name": "withdrawToEvm",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
+]

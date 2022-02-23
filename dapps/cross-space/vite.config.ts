@@ -33,6 +33,7 @@ export default defineConfig({
             '@utils': path.resolve(__dirname, 'src/utils'),
             '@components': path.resolve(__dirname, 'src/components'),
             '@router': path.resolve(__dirname, 'src/router'),
+            '@contracts': path.resolve(__dirname, 'src/contracts'),
         },
     },
 });

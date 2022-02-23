@@ -1,15 +1,15 @@
 import React, { useState, useCallback, useEffect, memo } from 'react';
 import { a } from '@react-spring/web';
-import { useForm, type UseFormRegister, type FieldValues } from 'react-hook-form';
 import cx from 'clsx';
+import { useForm, type UseFormRegister, type FieldValues } from 'react-hook-form';
 import useClipboard from 'react-use-clipboard'
 import { shortenAddress } from '@fluent-wallet/shorten-address';
 import { useAccount as useFluentAccount, Unit } from '@cfxjs/use-wallet';
 import { useStatus as useMetaMaskStatus, useAccount as useMetaMaskAccount } from '@cfxjs/use-wallet/dist/ethereum';
-import { useCrossSpaceContract, useCrossSpaceContractAddress, useMaxAvailableBalance, useCurrentTokenBalance, useESpaceMirrorAddress, useESpaceWithdrawableBalance } from '@store/index';
+import { useCrossSpaceContract, useMaxAvailableBalance, useCurrentTokenBalance, useESpaceMirrorAddress, useESpaceWithdrawableBalance } from '@store/index';
 import { useToken } from '@store/index';
 import LocalStorage from 'common/utils/LocalStorage';
-import { showWaitFluent, showActionSubmitted, hideWaitFluent, hideActionSubmitted } from 'common/components/tools/Modal';
+import { showWaitWallet, showActionSubmitted, hideWaitFluent, hideActionSubmitted } from 'common/components/tools/Modal';
 import { showToast } from 'common/components/tools/Toast';
 import AuthConnectButton from 'common/modules/AuthConnectButton';
 import Input from 'common/components/Input';
@@ -264,28 +264,35 @@ const TransferAdvancedMode: React.FC = () => {
 				</ul>
 			</div>
 
-			<p className="mt-[16px]">
+			<p className="mt-[16px] mb-[10px] ">
 				<span className='mr-[8px] leading-[22px] text-[16px] text-[#3D3F4C] font-medium'>Transfer Address</span>
 				<span className='leading-[22px] text-[12px] text-[#898D9A]'>（Don’t save）</span>
 			</p>
-			<div
-				className="relative w-full mt-[10px] font-medium text-[14px] h-[18px] text-[#15C184] flex items-center cursor-pointer hover:ring-[2px] ring-[#15C184] transition-shadow"
-				onClick={setCopied}
-				id="copy-mirror-address"
-			>
-				{isCopied && (
-					<>
-						Copy success!
-						<img className="ml-1 w-[16px] h-[16px]" src={Success} alt="success icon" />
-					</>
-				)}
-				{!isCopied && (
-					<>
-						{eSpaceMirrorAddress}
-						<img className="absolute top-[50%] right-0 translate-y-[-50%] w-[16px] h-[16px]" src={Copy} alt="copy icon"/>
-					</>
-				)}
-			</div>
+			<AuthConnectButton
+				wallet="Fluent"
+				buttonType="outlined"
+				buttonSize="mini"
+				authContent={() => 
+					<div
+						className="relative w-full font-medium text-[14px] h-[18px] text-[#15C184] flex items-center cursor-pointer hover:ring-[2px] ring-[#15C184] transition-shadow"
+						onClick={setCopied}
+						id="copy-mirror-address"
+					>
+						{isCopied && (
+							<>
+								Copy success!
+								<img className="ml-1 w-[16px] h-[16px]" src={Success} alt="success icon" />
+							</>
+						)}
+						{!isCopied && (
+							<>
+								{eSpaceMirrorAddress}
+								<img className="absolute top-[50%] right-0 translate-y-[-50%] w-[16px] h-[16px]" src={Copy} alt="copy icon"/>
+							</>
+						)}
+					</div>
+				}
+			/>
 
 			<div className="mt-[8px] w-full h-[1px] bg-[#EAECEF]"></div>
 		</>

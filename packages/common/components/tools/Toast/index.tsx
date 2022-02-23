@@ -32,7 +32,7 @@ const ToastComponent: React.FC<{ text: string; duration: number }> = memo(({ tex
 export const showToast = (text: string, config?: any) =>
     Toast.show({
         Content: <ToastComponent text={text} duration={config?.duration ?? 6000} />,
-        duration: 6000,
+        duration: config?.duration ?? 6000,
         animationType: 'slideRight',
         ...config,
     });
