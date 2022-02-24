@@ -4,7 +4,7 @@ import Success from '../../../assets/success.svg';
 import Close from '../../../assets/close.svg';
 import './index.css';
 
-const WaitFluentModal = new PopupClass();
+const WaitWalletModal = new PopupClass();
 const TransactionSubmittedModal = new PopupClass();
 
 const WaitWalletContent: React.FC<{ wallet: 'Fluent' | 'MetaMask'; tip?: string; }> = memo(({ wallet, tip }) => {
@@ -37,7 +37,7 @@ const TransactionSubmittedContent: React.FC<{ TxnHash: string; action: string; }
 });
 
 export const showWaitWallet = (wallet: 'Fluent' | 'MetaMask', config?: any) =>
-    WaitFluentModal.show({
+    WaitWalletModal.show({
         Content: <WaitWalletContent wallet={wallet} tip={config?.tip} />,
         duration: 0,
         showMask: true,
@@ -46,7 +46,7 @@ export const showWaitWallet = (wallet: 'Fluent' | 'MetaMask', config?: any) =>
     });
 
 export const showActionSubmitted = (TxnHash: string, action: string = 'Transaction', config?: any) => {
-    WaitFluentModal.hideAll();
+    WaitWalletModal.hideAll();
     return TransactionSubmittedModal.show({
         Content: <TransactionSubmittedContent TxnHash={TxnHash} action={action} />,
         duration: config?.duration ?? 0,
@@ -55,5 +55,5 @@ export const showActionSubmitted = (TxnHash: string, action: string = 'Transacti
     });
 };
 
-export const hideWaitFluent = (key: string | number) => WaitFluentModal.hide(key);
+export const hideWaitWallet = (key: string | number) => WaitWalletModal.hide(key);
 export const hideActionSubmitted = (key: string | number) => TransactionSubmittedModal.hide(key);

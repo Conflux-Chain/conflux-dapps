@@ -2,12 +2,9 @@ import React, { useCallback, useEffect, memo } from 'react';
 import { a } from '@react-spring/web';
 import cx from 'clsx';
 import { useForm, type UseFormRegister, type FieldValues } from 'react-hook-form';
-import { useAccount as useFluentAccount, useStatus as useFluentStatus, sendTransaction as sendTransactionWithFluent, trackBalanceChangeOnce, Unit } from '@cfxjs/use-wallet';
+import { useAccount as useFluentAccount, useStatus as useFluentStatus, Unit } from '@cfxjs/use-wallet';
 import { connect as connectMetaMask, useStatus as useMetaMaskStatus, useAccount as useMetaMaskAccount } from '@cfxjs/use-wallet/dist/ethereum';
-import { useCrossSpaceContract, useConfluxSideContract, useMaxAvailableBalance, useCurrentTokenBalance, useNeedApprove, recheckApproval } from '@store/index';
-import { useToken } from '@store/index';
-import { showWaitWallet, showActionSubmitted, hideWaitFluent, hideActionSubmitted } from 'common/components/tools/Modal';
-import { showToast } from 'common/components/tools/Toast';
+import { useMaxAvailableBalance, useCurrentTokenBalance, useNeedApprove, useToken } from '@store/index';
 import AuthConnectButton from 'common/modules/AuthConnectButton';
 import Input from 'common/components/Input';
 import Tooltip from 'common/components/Tooltip';
@@ -17,6 +14,7 @@ import TokenList from '@components/TokenList';
 import TurnPage from '@assets/turn-page.svg';
 import ArrowLeft from '@assets/arrow-left.svg';
 import Success from '@assets/success.svg';
+import handleSubmit from './handleSubmit';
 
 const transitions = {
 	en: {
@@ -38,7 +36,7 @@ let eSpaceReceived: HTMLSpanElement | null = null;
 
 const Core2ESpace: React.FC<{ style: any; handleClickFlipped: () => void; }> = ({ style, handleClickFlipped }) => {
 	const i18n = useI18n(transitions);
-	const { register, handleSubmit, setValue, watch } = useForm();
+	const { register, handleSubmit: withForm, setValue, watch } = useForm();
 
 	const { currentToken, currentTokenContract } = useToken('core');
 	const needApprove = useNeedApprove('core');
@@ -47,9 +45,6 @@ const Core2ESpace: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 	const metaMaskAccount = useMetaMaskAccount();
 	const metaMaskStatus = useMetaMaskStatus();
 	const isUsedCurrentMetaMaskAccount = metaMaskStatus === 'active' && watch("eSpaceAddress") === metaMaskAccount;
-
-	const { contract: crossSpaceContract, address: crossSpaceContractAddress } = useCrossSpaceContract();
-	const { contract: confluxSideContract, address: confluxSideContractAddress } = useConfluxSideContract();
 
 	const setAmount = useCallback((val: string) => {
 		const _val = val.replace(/(?:\.0*|(\.\d+?)0+)$/, '$1');
@@ -71,67 +66,11 @@ const Core2ESpace: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 		}
 	}, [metaMaskAccount, metaMaskStatus]);
 
-	const onSubmit = useCallback(handleSubmit(async (data) => {
+	const onSubmit = useCallback(withForm(async (data) => {
 		const { eSpaceAddress, amount } = data;
-        let waitFluentKey: string | number = null!
-        let transactionSubmittedKey: string | number = null!
-
-        try {			
-			if (currentToken.isNative) {
-				if (!crossSpaceContract || !crossSpaceContractAddress) return;
-				waitFluentKey = showWaitWallet('Fluent');
-				const TxnHash = await sendTransactionWithFluent({
-					to: crossSpaceContractAddress,
-					data: crossSpaceContract.transferEVM(eSpaceAddress).data,
-					value: Unit.fromStandardUnit(amount).toHexMinUnit(),
-				});
-				transactionSubmittedKey = showActionSubmitted(TxnHash);
-				trackBalanceChangeOnce(() => {
-					hideActionSubmitted(transactionSubmittedKey)
-					showToast(`Transfer ${currentToken.symbol} to eSpace success.`)
-				});
-			} else {
-				if (!confluxSideContract || !confluxSideContractAddress || !currentTokenContract) return;
-				if (!needApprove) {
-					waitFluentKey = showWaitWallet('Fluent');
-					const TxnHash = await sendTransactionWithFluent({
-						to: confluxSideContractAddress,
-						data: confluxSideContract.crossToEvm(currentToken.native_address, eSpaceAddress, Unit.fromStandardUnit(amount).toHexMinUnit()).data,
-					});
-					transactionSubmittedKey = showActionSubmitted(TxnHash);
-				} else {
-					waitFluentKey = showWaitWallet('Fluent', { key: 'approve' });
-					const TxnHash = await sendTransactionWithFluent({
-						to: currentToken.native_address,
-						data: currentTokenContract.approve(confluxSideContractAddress, '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff').data,
-					});
-					recheckApproval('core');
-					transactionSubmittedKey = showActionSubmitted(TxnHash, 'Approve', { duration: 3333 });
-				}
-			}
-        } catch (err) {
-			console.error(`Transfer ${currentToken.symbol} to eSpace failed: `, err);
-			hideWaitFluent(waitFluentKey);
-			if ((err as {code: number})?.code === 4001 && (err as any)?.message?.indexOf('UserRejected') !== -1)
-				showToast('You canceled the transaction.');
-
-			// cUSDT
-			if (needApprove) {
-				try {
-					waitFluentKey = showWaitWallet('Fluent', { key: 'approve', tip: 'In cUSDT, you need to approve 0 and then approve again to change the Approval Value.' });
-					const TxnHash = await sendTransactionWithFluent({
-						to: currentToken.native_address,
-						data: currentTokenContract!.approve(confluxSideContractAddress!, '0x0').data,
-					});
-					transactionSubmittedKey = showActionSubmitted(TxnHash, 'Approve', { duration: 3333 });
-				} catch{
-					hideWaitFluent(waitFluentKey);
-				}
-			}
-        } finally {
-			setAmount('');
-        }
-	}), [crossSpaceContract, confluxSideContract, currentToken, fluentAccount, needApprove]);
+		handleSubmit({ eSpaceAddress, amount })
+			.finally(() => setAmount(''));
+	}), []);
 
 	return (
 		<a.div className="cross-space-module" style={style}>

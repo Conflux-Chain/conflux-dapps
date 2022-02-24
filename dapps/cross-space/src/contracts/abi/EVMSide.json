@@ -1,0 +1,152 @@
+[
+    {
+        "anonymous": false,
+        "inputs": [
+            { "indexed": true, "internalType": "address", "name": "mappedToken", "type": "address" },
+            { "indexed": true, "internalType": "address", "name": "evmAccount", "type": "address" },
+            { "indexed": true, "internalType": "address", "name": "cfxAccount", "type": "address" },
+            { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }
+        ],
+        "name": "LockedMappedToken",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            { "indexed": true, "internalType": "address", "name": "token", "type": "address" },
+            { "indexed": true, "internalType": "address", "name": "evmAccount", "type": "address" },
+            { "indexed": true, "internalType": "address", "name": "cfxAccount", "type": "address" },
+            { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }
+        ],
+        "name": "LockedToken",
+        "type": "event"
+    },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "_token", "type": "address" },
+            { "internalType": "address", "name": "_evmAccount", "type": "address" },
+            { "internalType": "address", "name": "_cfxAccount", "type": "address" },
+            { "internalType": "uint256", "name": "_amount", "type": "uint256" }
+        ],
+        "name": "burn",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "cfxSide",
+        "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [{ "internalType": "address", "name": "_crc20", "type": "address" }],
+        "name": "createMappedToken",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "_token", "type": "address" },
+            { "internalType": "address", "name": "_evmAccount", "type": "address" },
+            { "internalType": "address", "name": "_cfxAccount", "type": "address" },
+            { "internalType": "uint256", "name": "_amount", "type": "uint256" }
+        ],
+        "name": "crossToCfx",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [{ "internalType": "address", "name": "_token", "type": "address" }],
+        "name": "getTokenData",
+        "outputs": [
+            { "internalType": "string", "name": "", "type": "string" },
+            { "internalType": "string", "name": "", "type": "string" },
+            { "internalType": "uint8", "name": "", "type": "uint8" }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "_mappedToken", "type": "address" },
+            { "internalType": "address", "name": "_cfxAccount", "type": "address" },
+            { "internalType": "uint256", "name": "_amount", "type": "uint256" }
+        ],
+        "name": "lockMappedToken",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "contract IERC20", "name": "_token", "type": "address" },
+            { "internalType": "address", "name": "_cfxAccount", "type": "address" },
+            { "internalType": "uint256", "name": "_amount", "type": "uint256" }
+        ],
+        "name": "lockToken",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "_token", "type": "address" },
+            { "internalType": "address", "name": "_evmAccount", "type": "address" },
+            { "internalType": "address", "name": "_cfxAccount", "type": "address" }
+        ],
+        "name": "lockedMappedToken",
+        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "_token", "type": "address" },
+            { "internalType": "address", "name": "_evmAccount", "type": "address" },
+            { "internalType": "address", "name": "_cfxAccount", "type": "address" }
+        ],
+        "name": "lockedToken",
+        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "_token", "type": "address" },
+            { "internalType": "address", "name": "_to", "type": "address" },
+            { "internalType": "uint256", "name": "_amount", "type": "uint256" }
+        ],
+        "name": "mint",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "_crc20", "type": "address" },
+            { "internalType": "string", "name": "_name", "type": "string" },
+            { "internalType": "string", "name": "_symbol", "type": "string" },
+            { "internalType": "uint8", "name": "_decimals", "type": "uint8" }
+        ],
+        "name": "registerCRC20",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    { "inputs": [], "name": "setCfxSide", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "_token", "type": "address" },
+            { "internalType": "address", "name": "_evmAccount", "type": "address" },
+            { "internalType": "uint256", "name": "_amount", "type": "uint256" }
+        ],
+        "name": "withdrawFromCfx",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
+]

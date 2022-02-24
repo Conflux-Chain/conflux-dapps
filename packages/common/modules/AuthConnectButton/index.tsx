@@ -30,7 +30,8 @@ const AuthConnectButton = memo<{
     disabled?: boolean;
     id?: string;
     className?: string;
-}>(({ wallet, authContent, buttonType, buttonSize, disabled, fullWidth, id, className }) => {
+    onClick?: () => void;
+}>(({ wallet, authContent, buttonType, buttonSize, disabled, fullWidth, id, className, onClick }) => {
     const i18n = useI18n(transitions);
 
     const status = wallet === 'Fluent' ? useFluentStatus() : useMetaMaskStatus();
@@ -41,10 +42,11 @@ const AuthConnectButton = memo<{
 	const handleClick = useCallback<React.MouseEventHandler>((evt) => {
 		if (status !== 'active') {
 			evt.preventDefault();
-		}
-
-		connect();
-	}, [status]);
+            connect();
+		} else {
+            onClick?.();
+        }
+	}, [status, onClick]);
 
 
     if (status === 'active' && typeof authContent !== 'string') {

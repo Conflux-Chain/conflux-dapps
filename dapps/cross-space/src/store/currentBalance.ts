@@ -10,26 +10,29 @@ import { currentTokenStore } from './currentToken';
 
 interface CoreBalanceStore {
     currentTokenBalance?: Unit;
-    needApprove?: boolean;
     maxAvailableBalance?: Unit;
+    needApprove?: boolean;
+    reCheckApproveCount?: number;
 }
 
 interface ESpaceBalanceStore extends CoreBalanceStore {
     withdrawableBalance?: Unit;
 }
 
-const coreBalanceStore = create(subscribeWithSelector(() => ({
+export const coreBalanceStore = create(subscribeWithSelector(() => ({
     currentTokenBalance: undefined,
-    needApprove: undefined,
     maxAvailableBalance: undefined,
+    needApprove: undefined,
+    reCheckApproveCount: 0
 } as CoreBalanceStore)));
 
 
-const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
+export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
     currentTokenBalance: undefined,
-    needApprove: undefined,
     maxAvailableBalance: undefined,
-    withdrawableBalance: undefined
+    withdrawableBalance: undefined,
+    needApprove: undefined,
+    reCheckApproveCount: 0
 } as ESpaceBalanceStore)));
 
 // track currentToken balance
@@ -41,7 +44,7 @@ const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
     const balanceStore = space === 'core' ? coreBalanceStore as typeof eSpaceBalanceStore : eSpaceBalanceStore;
     const balanceKey = type === 'eSpaceMirrorAddress' ? 'withdrawableBalance' : 'currentTokenBalance';
 
-    const getAccount = () => type === 'eSpaceMirrorAddress' ? confluxStore.getState().eSpaceMirrorAddress : walletStore.getState().accounts?.[0]
+    const getAccount = () => walletStore.getState().accounts?.[0]; 
 
     const handleTokenBalanceChanged = (newBalance?: Unit) => {
         if (!newBalance) return;
@@ -80,31 +83,59 @@ const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
 
             return walletStore.getState().balance
         }
-
         try {
-            const minUnitBalance = await provider!.request({
-                method: `${rpcPrefix as 'cfx'}_call`,
-                params: [{
-                    data:  '0x70a08231000000000000000000000000' + format.hexAddress(account).slice(2),
-                    to: currentToken.nativeSpace === space ? currentToken.native_address : currentToken.mapped_address
-                }, 
-                space === 'core' ? 'latest_state' : 'latest']
-            });
+            const usedTokenAddress = currentToken.nativeSpace === space ? currentToken.native_address : currentToken.mapped_address;
 
-            const balance = Unit.fromMinUnit(minUnitBalance);
+            let balance: Unit;
+            if (type !== 'eSpaceMirrorAddress') {
+                const minUnitBalance = await provider!.request({
+                    method: `${rpcPrefix as 'cfx'}_call`,
+                    params: [{
+                        data:  '0x70a08231000000000000000000000000' + format.hexAddress(account).slice(2),
+                        to: usedTokenAddress
+                    }, 
+                    space === 'core' ? 'latest_state' : 'latest']
+                });
+                balance = Unit.fromMinUnit(minUnitBalance);
+            } else {
+                const fluentAccount = fluentStore.getState().accounts?.[0];
+                const metaMaskAccount = metaMaskStore.getState().accounts?.[0];
+                const { evmSideContract, evmSideContractAddress, eSpaceMirrorAddress } = confluxStore.getState();
+                console.log(evmSideContract, eSpaceMirrorAddress, fluentAccount, metaMaskAccount);
+                if (!evmSideContract || !eSpaceMirrorAddress || !fluentAccount || !metaMaskAccount) return;
+
+                console.log('fetch111')
+                const minUnitBalance = await provider!.request({
+                    method: 'eth_call',
+                    params: [{
+                        from: metaMaskAccount,
+                        data: evmSideContract.lockedMappedToken(currentToken.mapped_address, metaMaskAccount, format.hexAddress(fluentAccount)).data,
+                        to: evmSideContractAddress,
+                    }, 
+                    'latest']
+                });
+                console.log('fetch222')
+                balance = Unit.fromMinUnit(minUnitBalance);
+            }
 
             if (type !== 'eSpaceMirrorAddress' && currentTokenContract && confluxSideContractAddress) {
                 const approvalMinUnitBalance = await provider!.request({
                     method: `${rpcPrefix as 'cfx'}_call`,
                     params: [{
                         data: currentTokenContract.allowance(account, confluxSideContractAddress).data,
-                        to: currentToken.native_address
+                        to: usedTokenAddress
                     }, 
                     space === 'core' ? 'latest_state' : 'latest']
                 });
 
                 const approvalBalance = Unit.fromMinUnit(approvalMinUnitBalance);
-                balanceStore.setState({ needApprove: !Unit.lessThan(balance, approvalBalance)})
+                const needApprove = !Unit.lessThan(balance, approvalBalance);
+                const { reCheckApproveCount, needApprove: preNeedApprove } = balanceStore.getState();
+                if (reCheckApproveCount! > 0 && needApprove === preNeedApprove) {
+                    balanceStore.setState({ reCheckApproveCount: reCheckApproveCount! - 1 });
+                } else {
+                    balanceStore.setState({ needApprove: !Unit.lessThan(balance, approvalBalance), reCheckApproveCount: 0 });
+                }
             }
 
             return balance;
@@ -113,6 +144,8 @@ const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
             throw err;
         }
     }
+
+
 
     let balanceTimer: NodeJS.Timeout | null = null;
     let setUndefinedTimer: NodeJS.Timeout | null = null;
@@ -139,6 +172,7 @@ const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
         }
 
         const account = getAccount();
+        type === 'eSpaceMirrorAddress' && console.log('trackCurrentTokenBalance: ', account);
         if (!account) {
             balanceStore.setState({ [balanceKey]: undefined });
             clearTimer();
@@ -156,6 +190,8 @@ const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
         clearTimer();
         balanceTimer = setInterval(getAndSetBalance, 1500);
     }
+
+
     if (type === 'eSpaceMirrorAddress') {
         confluxStore.subscribe(state => state.eSpaceMirrorAddress, trackCurrentTokenBalance);
     } else {
@@ -205,15 +241,65 @@ const selectors = {
     currentTokenBalance: (state: CoreBalanceStore) => state.currentTokenBalance,
     maxAvailableBalance: (state: CoreBalanceStore) => state.maxAvailableBalance,
     withdrawableBalance: (state: ESpaceBalanceStore) => state.withdrawableBalance,
-    needApprove: (state: CoreBalanceStore) => state.needApprove
-};
+    needApprove: (state: CoreBalanceStore) => state.needApprove,
+    reCheckApproveCount: (state: CoreBalanceStore) => state.reCheckApproveCount
+} as const;
 
+const createTrackBalanceChangeOnce = ({
+    walletStore,
+    balanceStore,
+    balanceSelector
+}: {
+    walletStore?: typeof fluentStore;
+    balanceStore: typeof eSpaceBalanceStore;
+    balanceSelector: ValueOf<typeof selectors>;
+}) => (callback: () => void) => {
+    if (!callback) return;
+    let unsubBalance: Function | null = null;
+    if (walletStore) {
+        let unsubAccount: Function | null = null;
+        unsubAccount = walletStore.subscribe(state => state.accounts, () => {
+            if (!unsubAccount) return;
+            if (unsubBalance) {
+                unsubBalance();
+                unsubBalance = null;
+            }
+            unsubAccount();
+            unsubAccount = null;
+        });
+    }
+
+    unsubBalance = balanceStore.subscribe(balanceSelector as typeof selectors['currentTokenBalance'], () => {
+        if (!unsubBalance) return;
+        callback();
+        unsubBalance();
+        unsubBalance = null;
+    });
+}
+
+const trackBalanceChangeOnce = {
+    coreCurrentTokenBalance: createTrackBalanceChangeOnce({ walletStore: fluentStore, balanceStore: coreBalanceStore, balanceSelector: selectors.currentTokenBalance }),
+    coreMaxAvailableBalance: createTrackBalanceChangeOnce({ walletStore: fluentStore, balanceStore: coreBalanceStore, balanceSelector: selectors.maxAvailableBalance }),
+    coreNeedApprove: createTrackBalanceChangeOnce({ walletStore: fluentStore, balanceStore: coreBalanceStore, balanceSelector: selectors.needApprove }),
+    eSpaceCurrentTokenBalance: createTrackBalanceChangeOnce({ walletStore: metaMaskStore, balanceStore: eSpaceBalanceStore, balanceSelector: selectors.currentTokenBalance }),
+    eSpaceMaxAvailableBalance: createTrackBalanceChangeOnce({ walletStore: metaMaskStore, balanceStore: eSpaceBalanceStore, balanceSelector: selectors.maxAvailableBalance }),
+    eSpaceWithdrawableBalance: createTrackBalanceChangeOnce({ balanceStore: eSpaceBalanceStore, balanceSelector: selectors.withdrawableBalance }),
+    eSpaceNeedApprove: createTrackBalanceChangeOnce({ walletStore: metaMaskStore, balanceStore: eSpaceBalanceStore, balanceSelector: selectors.needApprove }),
+}
+
+export {
+    trackBalanceChangeOnce
+}
 
 export const recheckApproval = (space: 'core' | 'eSpace') =>
-(space === 'core' ? coreBalanceStore as typeof eSpaceBalanceStore : eSpaceBalanceStore).setState({ needApprove: undefined });
+(space === 'core' ? coreBalanceStore as typeof eSpaceBalanceStore : eSpaceBalanceStore).setState({ reCheckApproveCount: 10 });
 
-export const useNeedApprove = (space: 'core' | 'eSpace') =>
-    (space === 'core' ? coreBalanceStore as typeof eSpaceBalanceStore : eSpaceBalanceStore)(selectors.needApprove);
+export const useNeedApprove = (space: 'core' | 'eSpace') => {
+    const needApprove = (space === 'core' ? coreBalanceStore as typeof eSpaceBalanceStore : eSpaceBalanceStore)(selectors.needApprove);
+    const reCheckApproveCount = (space === 'core' ? coreBalanceStore as typeof eSpaceBalanceStore : eSpaceBalanceStore)(selectors.reCheckApproveCount);
+    return reCheckApproveCount! > 0 ? undefined : needApprove;
+}
+    
 export const useCurrentTokenBalance = (space: 'core' | 'eSpace') =>
     (space === 'core' ? coreBalanceStore as typeof eSpaceBalanceStore : eSpaceBalanceStore)(selectors.currentTokenBalance);
 

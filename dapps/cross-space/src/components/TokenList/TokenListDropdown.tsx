@@ -180,9 +180,9 @@ interface TokenItemProps extends Token {
 
 const TokenItem = memo<TokenItemProps>(({ isCurrent, setCurrentToken, space, walletStatus, copyAddressSingleton, addToWalletSingleton, ...token}) => {
     const { symbol, name, native_address, mapped_address, nativeSpace, icon, isNative } = token;
-    const usedAddress = nativeSpace === space ? native_address : mapped_address;
+    const usedTokenAddress = nativeSpace === space ? native_address : mapped_address;
 
-    const [isCopied, setCopied] = useClipboard(usedAddress ?? '', { successDuration: 1500 });
+    const [isCopied, setCopied] = useClipboard(usedTokenAddress ?? '', { successDuration: 1500 });
     const handleClickCopy = useCallback<React.MouseEventHandler<HTMLImageElement>>((evt) => {
         evt.stopPropagation();
         setCopied();
@@ -194,7 +194,7 @@ const TokenItem = memo<TokenItemProps>(({ isCurrent, setCurrentToken, space, wal
             await (space === 'core' ? watchAssetFluent : watchAssetMetaMask)({
                 type: 'ERC20',
                 options: {
-                    address: usedAddress,
+                    address: usedTokenAddress,
                     symbol: symbol,
                     decimals: 18,
                     image: icon
@@ -223,7 +223,7 @@ const TokenItem = memo<TokenItemProps>(({ isCurrent, setCurrentToken, space, wal
 
             {!token.isNative &&
                 <div className='flex items-center'>
-                    <span className='text-[12px] text-[#808BE7]'>{shortenAddress(usedAddress)}</span>
+                    <span className='text-[12px] text-[#808BE7]'>{shortenAddress(usedTokenAddress)}</span>
                     {walletStatus === 'active' &&
                         <Tooltip singleton={addToWalletSingleton}>
                             <img src={Add} alt="copy image" className='ml-[8px] w-[16px] h-[16px] cursor-pointer' onClick={handleClickAddToWallet}/>

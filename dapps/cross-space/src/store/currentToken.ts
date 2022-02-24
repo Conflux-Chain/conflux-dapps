@@ -54,12 +54,27 @@ const selectors = {
 currentTokenStore.subscribe(state => state.core, (token) => {
     const conflux = confluxStore.getState().conflux!;
     if (!conflux || !token || token.isNative) return;
-    currentTokenStore.setState({ coreTokenContract: conflux.Contract({ abi: CRC20TokenABI, address: token.native_address}) as unknown as TokenContract });
+    currentTokenStore.setState({ coreTokenContract: conflux.Contract({ abi: CRC20TokenABI, address: token.native_address }) as unknown as TokenContract });
+});
+currentTokenStore.subscribe(state => state.eSpace, (token) => {
+    const conflux = confluxStore.getState().conflux!;
+    if (!conflux || !token || token.isNative) return;
+    currentTokenStore.setState({ eSpaceTokenContract: conflux.Contract({ abi: CRC20TokenABI, address: token.native_address }) as unknown as TokenContract });
 });
 confluxStore.subscribe(state => state.conflux, (conflux) => {
-    const token = currentTokenStore.getState().core;
-    if (!conflux || !token || token.isNative) return;
-    currentTokenStore.setState({ coreTokenContract: conflux.Contract({ abi: CRC20TokenABI, address: token.native_address}) as unknown as TokenContract });
+    const coreToken = currentTokenStore.getState().core;
+    const eSpaceToken = currentTokenStore.getState().eSpace;
+    if (!conflux) return;
+    if (!coreToken.isNative) {
+        currentTokenStore.setState({
+            coreTokenContract: conflux.Contract({ abi: CRC20TokenABI, address: coreToken.native_address }) as unknown as TokenContract,
+        });
+    }
+    if (!eSpaceToken.isNative) {
+        currentTokenStore.setState({
+            eSpaceTokenContract: conflux.Contract({ abi: CRC20TokenABI, address: eSpaceToken.native_address }) as unknown as TokenContract
+        });
+    }    
 });
 
 const CommonTokenCount = 10;

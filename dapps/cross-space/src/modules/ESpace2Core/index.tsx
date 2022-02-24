@@ -1,16 +1,13 @@
 import React, { useState, useCallback, useEffect, memo } from 'react';
 import { a } from '@react-spring/web';
-import cx from 'clsx';
-import { useForm, type UseFormRegister, type FieldValues } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import useClipboard from 'react-use-clipboard'
 import { shortenAddress } from '@fluent-wallet/shorten-address';
-import { useAccount as useFluentAccount, Unit } from '@cfxjs/use-wallet';
+import { useAccount as useFluentAccount, useStatus as useFluentStatus, Unit } from '@cfxjs/use-wallet';
 import { useStatus as useMetaMaskStatus, useAccount as useMetaMaskAccount } from '@cfxjs/use-wallet/dist/ethereum';
-import { useCrossSpaceContract, useMaxAvailableBalance, useCurrentTokenBalance, useESpaceMirrorAddress, useESpaceWithdrawableBalance } from '@store/index';
+import { useMaxAvailableBalance, useCurrentTokenBalance, useESpaceMirrorAddress, useESpaceWithdrawableBalance } from '@store/index';
 import { useToken } from '@store/index';
 import LocalStorage from 'common/utils/LocalStorage';
-import { showWaitWallet, showActionSubmitted, hideWaitFluent, hideActionSubmitted } from 'common/components/tools/Modal';
-import { showToast } from 'common/components/tools/Toast';
 import AuthConnectButton from 'common/modules/AuthConnectButton';
 import Input from 'common/components/Input';
 import Tooltip from 'common/components/Tooltip';
@@ -22,6 +19,7 @@ import Switch from '@assets/switch.svg';
 import Success from '@assets/success.svg';
 import Suggest from '@assets/suggest.svg';
 import Copy from 'common/assets/copy.svg';
+import { handleWithdraw } from './handle';
 
 const transitions = {
 	en: {
@@ -110,8 +108,15 @@ const Transfer2Bridge: React.FC = memo(() => {
 		setMode(pre => {
 			LocalStorage.set('epsace-transfer2bridge-mode', pre === 'normal' ? 'advanced' : 'normal', 0, 'cross-space');
 			return pre === 'normal' ? 'advanced' : 'normal';
-		})
+		});
 	}, []);
+
+	useEffect(() => {
+		if (!currentToken.isNative) {
+			LocalStorage.set('epsace-transfer2bridge-mode', 'normal', 0, 'cross-space');
+			setMode('normal');
+		}
+	}, [currentToken]);
 
 	return (
 		<>
@@ -121,15 +126,17 @@ const Transfer2Bridge: React.FC = memo(() => {
 					Transfer Token
 				</span>
 
-				<div className="inline-flex items-center">
-					<span
-						className="mr-[4px] text-[14px] text-[#808BE7] cursor-pointer"
-						onClick={switchMode}
-					>
-						{mode === 'normal' ? 'Advanced Mode' : 'Normal Mode'}
-					</span>
-					<img src={Switch} alt="switch icon" className="w-[14px] h-[14px]" />
-				</div>
+				{currentToken.isNative &&
+					<div className="inline-flex items-center">
+						<span
+							className="mr-[4px] text-[14px] text-[#808BE7] cursor-pointer"
+							onClick={switchMode}
+						>
+							{mode === 'normal' ? 'Advanced Mode' : 'Normal Mode'}
+						</span>
+						<img src={Switch} alt="switch icon" className="w-[14px] h-[14px]" />
+					</div>
+				}
 			</div>
 			<p className="mt-[8px] text-[#A9ABB2] text-[14px] leading-[18px]">
 				{mode === 'normal' && `Transfer ${currentToken.symbol} to cross space bridge.`}
@@ -259,8 +266,8 @@ const TransferAdvancedMode: React.FC = () => {
 				</div>
 				<ul className="list-disc pl-[23px] text-[14px] text-[#898D9A] leading-[18px]">
 					<li>Use <span className="text-[#15C184]">Conflux eSpace</span>.</li>
-					<li>Send your {currentToken.symbol} to the <span className="text-[#3D3F4C] font-medium">following address</span>.</li>
-					<li>This address can <span className="text-[#3D3F4C] font-medium">only receive {currentToken.symbol}.</span></li>
+					<li>Send your CFX to the <span className="text-[#3D3F4C] font-medium">following address</span>.</li>
+					<li>This address can <span className="text-[#3D3F4C] font-medium">only receive CFX.</span></li>
 				</ul>
 			</div>
 
@@ -304,6 +311,12 @@ const Withdraw2Core: React.FC = memo(() => {
 	const { currentToken } = useToken('eSpace');
 	const hasESpaceMirrorAddress = useESpaceMirrorAddress();
 	const withdrawableBalance = useESpaceWithdrawableBalance();
+	const fluentStatus = useFluentStatus();
+
+	const [inWithdraw, setInWithdraw ] = useState(false);
+	const handleClickWithdraw = useCallback(() => {
+		handleWithdraw({ setInWithdraw });
+	}, []);
 
 	return (
 		<>
@@ -324,16 +337,25 @@ const Withdraw2Core: React.FC = memo(() => {
 
 			<div className='flex items-center mb-[20px]'>
 				<span className='mr-[8px] text-[14px] text-[#A9ABB2]'>Withdrawable:</span>
-				<span className='text-[16px] text-[#3D3F4C] font-medium'>{`${withdrawableBalance ? withdrawableBalance.toDecimalStandardUnit() : (hasESpaceMirrorAddress ? 'loading...' : '--')} ${currentToken.symbol}`}</span>
+				{!inWithdraw && 
+					<span className='text-[16px] text-[#3D3F4C] font-medium'>
+						{`${withdrawableBalance ? `${withdrawableBalance.toDecimalStandardUnit()} ${currentToken.symbol}` : (hasESpaceMirrorAddress ? 'loading...' : '--')}`}
+					</span>
+				}
+				{inWithdraw && 
+					<span className='text-[16px] text-[#3D3F4C] font-medium'>...</span>
+				}
 			</div>
 
 			<AuthConnectButton
 				id="eSpace-2core-withdraw-btn"
 				className='px-[38px] text-[14px]'
-				wallet='Fluent'
+				wallet={currentToken.isNative ? 'Fluent' : 'MetaMask'}
 				buttonType="contained"
 				buttonSize='normal'
-				authContent={'Withdraw'}
+				authContent={inWithdraw ? 'Withdrawing...' : 'Withdraw'}
+				disabled={fluentStatus === 'active' ? (!withdrawableBalance || Unit.equals(withdrawableBalance, Unit.fromMinUnit(0)) || inWithdraw) : fluentStatus !== 'not-active'}
+				onClick={handleClickWithdraw}
 			/>
 		</>
 	);

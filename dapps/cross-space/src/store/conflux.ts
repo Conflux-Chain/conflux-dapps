@@ -5,6 +5,7 @@ import { Conflux, format, address } from 'js-conflux-sdk';
 import { CrossSpaceCall } from 'js-conflux-sdk/src/contract/internal/index.js';
 import { currentNetworkStore } from './currentNetwork';
 import ConfluxSideABI from '@contracts/abi/ConfluxSide.json'
+import EVMSideABI from '@contracts/abi/EVMSide.json'
 
 interface ConfluxStore {
     conflux?: Conflux;
@@ -13,14 +14,19 @@ interface ConfluxStore {
     crossSpaceContractAddress?: string;
     crossSpaceContract?: { 
         transferEVM(eSpaceAddress: string): Record<string, string>;
-        withdrawFromMapped(eSpaceMirrorAddress: string): string;
+        withdrawFromMapped(eSpaceMirrorAddress: string): Record<string, string>;
     };
 
     confluxSideContractAddress?: string;
     confluxSideContract?: {
-        crossToEvm(coreTokenAddress: string, eSpaceAddress: string, amount: string): any;
+        crossToEvm(coreTokenAddress: string, eSpaceAddress: string, amount: string): Record<string, string>;
     };
 
+    evmSideContractAddress?: string;
+    evmSideContract?: {
+        lockedMappedToken(mappedTokenAddress: string, eSpaceAddress: string, eSpaceMirrorAddress: string): Record<string, string>;
+        lockMappedToken(coreTokenMappedAddress: string, account: string, amount: string): Record<string, string>;
+    };
 }
 
 export const confluxStore = create(subscribeWithSelector(() => ({
@@ -30,7 +36,9 @@ export const confluxStore = create(subscribeWithSelector(() => ({
     crossSpaceContractAddress: undefined,
     crossSpaceContract: undefined,
     confluxSideContractAddress: undefined,
-    confluxSideContract: undefined
+    confluxSideContract: undefined,
+    evmSideContractAddress: undefined,
+    evmSideContract: undefined,
 } as ConfluxStore)));
 
 
@@ -53,7 +61,9 @@ currentNetworkStore.subscribe(state => state.core, coreNetwork => {
         conflux,
         crossSpaceContract: conflux.Contract(CrossSpaceCall) as unknown as ConfluxStore['crossSpaceContract'],
         confluxSideContract: conflux.Contract({ abi: ConfluxSideABI, address: 'cfxtest:achrygt0at7ub1bty99um6f5g1mktdjw7ubt7gc40j' }) as unknown as ConfluxStore['confluxSideContract'],
-        confluxSideContractAddress: 'cfxtest:achrygt0at7ub1bty99um6f5g1mktdjw7ubt7gc40j'
+        confluxSideContractAddress: 'cfxtest:achrygt0at7ub1bty99um6f5g1mktdjw7ubt7gc40j',
+        evmSideContract: conflux.Contract({ abi: EVMSideABI, address: '0xef601c824532ae1ea72545a3ef74e6ed0be39cf2' }) as unknown as ConfluxStore['evmSideContract'],
+        evmSideContractAddress: '0xef601c824532ae1ea72545a3ef74e6ed0be39cf2'
     });
 });
 
@@ -66,9 +76,11 @@ fluentStore.subscribe(state => state.chainId, chainId => {
 const selectors = {
     crossSpaceContract: (state: ConfluxStore) => ({ contract: state.crossSpaceContract, address: state.crossSpaceContractAddress }),
     confluxSideContract: (state: ConfluxStore) => ({ contract: state.confluxSideContract, address: state.confluxSideContractAddress }),
+    evmSideContract: (state: ConfluxStore) => ({ contract: state.evmSideContract, address: state.evmSideContractAddress }),
     eSpaceMirrorAddress: (state: ConfluxStore) => state.eSpaceMirrorAddress,
 };
 
 export const useCrossSpaceContract = () => confluxStore(selectors.crossSpaceContract);
 export const useConfluxSideContract = () => confluxStore(selectors.confluxSideContract);
+export const useEvmSideContract = () => confluxStore(selectors.evmSideContract);
 export const useESpaceMirrorAddress = () => confluxStore(selectors.eSpaceMirrorAddress);
