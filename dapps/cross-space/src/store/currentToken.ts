@@ -51,16 +51,17 @@ const selectors = {
     eSpaceTokenContract: (state: TokenStore) => state.eSpaceTokenContract
 };
 
-currentTokenStore.subscribe(state => state.core, (token) => {
-    const conflux = confluxStore.getState().conflux!;
-    if (!conflux || !token || token.isNative) return;
-    currentTokenStore.setState({ coreTokenContract: conflux.Contract({ abi: CRC20TokenABI, address: token.native_address }) as unknown as TokenContract });
+(['core', 'eSpace'] as const).forEach(space => {
+    currentTokenStore.subscribe(state => state[space], (token) => {
+        const conflux = confluxStore.getState().conflux!;
+        if (!conflux || !token || token.isNative) return;
+        currentTokenStore.setState({
+            [space + 'TokenContract' as 'coreTokenContract']: conflux.Contract({ abi: CRC20TokenABI, address: token.native_address }) as unknown as TokenContract
+        });
+    });
+    
 });
-currentTokenStore.subscribe(state => state.eSpace, (token) => {
-    const conflux = confluxStore.getState().conflux!;
-    if (!conflux || !token || token.isNative) return;
-    currentTokenStore.setState({ eSpaceTokenContract: conflux.Contract({ abi: CRC20TokenABI, address: token.native_address }) as unknown as TokenContract });
-});
+
 confluxStore.subscribe(state => state.conflux, (conflux) => {
     const coreToken = currentTokenStore.getState().core;
     const eSpaceToken = currentTokenStore.getState().eSpace;

@@ -5,7 +5,7 @@ import useClipboard from 'react-use-clipboard'
 import { shortenAddress } from '@fluent-wallet/shorten-address';
 import { useAccount as useFluentAccount, useStatus as useFluentStatus, Unit } from '@cfxjs/use-wallet';
 import { useStatus as useMetaMaskStatus, useAccount as useMetaMaskAccount } from '@cfxjs/use-wallet/dist/ethereum';
-import { useMaxAvailableBalance, useCurrentTokenBalance, useESpaceMirrorAddress, useESpaceWithdrawableBalance } from '@store/index';
+import { useMaxAvailableBalance, useCurrentTokenBalance, useESpaceMirrorAddress, useESpaceWithdrawableBalance, useNeedApprove } from '@store/index';
 import { useToken } from '@store/index';
 import LocalStorage from 'common/utils/LocalStorage';
 import AuthConnectButton from 'common/modules/AuthConnectButton';
@@ -19,7 +19,8 @@ import Switch from '@assets/switch.svg';
 import Success from '@assets/success.svg';
 import Suggest from '@assets/suggest.svg';
 import Copy from 'common/assets/copy.svg';
-import { handleWithdraw } from './handle';
+import { handleWithdraw } from './handleWithdraw';
+import { handleTransferSubmit } from './handleTransfer';
 
 const transitions = {
 	en: {
@@ -151,14 +152,16 @@ const Transfer2Bridge: React.FC = memo(() => {
 
 const TransferNormalMode: React.FC = () => {
 	const i18n = useI18n(transitions);
-	const { register, handleSubmit, setValue, watch } = useForm();
+	const { register, handleSubmit, setValue } = useForm();
 
 	const { currentToken } = useToken('eSpace');
 
 	const metaMaskAccount = useMetaMaskAccount();
+	const fluentStatus = useFluentStatus();
 	const metaMaskStatus = useMetaMaskStatus();
 	const currentTokenBalance = useCurrentTokenBalance('eSpace');
 	const maxAvailableBalance = useMaxAvailableBalance('eSpace');
+	const needApprove = useNeedApprove(currentToken, 'eSpace');
 
 	const setAmount = useCallback((val: string) => {
 		const _val = val.replace(/(?:\.0*|(\.\d+?)0+)$/, '$1');
@@ -190,23 +193,26 @@ const TransferNormalMode: React.FC = () => {
 		setAmount(maxAvailableBalance.toDecimalStandardUnit());
 	}, [maxAvailableBalance])
 
-	const canTransfer = maxAvailableBalance && Unit.greaterThan(maxAvailableBalance, Unit.fromStandardUnit(0));
-
-	const onSubmit = useCallback(handleSubmit(() => {
-
+	const onSubmit = useCallback(handleSubmit((data) => {
+		const { amount } = data;
+		handleTransferSubmit(amount)
+			.finally(() => setAmount(''));
 	}), []);
+
+	const canTransfer = maxAvailableBalance && Unit.greaterThan(maxAvailableBalance, Unit.fromStandardUnit(0)) && needApprove !== undefined;
+	const canClickButton = needApprove === true || (needApprove === false && maxAvailableBalance && Unit.greaterThan(maxAvailableBalance, Unit.fromStandardUnit(0)));
 
 	return (
 		<form onSubmit={onSubmit}>
-			<div className="mt-[16px] mb-[12px] flex items-center">
+			<div className="relative mt-[16px] mb-[12px] flex items-center">
 				<Input
 					id="eSpace2Core-transfer-amount"
 					placeholder="Amount you want to transfer"
 					type="number"
 					step={1e-18}
 					min={Unit.fromMinUnit(1).toDecimalStandardUnit()}
-					disabled={!canTransfer}
-					{...register('amount', { required: true, min: Unit.fromMinUnit(1).toDecimalStandardUnit(), onBlur: handleCheckAmount})}
+					disabled={!canTransfer || needApprove || fluentStatus !== 'active'}
+					{...register('amount', { required: !needApprove, min: Unit.fromMinUnit(1).toDecimalStandardUnit(), onBlur: handleCheckAmount})}
 					suffix={
 						<div
 							className="absolute right-[16px] top-[50%] -translate-y-[50%] text-[14px] text-[#808BE7] cursor-pointer hover:underline"
@@ -219,12 +225,13 @@ const TransferNormalMode: React.FC = () => {
 				<AuthConnectButton
 					id="btn-transfer-2bridge"
 					className='ml-[16px] text-[14px]'
-					wallet="MetaMask"
+					wallet={metaMaskStatus !== 'active' ? 'MetaMask' : 'Fluent'}
 					buttonType="contained"
 					buttonSize="normal"
-					disabled={metaMaskStatus === 'active' ? !canTransfer : metaMaskStatus !== 'not-active'}
-					authContent={i18n.transfer}
+					disabled={metaMaskStatus === 'active' ? !canClickButton : metaMaskStatus !== 'not-active'}
+					authContent={needApprove ? 'Approve' : needApprove === false ? i18n.transfer : 'Checking Approval...'}
 				/>
+				{fluentStatus === 'active' && needApprove && <p className='absolute -top-[16px] right-0 text-[12px] text-[#A9ABB2] whitespace-nowrap'>Approval value must be greater than your token balance.</p>}
 			</div>
 			
 			<p className="text-[14px] leading-[18px] text-[#3D3F4C]">
@@ -253,7 +260,6 @@ const TransferNormalMode: React.FC = () => {
 }
 
 const TransferAdvancedMode: React.FC = () => {
-	const { currentToken } = useToken('eSpace');
 	const eSpaceMirrorAddress = useESpaceMirrorAddress();
 	const [isCopied, setCopied] = useClipboard(eSpaceMirrorAddress ?? '', { successDuration: 1500 });
 
@@ -312,11 +318,21 @@ const Withdraw2Core: React.FC = memo(() => {
 	const hasESpaceMirrorAddress = useESpaceMirrorAddress();
 	const withdrawableBalance = useESpaceWithdrawableBalance();
 	const fluentStatus = useFluentStatus();
+	const metaMaskStatus = useMetaMaskStatus();
 
 	const [inWithdraw, setInWithdraw ] = useState(false);
 	const handleClickWithdraw = useCallback(() => {
 		handleWithdraw({ setInWithdraw });
 	}, []);
+
+	let disabled: boolean;
+	if (currentToken.isNative) {
+		disabled = fluentStatus === 'active' ? (!withdrawableBalance || Unit.equals(withdrawableBalance, Unit.fromMinUnit(0)) || inWithdraw) : fluentStatus !== 'not-active';
+	} else {
+		disabled = fluentStatus === 'active' && metaMaskStatus === 'active' ? 
+			(!withdrawableBalance || Unit.equals(withdrawableBalance, Unit.fromMinUnit(0)) || inWithdraw)
+			: (fluentStatus !== 'not-active' && metaMaskStatus !== 'not-active');
+	}
 
 	return (
 		<>
@@ -350,11 +366,11 @@ const Withdraw2Core: React.FC = memo(() => {
 			<AuthConnectButton
 				id="eSpace-2core-withdraw-btn"
 				className='px-[38px] text-[14px]'
-				wallet={currentToken.isNative ? 'Fluent' : 'MetaMask'}
+				wallet={currentToken.isNative ? 'Fluent' : (fluentStatus !== 'active' ? 'Fluent' : 'MetaMask')}
 				buttonType="contained"
 				buttonSize='normal'
 				authContent={inWithdraw ? 'Withdrawing...' : 'Withdraw'}
-				disabled={fluentStatus === 'active' ? (!withdrawableBalance || Unit.equals(withdrawableBalance, Unit.fromMinUnit(0)) || inWithdraw) : fluentStatus !== 'not-active'}
+				disabled={disabled}
 				onClick={handleClickWithdraw}
 			/>
 		</>

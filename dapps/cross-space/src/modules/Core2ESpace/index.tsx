@@ -38,13 +38,13 @@ const Core2ESpace: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 	const i18n = useI18n(transitions);
 	const { register, handleSubmit: withForm, setValue, watch } = useForm();
 
-	const { currentToken, currentTokenContract } = useToken('core');
-	const needApprove = useNeedApprove('core');
+	const { currentToken } = useToken('core');
+	const needApprove = useNeedApprove(currentToken, 'core');
 
 	const fluentAccount = useFluentAccount();
 	const metaMaskAccount = useMetaMaskAccount();
 	const metaMaskStatus = useMetaMaskStatus();
-	const isUsedCurrentMetaMaskAccount = metaMaskStatus === 'active' && watch("eSpaceAddress") === metaMaskAccount;
+	const isUsedCurrentMetaMaskAccount = metaMaskStatus === 'active' && watch("eSpaceAccount") === metaMaskAccount;
 
 	const setAmount = useCallback((val: string) => {
 		const _val = val.replace(/(?:\.0*|(\.\d+?)0+)$/, '$1');
@@ -60,15 +60,15 @@ const Core2ESpace: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 
 	const onClickUseMetaMaskAccount = useCallback(() => {
 		if (metaMaskStatus === 'active') {
-			setValue('eSpaceAddress', metaMaskAccount!);
+			setValue('eSpaceAccount', metaMaskAccount!);
 		} else if (metaMaskStatus === 'not-active') {
 			connectMetaMask();
 		}
 	}, [metaMaskAccount, metaMaskStatus]);
 
 	const onSubmit = useCallback(withForm(async (data) => {
-		const { eSpaceAddress, amount } = data;
-		handleSubmit({ eSpaceAddress, amount })
+		const { eSpaceAccount, amount } = data;
+		handleSubmit({ eSpaceAccount, amount })
 			.finally(() => setAmount(''));
 	}), []);
 
@@ -90,7 +90,7 @@ const Core2ESpace: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 
 					<div className='relative flex items-center'>
 						<Input
-							id="core2ESpace-eSpaceAddress"
+							id="core2ESpace-eSpaceAccount"
 							outerPlaceholder={
 								<p className='input-placeholder text-[14px]'>
 									<span className='font-semibold text-[#15C184]'>Conflux eSpace</span> <span className='text-[#979797]'>Destination Address</span>
@@ -98,7 +98,7 @@ const Core2ESpace: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 							}
 							pattern="0x[a-fA-F0-9]{40}"
 							error="Invalid Address"
-							{...register('eSpaceAddress', {
+							{...register('eSpaceAccount', {
 								pattern: /0x[a-fA-F0-9]{40}/g,
 								required: !needApprove,
 							})}
@@ -138,7 +138,7 @@ const Transfer2ESpace: React.FC<{ register: UseFormRegister<FieldValues>; setAmo
 	const fluentStatus = useFluentStatus();
 	const currentTokenBalance = useCurrentTokenBalance('core');
 	const maxAvailableBalance = useMaxAvailableBalance('core');
-	const needApprove = useNeedApprove('core');
+	const needApprove = useNeedApprove(currentToken, 'core');
 
 	const handleCheckAmount = useCallback(async (evt: React.FocusEvent<HTMLInputElement, Element>) => {
 		if (!evt.target.value) return;
@@ -170,7 +170,7 @@ const Transfer2ESpace: React.FC<{ register: UseFormRegister<FieldValues>; setAmo
 				type="number"
 				step={1e-18}
 				min={Unit.fromMinUnit(1).toDecimalStandardUnit()}
-				disabled={!canTransfer}
+				disabled={!canTransfer || needApprove}
 				{...register('amount', { required: !needApprove, min: Unit.fromMinUnit(1).toDecimalStandardUnit(), onBlur: handleCheckAmount})}
 				suffix={
 					<div

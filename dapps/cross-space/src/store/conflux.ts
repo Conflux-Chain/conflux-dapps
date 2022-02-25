@@ -13,19 +13,25 @@ interface ConfluxStore {
 
     crossSpaceContractAddress?: string;
     crossSpaceContract?: { 
-        transferEVM(eSpaceAddress: string): Record<string, string>;
+        transferEVM(eSpaceAccount: string): Record<string, string>;
         withdrawFromMapped(eSpaceMirrorAddress: string): Record<string, string>;
     };
 
     confluxSideContractAddress?: string;
     confluxSideContract?: {
-        crossToEvm(coreTokenAddress: string, eSpaceAddress: string, amount: string): Record<string, string>;
+        crossToEvm(coreTokenAddress: string, eSpaceAccount: string, amount: string): Record<string, string>;
+        crossFromEvm(eSpaceTokenNativeAddress: string, eSpaceAccount: string, amount: string): Record<string, string>;
+        withdrawToEvm(eSpaceTokenNativeAddress: string, eSpaceAccount: string, amount: string): Record<string, string>;
+        withdrawFromEvm(coreTokenAddress: string, eSpaceAccount: string, amount: string): Record<string, string>;
     };
 
     evmSideContractAddress?: string;
     evmSideContract?: {
-        lockedMappedToken(mappedTokenAddress: string, eSpaceAddress: string, eSpaceMirrorAddress: string): Record<string, string>;
-        lockMappedToken(coreTokenMappedAddress: string, account: string, amount: string): Record<string, string>;
+        lockToken(eSpaceTokenNativeAddress: string, coreAccount: string, amount: string): Record<string, string>;
+        lockedToken(eSpaceTokenNativeAddress: string, eSpaceAccount: string, coreAccount: string): Record<string, string>;
+
+        lockMappedToken(coreTokenMappedAddress: string, coreAccount: string, amount: string): Record<string, string>;
+        lockedMappedToken(coreTokenMappedAddress: string, eSpaceAccount: string, coreAccount: string): Record<string, string>;
     };
 }
 
