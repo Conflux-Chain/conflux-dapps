@@ -1,10 +1,13 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import { visualizer } from 'rollup-plugin-visualizer';
 import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
 import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill';
 
 export default defineConfig({
+    plugins: [react()],
+    base: './',
     optimizeDeps: {
         esbuildOptions: {
             // Node.js global to browser globalThis
@@ -13,15 +16,17 @@ export default defineConfig({
             },
             // Enable esbuild polyfill plugins
             plugins: [
-                NodeGlobalsPolyfillPlugin({
-                    buffer: true
-                }),
+                NodeGlobalsPolyfillPlugin({ buffer: true }),
                 NodeModulesPolyfillPlugin()
             ]
         }
     },
-    plugins: [react()],
-    base: './',
+    build: {
+        target: 'esnext',
+        rollupOptions: {
+            plugins: [visualizer()],
+        },
+    },
     resolve: {
         alias: {
             '@base': path.resolve(__dirname, 'node_modules'),
@@ -34,6 +39,7 @@ export default defineConfig({
             '@components': path.resolve(__dirname, 'src/components'),
             '@router': path.resolve(__dirname, 'src/router'),
             '@contracts': path.resolve(__dirname, 'src/contracts'),
+            buffer: 'rollup-plugin-node-polyfills/polyfills/buffer-es6'
         },
     },
 });

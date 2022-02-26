@@ -97,24 +97,24 @@ const Transfer2Bridge: React.FC = memo(() => {
 	const { currentToken } = useToken('eSpace');
 
 	const [mode, setMode] = useState<'normal' | 'advanced'>(() => {
-		const local = LocalStorage.get('epsace-transfer2bridge-mode', 'cross-space') as 'normal';
+		const local = LocalStorage.get('eSpace-transfer2bridge-mode', 'cross-space') as 'normal';
 		if (local === 'normal' || local === 'advanced') {
 			return local;
 		}
-		LocalStorage.set('epsace-transfer2bridge-mode', 'normal', 0, 'cross-space');
+		LocalStorage.set('eSpace-transfer2bridge-mode', 'normal', 0, 'cross-space');
 		return 'normal';
 	});
 
 	const switchMode = useCallback(() => {
 		setMode(pre => {
-			LocalStorage.set('epsace-transfer2bridge-mode', pre === 'normal' ? 'advanced' : 'normal', 0, 'cross-space');
+			LocalStorage.set('eSpace-transfer2bridge-mode', pre === 'normal' ? 'advanced' : 'normal', 0, 'cross-space');
 			return pre === 'normal' ? 'advanced' : 'normal';
 		});
 	}, []);
 
 	useEffect(() => {
 		if (!currentToken.isNative) {
-			LocalStorage.set('epsace-transfer2bridge-mode', 'normal', 0, 'cross-space');
+			LocalStorage.set('eSpace-transfer2bridge-mode', 'normal', 0, 'cross-space');
 			setMode('normal');
 		}
 	}, [currentToken]);
@@ -224,8 +224,8 @@ const TransferNormalMode: React.FC = () => {
 				/>
 				<AuthConnectButton
 					id="btn-transfer-2bridge"
-					className='ml-[16px] text-[14px]'
-					wallet={metaMaskStatus !== 'active' ? 'MetaMask' : 'Fluent'}
+					className='ml-[16px] text-[14px] w-[128px]'
+					wallet="Both"
 					buttonType="contained"
 					buttonSize="normal"
 					disabled={metaMaskStatus === 'active' ? !canClickButton : metaMaskStatus !== 'not-active'}
@@ -355,7 +355,7 @@ const Withdraw2Core: React.FC = memo(() => {
 				<span className='mr-[8px] text-[14px] text-[#A9ABB2]'>Withdrawable:</span>
 				{!inWithdraw && 
 					<span className='text-[16px] text-[#3D3F4C] font-medium'>
-						{`${withdrawableBalance ? `${withdrawableBalance.toDecimalStandardUnit()} ${currentToken.symbol}` : (hasESpaceMirrorAddress ? 'loading...' : '--')}`}
+						{`${withdrawableBalance ? `${withdrawableBalance.toDecimalStandardUnit()} ${currentToken.symbol}` : (currentToken.isNative && hasESpaceMirrorAddress ? 'loading...' : '--')}`}
 					</span>
 				}
 				{inWithdraw && 
@@ -366,7 +366,7 @@ const Withdraw2Core: React.FC = memo(() => {
 			<AuthConnectButton
 				id="eSpace-2core-withdraw-btn"
 				className='px-[38px] text-[14px]'
-				wallet={currentToken.isNative ? 'Fluent' : (fluentStatus !== 'active' ? 'Fluent' : 'MetaMask')}
+				wallet={currentToken.isNative ? 'Fluent' : 'Both'}
 				buttonType="contained"
 				buttonSize='normal'
 				authContent={inWithdraw ? 'Withdrawing...' : 'Withdraw'}

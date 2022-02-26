@@ -22,7 +22,7 @@ const transitions = {
 } as const;
 
 const AuthConnectButton = memo<{
-    wallet: 'Fluent' | 'MetaMask';
+    wallet: 'Fluent' | 'MetaMask' | 'Both';
     authContent: any;
     buttonType: 'contained' | 'outlined';
     buttonSize: 'mini' | 'small' | 'normal';
@@ -34,10 +34,17 @@ const AuthConnectButton = memo<{
 }>(({ wallet, authContent, buttonType, buttonSize, disabled, fullWidth, id, className, onClick }) => {
     const i18n = useI18n(transitions);
 
-    const status = wallet === 'Fluent' ? useFluentStatus() : useMetaMaskStatus();
-    const connect = wallet === 'Fluent' ? connectFluent : connectMetaMask;
+    const fluentStatus = useFluentStatus();
+    const metaMaskStatus = useMetaMaskStatus();
+    let currentWallet: 'Fluent' | 'MetaMask' = wallet !== 'Both' ? wallet : null!;
+    if (currentWallet === null) {
+        if (fluentStatus !== 'active') currentWallet = 'Fluent';
+        else currentWallet = 'MetaMask';
+    }
 
-    const Logo = wallet == 'Fluent' ? FluentLogo : MetaMaskLogo;
+    const status = currentWallet === 'Fluent' ? fluentStatus : metaMaskStatus;
+    const connect = currentWallet === 'Fluent' ? connectFluent : connectMetaMask;
+    const Logo = currentWallet == 'Fluent' ? FluentLogo : MetaMaskLogo;
 
 	const handleClick = useCallback<React.MouseEventHandler>((evt) => {
 		if (status !== 'active') {
@@ -64,12 +71,12 @@ const AuthConnectButton = memo<{
             onClick={handleClick}
             disabled={typeof disabled !== 'undefined' ? disabled : (status !== 'active' && status !== 'not-active')}
         >
-            {buttonType === 'outlined' && <img src={Logo} alt={`${wallet} logo`} className="mr-[8px] w-[12px] h-[12px]" draggable="false" />}
+            {buttonType === 'outlined' && <img src={Logo} alt={`${currentWallet} logo`} className="mr-[8px] w-[12px] h-[12px]" draggable="false" />}
 
             {status === 'active' && typeof authContent === 'string' && authContent}
-            {status === 'not-active' && `${i18n.connect} ${wallet}`}
+            {status === 'not-active' && `${i18n.connect} ${currentWallet}`}
             {status === 'in-activating' && i18n.connecting}
-            {status === 'not-installed' && `${wallet} ${i18n.not_installed}`}
+            {status === 'not-installed' && `${currentWallet} ${i18n.not_installed}`}
         </button>
     );
 });

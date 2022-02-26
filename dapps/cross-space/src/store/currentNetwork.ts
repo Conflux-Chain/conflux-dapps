@@ -3,7 +3,7 @@ import { subscribeWithSelector } from 'zustand/middleware';
 import { store as fluentStore } from '@cfxjs/use-wallet';
 import networkConfig from '../../network-config.json';
 
-interface Network {
+export interface Network {
     name: string;
     url: string;
     networkId: string;

@@ -6,6 +6,10 @@ declare module 'js-conflux-sdk/src/contract/internal/index.js' {
     export const CrossSpaceCall: { abi: Array<Object>; address: string; };
 }
 
-declare module '@fluent-wallet/estimate-tx' {
-    export const estimate: any;
+declare module '@fluent-wallet/base32-address' {
+    export function validateBase32Address(address: string): boolean;
+}
+
+declare module '@fluent-wallet/account' {
+    export function isHexAddress(address: string): string;
 }

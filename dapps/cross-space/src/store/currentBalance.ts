@@ -5,7 +5,7 @@ import { store as fluentStore, Unit, provider as fluentProvider } from '@cfxjs/u
 import { store as metaMaskStore, provider as metaMaskProvider } from '@cfxjs/use-wallet/dist/ethereum';
 import { confluxStore } from './conflux';
 import { format } from 'js-conflux-sdk';
-import { estimate } from '@fluent-wallet/estimate-tx';
+// import { estimate } from '@fluent-wallet/estimate-tx';
 import { currentTokenStore, type Token } from './currentToken';
 
 interface CoreBalanceStore {

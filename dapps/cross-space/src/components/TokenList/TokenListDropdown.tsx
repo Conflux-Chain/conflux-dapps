@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, memo, useMemo } from 'react';
-import create from 'zustand';
 import cx from 'clsx';
+import useI18n from 'common/hooks/useI18n';
 import { useStatus as useFluentStatus, watchAsset as watchAssetFluent } from '@cfxjs/use-wallet';
 import { useStatus as useMetaMaskStatus, watchAsset as watchAssetMetaMask } from '@cfxjs/use-wallet/dist/ethereum';
 import { shortenAddress } from '@fluent-wallet/shorten-address';
@@ -12,40 +12,11 @@ import Dropdown from 'common/components/Dropdown';
 import Tooltip from 'common/components/Tooltip';
 import Input from 'common/components/Input';
 import { showToast } from 'common/components/tools/Toast';
-import useI18n from 'common/hooks/useI18n';
-import { useToken, nativeToken, type Token } from '@store/index';
+import { useToken, type Token } from '@store/index';
 import Copy from 'common/assets/copy.svg';
 import Add from 'common/assets/add-to-wallet.svg';
 import Search from 'common/assets/search.svg';
-
-interface TokenListStore {
-    tokenList: Array<Token>;
-    fetchTokenList: () => Promise<void>;
-}
-
-type FetchRes = { core_native_tokens: Array<Token>; evm_native_tokens: Array<Token>; };
-
-const tokenListStore = create<TokenListStore>((set) => ({
-    tokenList: [nativeToken],
-    fetchTokenList: async () => {
-        try {
-            const res: FetchRes = await fetch('https://raw.githubusercontent.com/Conflux-Chain/conflux-evm-bridge/main/native_token_list_testnet.json').then(data => data.json());
-            const fetchedTokenList = [...res?.core_native_tokens, ...res?.evm_native_tokens]
-                .map(token => ({
-                    ...token,
-                    nativeSpace: token.native_address.startsWith('0x') ? 'eSpace' : 'core'
-                }) as Token);
-            set({ tokenList: [nativeToken, ...fetchedTokenList] });
-        } catch (err) {
-            console.error('fetchTokenList error: ', err);
-        }
-    }
-}));
-tokenListStore.getState().fetchTokenList();
-
-const tokenListSelector = (state: TokenListStore) => state.tokenList
-const useTokenList = () => tokenListStore(tokenListSelector);
-
+import { useTokenList, judgeTokenCanCrossSpace } from './tokenListStore';
 
 const transitions = {
     en: {
@@ -83,7 +54,7 @@ const TokenListDropdown: React.FC<{ children: (triggerDropdown: () => void, visi
             visible={visible}
             onClickOutside={hideDropdown}
             className="relative flex flex-col w-[432px] pt-[16px] rounded-[4px] bg-white shadow contain-content overflow-hidden"
-            Content={<DropdownContent space={space} visible={visible} />}
+            Content={<DropdownContent space={space} visible={visible} hideDropdown={hideDropdown} />}
             appendTo={document.body}
             
         >
@@ -92,7 +63,7 @@ const TokenListDropdown: React.FC<{ children: (triggerDropdown: () => void, visi
     )
 }
 
-const DropdownContent: React.FC<{ space: 'core' | 'eSpace'; visible: boolean; }>= ({ visible, space }) => {
+const DropdownContent: React.FC<{ space: 'core' | 'eSpace'; visible: boolean; hideDropdown: () => void; }>= ({ visible, space, hideDropdown }) => {
     const i18n = useI18n(transitions);
     const { currentToken, setCurrentToken, commonTokens, updateCommonTokens } = useToken(space);
 
@@ -108,7 +79,21 @@ const DropdownContent: React.FC<{ space: 'core' | 'eSpace'; visible: boolean; }>
     const tokenList = useTokenList();
     const filterTokenList = useMemo(() => {
         if (!filter) return tokenList;
-        return tokenList.filter(token => [token.name, token.symbol, token.native_address].some(str => str.search(new RegExp(filter, 'i')) !== -1));
+        return tokenList?.filter(token =>
+            (token.isNative ? [token.name, token.symbol] : [token.name, token.symbol, token.native_address, token.mapped_address])
+                .some(str => str.search(new RegExp(filter, 'i')) !== -1)
+        );
+    }, [filter, tokenList]);
+
+    useEffect(() => {
+        if (!filter) return;
+        // if (tokenList?.some(token =>
+        //         (token.isNative ? [token.name, token.symbol] : [token.name, token.symbol, token.native_address, token.mapped_address])
+        //             .some(str => str.search(new RegExp(filter, 'i')) !== -1)
+        //     )
+        // ) return;
+        
+        judgeTokenCanCrossSpace();
     }, [filter, tokenList]);
 
     const [copyAddressSource, copyAddressSingleton] = useSingleton();
@@ -138,7 +123,10 @@ const DropdownContent: React.FC<{ space: 'core' | 'eSpace'; visible: boolean; }>
                                 "shrink-0 px-[16px] h-[32px] leading-[32px] rounded-[18px] border border-[#EAECEF] text-center text-[14px] cursor-pointer hover:border-[#808BE7] transition-colors",
                                 currentToken.symbol === commonToken.symbol ? 'bg-[#808BE7] text-white pointer-events-none' : 'text-[#3D3F4C]'
                             )}
-                            onClick={() => setCurrentToken(commonToken)}
+                            onClick={() => {
+                                setCurrentToken(commonToken);
+                                hideDropdown();
+                            }}
                         >
                             {commonToken.symbol}
                         </div>
@@ -158,6 +146,7 @@ const DropdownContent: React.FC<{ space: 'core' | 'eSpace'; visible: boolean; }>
                         copyAddressSingleton={copyAddressSingleton}
                         addToWalletSingleton={addToWalletSingleton}
                         walletStatus={walletStatus}
+                        hideDropdown={hideDropdown}
                         {...token}
                     />
                 )}
@@ -171,6 +160,7 @@ const DropdownContent: React.FC<{ space: 'core' | 'eSpace'; visible: boolean; }>
 
 interface TokenItemProps extends Token {
     setCurrentToken: (token: Token) => void;
+    hideDropdown: () => void;
     isCurrent: boolean;
     space: 'core' | 'eSpace';
     walletStatus: ReturnType<typeof useFluentStatus>;
@@ -178,7 +168,7 @@ interface TokenItemProps extends Token {
     addToWalletSingleton: ReturnType<typeof useSingleton>[1];
 }
 
-const TokenItem = memo<TokenItemProps>(({ isCurrent, setCurrentToken, space, walletStatus, copyAddressSingleton, addToWalletSingleton, ...token}) => {
+const TokenItem = memo<TokenItemProps>(({ isCurrent, setCurrentToken, hideDropdown, space, walletStatus, copyAddressSingleton, addToWalletSingleton, ...token}) => {
     const { symbol, name, native_address, mapped_address, nativeSpace, icon, isNative } = token;
     const usedTokenAddress = nativeSpace === space ? native_address : mapped_address;
 
@@ -209,7 +199,10 @@ const TokenItem = memo<TokenItemProps>(({ isCurrent, setCurrentToken, space, wal
     return (
         <div
             className={cx("flex justify-between items-center h-[56px] pl-[16px] pr-[20px] bg-white", isCurrent ? 'bg-[#808BE7] bg-opacity-30' : 'hover:bg-[#808BE7] hover:bg-opacity-10 cursor-pointer')}
-            onClick={() => setCurrentToken(token)}
+            onClick={() => { 
+                setCurrentToken(token);
+                hideDropdown();
+            }}
         >
             <div className="inline-flex items-center">
                 <img src={token.icon} alt="token img" className="w-[28px] h-[28px] mr-[8px]" />

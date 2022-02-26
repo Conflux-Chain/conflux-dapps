@@ -98,14 +98,17 @@ export const useToken = (space: 'core' | 'eSpace') => {
     }, [space]);
 
     const setCurrentToken = useCallback((token: Token) => {
-        // currentTokenStore.setState({ core: token, eSpace: token });
-        if (space === 'core') {
-            currentTokenStore.setState({ core: token });
-        } else {
-            currentTokenStore.setState({ eSpace: token });
-        }
+        currentTokenStore.setState({ core: token, eSpace: token });
+        LocalStorage.set(`current-core-token`, token, 0, 'cross-space');
+        LocalStorage.set(`current-eSpace-token`, token, 0, 'cross-space');
 
-        LocalStorage.set(`current-${space}-token`, token, 0, 'cross-space');
+        // if (space === 'core') {
+        //     currentTokenStore.setState({ core: token });
+        // } else {
+        //     currentTokenStore.setState({ eSpace: token });
+        // }
+
+        // LocalStorage.set(`current-${space}-token`, token, 0, 'cross-space');
     }, [space]);
 
 

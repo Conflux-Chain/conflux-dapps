@@ -3,7 +3,8 @@
         "name": "Conflux Hydra", 
         "url": "https://main.confluxrpc.com",
         "networkId": "1029",
-        "scan": "",
+        "scan": "https://confluxscan.io",
+        "innerTokenList": "",
         "eSpace": {
             "name": "Conflux eSpace",
             "url": "https://evm.confluxrpc.com",
@@ -16,6 +17,7 @@
         "url": "https://test.confluxrpc.com",
         "networkId": "1",
         "scan": "",
+        "innerTokenList": "https://raw.githubusercontent.com/Conflux-Chain/conflux-evm-bridge/main/native_token_list_testnet.json",
         "eSpace": {
             "name": "Conflux eSpace (Testnet)",
             "url": "https://evmtestnet.confluxrpc.com",
