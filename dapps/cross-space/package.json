@@ -9,10 +9,11 @@
         "@cfxjs/use-wallet": "^0.0.17",
         "@fluent-wallet/account": "^0.1.0",
         "@fluent-wallet/base32-address": "^0.1.1",
-        "@fluent-wallet/estimate-tx": "^0.0.7",
+        "@fluent-wallet/estimate-tx": "^0.1.1",
         "@fluent-wallet/shorten-address": "^0.1.2",
         "@react-spring/web": "^9.4.3",
         "@tippyjs/react": "^4.2.6",
+        "abi-decoder": "^2.4.0",
         "clsx": "^1.1.1",
         "common": "workspace:*",
         "custom-react-scrollbar": "^0.0.2",
@@ -24,7 +25,7 @@
         "react-hook-form": "^7.27.1",
         "react-use-clipboard": "^1.0.7",
         "tippy.js": "^6.3.7",
-        "zustand": "^3.7.0"
+        "zustand": "^3.7.1"
     },
     "devDependencies": {
         "@esbuild-plugins/node-globals-polyfill": "^0.1.1",

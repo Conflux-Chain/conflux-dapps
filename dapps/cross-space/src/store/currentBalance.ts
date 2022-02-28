@@ -1,11 +1,10 @@
 import create from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
-import shallow from 'zustand/shallow';
 import { store as fluentStore, Unit, provider as fluentProvider } from '@cfxjs/use-wallet';
 import { store as metaMaskStore, provider as metaMaskProvider } from '@cfxjs/use-wallet/dist/ethereum';
 import { confluxStore } from './conflux';
 import { format } from 'js-conflux-sdk';
-// import { estimate } from '@fluent-wallet/estimate-tx';
+import { estimate } from '@fluent-wallet/estimate-tx';
 import { currentTokenStore, type Token } from './currentToken';
 
 interface CoreBalanceStore {
@@ -256,14 +255,60 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
 // trackMaxAvailableBalance
 ([coreBalanceStore, eSpaceBalanceStore] as const).forEach((balanceStore: typeof coreBalanceStore) => {
     const currentToken = currentTokenStore.getState()[balanceStore === coreBalanceStore ? 'core' : 'eSpace'];
+    const walletStore = balanceStore === coreBalanceStore ? fluentStore : metaMaskStore;
+    if (!fluentProvider) return;
 
     balanceStore.subscribe(state => state.currentTokenBalance, (currentTokenBalance) => {
-        if (currentTokenBalance === undefined) {
+        const account = walletStore.getState().accounts?.[0];
+
+        if (!currentTokenBalance || !account) {
             balanceStore.setState({ maxAvailableBalance: undefined });
             return;
         }
+        
         if (currentToken.isNative) {
-            balanceStore.setState({ maxAvailableBalance: Unit.greaterThan(currentTokenBalance, Unit.fromStandardUnit('0.001')) ? Unit.sub(currentTokenBalance, Unit.fromStandardUnit('0.001')) : Unit.fromMinUnit(0) });
+            if (balanceStore === coreBalanceStore) {
+                // estimate Fluent max available balance
+                const { crossSpaceContract, crossSpaceContractAddress } = confluxStore.getState();
+                if (!crossSpaceContract || !crossSpaceContractAddress) return;
+                estimate({
+                    from: account,
+                    to: crossSpaceContractAddress,
+                    data: crossSpaceContract.transferEVM('0xFBBEd826c29b88BCC428B6fa0cfE6b0908653676').data,
+                    value: currentTokenBalance.toHexMinUnit(),
+                }, {
+                    type: balanceStore === coreBalanceStore ? 'cfx' : 'eth',
+                    request: fluentProvider!.request.bind(fluentProvider),
+                    tokensAmount: {},
+                    isFluentRequest: true,
+                }).then(estimateRes => {
+                    balanceStore.setState({ maxAvailableBalance:  Unit.fromMinUnit(estimateRes.nativeMaxDrip) });
+                }).catch(err => {
+                    console.error('Get fluent max available balance error: ', err);
+                });
+            } else {
+                // estimate MetaMask max available balance
+                if (!metaMaskProvider) return;
+                Promise.all([
+                    metaMaskProvider.request({
+                        method: 'eth_estimateGas',
+                        params: [{ 
+                            from: account,
+                            to: '0x8a4c531EED1205E0eE6E34a1092e0298173a659d',
+                            value: currentTokenBalance.toHexMinUnit(),
+                        }]
+                    }),
+                    metaMaskProvider.request({
+                        method: 'eth_gasPrice',
+                        params: []
+                    }),
+                ]).then(([estimateGas, gasPrice]) => {
+                    const gasFee = Unit.mul(Unit.mul(Unit.fromMinUnit(estimateGas), Unit.fromMinUnit(gasPrice)), Unit.fromMinUnit('1.5'));
+                    balanceStore.setState({ maxAvailableBalance: Unit.greaterThan(currentTokenBalance, gasFee) ? Unit.sub(currentTokenBalance, gasFee) : Unit.fromMinUnit(0) });
+                }).catch(err => {
+                    console.error('Get MetaMask max available balance error: ', err);
+                });
+            }
         } else {
             balanceStore.setState({ maxAvailableBalance: currentTokenBalance });
         }
@@ -364,31 +409,3 @@ export const useCurrentTokenBalance = (space: 'core' | 'eSpace') =>
 export const useMaxAvailableBalance = (space: 'core' | 'eSpace') =>
     (space === 'core' ? coreBalanceStore as typeof eSpaceBalanceStore : eSpaceBalanceStore)(selectors.maxAvailableBalance);
 export const useESpaceWithdrawableBalance = () => eSpaceBalanceStore(selectors.withdrawableBalance);
-
-
-
-
-// fluentStore.subscribe(state => [state.accounts, state.balance] as const, async ([accouts, balance]) => {
-//     const account = accouts?.[0];
-//     if (!account || !balance || !fluentProvider) {
-//         coreBalanceStore.setState({ maxAvailableBalance: undefined });
-//         return;
-//     }
-
-//     const { crossSpaceContract, crossSpaceContractAddress } = confluxStore.getState();
-//     if (!crossSpaceContract || !crossSpaceContractAddress) return;
-
-//     const estimateRes = await estimate({
-//         from: account,
-//         to: crossSpaceContractAddress,
-//         data: crossSpaceContract.transferEVM('0xFBBEd826c29b88BCC428B6fa0cfE6b0908653676').data,
-//         value: balance.toHexMinUnit(),
-//     }, {
-//         type: 'cfx',
-//         request: fluentProvider.request.bind(fluentProvider),
-//         tokensAmount: {},
-//         isFluentRequest: true,
-//     });
-
-//     coreBalanceStore.setState({ maxAvailableBalance: Unit.fromMinUnit(estimateRes.nativeMaxDrip) });
-// }, { equalityFn: shallow });

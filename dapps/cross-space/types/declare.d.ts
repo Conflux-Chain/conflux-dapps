@@ -13,3 +13,8 @@ declare module '@fluent-wallet/base32-address' {
 declare module '@fluent-wallet/account' {
     export function isHexAddress(address: string): string;
 }
+
+declare module '@fluent-wallet/estimate-tx' {
+    export function estimate(txParams: any, options: any): Promise<{ nativeMaxDrip: string; }>;
+}
+

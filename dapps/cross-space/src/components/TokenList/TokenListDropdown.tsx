@@ -16,7 +16,8 @@ import { useToken, type Token } from '@store/index';
 import Copy from 'common/assets/copy.svg';
 import Add from 'common/assets/add-to-wallet.svg';
 import Search from 'common/assets/search.svg';
-import { useTokenList, judgeTokenCanCrossSpace } from './tokenListStore';
+import { useTokenList } from './tokenListStore';
+import judgeTokenValid from './judgeTokenValid';
 
 const transitions = {
     en: {
@@ -92,8 +93,10 @@ const DropdownContent: React.FC<{ space: 'core' | 'eSpace'; visible: boolean; hi
         //             .some(str => str.search(new RegExp(filter, 'i')) !== -1)
         //     )
         // ) return;
-        
-        judgeTokenCanCrossSpace();
+        const toJudge = async () => {
+            await judgeTokenValid(filter.trim());
+        }
+        toJudge();
     }, [filter, tokenList]);
 
     const [copyAddressSource, copyAddressSingleton] = useSingleton();
