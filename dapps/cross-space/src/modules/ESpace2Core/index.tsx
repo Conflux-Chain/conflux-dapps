@@ -94,7 +94,7 @@ let bridgeReceived: HTMLSpanElement | null = null;
 const Transfer2Bridge: React.FC = memo(() => {
 	const i18n = useI18n(transitions);
 
-	const { currentToken } = useToken('eSpace');
+	const { currentToken } = useToken();
 
 	const [mode, setMode] = useState<'normal' | 'advanced'>(() => {
 		const local = LocalStorage.get('eSpace-transfer2bridge-mode', 'cross-space') as 'normal';
@@ -154,7 +154,7 @@ const TransferNormalMode: React.FC = () => {
 	const i18n = useI18n(transitions);
 	const { register, handleSubmit, setValue } = useForm();
 
-	const { currentToken } = useToken('eSpace');
+	const { currentToken } = useToken();
 
 	const metaMaskAccount = useMetaMaskAccount();
 	const fluentStatus = useFluentStatus();
@@ -314,7 +314,7 @@ const TransferAdvancedMode: React.FC = () => {
 
 
 const Withdraw2Core: React.FC = memo(() => {
-	const { currentToken } = useToken('eSpace');
+	const { currentToken } = useToken();
 	const hasESpaceMirrorAddress = useESpaceMirrorAddress();
 	const withdrawableBalance = useESpaceWithdrawableBalance();
 	const fluentStatus = useFluentStatus();

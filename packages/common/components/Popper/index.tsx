@@ -31,12 +31,12 @@ const Popper: React.FC<Props> = ({
     const [styles, api] = useSpring(() => transitionAnimation[animationType].from);
 
     const onMount = useCallback(() => {
-        api.start({ ...transitionAnimation[animationType].enter, config: { mass: 1, tension: 400, friction: 22, clamp: false, duration: typeof animationDuration === 'number' ? animationDuration : animationDuration?.enter } });
-    }, [animationType, animationDuration, api]);
+        api.start({ ...transitionAnimation[animationType].enter, config: { mass: 1, tension: 400, friction: 22, clamp: false, duration: typeof animationDuration === 'number' ? animationDuration : animationDuration?.enter }, onRest: () => {} });
+    }, [animationType, animationDuration]);
 
     const onHide = useCallback(({ unmount }) => {
         api.start({ ...transitionAnimation[animationType].leave, onRest: unmount, config: { mass: 1, tension: 400, friction: 24, clamp: true, duration: typeof animationDuration === 'number' ? animationDuration : animationDuration?.leave } });
-    }, [animationType, animationDuration, api]);
+    }, [animationType, animationDuration]);
 
 
     return (

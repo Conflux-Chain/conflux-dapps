@@ -23,6 +23,7 @@ export interface Token {
     icon: string;
     nativeSpace?: 'core' | 'eSpace';
     isNative?: true;
+    isInner?: true;
 }
 
 interface TokenContract {
@@ -31,87 +32,65 @@ interface TokenContract {
 }
 
 interface TokenStore {
-    core: Token;
-    coreTokenContract?: TokenContract;
-    eSpace: Token;
-    eSpaceTokenContract?: TokenContract;
+    currentToken: Token;
+    currentTokenContract?: TokenContract;
+    commonTokens: Array<Token>;
 }
 
+const CommonTokenCount = 10;
+const commonTokensCache = new Cache<Token>(CommonTokenCount - 1, 'cross-space-common-tokens');
+
 export const currentTokenStore = create(subscribeWithSelector(() => ({
-    core: (LocalStorage.get('current-core-token', 'cross-space') as Token) ?? nativeToken,
-    coreTokenContract: undefined,
-    eSpace: (LocalStorage.get('current-eSpace-token', 'cross-space') as Token) ?? nativeToken,
-    eSpaceTokenContract: undefined
+    currentToken: (LocalStorage.get('currentToken', 'cross-space') as Token) ?? nativeToken,
+    currentTokenContract: undefined,
+    commonTokens: [nativeToken, ...commonTokensCache.toArr()],
 }) as TokenStore));
 
 const selectors = {
-    core: (state: TokenStore) => state.core,
-    coreTokenContract: (state: TokenStore) => state.coreTokenContract,
-    eSpace: (state: TokenStore) => state.eSpace,
-    eSpaceTokenContract: (state: TokenStore) => state.eSpaceTokenContract
+    token: (state: TokenStore) => state.currentToken,
+    tokenContract: (state: TokenStore) => state.currentTokenContract,
+    commonTokens: (state: TokenStore) => state.commonTokens,
 };
 
-(['core', 'eSpace'] as const).forEach(space => {
-    currentTokenStore.subscribe(state => state[space], (token) => {
-        const conflux = confluxStore.getState().conflux!;
-        if (!conflux || !token || token.isNative) return;
-        currentTokenStore.setState({
-            [space + 'TokenContract' as 'coreTokenContract']: conflux.Contract({ abi: CRC20TokenABI, address: token.native_address }) as unknown as TokenContract
-        });
+
+currentTokenStore.subscribe(state => state.currentToken, (currentToken) => {
+    const conflux = confluxStore.getState().conflux!;
+    if (!conflux || !currentToken || currentToken.isNative) return;
+    currentTokenStore.setState({
+        currentTokenContract: conflux.Contract({ abi: CRC20TokenABI, address: currentToken.native_address }) as unknown as TokenContract
     });
-    
-});
+}, { fireImmediately: true });
+
 
 confluxStore.subscribe(state => state.conflux, (conflux) => {
-    const coreToken = currentTokenStore.getState().core;
-    const eSpaceToken = currentTokenStore.getState().eSpace;
+    const currentToken = currentTokenStore.getState().currentToken;
     if (!conflux) return;
-    if (!coreToken.isNative) {
+    if (!currentToken.isNative) {
         currentTokenStore.setState({
-            coreTokenContract: conflux.Contract({ abi: CRC20TokenABI, address: coreToken.native_address }) as unknown as TokenContract,
+            currentTokenContract: conflux.Contract({ abi: CRC20TokenABI, address: currentToken.native_address }) as unknown as TokenContract,
         });
     }
-    if (!eSpaceToken.isNative) {
-        currentTokenStore.setState({
-            eSpaceTokenContract: conflux.Contract({ abi: CRC20TokenABI, address: eSpaceToken.native_address }) as unknown as TokenContract
-        });
-    }    
-});
+}, { fireImmediately: true });
 
-const CommonTokenCount = 10;
-const coreCommonTokensCache = new Cache<Token>(CommonTokenCount - 1, 'cross-space-common-tokens-core');
-const eSpaceCommonTokensCache = new Cache<Token>(CommonTokenCount - 1, 'cross-space-common-tokens-eSpace');
+export const useToken = () => {
+    const currentToken = currentTokenStore(selectors.token);
+    const currentTokenContract = currentTokenStore(selectors.tokenContract);
+    const commonTokens = currentTokenStore(selectors.commonTokens);
 
-export const useToken = (space: 'core' | 'eSpace') => {
-    const currentToken = currentTokenStore(selectors[space]);
-    const currentTokenContract = currentTokenStore(selectors[space + 'TokenContract' as 'coreTokenContract']);
+    const deleteFromCommonTokens = useCallback((deleteToken: Token) => {
+        if (!commonTokensCache.delete(deleteToken.native_address)) return;
+        currentTokenStore.setState({ commonTokens: [nativeToken, ...commonTokensCache.toArr()] });
+    }, []);
 
-    const [commonTokens, _updateCommonTokens] = useState(() => [nativeToken, ...(space === 'core' ? coreCommonTokensCache : eSpaceCommonTokensCache).toArr()]);
+    const setCurrentToken = useCallback((currentToken: Token) => {
+        currentTokenStore.setState({ currentToken });
+        LocalStorage.set(`currentToken`, currentToken, 0, 'cross-space');
 
-    const updateCommonTokens = useCallback(() => {
-        const currentCache = (space === 'core' ? coreCommonTokensCache : eSpaceCommonTokensCache);
-        const currentToken = currentTokenStore.getState()[space];
         if (!currentToken.isNative) {
-            currentCache.set(currentToken.symbol, currentToken);
+            commonTokensCache.set(currentToken.native_address, currentToken);
+            currentTokenStore.setState({ commonTokens: [nativeToken, ...commonTokensCache.toArr()] });
         }
-        _updateCommonTokens([nativeToken, ...currentCache.toArr()]);
-    }, [space]);
+    }, []);
 
-    const setCurrentToken = useCallback((token: Token) => {
-        currentTokenStore.setState({ core: token, eSpace: token });
-        LocalStorage.set(`current-core-token`, token, 0, 'cross-space');
-        LocalStorage.set(`current-eSpace-token`, token, 0, 'cross-space');
-
-        // if (space === 'core') {
-        //     currentTokenStore.setState({ core: token });
-        // } else {
-        //     currentTokenStore.setState({ eSpace: token });
-        // }
-
-        // LocalStorage.set(`current-${space}-token`, token, 0, 'cross-space');
-    }, [space]);
-
-
-
-    return { currentToken, currentTokenContract, setCurrentToken, commonTokens, updateCommonTokens };
+    return { currentToken, currentTokenContract, setCurrentToken, commonTokens, deleteFromCommonTokens };
 }

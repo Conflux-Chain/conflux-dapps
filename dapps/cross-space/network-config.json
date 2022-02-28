@@ -5,11 +5,13 @@
         "networkId": "1029",
         "scan": "https://confluxscan.io",
         "innerTokenList": "",
+        "CRC20CrossSpaceContractAddress": "",
         "eSpace": {
             "name": "Conflux eSpace",
             "url": "https://evm.confluxrpc.com",
             "networkId": "1030",
-            "scan": "https://evm.confluxscan.net"
+            "scan": "https://evm.confluxscan.net",
+            "CRC20CrossSpaceContractAddress": ""
         }
     },
     "1": {
@@ -18,11 +20,13 @@
         "networkId": "1",
         "scan": "",
         "innerTokenList": "https://raw.githubusercontent.com/Conflux-Chain/conflux-evm-bridge/main/native_token_list_testnet.json",
+        "CRC20CrossSpaceContractAddress": "cfxtest:achrygt0at7ub1bty99um6f5g1mktdjw7ubt7gc40j",
         "eSpace": {
             "name": "Conflux eSpace (Testnet)",
             "url": "https://evmtestnet.confluxrpc.com",
             "networkId": "71",
-            "scan": "https://evmtestnet.confluxscan.net"
+            "scan": "https://evmtestnet.confluxscan.net",
+            "CRC20CrossSpaceContractAddress": "0xef601c824532ae1ea72545a3ef74e6ed0be39cf2"
         }
     }
 }

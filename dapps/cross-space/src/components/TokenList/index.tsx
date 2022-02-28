@@ -6,7 +6,7 @@ import TokenListDropdown from './TokenListDropdown';
 import './index.css';
 
 const TokenList: React.FC<{ space: 'core' | 'eSpace'; }> = ({ space }) => {
-    const { currentToken } = useToken(space);
+    const { currentToken } = useToken();
     
     return (
         <TokenListDropdown space={space}>

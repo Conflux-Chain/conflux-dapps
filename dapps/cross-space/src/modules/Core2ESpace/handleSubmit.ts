@@ -9,7 +9,7 @@ interface Data {
 }
 
 const handleSubmit = async (data: Data) => {
-    const currentToken = currentTokenStore.getState().core;
+    const currentToken = currentTokenStore.getState().currentToken;
 
     if (currentToken.isNative) {
         await handleTransferCFX(data);
@@ -31,7 +31,7 @@ const handleTransferCFX = async ({ eSpaceAccount, amount }: Data) => {
     const { crossSpaceContract, crossSpaceContractAddress } = confluxStore.getState();
     if (!crossSpaceContract || !crossSpaceContractAddress) return;
 
-    const currentToken = currentTokenStore.getState().core;
+    const currentToken = currentTokenStore.getState().currentToken;
 
     let waitFluentKey: string | number = null!;
     let transactionSubmittedKey: string | number = null!;
@@ -59,7 +59,7 @@ const handleTransferCFX = async ({ eSpaceAccount, amount }: Data) => {
 
 const handleApproveCRC20 = async () => {
     const { confluxSideContractAddress } = confluxStore.getState();
-    const { core: currentToken, coreTokenContract: currentTokenContract } = currentTokenStore.getState();
+    const { currentToken, currentTokenContract } = currentTokenStore.getState();
     if (!confluxSideContractAddress || !currentToken || !currentTokenContract) return;
     const usedTokenAddress = currentToken.nativeSpace === 'core' ? currentToken.native_address : currentToken.mapped_address;
 
@@ -114,7 +114,7 @@ const handleTransferCRC20 = async ({ eSpaceAccount, amount, methodType }: Data &
     const { confluxSideContract, confluxSideContractAddress } = confluxStore.getState();
     if (!confluxSideContract || !confluxSideContractAddress) return;
 
-    const currentToken = currentTokenStore.getState().core;
+    const currentToken = currentTokenStore.getState().currentToken;
 
     let waitFluentKey: string | number = null!;
     let transactionSubmittedKey: string | number = null!;

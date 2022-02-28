@@ -5,7 +5,7 @@ import { showWaitWallet, showActionSubmitted, hideWaitWallet, hideActionSubmitte
 import { showToast } from 'common/components/tools/Toast';
 
 export const handleTransferSubmit = async (amount: string) => {
-    const currentToken = currentTokenStore.getState().eSpace;
+    const currentToken = currentTokenStore.getState().currentToken;
 
     if (currentToken.isNative) {
         await handleTransferCFX(amount);
@@ -52,7 +52,7 @@ const handleTransferCFX = async (amount: string) => {
 
 const handleApproveCRC20 = async () => {
     const { evmSideContractAddress } = confluxStore.getState();
-    const { eSpace: currentToken, eSpaceTokenContract: currentTokenContract } = currentTokenStore.getState();
+    const { currentToken, currentTokenContract } = currentTokenStore.getState();
     if (!evmSideContractAddress || !currentToken || !currentTokenContract) return;
     const usedTokenAddress = currentToken.nativeSpace === 'eSpace' ? currentToken.native_address : currentToken.mapped_address;
 
@@ -108,7 +108,7 @@ const handleTransferMappedCRC20 = async (amount: string, methodType: 'lockMapped
     const { evmSideContract, evmSideContractAddress } = confluxStore.getState();
     if (!fluentAccount || !evmSideContract || !evmSideContractAddress) return;
 
-    const currentToken = currentTokenStore.getState().eSpace;
+    const currentToken = currentTokenStore.getState().currentToken;
     const usedTokenAddress = currentToken.nativeSpace === 'eSpace' ? currentToken.native_address : currentToken.mapped_address;
 
     let waitFluentKey: string | number = null!;

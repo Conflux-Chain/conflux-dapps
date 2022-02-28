@@ -8,7 +8,7 @@ import { showToast } from 'common/components/tools/Toast';
 type SetInWithdraw = React.Dispatch<React.SetStateAction<boolean>>;
 
 export const handleWithdraw = async ({ setInWithdraw }: { setInWithdraw: SetInWithdraw }) => {
-    const currentToken = currentTokenStore.getState().eSpace;
+    const currentToken = currentTokenStore.getState().currentToken;
     const withdrawableBalance = eSpaceBalanceStore.getState().withdrawableBalance;
 
     if (!withdrawableBalance || Unit.equals(withdrawableBalance, Unit.fromMinUnit(0))) return;
@@ -54,7 +54,7 @@ const handleWithdrawCRC20 = async ({ withdrawableBalance, setInWithdraw, methodT
     const { confluxSideContract, confluxSideContractAddress } = confluxStore.getState();
     if (!metaMaskAccount || !confluxSideContract || !confluxSideContractAddress) return;
 
-    const currentToken = currentTokenStore.getState().eSpace;
+    const currentToken = currentTokenStore.getState().currentToken;
 
     let waitFluentKey: string | number = null!;
     let transactionSubmittedKey: string | number = null!;

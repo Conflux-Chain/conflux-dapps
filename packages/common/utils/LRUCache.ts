@@ -73,6 +73,16 @@ class LRUCache<T> {
         return cacheNode.data
     }
 
+    public delete = (key: string) => {
+        const cacheNode = this.map.get(key);
+        if (!cacheNode) return false;
+        this._deleteFromLinkedList(cacheNode);
+        this.map.delete(key);
+        LocalStorage.remove(key, this.namespace);
+        this.size--;
+        return true;
+    }
+
     private _deleteFromLinkedList = (node: LRUNode<T>) => {
         const preNode = node.pre;
         const nextNode = node.next;
@@ -82,6 +92,7 @@ class LRUCache<T> {
 
     private _moveToHead = (node: LRUNode<T>) => {
         const secondNode = this.head.next;
+        node.pre = this.head;
         node.next = secondNode;
         secondNode!.pre = node;
         this.head.next = node;

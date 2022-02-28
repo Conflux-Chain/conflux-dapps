@@ -40,6 +40,7 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
     const provider = space === 'core' ? fluentProvider : metaMaskProvider;
     const rpcPrefix = space === 'core' ? 'cfx' : 'eth';
     const balanceStore = space === 'core' ? coreBalanceStore as typeof eSpaceBalanceStore : eSpaceBalanceStore;
+    if (!provider) return;
 
     const getAccount = () => walletStore.getState().accounts?.[0]; 
 
@@ -69,8 +70,7 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
             return;
         }
 
-        const currentToken = currentTokenStore.getState()[space];
-        const currentTokenContract = currentTokenStore.getState()[space + 'TokenContract' as 'coreTokenContract'];
+        const { currentToken, currentTokenContract } = currentTokenStore.getState();
         const { confluxSideContractAddress, evmSideContractAddress } = confluxStore.getState();
         const eachSideContractAddress = space === 'core' ? confluxSideContractAddress : evmSideContractAddress;
 
@@ -112,7 +112,7 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
     let balanceTimer: number | null = null;
     let setUndefinedTimer: NodeJS.Timeout | null = null;
     const trackCurrentTokenBalance = async () => {
-        const currentToken = currentTokenStore.getState()[space];
+        const currentToken = currentTokenStore.getState().currentToken;
         if (currentToken.isNative) {
             balanceStore.setState({ approvedBalance: undefined });
         }
@@ -149,13 +149,15 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
         balanceTimer = setInterval(getBalance, 1500);
     }
 
-    walletStore.subscribe(state => state.accounts, trackCurrentTokenBalance);
-    currentTokenStore.subscribe(state => state[space], trackCurrentTokenBalance);
+    walletStore.subscribe(state => state.accounts, trackCurrentTokenBalance, { fireImmediately: true });
+    currentTokenStore.subscribe(state => state.currentToken, trackCurrentTokenBalance, { fireImmediately: true });
 });
 
 
 // track eSpace withdrawable balance
 (function() {
+    if (!metaMaskProvider) return;
+
     const handleBalanceChanged = (newBalance: Unit) => {
         if (!newBalance) return;
         const preBalance = eSpaceBalanceStore.getState().withdrawableBalance;
@@ -166,7 +168,7 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
     };
 
     const getBalance = (callback?: () => void) => {
-        const currentToken = currentTokenStore.getState().eSpace;
+        const currentToken = currentTokenStore.getState().currentToken;
         const fluentAccount = fluentStore.getState().accounts?.[0];
         const metaMaskAccount = metaMaskStore.getState().accounts?.[0];
         const { evmSideContract, evmSideContractAddress, eSpaceMirrorAddress } = confluxStore.getState();
@@ -219,7 +221,7 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
             }
         }
 
-        const currentToken = currentTokenStore.getState().eSpace;
+        const currentToken = currentTokenStore.getState().currentToken;
         const fluentAccount = fluentStore.getState().accounts?.[0];
         const metaMaskAccount = metaMaskStore.getState().accounts?.[0];
         if (currentToken.isNative) {
@@ -247,16 +249,15 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
         balanceTimer = setInterval(getBalance, 1500);
     }
 
-    metaMaskStore.subscribe(state => state.accounts, trackWithdrawableBalance);
-    fluentStore.subscribe(state => state.accounts, trackWithdrawableBalance);
-    currentTokenStore.subscribe(state => state.eSpace, trackWithdrawableBalance);
+    metaMaskStore.subscribe(state => state.accounts, trackWithdrawableBalance, { fireImmediately: true });
+    fluentStore.subscribe(state => state.accounts, trackWithdrawableBalance, { fireImmediately: true });
+    currentTokenStore.subscribe(state => state.currentToken, trackWithdrawableBalance, { fireImmediately: true });
 }());
 
 // trackMaxAvailableBalance
 ([coreBalanceStore, eSpaceBalanceStore] as const).forEach((balanceStore: typeof coreBalanceStore) => {
-    const currentToken = currentTokenStore.getState()[balanceStore === coreBalanceStore ? 'core' : 'eSpace'];
+    const currentToken = currentTokenStore.getState().currentToken;
     const walletStore = balanceStore === coreBalanceStore ? fluentStore : metaMaskStore;
-    if (!fluentProvider) return;
 
     balanceStore.subscribe(state => state.currentTokenBalance, (currentTokenBalance) => {
         const account = walletStore.getState().accounts?.[0];
@@ -270,7 +271,8 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
             if (balanceStore === coreBalanceStore) {
                 // estimate Fluent max available balance
                 const { crossSpaceContract, crossSpaceContractAddress } = confluxStore.getState();
-                if (!crossSpaceContract || !crossSpaceContractAddress) return;
+                if (!fluentProvider || !crossSpaceContract || !crossSpaceContractAddress) return;
+
                 estimate({
                     from: account,
                     to: crossSpaceContractAddress,
@@ -278,7 +280,7 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
                     value: currentTokenBalance.toHexMinUnit(),
                 }, {
                     type: balanceStore === coreBalanceStore ? 'cfx' : 'eth',
-                    request: fluentProvider!.request.bind(fluentProvider),
+                    request: fluentProvider.request.bind(fluentProvider),
                     tokensAmount: {},
                     isFluentRequest: true,
                 }).then(estimateRes => {
@@ -289,6 +291,7 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
             } else {
                 // estimate MetaMask max available balance
                 if (!metaMaskProvider) return;
+
                 Promise.all([
                     metaMaskProvider.request({
                         method: 'eth_estimateGas',
@@ -329,12 +332,10 @@ const createTrackBalanceChangeOnce = ({
     walletStore,
     balanceStore,
     balanceSelector,
-    space
 }: {
     walletStore?: typeof fluentStore;
     balanceStore: typeof eSpaceBalanceStore;
     balanceSelector: ValueOf<typeof selectors>;
-    space: 'core' | 'eSpace';
 }) => (callback: () => void) => {
     if (!callback) return;
     let unsubBalance: Function | null = null;
@@ -359,7 +360,7 @@ const createTrackBalanceChangeOnce = ({
     });
     
     let unsubCurrentToken: Function | null = null;
-    unsubCurrentToken = currentTokenStore.subscribe(state => state[space], () => {
+    unsubCurrentToken = currentTokenStore.subscribe(state => state.currentToken, () => {
         if (!unsubCurrentToken) return;
         if (unsubBalance) {
             unsubBalance();

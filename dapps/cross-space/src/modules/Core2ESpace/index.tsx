@@ -38,7 +38,7 @@ const Core2ESpace: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 	const i18n = useI18n(transitions);
 	const { register, handleSubmit: withForm, setValue, watch } = useForm();
 
-	const { currentToken } = useToken('core');
+	const { currentToken } = useToken();
 	const needApprove = useNeedApprove(currentToken, 'core');
 
 	const fluentAccount = useFluentAccount();
@@ -133,7 +133,7 @@ const Core2ESpace: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 const Transfer2ESpace: React.FC<{ register: UseFormRegister<FieldValues>; setAmount: (val: string) => void; }> = memo(({register, setAmount}) => {
 	const i18n = useI18n(transitions);
 
-	const { currentToken } = useToken('core');
+	const { currentToken } = useToken();
 
 	const fluentStatus = useFluentStatus();
 	const currentTokenBalance = useCurrentTokenBalance('core');

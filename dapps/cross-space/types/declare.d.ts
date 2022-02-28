@@ -17,4 +17,3 @@ declare module '@fluent-wallet/account' {
 declare module '@fluent-wallet/estimate-tx' {
     export function estimate(txParams: any, options: any): Promise<{ nativeMaxDrip: string; }>;
 }
-
