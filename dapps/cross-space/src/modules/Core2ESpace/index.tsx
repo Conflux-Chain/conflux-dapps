@@ -211,8 +211,15 @@ const Transfer2ESpace: React.FC<{ register: UseFormRegister<FieldValues>; setAmo
 				buttonType="contained"
 				buttonSize="normal"
 				fullWidth
-				disabled={fluentStatus === 'active' ? !canClickButton : fluentStatus !== 'not-active'}
-				authContent={needApprove ? 'Approve' : needApprove === false ? i18n.transfer : 'Checking Approval...'}
+				authContent={() => 
+					<button
+						id="btn-transfer-2eSpace"
+						className='mt-[24px] button-contained button-normal w-full'
+						disabled={!canClickButton}
+					>
+						{needApprove ? 'Approve' : needApprove === false ? i18n.transfer : 'Checking Approval...'}
+					</button>					
+				}
 			/>
 			{needApprove && <p className='absolute bottom-[4px] left-[50%] -translate-x-[50%] text-[12px] text-[#A9ABB2] whitespace-nowrap'>Approval value must be greater than your token balance.</p>}
 		</>

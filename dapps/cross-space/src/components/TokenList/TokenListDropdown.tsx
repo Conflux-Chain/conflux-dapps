@@ -267,10 +267,10 @@ const TokenItem = memo<TokenItemProps>(({ isCurrent, inSearch, setCurrentToken, 
             className={cx(
                 "relative flex justify-between items-center h-[56px] pl-[16px] pr-[20px] bg-white",
                 isCurrent ? 'bg-[#808BE7] bg-opacity-30' : 'hover:bg-[#808BE7] hover:bg-opacity-10 cursor-pointer',
-                { 'cursor-not-allowed': !nativeSpace }
+                { 'cursor-not-allowed': !token.isNative && !nativeSpace }
             )}
             onClick={() => { 
-                if (!nativeSpace) return;
+                if (!token.isNative && !nativeSpace) return;
                 setCurrentToken(token);
                 hideDropdown();
             }}

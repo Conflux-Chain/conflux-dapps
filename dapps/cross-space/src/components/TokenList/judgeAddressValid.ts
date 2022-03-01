@@ -21,7 +21,7 @@ function hexToAddress(hex: string, isBase32: boolean) {
     const hexAddress = '0x' + hex.slice(26);
     if (isBase32) return hexAddress;
     const chainId = fluentStore.getState().chainId!;
-    return format.address('0x' + hex.slice(26), +chainId) as string;
+    return format.address(hexAddress, +chainId) as string;
 }
 
 interface TokenContract {
