@@ -8,9 +8,10 @@ export const handleTransferSubmit = async (amount: string) => {
     const currentToken = currentTokenStore.getState().currentToken;
 
     if (currentToken.isNative) {
+        if (!amount) return;
         await handleTransferCFX(amount);
     } else {
-        const { currentTokenBalance, approvedBalance } = eSpaceBalanceStore.getState();
+        const { currentTokenBalance, approvedBalance, withdrawableBalance } = eSpaceBalanceStore.getState();
         if (!currentTokenBalance || !approvedBalance) return;
         const needApprove = Unit.lessThanOrEqualTo(approvedBalance, currentTokenBalance);
         

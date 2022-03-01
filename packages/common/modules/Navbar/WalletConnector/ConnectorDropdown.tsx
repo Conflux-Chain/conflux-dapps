@@ -39,7 +39,7 @@ const ConnectorDropdown: React.FC<{ children: (triggerDropdown: () => void, visi
         <Dropdown
             visible={visible}
             onClickOutside={hideDropdown}
-            className="relative w-[240px] px-[12px] pt-[12px] pb-[16px] rounded-[4px] bg-white shadow-dropdown contain-content"
+            className="relative w-fit min-w-[240px] px-[12px] pt-[12px] pb-[16px] rounded-[4px] bg-white shadow-dropdown contain-content"
             Content={<DropdownContent hideDropdown={hideDropdown}/>}
         >
             {children(triggerDropdown, visible)}
@@ -80,6 +80,7 @@ const WalletOperate: React.FC<{ wallet: 'Fluent' | 'MetaMask'; }> = ({ wallet })
             wallet={wallet}
             buttonType="outlined"
             buttonSize="small"
+            connectTextType="concise"
             fullWidth
             authContent={() =>
                 <div className='flex items-center h-[20px] text-[14px] text-[#3d3f4c]'>

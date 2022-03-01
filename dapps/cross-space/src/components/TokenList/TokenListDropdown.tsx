@@ -5,7 +5,7 @@ import { useStatus as useFluentStatus, watchAsset as watchAssetFluent } from '@c
 import { useStatus as useMetaMaskStatus, watchAsset as watchAssetMetaMask } from '@cfxjs/use-wallet/dist/ethereum';
 import { shortenAddress } from '@fluent-wallet/shorten-address';
 import useClipboard from 'react-use-clipboard'
-import { debounce } from 'lodash-es';
+import { debounce, escapeRegExp } from 'lodash-es';
 import { useSingleton } from '@tippyjs/react';
 import CustomScrollbar from 'custom-react-scrollbar';
 import Dropdown from 'common/components/Dropdown';
@@ -39,7 +39,16 @@ const transitions = {
 
 const TokenListDropdown: React.FC<{ children: (triggerDropdown: () => void, visible: boolean) => JSX.Element; space: 'core' | 'eSpace'; }> = ({ children, space }) => {
     const [visible, setVisible] = useState(false);
-    const triggerDropdown = useCallback(() => setVisible(pre => !pre), []);
+    const metaMaskStatus = useMetaMaskStatus();
+    const triggerDropdown = useCallback(() => {
+        setVisible(pre => {
+            if (!pre && metaMaskStatus === 'not-installed') {
+                showToast('To cross space CRC20 token, please install MetaMask first.');
+                return false;
+            }
+            return !pre;
+        });
+    }, []);
     const hideDropdown = useCallback(() => setVisible(false), []);
 
     useEffect(() => {
@@ -96,9 +105,10 @@ const DropdownContent: React.FC<{ space: 'core' | 'eSpace'; visible: boolean; hi
         }
         if (tokenList?.some(token =>
                 (token.isNative ? [token.name, token.symbol] : [token.name, token.symbol, token.native_address, token.mapped_address])
-                    .some(str => str.search(new RegExp(filter, 'i')) !== -1)
+                    .some(str => str.search(new RegExp(escapeRegExp(filter), 'i')) !== -1)
             )
         ) return;
+
         const startJudge = async () => {
             showSearchingTimer = setTimeout(() => setSearchToken('searching'), 100);
             const judgeRes = await judgeAddressValid(filter.trim());
@@ -121,7 +131,7 @@ const DropdownContent: React.FC<{ space: 'core' | 'eSpace'; visible: boolean; hi
         if (searchToken === false) return [];
         return tokenList?.filter(token =>
             (token.isNative ? [token.name, token.symbol] : [token.name, token.symbol, token.native_address, token.mapped_address])
-                .some(str => str.search(new RegExp(filter, 'i')) !== -1)
+                .some(str => str.search(new RegExp(escapeRegExp(filter), 'i')) !== -1)
         );
     }, [filter, searchToken, tokenList]);
 
@@ -172,7 +182,7 @@ const DropdownContent: React.FC<{ space: 'core' | 'eSpace'; visible: boolean; hi
                         {Spin}
                     </div>
                 }
-                {filterTokenList.length === 0 &&
+                {searchToken === false &&
                     <div className={"flex items-center h-[56px] pl-[16px] pr-[20px] bg-white text-[14px] text-[#3D3F4C]"} >
                         <img src={Suggest} alt="warning img" className="w-[28px] h-[28px] mr-[8px]" />
                         Search address is not a valid CRC20 token address.

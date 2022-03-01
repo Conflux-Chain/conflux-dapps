@@ -13,7 +13,7 @@ export const handleWithdraw = async ({ setInWithdraw }: { setInWithdraw: SetInWi
 
     if (!withdrawableBalance || Unit.equals(withdrawableBalance, Unit.fromMinUnit(0))) return;
     if (currentToken.isNative) {
-        handleWithdrawCFX({ withdrawableBalance, setInWithdraw });
+        await handleWithdrawCFX({ withdrawableBalance, setInWithdraw });
     } else {
         await handleWithdrawCRC20({ withdrawableBalance, setInWithdraw, methodType: currentToken.nativeSpace === 'core' ? 'withdrawFromEvm' : 'crossFromEvm' });
     }

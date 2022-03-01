@@ -3,6 +3,7 @@ import { createPortal, render } from 'react-dom';
 import isDOMElement from '../../utils/isDOMElement';
 import PopupComponent, { type PopupMethods } from './Popup';
 import { uniqueId } from 'lodash-es';
+export { type PopupProps } from './Popup';
 
 export class PopupClass implements PopupMethods {
     popupRef: RefObject<PopupMethods>;

@@ -19,6 +19,7 @@ import Switch from '@assets/switch.svg';
 import Success from '@assets/success.svg';
 import Suggest from '@assets/suggest.svg';
 import Copy from 'common/assets/copy.svg';
+import { showToast } from 'common/components/tools/Toast';
 import { handleWithdraw } from './handleWithdraw';
 import { handleTransferSubmit } from './handleTransfer';
 
@@ -41,6 +42,7 @@ const transitions = {
 
 const ESpace2Core: React.FC<{ style: any; handleClickFlipped: () => void; }> = ({ style, handleClickFlipped }) => {
 	const i18n = useI18n(transitions);
+	const { currentToken } = useToken();
 
 	return (
 		<a.div className="cross-space-module" style={style}>
@@ -62,9 +64,24 @@ const ESpace2Core: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 
 			<TokenList space="eSpace"/>
 
-			<Transfer2Bridge />
+			<Transfer2Bridge /> 
 
-			<Withdraw2Core />
+			<p className="mt-[24px] flex items-center h-[24px] text-[16px] text-[#3D3F4C] font-medium">
+				<span className="mr-[8px] px-[10px] h-[24px] leading-[24px] rounded-[4px] bg-[#F0F3FF] text-center text-[12px] text-[#808BE7]">Step 2</span>
+				Withdraw
+			</p>
+			<p className="mt-[8px] text-[14px] leading-[20px] text-[#A9ABB2] ">
+				After Step 1, withdraw your asset on
+				<span className='text-[#2959B4] font-medium'> Core</span> here.
+			</p>
+			<AuthConnectButton
+				className='mt-[14px]'
+				buttonType='contained'
+				buttonSize='normal'
+				wallet={currentToken.isNative ? 'Fluent' : 'Both-FluentFirst'}
+				fullWidth
+				authContent={() => <Withdraw2Core />}
+			/>
 		</a.div>
 	);
 }
@@ -76,8 +93,10 @@ const FluentConnected: React.FC = () => {
 	return (
 		<AuthConnectButton
 			wallet="Fluent"
-			buttonType="outlined"
-			buttonSize="mini"
+			buttonType="contained"
+			buttonSize="small"
+			buttonReverse
+			showLogo
 			authContent={() => 
 				<div className='relative flex items-center'>
 					<img src={Fluent} alt='fluent icon' className='mr-[4px] w-[14px] h-[14px]' />
@@ -144,7 +163,16 @@ const Transfer2Bridge: React.FC = memo(() => {
 				{mode === 'advanced' && `Self-transfer ${currentToken.symbol} to cross space birdge on eSpace.`}
 			</p>
 
-			{mode === 'normal' && <TransferNormalMode />}
+			{mode === 'normal' && 
+				<AuthConnectButton
+					id="normal-mode-auth-btn"
+					className='mt-[14px] w-full'
+					wallet="Both-MetaMaskFirst"
+					buttonType="contained"
+					buttonSize="normal"
+					authContent={() => <TransferNormalMode />}
+				/>
+			}
 			{mode === 'advanced' && <TransferAdvancedMode />}
 		</>
 	)
@@ -158,10 +186,11 @@ const TransferNormalMode: React.FC = () => {
 
 	const metaMaskAccount = useMetaMaskAccount();
 	const fluentStatus = useFluentStatus();
-	const metaMaskStatus = useMetaMaskStatus();
 	const currentTokenBalance = useCurrentTokenBalance('eSpace');
 	const maxAvailableBalance = useMaxAvailableBalance('eSpace');
+	const withdrawableBalance = useESpaceWithdrawableBalance();
 	const needApprove = useNeedApprove(currentToken, 'eSpace');
+
 
 	const setAmount = useCallback((val: string) => {
 		const _val = val.replace(/(?:\.0*|(\.\d+?)0+)$/, '$1');
@@ -193,6 +222,19 @@ const TransferNormalMode: React.FC = () => {
 		setAmount(maxAvailableBalance.toDecimalStandardUnit());
 	}, [maxAvailableBalance])
 
+	const checkNeedWithdraw = useCallback<React.MouseEventHandler<HTMLButtonElement>>((evt) => {
+		if (withdrawableBalance) {
+			if (Unit.greaterThan(withdrawableBalance, Unit.fromStandardUnit(0))) {
+				evt.preventDefault();
+				showToast({
+					title: 'Warning',
+					text: 'You have withdrawable balance, please withdraw it first.',
+				});
+				return;
+			}
+		}
+	}, [withdrawableBalance]);
+
 	const onSubmit = useCallback(handleSubmit((data) => {
 		const { amount } = data;
 		handleTransferSubmit(amount)
@@ -222,15 +264,14 @@ const TransferNormalMode: React.FC = () => {
 						</div>
 					}
 				/>
-				<AuthConnectButton
+				<button
 					id="btn-transfer-2bridge"
-					className='ml-[16px] text-[14px] w-[128px]'
-					wallet="Both"
-					buttonType="contained"
-					buttonSize="normal"
-					disabled={metaMaskStatus === 'active' ? !canClickButton : metaMaskStatus !== 'not-active'}
-					authContent={needApprove ? 'Approve' : needApprove === false ? i18n.transfer : 'Checking Approval...'}
-				/>
+					className='button-contained button-normal ml-[16px] text-[14px]'
+					disabled={!canClickButton}
+					onClick={checkNeedWithdraw}
+				>
+					{needApprove ? 'Approve' : needApprove === false ? i18n.transfer : 'Checking Approval...'}
+				</button>
 				{fluentStatus === 'active' && needApprove && <p className='absolute -top-[16px] right-0 text-[12px] text-[#A9ABB2] whitespace-nowrap'>Approval value must be greater than your token balance.</p>}
 			</div>
 			
@@ -248,7 +289,7 @@ const TransferNormalMode: React.FC = () => {
 						</Tooltip>
 						: <span className="ml-[4px]">{`${currentTokenBalance} ${currentToken.symbol}`}</span>
 					)
-					: <span className="ml-[4px]">{metaMaskStatus === 'active' ? 'loading...' : '--'}</span>
+					: <span className="ml-[4px]">loading...</span>
 				}
 			</p>
 			<p className="mt-[8px] text-[14px] leading-[18px] text-[#3D3F4C]" id="will-receive">
@@ -283,8 +324,9 @@ const TransferAdvancedMode: React.FC = () => {
 			</p>
 			<AuthConnectButton
 				wallet="Fluent"
-				buttonType="outlined"
-				buttonSize="mini"
+				buttonType="contained"
+				buttonReverse
+				buttonSize="small"
 				authContent={() => 
 					<div
 						className="relative w-full font-medium text-[14px] h-[18px] text-[#15C184] flex items-center cursor-pointer hover:ring-[2px] ring-[#15C184] transition-shadow"
@@ -313,7 +355,7 @@ const TransferAdvancedMode: React.FC = () => {
 }
 
 
-const Withdraw2Core: React.FC = memo(() => {
+const Withdraw2Core: React.FC = () => {
 	const { currentToken } = useToken();
 	const hasESpaceMirrorAddress = useESpaceMirrorAddress();
 	const withdrawableBalance = useESpaceWithdrawableBalance();
@@ -335,17 +377,7 @@ const Withdraw2Core: React.FC = memo(() => {
 	}
 
 	return (
-		<>
-			<p className="mt-[24px] flex items-center h-[24px] text-[16px] text-[#3D3F4C] font-medium">
-				<span className="mr-[8px] px-[10px] h-[24px] leading-[24px] rounded-[4px] bg-[#F0F3FF] text-center text-[12px] text-[#808BE7]">Step 2</span>
-				Withdraw
-			</p>
-
-			<p className="mt-[8px] text-[14px] leading-[20px] text-[#A9ABB2] ">
-				After Step 1, withdraw your asset on
-				<span className='text-[#2959B4] font-medium'> Core</span> here.
-			</p>
-			
+		<>	
 			<div className='flex items-center my-[8px]'>
 				<span className='mr-[4px] text-[14px] text-[#A9ABB2]'>Current Address:</span>
 				<FluentConnected />
@@ -363,19 +395,17 @@ const Withdraw2Core: React.FC = memo(() => {
 				}
 			</div>
 
-			<AuthConnectButton
+			<button
 				id="eSpace-2core-withdraw-btn"
-				className='px-[38px] text-[14px]'
-				wallet={currentToken.isNative ? 'Fluent' : 'Both'}
-				buttonType="contained"
-				buttonSize='normal'
-				authContent={inWithdraw ? 'Withdrawing...' : 'Withdraw'}
+				className='button-contained button-normal px-[38px] text-[14px]'
 				disabled={disabled}
 				onClick={handleClickWithdraw}
-			/>
+			>
+				{inWithdraw ? 'Withdrawing...' : 'Withdraw'}
+			</button>
 		</>
 	);
-});
+};
 
 
 export default memo(ESpace2Core)

@@ -22,6 +22,10 @@
     @apply flex justify-center items-center rounded-[4px] bg-[#808BE7] hover:bg-opacity-90 text-white transition-colors;
 }
 
+.button-contained.button-reverse {
+    @apply bg-[#F0F3FF] text-[#808BE7];
+}
+
 .button-contained.button-error {
     @apply bg-[#E96170]
 }
