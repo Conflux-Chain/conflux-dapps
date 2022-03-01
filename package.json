@@ -11,7 +11,8 @@
         "dev": "turbo run dev --parallel",
         "lint": "turbo run lint",
         "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-        "dev:cross-space": "turbo run dev --scope=cross-space"
+        "dev:cross-space": "turbo run dev --scope=cross-space",
+        "build:cross-space": "turbo run build --scope=cross-space"
     },
     "devDependencies": {
         "@types/node": "^10.17.60",
