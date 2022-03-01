@@ -82,11 +82,10 @@ const AuthConnectButton = memo<{
     buttonReverse?: boolean;
     showLogo?: boolean;
     fullWidth?: boolean;
-    disabled?: boolean;
     id?: string;
     className?: string;
     onClick?: () => void;
-}>(({ wallet, authContent, buttonType, buttonSize, buttonReverse, showLogo, disabled, fullWidth, id, className, connectTextType = 'specific', onClick }) => {
+}>(({ wallet, authContent, buttonType, buttonSize, buttonReverse, showLogo, fullWidth, id, className, connectTextType = 'specific', onClick }) => {
     const i18n = useI18n(transitions);
 
     const currentCoreNetwork = useCurrentNetwork('core');
@@ -138,7 +137,7 @@ const AuthConnectButton = memo<{
             id={id}
             className={cx(`button-${buttonType} button-${buttonSize}`, buttonReverse && 'button-reverse', fullWidth && 'w-full', status === 'not-installed' && 'button-error', className)}
             onClick={handleClick}
-            disabled={typeof disabled !== 'undefined' ? disabled : (status !== 'active' && status !== 'not-active')}
+            disabled={status !== 'active' && status !== 'not-active'}
         >
             {showLogo && <img src={Logo} alt={`${currentWallet} logo`} className="mr-[4px] w-[14px] h-[14px]" draggable="false" />}
 
