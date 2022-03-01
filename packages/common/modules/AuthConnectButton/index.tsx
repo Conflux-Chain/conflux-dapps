@@ -90,7 +90,7 @@ const AuthConnectButton = memo<{
     const i18n = useI18n(transitions);
 
     const currentCoreNetwork = useCurrentNetwork('core');
-    const currentESpaceNetwork = useCurrentNetwork('target_eSpace');
+    const currentESpaceNetwork = useCurrentNetwork('eSpace');
     const fluentChainId = useFluentChainId();
     const metaMaskChainId = useMetaMaskChainId();
 

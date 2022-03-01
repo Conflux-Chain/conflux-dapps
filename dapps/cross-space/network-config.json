@@ -18,7 +18,7 @@
         "name": "Conflux Testnet", 
         "url": "https://test.confluxrpc.com",
         "networkId": "1",
-        "scan": "",
+        "scan": "https://testnet.confluxscan.net",
         "innerTokenList": "https://raw.githubusercontent.com/Conflux-Chain/conflux-evm-bridge/main/native_token_list_testnet.json",
         "CRC20CrossSpaceContractAddress": "cfxtest:achrygt0at7ub1bty99um6f5g1mktdjw7ubt7gc40j",
         "eSpace": {

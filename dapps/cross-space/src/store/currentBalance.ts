@@ -6,6 +6,7 @@ import { confluxStore } from './conflux';
 import { format } from 'js-conflux-sdk';
 import { estimate } from '@fluent-wallet/estimate-tx';
 import { currentTokenStore, type Token } from './currentToken';
+import { currentNetworkStore } from './index';
 
 interface CoreBalanceStore {
     currentTokenBalance?: Unit;
@@ -172,18 +173,32 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
         const fluentAccount = fluentStore.getState().accounts?.[0];
         const metaMaskAccount = metaMaskStore.getState().accounts?.[0];
         const { evmSideContract, evmSideContractAddress, eSpaceMirrorAddress } = confluxStore.getState();
+        const eSpaceNetwork = currentNetworkStore.getState().eSpace;
 
-        if (!eSpaceMirrorAddress) return;
+        if (!eSpaceMirrorAddress || !eSpaceNetwork) return;
 
         if (currentToken.isNative) {
-            metaMaskProvider!.request({
-                method: 'eth_getBalance',
-                params: [eSpaceMirrorAddress, 'latest'],
+            // CFX cross space does not require MetaMask to be installed, so we cannot use MetaMask's provider here.
+            fetch(eSpaceNetwork.url, {
+                body: JSON.stringify({
+                    jsonrpc: '2.0',
+                    method: 'eth_getBalance',
+                    params: [eSpaceMirrorAddress, 'latest'],
+                    id: 1,
+                }),
+                headers: {'content-type': 'application/json'},
+                method: 'POST',
             })
-                .then(minUnitBalance => handleBalanceChanged(Unit.fromMinUnit(minUnitBalance)))
-                .catch(err => console.log(`Get CFX withdrawable balance error: `, err))
+                .then(response => response.json()).then((balanceRes: Record<string, string>) => {
+                    const minUnitBalance = balanceRes?.result;
+                    if (typeof minUnitBalance === 'string') {
+                        handleBalanceChanged(Unit.fromMinUnit(minUnitBalance))
+                    } else {
+                        console.error(`Get CFX withdrawable balance error: `, balanceRes)
+                    }
+                })
+                .catch(err => console.error(`Get CFX withdrawable balance error: `, err))
                 .finally(callback);
-
             return;
         }
 
@@ -376,13 +391,13 @@ const createTrackBalanceChangeOnce = ({
 }
 
 const trackBalanceChangeOnce = {
-    coreCurrentTokenBalance: createTrackBalanceChangeOnce({ walletStore: fluentStore, balanceStore: coreBalanceStore, balanceSelector: selectors.currentTokenBalance, space: 'core' }),
-    coreMaxAvailableBalance: createTrackBalanceChangeOnce({ walletStore: fluentStore, balanceStore: coreBalanceStore, balanceSelector: selectors.maxAvailableBalance, space: 'core' }),
-    coreApprovedBalance: createTrackBalanceChangeOnce({ walletStore: fluentStore, balanceStore: coreBalanceStore, balanceSelector: selectors.approvedBalance, space: 'core' }),
-    eSpaceCurrentTokenBalance: createTrackBalanceChangeOnce({ walletStore: metaMaskStore, balanceStore: eSpaceBalanceStore, balanceSelector: selectors.currentTokenBalance, space: 'eSpace' }),
-    eSpaceMaxAvailableBalance: createTrackBalanceChangeOnce({ walletStore: metaMaskStore, balanceStore: eSpaceBalanceStore, balanceSelector: selectors.maxAvailableBalance, space: 'eSpace' }),
-    eSpaceWithdrawableBalance: createTrackBalanceChangeOnce({ balanceStore: eSpaceBalanceStore, balanceSelector: selectors.withdrawableBalance, space: 'eSpace' }),
-    eSpaceApprovedBalance: createTrackBalanceChangeOnce({ walletStore: metaMaskStore, balanceStore: eSpaceBalanceStore, balanceSelector: selectors.approvedBalance, space: 'eSpace' }),
+    coreCurrentTokenBalance: createTrackBalanceChangeOnce({ walletStore: fluentStore, balanceStore: coreBalanceStore, balanceSelector: selectors.currentTokenBalance }),
+    coreMaxAvailableBalance: createTrackBalanceChangeOnce({ walletStore: fluentStore, balanceStore: coreBalanceStore, balanceSelector: selectors.maxAvailableBalance }),
+    coreApprovedBalance: createTrackBalanceChangeOnce({ walletStore: fluentStore, balanceStore: coreBalanceStore, balanceSelector: selectors.approvedBalance }),
+    eSpaceCurrentTokenBalance: createTrackBalanceChangeOnce({ walletStore: metaMaskStore, balanceStore: eSpaceBalanceStore, balanceSelector: selectors.currentTokenBalance }),
+    eSpaceMaxAvailableBalance: createTrackBalanceChangeOnce({ walletStore: metaMaskStore, balanceStore: eSpaceBalanceStore, balanceSelector: selectors.maxAvailableBalance }),
+    eSpaceWithdrawableBalance: createTrackBalanceChangeOnce({ balanceStore: eSpaceBalanceStore, balanceSelector: selectors.withdrawableBalance }),
+    eSpaceApprovedBalance: createTrackBalanceChangeOnce({ walletStore: metaMaskStore, balanceStore: eSpaceBalanceStore, balanceSelector: selectors.approvedBalance }),
 }
 
 export {
