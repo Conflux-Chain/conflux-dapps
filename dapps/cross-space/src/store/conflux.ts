@@ -62,7 +62,7 @@ fluentStore.subscribe(state => state.accounts, accounts => {
 
 // get conflux & crossSpaceContractAddress && crossSpaceContract
 currentNetworkStore.subscribe(state => state.core, () => {
-    const { core: coreNetwork, target_eSpace: eSpaceNetwork } = currentNetworkStore.getState();
+    const { core: coreNetwork, eSpace: eSpaceNetwork } = currentNetworkStore.getState();
     if (!coreNetwork || !eSpaceNetwork) return;
     const conflux = new Conflux({ url: coreNetwork.url, networkId: +coreNetwork.networkId });
     confluxStore.setState({

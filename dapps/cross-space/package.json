@@ -6,7 +6,7 @@
         "build": "vite build"
     },
     "dependencies": {
-        "@cfxjs/use-wallet": "^0.0.17",
+        "@cfxjs/use-wallet": "^0.0.18",
         "@fluent-wallet/account": "^0.1.0",
         "@fluent-wallet/base32-address": "^0.1.1",
         "@fluent-wallet/estimate-tx": "^0.1.1",
@@ -15,7 +15,7 @@
         "@tippyjs/react": "^4.2.6",
         "abi-decoder": "^2.4.0",
         "clsx": "^1.1.1",
-        "common": "workspace:*",
+        "common": "*",
         "custom-react-scrollbar": "^0.0.2",
         "decimal.js": "^10.3.1",
         "js-conflux-sdk": "^2.0.2",
@@ -35,12 +35,12 @@
         "@types/react-dom": "^17.0.11",
         "@vitejs/plugin-react": "^1.2.0",
         "autoprefixer": "^10.4.2",
-        "config": "workspace:*",
+        "config": "*",
         "eslint": "^7.32.0",
         "postcss": "^8.4.7",
         "rollup-plugin-visualizer": "^5.6.0",
         "tailwindcss": "^3.0.23",
-        "tsconfig": "workspace:*",
+        "tsconfig": "*",
         "typescript": "^4.5.5",
         "vite": "^2.8.4"
     },

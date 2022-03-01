@@ -3,9 +3,9 @@ import { a } from '@react-spring/web';
 import cx from 'clsx';
 import { useForm, type UseFormRegister, type FieldValues } from 'react-hook-form';
 import { useAccount as useFluentAccount, useStatus as useFluentStatus, Unit } from '@cfxjs/use-wallet';
-import { connect as connectMetaMask, useStatus as useMetaMaskStatus, useAccount as useMetaMaskAccount } from '@cfxjs/use-wallet/dist/ethereum';
+import { useStatus as useMetaMaskStatus, useAccount as useMetaMaskAccount } from '@cfxjs/use-wallet/dist/ethereum';
 import { useMaxAvailableBalance, useCurrentTokenBalance, useNeedApprove, useToken } from '@store/index';
-import AuthConnectButton from 'common/modules/AuthConnectButton';
+import AuthConnectButton, { connectToWallet } from 'common/modules/AuthConnectButton';
 import Input from 'common/components/Input';
 import Tooltip from 'common/components/Tooltip';
 import useI18n from 'common/hooks/useI18n';
@@ -62,7 +62,7 @@ const Core2ESpace: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 		if (metaMaskStatus === 'active') {
 			setValue('eSpaceAccount', metaMaskAccount!);
 		} else if (metaMaskStatus === 'not-active') {
-			connectMetaMask();
+			connectToWallet('MetaMask');
 		}
 	}, [metaMaskAccount, metaMaskStatus]);
 
