@@ -32,3 +32,6 @@ yarn-error.log*
 
 # lock
 pnpm-lock.yaml
+
+#build
+dist
