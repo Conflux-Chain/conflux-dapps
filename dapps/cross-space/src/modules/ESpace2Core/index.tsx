@@ -5,7 +5,7 @@ import useClipboard from 'react-use-clipboard'
 import { shortenAddress } from '@fluent-wallet/shorten-address';
 import { useAccount as useFluentAccount, useStatus as useFluentStatus, Unit } from '@cfxjs/use-wallet';
 import { useStatus as useMetaMaskStatus, useAccount as useMetaMaskAccount } from '@cfxjs/use-wallet/dist/ethereum';
-import { useMaxAvailableBalance, useCurrentTokenBalance, useESpaceMirrorAddress, useESpaceWithdrawableBalance, useNeedApprove } from '@store/index';
+import { useMaxAvailableBalance, useCurrentTokenBalance, useESpaceMirrorAddress, useESpaceWithdrawableBalance, useNeedApprove, setTransferBalance } from '@store/index';
 import { useToken } from '@store/index';
 import LocalStorage from 'common/utils/LocalStorage';
 import AuthConnectButton from 'common/modules/AuthConnectButton';
@@ -195,6 +195,7 @@ const TransferNormalMode: React.FC = () => {
 	const setAmount = useCallback((val: string) => {
 		const _val = val.replace(/(?:\.0*|(\.\d+?)0+)$/, '$1');
 		setValue('amount', _val);
+		setTransferBalance('eSpace', _val);
 
 		if (!bridgeReceived) {
 			bridgeReceived = document.querySelector('#bridge-received') as HTMLSpanElement;
@@ -238,11 +239,15 @@ const TransferNormalMode: React.FC = () => {
 	const onSubmit = useCallback(handleSubmit((data) => {
 		const { amount } = data;
 		handleTransferSubmit(amount)
-			.finally(() => setAmount(''));
+			.then(needClearAmount => {
+				if (needClearAmount) {
+					setAmount('');
+				}
+			});
 	}), []);
 
-	const canTransfer = maxAvailableBalance && Unit.greaterThan(maxAvailableBalance, Unit.fromStandardUnit(0)) && needApprove !== undefined;
-	const canClickButton = needApprove === true || (needApprove === false && maxAvailableBalance && Unit.greaterThan(maxAvailableBalance, Unit.fromStandardUnit(0)));
+	const isBalanceGreaterThan0 = maxAvailableBalance && Unit.greaterThan(maxAvailableBalance, Unit.fromStandardUnit(0));
+	const canClickButton = needApprove === true || (needApprove === false && isBalanceGreaterThan0);
 
 	return (
 		<form onSubmit={onSubmit}>
@@ -253,7 +258,7 @@ const TransferNormalMode: React.FC = () => {
 					type="number"
 					step={1e-18}
 					min={Unit.fromMinUnit(1).toDecimalStandardUnit()}
-					disabled={!canTransfer || needApprove || fluentStatus !== 'active'}
+					disabled={!isBalanceGreaterThan0}
 					{...register('amount', { required: !needApprove, min: Unit.fromMinUnit(1).toDecimalStandardUnit(), onBlur: handleCheckAmount})}
 					suffix={
 						<div
@@ -272,7 +277,7 @@ const TransferNormalMode: React.FC = () => {
 				>
 					{needApprove ? 'Approve' : needApprove === false ? i18n.transfer : 'Checking Approval...'}
 				</button>
-				{fluentStatus === 'active' && needApprove && <p className='absolute -top-[16px] right-0 text-[12px] text-[#A9ABB2] whitespace-nowrap'>Approval value must be greater than your token balance.</p>}
+				{fluentStatus === 'active' && needApprove && <p className='absolute -top-[16px] right-0 text-[12px] text-[#A9ABB2] whitespace-nowrap'>Approval value must be greater than your transfer balance.</p>}
 			</div>
 			
 			<p className="text-[14px] leading-[18px] text-[#3D3F4C]">

@@ -10,6 +10,7 @@ import { currentNetworkStore } from './index';
 
 interface CoreBalanceStore {
     currentTokenBalance?: Unit;
+    transferBalance?: Unit;
     maxAvailableBalance?: Unit;
     approvedBalance?: Unit;
     reCheckApproveCount?: number;
@@ -21,6 +22,7 @@ interface ESpaceBalanceStore extends CoreBalanceStore {
 
 export const coreBalanceStore = create(subscribeWithSelector(() => ({
     currentTokenBalance: undefined,
+    transferBalance: undefined,
     maxAvailableBalance: undefined,
     approvedBalance: undefined,
     reCheckApproveCount: 0
@@ -29,6 +31,7 @@ export const coreBalanceStore = create(subscribeWithSelector(() => ({
 
 export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
     currentTokenBalance: undefined,
+    transferBalance: undefined,
     maxAvailableBalance: undefined,
     withdrawableBalance: undefined,
     approvedBalance: undefined,
@@ -110,10 +113,12 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
             .catch(err => console.log(`Get ${currentToken.symbol} approved balance error: `, err));
     }
 
+
     let balanceTimer: number | null = null;
     let setUndefinedTimer: NodeJS.Timeout | null = null;
     const trackCurrentTokenBalance = async () => {
         const currentToken = currentTokenStore.getState().currentToken;
+
         if (currentToken.isNative) {
             balanceStore.setState({ approvedBalance: undefined });
         }
@@ -125,8 +130,8 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
             setUndefinedTimer = null;
         }, 50);
 
-        const clearTimer = () => {
-            if (typeof balanceTimer === 'number') {
+        const clearBalanceTimer = () => {
+            if (balanceTimer !== null) {
                 clearInterval(balanceTimer);
                 balanceTimer = null;
             }
@@ -135,18 +140,21 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
         const account = getAccount();
         if (!account) {
             balanceStore.setState({ currentTokenBalance: undefined });
-            clearTimer();
+            clearBalanceTimer();
             return;
         }
 
-        getBalance(() => {
-            if (setUndefinedTimer !== null) {
-                clearTimeout(setUndefinedTimer);
-                setUndefinedTimer = null;
-            }
-        });
+        // Clear the setUndefinedTimer after first fetch balance, if this timer is not already in effect.
+        setTimeout(() => {
+            getBalance(() => {
+                if (setUndefinedTimer !== null) {
+                    clearTimeout(setUndefinedTimer);
+                    setUndefinedTimer = null;
+                }
+            })
+        }, 10);
 
-        clearTimer();
+        clearBalanceTimer();
         balanceTimer = setInterval(getBalance, 1500);
     }
 
@@ -229,8 +237,8 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
             setUndefinedTimer = null;
         }, 50);
 
-        const clearTimer = () => {
-            if (typeof balanceTimer === 'number') {
+        const clearBalanceTimer = () => {
+            if (balanceTimer !== null) {
                 clearInterval(balanceTimer);
                 balanceTimer = null;
             }
@@ -242,25 +250,27 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
         if (currentToken.isNative) {
             if (!fluentAccount) {
                 eSpaceBalanceStore.setState({ withdrawableBalance: undefined });
-                clearTimer();
+                clearBalanceTimer();
                 return;
             }
         } else {
             if (!fluentAccount || !metaMaskAccount) {
                 eSpaceBalanceStore.setState({ withdrawableBalance: undefined });
-                clearTimer();
+                clearBalanceTimer();
                 return;
             }
         }
 
-        getBalance(() => {
-            if (setUndefinedTimer !== null) {
-                clearTimeout(setUndefinedTimer);
-                setUndefinedTimer = null;
-            }
-        });
+        setTimeout(() => {
+            getBalance(() => {
+                if (setUndefinedTimer !== null) {
+                    clearTimeout(setUndefinedTimer);
+                    setUndefinedTimer = null;
+                }
+            });    
+        }, 10);
 
-        clearTimer();
+        clearBalanceTimer();
         balanceTimer = setInterval(getBalance, 1500);
     }
 
@@ -336,6 +346,7 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
 
 const selectors = {
     currentTokenBalance: (state: CoreBalanceStore) => state.currentTokenBalance,
+    transferBalance: (state: CoreBalanceStore) => state.transferBalance,
     maxAvailableBalance: (state: CoreBalanceStore) => state.maxAvailableBalance,
     withdrawableBalance: (state: ESpaceBalanceStore) => state.withdrawableBalance,
     approvedBalance: (state: CoreBalanceStore) => state.approvedBalance,
@@ -407,16 +418,39 @@ export {
 export const recheckApproval = (space: 'core' | 'eSpace') =>
     (space === 'core' ? coreBalanceStore as typeof eSpaceBalanceStore : eSpaceBalanceStore).setState({ reCheckApproveCount: space === 'core' ? 7 : 11 });
 
+export const setTransferBalance = (space: 'core' | 'eSpace', standardUnit: string | undefined) => {
+    const balanceStore = (space === 'core' ? coreBalanceStore as typeof eSpaceBalanceStore : eSpaceBalanceStore);
+    const maxAvailableBalance = balanceStore.getState().maxAvailableBalance;
+    if (!standardUnit || !maxAvailableBalance) {
+        balanceStore.setState({ transferBalance: undefined });
+        return;
+    }
+    
+    let transferBalance = Unit.fromStandardUnit(standardUnit);
+    if (Unit.greaterThan(transferBalance, maxAvailableBalance)) {
+        transferBalance = maxAvailableBalance;
+    }
+
+    balanceStore.setState({ transferBalance });
+}
+
+export const checkNeedApprove = (space: 'core' | 'eSpace') => {
+    const balanceStore = (space === 'core' ? coreBalanceStore as typeof eSpaceBalanceStore : eSpaceBalanceStore);
+    const { transferBalance, approvedBalance } = balanceStore.getState();
+    if (!transferBalance || !approvedBalance) return undefined;
+
+    return Unit.lessThan(approvedBalance, transferBalance);
+}
+
 export const useNeedApprove = (currentToken: Token, space: 'core' | 'eSpace') => {
     const balanceStore = (space === 'core' ? coreBalanceStore as typeof eSpaceBalanceStore : eSpaceBalanceStore);
     const approvedBalance = balanceStore(selectors.approvedBalance);
-    const currentTokenBalance = balanceStore(selectors.currentTokenBalance);
+    const transferBalance = balanceStore(selectors.transferBalance);
     const reCheckApproveCount = balanceStore(selectors.reCheckApproveCount);
 
-    if (currentToken.isNative) return false;
-    if (reCheckApproveCount! > 0) return undefined;
-    if (!currentTokenBalance || !approvedBalance) return undefined;
-    return Unit.lessThanOrEqualTo(approvedBalance, currentTokenBalance);
+    if (currentToken.isNative || !transferBalance) return false;
+    if (reCheckApproveCount! > 0 || !approvedBalance) return undefined;
+    return Unit.lessThan(approvedBalance, transferBalance);
 }
     
 export const useCurrentTokenBalance = (space: 'core' | 'eSpace') =>

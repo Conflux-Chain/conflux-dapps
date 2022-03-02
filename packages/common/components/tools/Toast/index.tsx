@@ -23,7 +23,7 @@ const ToastComponent: React.FC<{ content: string | Content; duration: number; hi
     });
 
     return (
-        <div className="relative bg-white rounded  overflow-hidden">
+        <div className="relative max-w[400px] min-w-[300px] bg-white rounded  overflow-hidden">
             <div className='p-[24px]'>
                 <p className='relative mb-[8px] leading-[22px] text-[16px] text-[#3D3F4C] font-medium'>
                     {typeof content === 'object' && content.title ? content.title : 'Notification'}

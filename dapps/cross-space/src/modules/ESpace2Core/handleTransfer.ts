@@ -1,25 +1,26 @@
 import { store as fluentStore } from '@cfxjs/use-wallet';
 import { sendTransaction as sendTransactionWithMetaMask, Unit } from '@cfxjs/use-wallet/dist/ethereum';
-import { currentTokenStore, eSpaceBalanceStore, recheckApproval, confluxStore, trackBalanceChangeOnce } from '@store/index';
+import { currentTokenStore, eSpaceBalanceStore, recheckApproval, confluxStore, trackBalanceChangeOnce, checkNeedApprove } from '@store/index';
 import { showWaitWallet, showActionSubmitted, hideWaitWallet, hideActionSubmitted } from 'common/components/tools/Modal';
 import { showToast } from 'common/components/tools/Toast';
 
+// return value === true means need clear input transfer amount;
 export const handleTransferSubmit = async (amount: string) => {
     const currentToken = currentTokenStore.getState().currentToken;
 
     if (currentToken.isNative) {
-        if (!amount) return;
         await handleTransferCFX(amount);
+        return true;
     } else {
-        const { currentTokenBalance, approvedBalance, withdrawableBalance } = eSpaceBalanceStore.getState();
-        if (!currentTokenBalance || !approvedBalance) return;
-        const needApprove = Unit.lessThanOrEqualTo(approvedBalance, currentTokenBalance);
-        
-        if (needApprove) {
+        const checkApproveRes = checkNeedApprove('eSpace');
+        if (checkApproveRes === undefined) return false;
+
+        if (checkApproveRes) {
             await handleApproveCRC20();
+            return false;
         } else {
-            if (!amount) return;
             await handleTransferMappedCRC20(amount, currentToken.nativeSpace === 'core' ? 'lockMappedToken' : 'lockToken');
+            return true;
         }
     }
 };

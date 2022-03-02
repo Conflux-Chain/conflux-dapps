@@ -7,7 +7,6 @@ import CFX from '@assets/CFX.svg';
 import { confluxStore } from './conflux';
 import CRC20TokenABI from '@contracts/abi/ERC20.json'
 import { Unit } from '@cfxjs/use-wallet';
-import { Unit as MetaMaskUnit } from '@cfxjs/use-wallet/dist/ethereum';
 
 export const nativeToken = {
     name: "Conflux Network",
@@ -58,7 +57,6 @@ const selectors = {
 
 currentTokenStore.subscribe(state => state.currentToken, (currentToken) => {
     if (currentToken) {
-        MetaMaskUnit.setDecimals(currentToken.decimals ? Number(currentToken.decimals) : 18);
         Unit.setDecimals(currentToken.decimals ? Number(currentToken.decimals) : 18);
     }
 
