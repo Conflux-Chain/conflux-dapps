@@ -246,8 +246,8 @@ const TransferNormalMode: React.FC = () => {
 			});
 	}), []);
 
-	const hasEnoughBalance = maxAvailableBalance && Unit.greaterThan(maxAvailableBalance, Unit.fromStandardUnit(0));
-	const canClickButton = needApprove === true || (needApprove === false && hasEnoughBalance);
+	const isBalanceGreaterThan0 = maxAvailableBalance && Unit.greaterThan(maxAvailableBalance, Unit.fromStandardUnit(0));
+	const canClickButton = needApprove === true || (needApprove === false && isBalanceGreaterThan0);
 
 	return (
 		<form onSubmit={onSubmit}>
@@ -258,7 +258,7 @@ const TransferNormalMode: React.FC = () => {
 					type="number"
 					step={1e-18}
 					min={Unit.fromMinUnit(1).toDecimalStandardUnit()}
-					disabled={!hasEnoughBalance}
+					disabled={!isBalanceGreaterThan0}
 					{...register('amount', { required: !needApprove, min: Unit.fromMinUnit(1).toDecimalStandardUnit(), onBlur: handleCheckAmount})}
 					suffix={
 						<div

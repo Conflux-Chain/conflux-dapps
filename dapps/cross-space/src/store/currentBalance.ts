@@ -434,6 +434,14 @@ export const setTransferBalance = (space: 'core' | 'eSpace', standardUnit: strin
     balanceStore.setState({ transferBalance });
 }
 
+export const checkNeedApprove = (space: 'core' | 'eSpace') => {
+    const balanceStore = (space === 'core' ? coreBalanceStore as typeof eSpaceBalanceStore : eSpaceBalanceStore);
+    const { transferBalance, approvedBalance } = balanceStore.getState();
+    if (!transferBalance || !approvedBalance) return undefined;
+
+    return Unit.lessThan(approvedBalance, transferBalance);
+}
+
 export const useNeedApprove = (currentToken: Token, space: 'core' | 'eSpace') => {
     const balanceStore = (space === 'core' ? coreBalanceStore as typeof eSpaceBalanceStore : eSpaceBalanceStore);
     const approvedBalance = balanceStore(selectors.approvedBalance);
@@ -442,7 +450,7 @@ export const useNeedApprove = (currentToken: Token, space: 'core' | 'eSpace') =>
 
     if (currentToken.isNative || !transferBalance) return false;
     if (reCheckApproveCount! > 0 || !approvedBalance) return undefined;
-    return Unit.lessThanOrEqualTo(approvedBalance, transferBalance);
+    return Unit.lessThan(approvedBalance, transferBalance);
 }
     
 export const useCurrentTokenBalance = (space: 'core' | 'eSpace') =>

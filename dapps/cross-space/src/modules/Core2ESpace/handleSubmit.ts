@@ -1,5 +1,5 @@
 import { sendTransaction as sendTransactionWithFluent, Unit } from '@cfxjs/use-wallet';
-import { currentTokenStore, coreBalanceStore, recheckApproval, confluxStore, trackBalanceChangeOnce } from '@store/index';
+import { currentTokenStore, recheckApproval, confluxStore, trackBalanceChangeOnce, checkNeedApprove } from '@store/index';
 import { showWaitWallet, showActionSubmitted, hideWaitWallet, hideActionSubmitted } from 'common/components/tools/Modal';
 import { showToast } from 'common/components/tools/Toast';
 
@@ -16,11 +16,10 @@ const handleSubmit = async (data: Data) => {
         await handleTransferCFX(data);
         return true;
     } else {
-        const { currentTokenBalance, approvedBalance } = coreBalanceStore.getState();
-        if (!currentTokenBalance || !approvedBalance) return false;
-        const needApprove = Unit.lessThanOrEqualTo(approvedBalance, currentTokenBalance);
+        const checkApproveRes = checkNeedApprove('core');
+        if (checkApproveRes === undefined) return false;
         
-        if (needApprove) {
+        if (checkApproveRes) {
             await handleApproveCRC20();
             return false;
         } else {
