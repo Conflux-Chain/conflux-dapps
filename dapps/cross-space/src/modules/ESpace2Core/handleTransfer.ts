@@ -8,18 +8,19 @@ export const handleTransferSubmit = async (amount: string) => {
     const currentToken = currentTokenStore.getState().currentToken;
 
     if (currentToken.isNative) {
-        if (!amount) return;
         await handleTransferCFX(amount);
+        return true;
     } else {
-        const { currentTokenBalance, approvedBalance, withdrawableBalance } = eSpaceBalanceStore.getState();
-        if (!currentTokenBalance || !approvedBalance) return;
+        const { currentTokenBalance, approvedBalance } = eSpaceBalanceStore.getState();
+        if (!currentTokenBalance || !approvedBalance) return false;
         const needApprove = Unit.lessThanOrEqualTo(approvedBalance, currentTokenBalance);
         
         if (needApprove) {
             await handleApproveCRC20();
+            return false;
         } else {
-            if (!amount) return;
             await handleTransferMappedCRC20(amount, currentToken.nativeSpace === 'core' ? 'lockMappedToken' : 'lockToken');
+            return true;
         }
     }
 };

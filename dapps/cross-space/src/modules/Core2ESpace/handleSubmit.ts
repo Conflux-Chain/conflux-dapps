@@ -8,21 +8,24 @@ interface Data {
     amount: string;
 }
 
+// return value === true means need clear input transfer amount;
 const handleSubmit = async (data: Data) => {
     const currentToken = currentTokenStore.getState().currentToken;
 
     if (currentToken.isNative) {
         await handleTransferCFX(data);
+        return true;
     } else {
         const { currentTokenBalance, approvedBalance } = coreBalanceStore.getState();
-        if (!currentTokenBalance || !approvedBalance) return;
+        if (!currentTokenBalance || !approvedBalance) return false;
         const needApprove = Unit.lessThanOrEqualTo(approvedBalance, currentTokenBalance);
         
         if (needApprove) {
             await handleApproveCRC20();
+            return false;
         } else {
-            if (!data?.amount) return;
-            handleTransferCRC20({ ...data, methodType: currentToken.nativeSpace === 'core' ? 'crossToEvm' : 'withdrawToEvm' });
+            await handleTransferCRC20({ ...data, methodType: currentToken.nativeSpace === 'core' ? 'crossToEvm' : 'withdrawToEvm' });
+            return true;
         }
     }
 };
@@ -30,8 +33,6 @@ const handleSubmit = async (data: Data) => {
 const handleTransferCFX = async ({ eSpaceAccount, amount }: Data) => {
     const { crossSpaceContract, crossSpaceContractAddress } = confluxStore.getState();
     if (!crossSpaceContract || !crossSpaceContractAddress) return;
-
-    const currentToken = currentTokenStore.getState().currentToken;
 
     let waitFluentKey: string | number = null!;
     let transactionSubmittedKey: string | number = null!;

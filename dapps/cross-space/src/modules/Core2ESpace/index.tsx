@@ -4,7 +4,7 @@ import cx from 'clsx';
 import { useForm, type UseFormRegister, type FieldValues } from 'react-hook-form';
 import { useAccount as useFluentAccount, useStatus as useFluentStatus, Unit } from '@cfxjs/use-wallet';
 import { useStatus as useMetaMaskStatus, useAccount as useMetaMaskAccount } from '@cfxjs/use-wallet/dist/ethereum';
-import { useMaxAvailableBalance, useCurrentTokenBalance, useNeedApprove, useToken } from '@store/index';
+import { useMaxAvailableBalance, useCurrentTokenBalance, useNeedApprove, useToken, setTransferBalance } from '@store/index';
 import AuthConnectButton, { connectToWallet } from 'common/modules/AuthConnectButton';
 import Input from 'common/components/Input';
 import Tooltip from 'common/components/Tooltip';
@@ -37,7 +37,6 @@ let eSpaceReceived: HTMLSpanElement | null = null;
 const Core2ESpace: React.FC<{ style: any; handleClickFlipped: () => void; }> = ({ style, handleClickFlipped }) => {
 	const i18n = useI18n(transitions);
 	const { register, handleSubmit: withForm, setValue, watch } = useForm();
-
 	const { currentToken } = useToken();
 	const needApprove = useNeedApprove(currentToken, 'core');
 
@@ -49,6 +48,7 @@ const Core2ESpace: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 	const setAmount = useCallback((val: string) => {
 		const _val = val.replace(/(?:\.0*|(\.\d+?)0+)$/, '$1');
 		setValue('amount', _val);
+		setTransferBalance('core', _val);
 
 		if (!eSpaceReceived) {
 			eSpaceReceived = document.querySelector('#eSpace-received') as HTMLSpanElement;
@@ -56,7 +56,7 @@ const Core2ESpace: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 		eSpaceReceived.textContent = _val ? `${_val} ${currentToken.symbol}` : '--';
 	}, [currentToken])
 
-	useEffect(() => setAmount(''), [fluentAccount, currentToken])
+	useEffect(() => setAmount(''), [fluentAccount, currentToken]);
 
 	const onClickUseMetaMaskAccount = useCallback(() => {
 		if (metaMaskStatus === 'active') {
@@ -69,7 +69,11 @@ const Core2ESpace: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 	const onSubmit = useCallback(withForm(async (data) => {
 		const { eSpaceAccount, amount } = data;
 		handleSubmit({ eSpaceAccount, amount })
-			.finally(() => setAmount(''));
+			.then(needClearAmount => {
+				if (needClearAmount) {
+					setAmount('');
+				}
+			});
 	}), []);
 
 	return (
@@ -139,7 +143,7 @@ const Transfer2ESpace: React.FC<{ register: UseFormRegister<FieldValues>; setAmo
 	const currentTokenBalance = useCurrentTokenBalance('core');
 	const maxAvailableBalance = useMaxAvailableBalance('core');
 	const needApprove = useNeedApprove(currentToken, 'core');
-
+	
 	const handleCheckAmount = useCallback(async (evt: React.FocusEvent<HTMLInputElement, Element>) => {
 		if (!evt.target.value) return;
 		if (Number(evt.target.value) < 0) {
@@ -158,8 +162,8 @@ const Transfer2ESpace: React.FC<{ register: UseFormRegister<FieldValues>; setAmo
 		setAmount(maxAvailableBalance.toDecimalStandardUnit());
 	}, [maxAvailableBalance])
 
-	const canTransfer = maxAvailableBalance && Unit.greaterThan(maxAvailableBalance, Unit.fromStandardUnit(0)) && needApprove !== undefined;
-	const canClickButton = needApprove === true || (needApprove === false && maxAvailableBalance && Unit.greaterThan(maxAvailableBalance, Unit.fromStandardUnit(0)));
+	const hasEnoughBalance = maxAvailableBalance && Unit.greaterThan(maxAvailableBalance, Unit.fromStandardUnit(0));
+	const canClickButton = needApprove === true || (needApprove === false && hasEnoughBalance);
 
 	return (
 		<>
@@ -170,7 +174,7 @@ const Transfer2ESpace: React.FC<{ register: UseFormRegister<FieldValues>; setAmo
 				type="number"
 				step={1e-18}
 				min={Unit.fromMinUnit(1).toDecimalStandardUnit()}
-				disabled={!canTransfer || needApprove}
+				disabled={!hasEnoughBalance}
 				{...register('amount', { required: !needApprove, min: Unit.fromMinUnit(1).toDecimalStandardUnit(), onBlur: handleCheckAmount})}
 				suffix={
 					<div
@@ -221,7 +225,7 @@ const Transfer2ESpace: React.FC<{ register: UseFormRegister<FieldValues>; setAmo
 					</button>					
 				}
 			/>
-			{needApprove && <p className='absolute bottom-[4px] left-[50%] -translate-x-[50%] text-[12px] text-[#A9ABB2] whitespace-nowrap'>Approval value must be greater than your token balance.</p>}
+			{needApprove && <p className='absolute bottom-[4px] left-[50%] -translate-x-[50%] text-[12px] text-[#A9ABB2] whitespace-nowrap'>Approval value must be greater than your transfer balance.</p>}
 		</>
 	)
 });
