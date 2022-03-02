@@ -52,6 +52,7 @@ const ESpace2Core: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 					<span className='mr-[8px] text-[16px] text-[#2959B4] font-medium'>Conflux Core</span>
 					
 					<span
+						id="eSpace2Core-flip"
 						className='turn-page flex justify-center items-center w-[28px] h-[28px] rounded-full cursor-pointer transition-transform hover:scale-105'
 						onClick={handleClickFlipped}
 					>
@@ -59,7 +60,7 @@ const ESpace2Core: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 					</span>
 				</p>
 
-				<FluentConnected />
+				<FluentConnected id="eSpace2Core-auth-fluent-connectedAddress" />
 			</div>
 
 			<TokenList space="eSpace"/>
@@ -75,6 +76,7 @@ const ESpace2Core: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 				<span className='text-[#2959B4] font-medium'> Core</span> here.
 			</p>
 			<AuthConnectButton
+				id="eSpace2Core-auth-both-withdraw"
 				className='mt-[14px]'
 				buttonType='contained'
 				buttonSize='normal'
@@ -86,12 +88,13 @@ const ESpace2Core: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 	);
 }
 
-const FluentConnected: React.FC = () => {
+const FluentConnected: React.FC<{ id?: string; }> = ({ id }) => {
 	const i18n = useI18n(transitions);
 	const fluentAccount = useFluentAccount();
 
 	return (
 		<AuthConnectButton
+			id={id}
 			wallet="Fluent"
 			buttonType="contained"
 			buttonSize="small"
@@ -107,8 +110,6 @@ const FluentConnected: React.FC = () => {
 		/>
 	);
 }
-
-let bridgeReceived: HTMLSpanElement | null = null;
 
 const Transfer2Bridge: React.FC = memo(() => {
 	const i18n = useI18n(transitions);
@@ -150,6 +151,7 @@ const Transfer2Bridge: React.FC = memo(() => {
 					<div className="inline-flex items-center">
 						<span
 							className="mr-[4px] text-[14px] text-[#808BE7] cursor-pointer"
+							id="eSpace2Core-switchMode"
 							onClick={switchMode}
 						>
 							{mode === 'normal' ? 'Advanced Mode' : 'Normal Mode'}
@@ -165,7 +167,7 @@ const Transfer2Bridge: React.FC = memo(() => {
 
 			{mode === 'normal' && 
 				<AuthConnectButton
-					id="normal-mode-auth-btn"
+					id="eSpace2Core-auth-both-transfer"
 					className='mt-[14px] w-full'
 					wallet="Both-MetaMaskFirst"
 					buttonType="contained"
@@ -178,6 +180,7 @@ const Transfer2Bridge: React.FC = memo(() => {
 	)
 });
 
+let bridgeReceived: HTMLSpanElement | null = null;
 const TransferNormalMode: React.FC = () => {
 	const i18n = useI18n(transitions);
 	const { register, handleSubmit, setValue } = useForm();
@@ -198,7 +201,7 @@ const TransferNormalMode: React.FC = () => {
 		setTransferBalance('eSpace', _val);
 
 		if (!bridgeReceived) {
-			bridgeReceived = document.querySelector('#bridge-received') as HTMLSpanElement;
+			bridgeReceived = document.querySelector('#eSpace2Core-willReceive') as HTMLSpanElement;
 		}
 		bridgeReceived.textContent = _val ? `${_val} ${currentToken.symbol}` : '--';
 	}, [currentToken])
@@ -253,7 +256,7 @@ const TransferNormalMode: React.FC = () => {
 		<form onSubmit={onSubmit}>
 			<div className="relative mt-[16px] mb-[12px] flex items-center">
 				<Input
-					id="eSpace2Core-transfer-amount"
+					id="eSpace2Core-transferAamount-input"
 					placeholder="Amount you want to transfer"
 					type="number"
 					step={1e-18}
@@ -270,14 +273,20 @@ const TransferNormalMode: React.FC = () => {
 					}
 				/>
 				<button
-					id="btn-transfer-2bridge"
+					id="eSpace2Core-transfer"
 					className='button-contained button-normal ml-[16px] text-[14px]'
 					disabled={!canClickButton}
 					onClick={checkNeedWithdraw}
 				>
 					{needApprove ? 'Approve' : needApprove === false ? i18n.transfer : 'Checking Approval...'}
 				</button>
-				{fluentStatus === 'active' && needApprove && <p className='absolute -top-[16px] right-0 text-[12px] text-[#A9ABB2] whitespace-nowrap'>Approval value must be greater than your transfer balance.</p>}
+				{fluentStatus === 'active' && needApprove &&
+					<p
+						id="eSpace2Core-transfer-needApproveTip"
+						className='absolute -top-[16px] right-0 text-[12px] text-[#A9ABB2] whitespace-nowrap'>
+							Approval value must be greater than your transfer balance.
+					</p>
+				}
 			</div>
 			
 			<p className="text-[14px] leading-[18px] text-[#3D3F4C]">
@@ -287,19 +296,20 @@ const TransferNormalMode: React.FC = () => {
 						(currentTokenBalance.toDecimalMinUnit() !== '0' && Unit.lessThan(currentTokenBalance, Unit.fromStandardUnit('0.000001'))) ?
 						<Tooltip text={`${currentTokenBalance.toDecimalStandardUnit()} ${currentToken.symbol}`} placement="right">
 							<span
+								id="eSpace2Core-currentTokenBalance"
 								className="ml-[4px]"
 							>
 								＜0.000001 {currentToken.symbol}
 							</span>
 						</Tooltip>
-						: <span className="ml-[4px]">{`${currentTokenBalance} ${currentToken.symbol}`}</span>
+						: <span id="eSpace2Core-currentTokenBalance" className="ml-[4px]">{`${currentTokenBalance} ${currentToken.symbol}`}</span>
 					)
-					: <span className="ml-[4px]">loading...</span>
+					: <span id="eSpace2Core-currentTokenBalance" className="ml-[4px]">loading...</span>
 				}
 			</p>
-			<p className="mt-[8px] text-[14px] leading-[18px] text-[#3D3F4C]" id="will-receive">
+			<p className="mt-[8px] text-[14px] leading-[18px] text-[#3D3F4C]">
 				Will receive on <span className="font-medium">bridge</span>:
-				<span className="ml-[4px]" id="bridge-received" />
+				<span className="ml-[4px]" id="eSpace2Core-willReceive" />
 			</p>		
 		</form>
 	);
@@ -328,6 +338,7 @@ const TransferAdvancedMode: React.FC = () => {
 				<span className='leading-[22px] text-[12px] text-[#898D9A]'>（Don’t save）</span>
 			</p>
 			<AuthConnectButton
+				id="eSpace2Core-auth-fluent-copyMirrowAddress"
 				wallet="Fluent"
 				buttonType="contained"
 				buttonReverse
@@ -336,7 +347,7 @@ const TransferAdvancedMode: React.FC = () => {
 					<div
 						className="relative w-full font-medium text-[14px] h-[18px] text-[#15C184] flex items-center cursor-pointer hover:ring-[2px] ring-[#15C184] transition-shadow"
 						onClick={setCopied}
-						id="copy-mirror-address"
+						id="eSpace2Core-copyMirrowAddress"
 					>
 						{isCopied && (
 							<>
@@ -401,7 +412,7 @@ const Withdraw2Core: React.FC = () => {
 			</div>
 
 			<button
-				id="eSpace-2core-withdraw-btn"
+				id="eSpace2Core-withdraw"
 				className='button-contained button-normal px-[38px] text-[14px]'
 				disabled={disabled}
 				onClick={handleClickWithdraw}

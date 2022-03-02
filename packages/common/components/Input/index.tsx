@@ -10,19 +10,27 @@ interface Props {
     suffix?: ReactElement;
 }
 
-const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement> & Props>(({ wrapperClassName, className, outerPlaceholder, placeholder, error, prefixIcon, suffix, ...props }, ref) => {
+const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement> & Props>(({ wrapperClassName, className, outerPlaceholder, placeholder, error, prefixIcon, suffix, id, ...props }, ref) => {
     return (
         <div className={cx('input-wrapper relative w-full h-fit', wrapperClassName)}>
-            {prefixIcon && <img src={prefixIcon} alt="" className='prefix-icon absolute left-[12px] top-[50%] -translate-y-[50%] w-[20px] h-[20px]' />}
+            {prefixIcon &&
+                <img
+                    id={id ? `${id}-prefixIcon` : undefined}
+                    src={prefixIcon}
+                    alt="input-prefixIcon"
+                    className='prefix-icon absolute left-[12px] top-[50%] -translate-y-[50%] w-[20px] h-[20px]'
+                />
+            }
             {suffix}
             <input
+                id={id}
                 ref={ref}
                 placeholder={!!outerPlaceholder ? 'placeholder not see' : placeholder}
                 className={cx(className, 'input', { 'outer-placeholder': !!outerPlaceholder })}
                 {...props}
             />
             {outerPlaceholder}
-            {!!error && <span className='input-error'>{error}</span>}
+            {!!error && <span id={id ? `${id}-error` : undefined} className='input-error'>{error}</span>}
         </div>
     );
 });

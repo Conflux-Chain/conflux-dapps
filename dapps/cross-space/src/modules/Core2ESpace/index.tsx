@@ -51,7 +51,7 @@ const Core2ESpace: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 		setTransferBalance('core', _val);
 
 		if (!eSpaceReceived) {
-			eSpaceReceived = document.querySelector('#eSpace-received') as HTMLSpanElement;
+			eSpaceReceived = document.querySelector('#core2eSpace-willReceive') as HTMLSpanElement;
 		}
 		eSpaceReceived.textContent = _val ? `${_val} ${currentToken.symbol}` : '--';
 	}, [currentToken])
@@ -85,6 +85,7 @@ const Core2ESpace: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 						<span className='mr-[8px] text-[16px] text-[#15C184] font-medium'>Conflux eSpace</span>
 						
 						<span
+							id="core2eSpace-flip"
 							className='turn-page flex justify-center items-center w-[28px] h-[28px] rounded-full cursor-pointer transition-transform hover:scale-105'
 							onClick={handleClickFlipped}
 						>
@@ -94,7 +95,7 @@ const Core2ESpace: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 
 					<div className='relative flex items-center'>
 						<Input
-							id="core2ESpace-eSpaceAccount"
+							id="core2eSpace-eSpaceAccount-input"
 							outerPlaceholder={
 								<p className='input-placeholder text-[14px]'>
 									<span className='font-semibold text-[#15C184]'>Conflux eSpace</span> <span className='text-[#979797]'>Destination Address</span>
@@ -111,6 +112,7 @@ const Core2ESpace: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 
 						<Tooltip text={i18n.use_metamask} delay={333} disabled={isUsedCurrentMetaMaskAccount}>
 							<span
+								id="core2eSpace-eSpaceAccount-useMetaMaskAccount"
 								className={cx('relative flex justify-center items-center w-[36px] h-[36px] ml-[12px] rounded-full border border-[#EAECEF] cursor-pointer', { 'pointer-events-none': isUsedCurrentMetaMaskAccount })}
 								onClick={onClickUseMetaMaskAccount}
 							>
@@ -168,8 +170,8 @@ const Transfer2ESpace: React.FC<{ register: UseFormRegister<FieldValues>; setAmo
 	return (
 		<>
 			<Input
+				id="core2eSpace-transferAamount-input"
 				wrapperClassName='mt-[16px] mb-[12px]'
-				id="core2ESpace-transfer-amount"
 				placeholder="Amount you want to transfer"
 				type="number"
 				step={1e-18}
@@ -178,6 +180,7 @@ const Transfer2ESpace: React.FC<{ register: UseFormRegister<FieldValues>; setAmo
 				{...register('amount', { required: !needApprove, min: Unit.fromMinUnit(1).toDecimalStandardUnit(), onBlur: handleCheckAmount})}
 				suffix={
 					<div
+						id="core2eSpace-transferAamount-max"
 						className="absolute right-[16px] top-[50%] -translate-y-[50%] text-[14px] text-[#808BE7] cursor-pointer hover:underline"
 						onClick={handleClickMax}
 					>
@@ -194,22 +197,23 @@ const Transfer2ESpace: React.FC<{ register: UseFormRegister<FieldValues>; setAmo
 						<Tooltip text={`${currentTokenBalance.toDecimalStandardUnit()} ${currentToken.symbol}`} placement="right">
 							<span
 								className="ml-[4px]"
+								id="core2eSpace-currentTokenBalance"
 							>
 								＜0.000001 {currentToken.symbol}
 							</span>
 						</Tooltip>
-						: <span className="ml-[4px]">{`${currentTokenBalance} ${currentToken.symbol}`}</span>
+						: <span className="ml-[4px]" id="core2eSpace-currentTokenBalance">{`${currentTokenBalance} ${currentToken.symbol}`}</span>
 					)
-					: <span className="ml-[4px]">{fluentStatus === 'active' ? 'loading...' : '--'}</span>
+					: <span className="ml-[4px]" id="core2eSpace-currentTokenBalance">{fluentStatus === 'active' ? 'loading...' : '--'}</span>
 				}
 			</p>
-			<p className="mt-[20px] text-[14px] leading-[18px] text-[#3D3F4C]" id="will-receive">
+			<p className="mt-[20px] text-[14px] leading-[18px] text-[#3D3F4C]">
 				Will receive on <span className="text-[#15C184]">eSpace</span>:
-				<span className="ml-[4px]" id="eSpace-received" />
+				<span className="ml-[4px]" id="core2eSpace-willReceive" />
 			</p>
 
 			<AuthConnectButton
-				id="btn-transfer-2eSpace"
+				id="core2eSpace-auth-both-transfer"
 				className="mt-[24px]"
 				wallet="Fluent"
 				buttonType="contained"
@@ -217,7 +221,7 @@ const Transfer2ESpace: React.FC<{ register: UseFormRegister<FieldValues>; setAmo
 				fullWidth
 				authContent={() => 
 					<button
-						id="btn-transfer-2eSpace"
+						id="core2eSpace-transfer"
 						className='mt-[24px] button-contained button-normal w-full'
 						disabled={!canClickButton}
 					>
@@ -225,7 +229,14 @@ const Transfer2ESpace: React.FC<{ register: UseFormRegister<FieldValues>; setAmo
 					</button>					
 				}
 			/>
-			{needApprove && <p className='absolute bottom-[4px] left-[50%] -translate-x-[50%] text-[12px] text-[#A9ABB2] whitespace-nowrap'>Approval value must be greater than your transfer balance.</p>}
+			{needApprove && 
+				<p
+					id="core2eSpace-transfer-needApproveTip"
+					className='absolute bottom-[4px] left-[50%] -translate-x-[50%] text-[12px] text-[#A9ABB2] whitespace-nowrap'
+				>
+					Approval value must be greater than your transfer balance.
+				</p>
+			}
 		</>
 	)
 });
