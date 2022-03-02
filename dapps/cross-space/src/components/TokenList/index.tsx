@@ -12,6 +12,7 @@ const TokenList: React.FC<{ space: 'core' | 'eSpace'; }> = ({ space }) => {
         <TokenListDropdown space={space}>
             {(triggerDropdown, visible) => 
                 <div
+                    id={`tokenlist-currentToken-${space}`}
                     className="relative flex items-center h-[48px] pl-[12px] rounded-[2px] border border-[#EAECEF] text-[14px] text-[#3D3F4C] cursor-pointer"
                     onClick={triggerDropdown}
                 >

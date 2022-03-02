@@ -76,10 +76,10 @@ const handleApproveCRC20 = async () => {
         transactionSubmittedKey = showActionSubmitted(TxnHash, 'Approve', { duration: 15000 });
         trackBalanceChangeOnce.coreApprovedBalance(() => {
             hideActionSubmitted(transactionSubmittedKey);
-            showToast(`Approve ${currentToken.symbol} used success.`);
+            showToast(`Approve ${currentToken.symbol} use success.`);
         });
     } catch (err) {
-        console.error(`Approve ${currentToken.symbol} used error: `, err);
+        console.error(`Approve ${currentToken.symbol} use error: `, err);
         hideWaitWallet(waitFluentKey);
         if ((err as { code: number })?.code === 4001 && (err as any)?.message?.indexOf('UserRejected') !== -1) {
             showToast('You canceled the Approve.');
@@ -98,7 +98,7 @@ const handleApproveCRC20 = async () => {
                 transactionSubmittedKey = showActionSubmitted(TxnHash, 'Approve', { duration: 15000 });
                 trackBalanceChangeOnce.coreApprovedBalance(() => {
                     hideActionSubmitted(transactionSubmittedKey);
-                    showToast(`Re approve ${currentToken.symbol} used success.`);
+                    showToast(`Re approve ${currentToken.symbol} use success.`);
                 });
             } catch {
                 hideWaitWallet(waitFluentKey);
