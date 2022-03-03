@@ -166,7 +166,7 @@ const Transfer2ESpace: React.FC<{ register: UseFormRegister<FieldValues>; setAmo
 
 	const isBalanceGreaterThan0 = maxAvailableBalance && Unit.greaterThan(maxAvailableBalance, Unit.fromStandardUnit(0));
 	const canClickButton = needApprove === true || (needApprove === false && isBalanceGreaterThan0);
-
+	
 	return (
 		<>
 			<Input

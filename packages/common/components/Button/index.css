@@ -26,6 +26,10 @@
     @apply bg-[#F0F3FF] text-[#808BE7];
 }
 
+.button-contained.button-error.button-reverse {
+    @apply text-white;
+}
+
 .button-contained.button-error {
     @apply bg-[#E96170]
 }

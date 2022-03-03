@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { PopupClass } from '../../Popup';
 import Success from '../../../assets/success.svg';
 import Close from '../../../assets/close.svg';
-import './index.css';
+import Spin from '../../Spin';
 
 const WaitWalletModal = new PopupClass();
 const TransactionSubmittedModal = new PopupClass();
@@ -10,7 +10,7 @@ const TransactionSubmittedModal = new PopupClass();
 const WaitWalletContent: React.FC<{ wallet: 'Fluent' | 'MetaMask'; tip?: string; }> = memo(({ wallet, tip }) => {
     return (
         <div className="w-[340px] min-h-[150px] p-[24px] text-center bg-gray-200 rounded-[8px]">
-            <div className="modal-spin mt-[24px]" />
+            <Spin className='mx-auto text-[36px] text-[#808BE7]' />
             <p className="font-medium text-[16px] text-[#3D3F4C] mt-[12px] leading-[22px]">Waiting</p>
             <p className="mt-[8px] text-[14px] text-[#3D3F4C] leading-[18px]">Confirm the Action in your {wallet} Wallet...</p>
             {tip && <p className="mt-[8px] text-[14px] text-[#E96170] leading-[18px] font-medium">{tip}</p>}

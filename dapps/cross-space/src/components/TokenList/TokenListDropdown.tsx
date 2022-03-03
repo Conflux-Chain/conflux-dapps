@@ -183,7 +183,7 @@ const DropdownContent: React.FC<{ space: 'core' | 'eSpace'; visible: boolean; hi
             <CustomScrollbar className='token-list'>
                 {searchToken === 'searching' &&
                     <div className={"flex justify-center items-center h-[56px] pl-[16px] pr-[20px] bg-white text-[24px]"} >
-                        {Spin}
+                        <Spin className='text-[36px] text-[#808BE7]' />
                     </div>
                 }
                 {searchToken === false &&

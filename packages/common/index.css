@@ -3,8 +3,32 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+    font-family: 'SF Pro Display';
+    src: url('./assets/SF-Pro-Display-Regular.woff2') format('woff2');
+    font-style: normal;
+    font-weight: normal;
+    font-display: auto;
+}
+
+@font-face {
+    font-family: 'SF Pro Display';
+    src: url('./assets/SF-Pro-Display-Medium.woff2') format('woff2');
+    font-style: normal;
+    font-weight: 500;
+    font-display: auto;
+}
+
+@font-face {
+    font-family: 'SF Pro Display';
+    src: url('./assets/SF-Pro-Display-Semibold.woff2') format('woff2');
+    font-style: normal;
+    font-weight: 600;
+    font-display: auto;
+}
+
 html {
-    font-family: 'SF Pro Display', sans-serif;
+    font-family: 'SF Pro Display';
     overflow: hidden;
 }
 
