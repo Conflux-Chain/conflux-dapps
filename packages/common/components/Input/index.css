@@ -39,6 +39,10 @@ input::-webkit-inner-spin-button {
     margin: 0;
 }
 
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
 .input:disabled {
     @apply opacity-75 cursor-not-allowed;
 }

@@ -1,14 +1,16 @@
 .spin {
-    @apply relative w-[1em] h-[1em] rounded-full mx-auto;
-
-    background: linear-gradient(0deg, rgba(21 193 132 / 20%) 33%, #15c184 100%);
-    animation: spin-rotation 1s linear infinite;
+    width: 1em;
+    height: 1em;
+    animation: spin-rotation 2s linear infinite;
+    contain: strict;
 }
 
-.spin::after {
-    @apply absolute left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-[.9em] h-[.9em] rounded-full bg-white;
-
-    content: '';
+.path {
+    stroke-width: .1em;
+    stroke-dasharray: 1, 200;
+    stroke-dashoffset: 4;
+    stroke: currentColor;
+    animation: spin-dash 1.5s ease-in-out infinite;
 }
 
 @keyframes spin-rotation {
@@ -18,5 +20,20 @@
 
     100% {
         transform: rotate(360deg);
+    }
+}
+
+@keyframes spin-dash {
+    0% {
+        stroke-dasharray: 1, 200;
+        stroke-dashoffset: 0;
+    }
+    50% {
+        stroke-dasharray: 89, 200;
+        stroke-dashoffset: -35px;
+    }
+    100% {
+        stroke-dasharray: 89, 200;
+        stroke-dashoffset: -124px;
     }
 }

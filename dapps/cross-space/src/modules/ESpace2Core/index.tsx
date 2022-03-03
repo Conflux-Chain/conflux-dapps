@@ -148,15 +148,11 @@ const Transfer2Bridge: React.FC = memo(() => {
 				</span>
 
 				{currentToken.isNative &&
-					<div className="inline-flex items-center">
-						<span
-							className="mr-[4px] text-[14px] text-[#808BE7] cursor-pointer"
-							id="eSpace2Core-switchMode"
-							onClick={switchMode}
-						>
+					<div className="inline-flex items-center cursor-pointer select-none" id="eSpace2Core-switchMode" onClick={switchMode}>
+						<span className="mr-[4px] text-[14px] text-[#808BE7]">
 							{mode === 'normal' ? 'Advanced Mode' : 'Normal Mode'}
 						</span>
-						<img src={Switch} alt="switch icon" className="w-[14px] h-[14px]" />
+						<img src={Switch} alt="switch icon" className="w-[14px] h-[14px]" draggable={false} />
 					</div>
 				}
 			</div>
