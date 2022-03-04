@@ -1,4 +1,4 @@
-import React, { useCallback, memo } from 'react';
+import React, { useCallback, memo, type ButtonHTMLAttributes } from 'react';
 import cx from 'clsx';
 import { connect as connectFluent, useStatus as useFluentStatus, useChainId as useFluentChainId, switchChain as switchFluentChain, addChain as addFluentChain } from '@cfxjs/use-wallet';
 import { connect as connectMetaMask, useStatus as useMetaMaskStatus, useChainId as useMetaMaskChainId, switchChain as switchMetaMaskChain, addChain as addMetaMaskChain } from '@cfxjs/use-wallet/dist/ethereum';
@@ -71,9 +71,9 @@ const switchToChain = async (wallet: 'Fluent' | 'MetaMask', network: Network) =>
             showToast('You cancel the switch chain reqeust.');
         }
     }
-}  
+} 
 
-const AuthConnectButton = memo<{
+interface AuthProps {
     wallet: 'Fluent' | 'MetaMask' | 'Both-FluentFirst' | 'Both-MetaMaskFirst';
     authContent: any;
     buttonType: 'contained' | 'outlined';
@@ -82,10 +82,9 @@ const AuthConnectButton = memo<{
     buttonReverse?: boolean;
     showLogo?: boolean;
     fullWidth?: boolean;
-    id?: string;
-    className?: string;
-    onClick?: () => void;
-}>(({ wallet, authContent, buttonType, buttonSize, buttonReverse, showLogo, fullWidth, id, className, connectTextType = 'specific', onClick }) => {
+}
+
+const AuthConnectButton = memo<AuthProps & ButtonHTMLAttributes<HTMLButtonElement>>(({ wallet, authContent, buttonType, buttonSize, buttonReverse, showLogo, fullWidth, className, connectTextType = 'specific', onClick, ...props }) => {
     const i18n = useI18n(transitions);
 
     const currentCoreNetwork = useCurrentNetwork('core');
@@ -112,7 +111,7 @@ const AuthConnectButton = memo<{
     const currentWalletChain = currentWallet == 'Fluent' ? fluentChainId : metaMaskChainId;
     const chainMatched = currentWalletChain === currentNetwork?.networkId;
 
-	const handleClick = useCallback<React.MouseEventHandler>((evt) => {
+	const handleClick = useCallback<React.MouseEventHandler<HTMLButtonElement>>((evt) => {
 		if (status !== 'active') {
 			evt.preventDefault();
             connectToWallet(currentWallet);
@@ -120,7 +119,7 @@ const AuthConnectButton = memo<{
             if (!currentNetwork) return;
             switchToChain(currentWallet, currentNetwork);
         } else {
-            onClick?.();
+            onClick?.(evt);
         }
 	}, [currentWallet, chainMatched, currentNetwork, status, onClick]);
     
@@ -134,10 +133,10 @@ const AuthConnectButton = memo<{
     
     return (
         <button
-            id={id}
             className={cx(`button-${buttonType} button-${buttonSize}`, buttonReverse && 'button-reverse', fullWidth && 'w-full', status === 'not-installed' && 'button-error', className)}
             onClick={handleClick}
             disabled={status !== 'active' && status !== 'not-active'}
+            {...props}
         >
             {showLogo && <img src={Logo} alt={`${currentWallet} logo`} className="mr-[4px] w-[14px] h-[14px]" draggable="false" />}
 

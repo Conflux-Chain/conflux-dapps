@@ -155,6 +155,7 @@ const DropdownContent: React.FC<{ space: 'core' | 'eSpace'; visible: boolean; hi
                     prefixIcon={Search}
                     placeholder={i18n.search_placeholder}
                     onChange={handleFilterChange}
+                    tabIndex={-1}
                 />
 
                 <p className="mt-[12px] mb-[8px] text-[14px] text-[#A9ABB2]">{i18n.common_tokens}</p>
