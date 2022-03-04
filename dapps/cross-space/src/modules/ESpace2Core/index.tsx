@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, memo } from 'react';
+import React, { useState, useCallback, useEffect, useRef, memo } from 'react';
 import { a } from '@react-spring/web';
 import { useForm } from 'react-hook-form';
 import useClipboard from 'react-use-clipboard'
@@ -40,7 +40,7 @@ const transitions = {
 	},
 } as const;
 
-const ESpace2Core: React.FC<{ style: any; handleClickFlipped: () => void; }> = ({ style, handleClickFlipped }) => {
+const ESpace2Core: React.FC<{ style: any; isShow: boolean; handleClickFlipped: () => void; }> = ({ style, isShow, handleClickFlipped }) => {
 	const i18n = useI18n(transitions);
 	const { currentToken } = useToken();
 
@@ -51,21 +51,22 @@ const ESpace2Core: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 					<span className='mr-[8px] text-[14px] text-[#A9ABB2]'>To:</span>
 					<span className='mr-[8px] text-[16px] text-[#2959B4] font-medium'>Conflux Core</span>
 					
-					<span
+					<button
 						id="eSpace2Core-flip"
 						className='turn-page flex justify-center items-center w-[28px] h-[28px] rounded-full cursor-pointer transition-transform hover:scale-105'
 						onClick={handleClickFlipped}
+						tabIndex={isShow ? 1 : -1}
 					>
 						<img src={TurnPage} alt="turn page" className='w-[14px] h-[14px]' draggable="false" />
-					</span>
+					</button>
 				</p>
 
-				<FluentConnected id="eSpace2Core-auth-fluent-connectedAddress" />
+				<FluentConnected id="eSpace2Core-auth-fluent-connectedAddress" tabIndex={isShow ? 2 : -1} />
 			</div>
 
-			<TokenList space="eSpace"/>
+			<TokenList space="eSpace" />
 
-			<Transfer2Bridge /> 
+			<Transfer2Bridge isShow={isShow} /> 
 
 			<p className="mt-[24px] flex items-center h-[24px] text-[16px] text-[#3D3F4C] font-medium">
 				<span className="mr-[8px] px-[10px] h-[24px] leading-[24px] rounded-[4px] bg-[#F0F3FF] text-center text-[12px] text-[#808BE7]">Step 2</span>
@@ -82,13 +83,13 @@ const ESpace2Core: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 				buttonSize='normal'
 				wallet={currentToken.isNative ? 'Fluent' : 'Both-FluentFirst'}
 				fullWidth
-				authContent={() => <Withdraw2Core />}
+				authContent={() => <Withdraw2Core isShow={isShow} />}
 			/>
 		</a.div>
 	);
 }
 
-const FluentConnected: React.FC<{ id?: string; }> = ({ id }) => {
+const FluentConnected: React.FC<{ id?: string; tabIndex?: number; }> = ({ id, tabIndex }) => {
 	const i18n = useI18n(transitions);
 	const fluentAccount = useFluentAccount();
 
@@ -100,6 +101,7 @@ const FluentConnected: React.FC<{ id?: string; }> = ({ id }) => {
 			buttonSize="small"
 			buttonReverse
 			showLogo
+			tabIndex={tabIndex}
 			authContent={() => 
 				<div className='relative flex items-center'>
 					<img src={Fluent} alt='fluent icon' className='mr-[4px] w-[14px] h-[14px]' />
@@ -111,7 +113,7 @@ const FluentConnected: React.FC<{ id?: string; }> = ({ id }) => {
 	);
 }
 
-const Transfer2Bridge: React.FC = memo(() => {
+const Transfer2Bridge: React.FC<{ isShow: boolean; }> = memo(({ isShow }) => {
 	const i18n = useI18n(transitions);
 
 	const { currentToken } = useToken();
@@ -148,12 +150,12 @@ const Transfer2Bridge: React.FC = memo(() => {
 				</span>
 
 				{currentToken.isNative &&
-					<div className="inline-flex items-center cursor-pointer select-none" id="eSpace2Core-switchMode" onClick={switchMode}>
+					<button className="inline-flex items-center cursor-pointer select-none" id="eSpace2Core-switchMode" onClick={switchMode} tabIndex={isShow ? 3 : -1} type="button">
 						<span className="mr-[4px] text-[14px] text-[#808BE7]">
 							{mode === 'normal' ? 'Advanced Mode' : 'Normal Mode'}
 						</span>
 						<img src={Switch} alt="switch icon" className="w-[14px] h-[14px]" draggable={false} />
-					</div>
+					</button>
 				}
 			</div>
 			<p className="mt-[8px] text-[#A9ABB2] text-[14px] leading-[18px]">
@@ -168,16 +170,17 @@ const Transfer2Bridge: React.FC = memo(() => {
 					wallet="Both-MetaMaskFirst"
 					buttonType="contained"
 					buttonSize="normal"
-					authContent={() => <TransferNormalMode />}
+					tabIndex={isShow ? 7 : -1}
+					type="button"
+					authContent={() => <TransferNormalMode isShow={isShow} />}
 				/>
 			}
-			{mode === 'advanced' && <TransferAdvancedMode />}
+			{mode === 'advanced' && <TransferAdvancedMode isShow={isShow} />}
 		</>
 	)
 });
 
-let bridgeReceived: HTMLSpanElement | null = null;
-const TransferNormalMode: React.FC = () => {
+const TransferNormalMode: React.FC<{ isShow: boolean; }> = ({ isShow }) => {
 	const i18n = useI18n(transitions);
 	const { register, handleSubmit, setValue } = useForm();
 
@@ -190,16 +193,21 @@ const TransferNormalMode: React.FC = () => {
 	const withdrawableBalance = useESpaceWithdrawableBalance();
 	const needApprove = useNeedApprove(currentToken, 'eSpace');
 
+	const bridgeReceived = useRef<HTMLSpanElement>(null!);
 
-	const setAmount = useCallback((val: string) => {
+	const setAmount = useCallback((val: string, error?: string) => {
+		if (!bridgeReceived.current) return;
+
+		if (error) {
+			bridgeReceived.current.textContent = error;
+			return;
+		}
+
 		const _val = val.replace(/(?:\.0*|(\.\d+?)0+)$/, '$1');
 		setValue('amount', _val);
 		setTransferBalance('eSpace', _val);
 
-		if (!bridgeReceived) {
-			bridgeReceived = document.querySelector('#eSpace2Core-willReceive') as HTMLSpanElement;
-		}
-		bridgeReceived.textContent = _val ? `${_val} ${currentToken.symbol}` : '--';
+		bridgeReceived.current.textContent = _val ? `${_val} ${currentToken.symbol}` : '--';
 	}, [currentToken])
 
 	useEffect(() => setAmount(''), [metaMaskAccount, currentToken]);
@@ -207,13 +215,14 @@ const TransferNormalMode: React.FC = () => {
 	const handleCheckAmount = useCallback(async (evt: React.FocusEvent<HTMLInputElement, Element>) => {
 		if (!evt.target.value) return;
 		if (Number(evt.target.value) < 0) {
-			return setAmount('');
+			return setAmount('', '--');
 		}
 
 		if (!maxAvailableBalance) return;
 		if (Unit.greaterThan(Unit.fromStandardUnit(evt.target.value), maxAvailableBalance)) {
-			return setAmount(maxAvailableBalance.toDecimalStandardUnit());
+			return setAmount('', '--');
 		}
+
 		return setAmount(evt.target.value);
 	}, [maxAvailableBalance]);
 
@@ -257,22 +266,28 @@ const TransferNormalMode: React.FC = () => {
 					type="number"
 					step={1e-18}
 					min={Unit.fromMinUnit(1).toDecimalStandardUnit()}
+					max={maxAvailableBalance?.toDecimalStandardUnit()}
 					disabled={!isBalanceGreaterThan0}
-					{...register('amount', { required: !needApprove, min: Unit.fromMinUnit(1).toDecimalStandardUnit(), onBlur: handleCheckAmount})}
+					{...register('amount', { required: !needApprove, min: Unit.fromMinUnit(1).toDecimalStandardUnit(), max: maxAvailableBalance?.toDecimalStandardUnit(), onBlur: handleCheckAmount})}
 					suffix={
-						<div
+						<button
 							className="absolute right-[16px] top-[50%] -translate-y-[50%] text-[14px] text-[#808BE7] cursor-pointer hover:underline"
 							onClick={handleClickMax}
+							disabled={!isBalanceGreaterThan0}
+							tabIndex={isShow ? 5 : -1}
+							type="button"
 						>
 							MAX
-						</div>
+						</button>
 					}
+					tabIndex={isShow ? 4 : -1}
 				/>
 				<button
 					id="eSpace2Core-transfer"
 					className='button-contained button-normal ml-[16px] text-[14px]'
 					disabled={!canClickButton}
 					onClick={checkNeedWithdraw}
+					tabIndex={isShow ? 6 : -1}
 				>
 					{needApprove ? 'Approve' : needApprove === false ? i18n.transfer : 'Checking Approval...'}
 				</button>
@@ -305,13 +320,13 @@ const TransferNormalMode: React.FC = () => {
 			</p>
 			<p className="mt-[8px] text-[14px] leading-[18px] text-[#3D3F4C]">
 				Will receive on <span className="font-medium">bridge</span>:
-				<span className="ml-[4px]" id="eSpace2Core-willReceive" />
+				<span className="ml-[4px]" id="eSpace2Core-willReceive" ref={bridgeReceived} />
 			</p>		
 		</form>
 	);
 }
 
-const TransferAdvancedMode: React.FC = () => {
+const TransferAdvancedMode: React.FC<{ isShow: boolean; }> = ({ isShow }) => {
 	const eSpaceMirrorAddress = useESpaceMirrorAddress();
 	const [isCopied, setCopied] = useClipboard(eSpaceMirrorAddress ?? '', { successDuration: 1500 });
 
@@ -339,11 +354,13 @@ const TransferAdvancedMode: React.FC = () => {
 				buttonType="contained"
 				buttonReverse
 				buttonSize="small"
+				tabIndex={isShow ? 4 : -1}
 				authContent={() => 
-					<div
+					<button
 						className="relative w-full font-medium text-[14px] h-[18px] text-[#15C184] flex items-center cursor-pointer hover:ring-[2px] ring-[#15C184] transition-shadow"
 						onClick={setCopied}
 						id="eSpace2Core-copyMirrowAddress"
+						tabIndex={isShow ? 4 : -1}
 					>
 						{isCopied && (
 							<>
@@ -357,7 +374,7 @@ const TransferAdvancedMode: React.FC = () => {
 								<img className="absolute top-[50%] right-0 translate-y-[-50%] w-[16px] h-[16px]" src={Copy} alt="copy icon"/>
 							</>
 						)}
-					</div>
+					</button>
 				}
 			/>
 
@@ -367,7 +384,7 @@ const TransferAdvancedMode: React.FC = () => {
 }
 
 
-const Withdraw2Core: React.FC = () => {
+const Withdraw2Core: React.FC<{ isShow: boolean; }> = ({ isShow }) => {
 	const { currentToken } = useToken();
 	const hasESpaceMirrorAddress = useESpaceMirrorAddress();
 	const withdrawableBalance = useESpaceWithdrawableBalance();
@@ -392,7 +409,7 @@ const Withdraw2Core: React.FC = () => {
 		<>	
 			<div className='flex items-center my-[8px]'>
 				<span className='mr-[4px] text-[14px] text-[#A9ABB2]'>Current Address:</span>
-				<FluentConnected />
+				<FluentConnected tabIndex={-1} />
 			</div>
 
 			<div className='flex items-center mb-[20px]'>
@@ -412,6 +429,7 @@ const Withdraw2Core: React.FC = () => {
 				className='button-contained button-normal px-[38px] text-[14px]'
 				disabled={disabled}
 				onClick={handleClickWithdraw}
+				tabIndex={isShow ? 7 : -1}
 			>
 				{inWithdraw ? 'Withdrawing...' : 'Withdraw'}
 			</button>

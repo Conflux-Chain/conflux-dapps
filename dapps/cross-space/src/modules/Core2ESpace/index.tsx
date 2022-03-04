@@ -34,7 +34,7 @@ const transitions = {
 
 let eSpaceReceived: HTMLSpanElement | null = null;
 
-const Core2ESpace: React.FC<{ style: any; handleClickFlipped: () => void; }> = ({ style, handleClickFlipped }) => {
+const Core2ESpace: React.FC<{ style: any; isShow: boolean; handleClickFlipped: () => void; }> = ({ style, isShow, handleClickFlipped }) => {
 	const i18n = useI18n(transitions);
 	const { register, handleSubmit: withForm, setValue, watch } = useForm();
 	const { currentToken } = useToken();
@@ -45,14 +45,20 @@ const Core2ESpace: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 	const metaMaskStatus = useMetaMaskStatus();
 	const isUsedCurrentMetaMaskAccount = metaMaskStatus === 'active' && watch("eSpaceAccount") === metaMaskAccount;
 
-	const setAmount = useCallback((val: string) => {
+	const setAmount = useCallback((val: string, error?: string) => {
+		if (!eSpaceReceived) {
+			eSpaceReceived = document.querySelector('#core2eSpace-willReceive') as HTMLSpanElement;
+		}
+
+		if (error) {
+			eSpaceReceived.textContent = error;
+			return;
+		}
+
 		const _val = val.replace(/(?:\.0*|(\.\d+?)0+)$/, '$1');
 		setValue('amount', _val);
 		setTransferBalance('core', _val);
 
-		if (!eSpaceReceived) {
-			eSpaceReceived = document.querySelector('#core2eSpace-willReceive') as HTMLSpanElement;
-		}
 		eSpaceReceived.textContent = _val ? `${_val} ${currentToken.symbol}` : '--';
 	}, [currentToken])
 
@@ -84,13 +90,15 @@ const Core2ESpace: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 						<span className='mr-[8px] text-[14px] text-[#A9ABB2]'>To:</span>
 						<span className='mr-[8px] text-[16px] text-[#15C184] font-medium'>Conflux eSpace</span>
 						
-						<span
+						<button
 							id="core2eSpace-flip"
 							className='turn-page flex justify-center items-center w-[28px] h-[28px] rounded-full cursor-pointer transition-transform hover:scale-105'
 							onClick={handleClickFlipped}
+							tabIndex={isShow ? 1 : -1}
+							type="button"
 						>
 							<img src={TurnPage} alt="turn page" className='w-[14px] h-[14px]' draggable="false"/>
-						</span>
+						</button>
 					</p>
 
 					<div className='relative flex items-center'>
@@ -107,14 +115,17 @@ const Core2ESpace: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 								pattern: /0x[a-fA-F0-9]{40}/g,
 								required: !needApprove,
 							})}
+							tabIndex={isShow ? 2 : -1}
 						/>
 	
 
 						<Tooltip text={i18n.use_metamask} delay={333} disabled={isUsedCurrentMetaMaskAccount}>
-							<span
+							<button
 								id="core2eSpace-eSpaceAccount-useMetaMaskAccount"
 								className={cx('relative flex justify-center items-center w-[36px] h-[36px] ml-[12px] rounded-full border border-[#EAECEF] cursor-pointer', { 'pointer-events-none': isUsedCurrentMetaMaskAccount })}
 								onClick={onClickUseMetaMaskAccount}
+								tabIndex={isShow ? 3 : -1}
+								type="button"
 							>
 								<img src={MetaMask} alt="use MetaMask account" className='w-[24px] h-[24px]'/>
 								{isUsedCurrentMetaMaskAccount ?
@@ -123,20 +134,20 @@ const Core2ESpace: React.FC<{ style: any; handleClickFlipped: () => void; }> = (
 										<img src={ArrowLeft} alt="arrow left" className='w-[8px] h-[8px]'/>
 									</span>
 								}
-							</span>
+							</button>
 						</Tooltip>
 					</div>
 				</div>
 
-				<TokenList space="core"/>
+				<TokenList space="core" />
 
-				<Transfer2ESpace register={register} setAmount={setAmount}/>
+				<Transfer2ESpace isShow={isShow} register={register} setAmount={setAmount}/>
 			</form>
 		</a.div>
 )
 }
 
-const Transfer2ESpace: React.FC<{ register: UseFormRegister<FieldValues>; setAmount: (val: string) => void; }> = memo(({register, setAmount}) => {
+const Transfer2ESpace: React.FC<{ isShow: boolean; register: UseFormRegister<FieldValues>; setAmount: (val: string, error?: string) => void; }> = memo(({ isShow, register, setAmount }) => {
 	const i18n = useI18n(transitions);
 
 	const { currentToken } = useToken();
@@ -149,13 +160,14 @@ const Transfer2ESpace: React.FC<{ register: UseFormRegister<FieldValues>; setAmo
 	const handleCheckAmount = useCallback(async (evt: React.FocusEvent<HTMLInputElement, Element>) => {
 		if (!evt.target.value) return;
 		if (Number(evt.target.value) < 0) {
-			return setAmount('');
+			return setAmount('', '--');
 		}
 
 		if (!maxAvailableBalance) return;
 		if (Unit.greaterThan(Unit.fromStandardUnit(evt.target.value), maxAvailableBalance)) {
-			return setAmount(maxAvailableBalance.toDecimalStandardUnit());
+			return setAmount('', '--');
 		}
+
 		return setAmount(evt.target.value);
 	}, [maxAvailableBalance]);
 
@@ -166,7 +178,7 @@ const Transfer2ESpace: React.FC<{ register: UseFormRegister<FieldValues>; setAmo
 
 	const isBalanceGreaterThan0 = maxAvailableBalance && Unit.greaterThan(maxAvailableBalance, Unit.fromStandardUnit(0));
 	const canClickButton = needApprove === true || (needApprove === false && isBalanceGreaterThan0);
-	
+
 	return (
 		<>
 			<Input
@@ -176,17 +188,22 @@ const Transfer2ESpace: React.FC<{ register: UseFormRegister<FieldValues>; setAmo
 				type="number"
 				step={1e-18}
 				min={Unit.fromMinUnit(1).toDecimalStandardUnit()}
+				max={maxAvailableBalance?.toDecimalStandardUnit()}
 				disabled={!isBalanceGreaterThan0}
-				{...register('amount', { required: !needApprove, min: Unit.fromMinUnit(1).toDecimalStandardUnit(), onBlur: handleCheckAmount})}
+				{...register('amount', { required: !needApprove, min: Unit.fromMinUnit(1).toDecimalStandardUnit(), max: maxAvailableBalance?.toDecimalStandardUnit(), onBlur: handleCheckAmount})}
 				suffix={
-					<div
+					<button
 						id="core2eSpace-transferAamount-max"
 						className="absolute right-[16px] top-[50%] -translate-y-[50%] text-[14px] text-[#808BE7] cursor-pointer hover:underline"
 						onClick={handleClickMax}
+						disabled={!isBalanceGreaterThan0}
+						tabIndex={isShow ? 5 : -1}
+						type="button"
 					>
 						MAX
-					</div>
+					</button>
 				}
+				tabIndex={isShow ? 4 : -1}
 			/>
 
 			<p className="text-[14px] leading-[18px] text-[#3D3F4C]">
@@ -219,11 +236,14 @@ const Transfer2ESpace: React.FC<{ register: UseFormRegister<FieldValues>; setAmo
 				buttonType="contained"
 				buttonSize="normal"
 				fullWidth
+				tabIndex={isShow ? 6 : -1}
+				type="button"
 				authContent={() => 
 					<button
 						id="core2eSpace-transfer"
 						className='mt-[24px] button-contained button-normal w-full'
 						disabled={!canClickButton}
+						tabIndex={isShow ? 6 : -1}
 					>
 						{needApprove ? 'Approve' : needApprove === false ? i18n.transfer : 'Checking Approval...'}
 					</button>					

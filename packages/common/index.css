@@ -47,3 +47,8 @@ body {
 .contain-content {
     contain: layout paint style;
 }
+
+button:not(:hover):not(.button-contained):not(.button-outlined) {
+    @apply focus:outline-none focus:ring-2 focus:ring-[#808BE7];
+}
+
