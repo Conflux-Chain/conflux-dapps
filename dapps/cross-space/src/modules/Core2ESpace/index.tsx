@@ -68,7 +68,11 @@ const Core2ESpace: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 		if (metaMaskStatus === 'active') {
 			setValue('eSpaceAccount', metaMaskAccount!);
 		} else if (metaMaskStatus === 'not-active') {
-			connectToWallet('MetaMask');
+			connectToWallet('MetaMask').then((account) => {
+				if (account) {
+					setValue('eSpaceAccount', account);
+				}
+			});
 		}
 	}, [metaMaskAccount, metaMaskStatus]);
 

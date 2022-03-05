@@ -1,7 +1,7 @@
 import React, { useCallback, memo, type ButtonHTMLAttributes } from 'react';
 import cx from 'clsx';
-import { connect as connectFluent, useStatus as useFluentStatus, useChainId as useFluentChainId, switchChain as switchFluentChain, addChain as addFluentChain } from '@cfxjs/use-wallet';
-import { connect as connectMetaMask, useStatus as useMetaMaskStatus, useChainId as useMetaMaskChainId, switchChain as switchMetaMaskChain, addChain as addMetaMaskChain } from '@cfxjs/use-wallet/dist/ethereum';
+import { connect as connectFluent, useStatus as useFluentStatus, useChainId as useFluentChainId, switchChain as switchFluentChain, addChain as addFluentChain, provider as fluentProvider } from '@cfxjs/use-wallet';
+import { connect as connectMetaMask, useStatus as useMetaMaskStatus, useChainId as useMetaMaskChainId, switchChain as switchMetaMaskChain, addChain as addMetaMaskChain, provider as metaMaskProvider } from '@cfxjs/use-wallet/dist/ethereum';
 import { useCurrentNetwork, type Network } from '../../../../dapps/cross-space/src/store/index';
 import { showToast } from '../../components/tools/Toast';
 import useI18n, { compiled } from '../../hooks/useI18n';
@@ -29,9 +29,13 @@ const transitions = {
 
 export const connectToWallet = async (wallet: 'Fluent' | 'MetaMask') => {
     const connect = wallet === 'Fluent' ? connectFluent : connectMetaMask;
+    const provider = wallet === 'Fluent' ? fluentProvider! : metaMaskProvider!;
+
     try {
         await connect();
+        const account = await provider?.request?.({ method: `${ wallet === 'Fluent' ? 'cfx' : 'eth'}_accounts` });
         showToast(`Connect to ${wallet} Success!`);
+        return account?.[0];
     } catch (err) {
         if ((err as any)?.code === 4001) {
             showToast('You cancel the connection reqeust.');
