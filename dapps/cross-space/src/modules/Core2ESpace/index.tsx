@@ -8,6 +8,7 @@ import { useMaxAvailableBalance, useCurrentTokenBalance, useNeedApprove, useToke
 import AuthConnectButton, { connectToWallet } from 'common/modules/AuthConnectButton';
 import Input from 'common/components/Input';
 import Tooltip from 'common/components/Tooltip';
+import Spin from 'common/components/Spin';
 import useI18n from 'common/hooks/useI18n';
 import MetaMask from 'common/assets/MetaMask.svg';
 import TokenList from '@components/TokenList';
@@ -116,7 +117,7 @@ const Core2ESpace: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 					<div className='relative flex items-center'>
 						<Input
 							id="core2eSpace-eSpaceAccount-input"
-							className='pr-[40px]'
+							className={cx(isLockMetaMaskAccount ? 'pr-[40px]' : 'pr-[12px]')}
 							outerPlaceholder={
 								<p className='input-placeholder text-[14px]'>
 									<span className='font-semibold text-[#15C184]'>Conflux eSpace</span> <span className='text-[#979797]'>Destination Address</span>
@@ -271,18 +272,10 @@ const Transfer2ESpace: React.FC<{ isShow: boolean; register: UseFormRegister<Fie
 						disabled={!canClickButton}
 						tabIndex={isShow ? 6 : -1}
 					>
-						{needApprove ? 'Approve' : needApprove === false ? i18n.transfer : 'Checking Approval...'}
+						{needApprove ? 'Approve' : needApprove === false ? i18n.transfer : <Spin className='text-[28px] text-white' />}
 					</button>					
 				}
 			/>
-			{needApprove && 
-				<p
-					id="core2eSpace-transfer-needApproveTip"
-					className='absolute bottom-[4px] left-[50%] -translate-x-[50%] text-[12px] text-[#A9ABB2] whitespace-nowrap'
-				>
-					Approval value must be greater than your transfer balance.
-				</p>
-			}
 		</>
 	)
 });

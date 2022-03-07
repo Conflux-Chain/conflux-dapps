@@ -12,6 +12,7 @@ import LocalStorage from 'common/utils/LocalStorage';
 import AuthConnectButton from 'common/modules/AuthConnectButton';
 import Input from 'common/components/Input';
 import Tooltip from 'common/components/Tooltip';
+import Spin from 'common/components/Spin';
 import useI18n from 'common/hooks/useI18n';
 import Fluent from 'common/assets/Fluent.svg';
 import TokenList from '@components/TokenList';
@@ -45,6 +46,8 @@ const ESpace2Core: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 	const i18n = useI18n(transitions);
 	const { currentToken } = useToken();
 
+	const [inTransfer, setInTransfer] = useState(false);
+
 	return (
 		<a.div className="cross-space-module" style={style}>
 			<div className="p-[16px] rounded-[8px] border border-[#EAECEF] mb-[16px]">
@@ -67,7 +70,7 @@ const ESpace2Core: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 
 			<TokenList space="eSpace" />
 
-			<Transfer2Bridge isShow={isShow} /> 
+			<Transfer2Bridge isShow={isShow} inTransfer={inTransfer} setInTransfer={setInTransfer} /> 
 
 			<p className="mt-[24px] flex items-center h-[24px] text-[16px] text-[#3D3F4C] font-medium">
 				<span className="mr-[8px] px-[10px] h-[24px] leading-[24px] rounded-[4px] bg-[#F0F3FF] text-center text-[12px] text-[#808BE7]">Step 2</span>
@@ -84,7 +87,7 @@ const ESpace2Core: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 				buttonSize='normal'
 				wallet={currentToken.isNative ? 'Fluent' : 'Both-FluentFirst'}
 				fullWidth
-				authContent={() => <Withdraw2Core isShow={isShow} />}
+				authContent={() => <Withdraw2Core isShow={isShow} inTransfer={inTransfer} />}
 			/>
 		</a.div>
 	);
@@ -114,7 +117,7 @@ const FluentConnected: React.FC<{ id?: string; tabIndex?: number; }> = ({ id, ta
 	);
 }
 
-const Transfer2Bridge: React.FC<{ isShow: boolean; }> = memo(({ isShow }) => {
+const Transfer2Bridge: React.FC<{ isShow: boolean; inTransfer: boolean; setInTransfer: React.Dispatch<React.SetStateAction<boolean>>; }> = memo(({ isShow, inTransfer, setInTransfer }) => {
 	const i18n = useI18n(transitions);
 
 	const { currentToken } = useToken();
@@ -173,7 +176,7 @@ const Transfer2Bridge: React.FC<{ isShow: boolean; }> = memo(({ isShow }) => {
 					buttonSize="normal"
 					tabIndex={isShow ? 7 : -1}
 					type="button"
-					authContent={() => <TransferNormalMode isShow={isShow} />}
+					authContent={() => <TransferNormalMode isShow={isShow} inTransfer={inTransfer} setInTransfer={setInTransfer} />}
 				/>
 			}
 			{mode === 'advanced' && <TransferAdvancedMode isShow={isShow} />}
@@ -181,14 +184,13 @@ const Transfer2Bridge: React.FC<{ isShow: boolean; }> = memo(({ isShow }) => {
 	)
 });
 
-const TransferNormalMode: React.FC<{ isShow: boolean; }> = ({ isShow }) => {
+const TransferNormalMode: React.FC<{ isShow: boolean; inTransfer: boolean; setInTransfer: React.Dispatch<React.SetStateAction<boolean>>; }> = ({ isShow, inTransfer, setInTransfer }) => {
 	const i18n = useI18n(transitions);
 	const { register, handleSubmit, setValue } = useForm();
 
 	const { currentToken } = useToken();
 
 	const metaMaskAccount = useMetaMaskAccount();
-	const fluentStatus = useFluentStatus();
 	const currentTokenBalance = useCurrentTokenBalance('eSpace');
 	const maxAvailableBalance = useMaxAvailableBalance('eSpace');
 	const withdrawableBalance = useESpaceWithdrawableBalance();
@@ -247,8 +249,8 @@ const TransferNormalMode: React.FC<{ isShow: boolean; }> = ({ isShow }) => {
 
 	const onSubmit = useCallback(handleSubmit((data) => {
 		const { amount } = data;
-		handleTransferSubmit(amount)
-			.then(needClearAmount => {
+		handleTransferSubmit({ amount, setInTransfer })
+			.then(({ needClearAmount }) => {
 				if (needClearAmount) {
 					setAmount('');
 				}
@@ -256,7 +258,7 @@ const TransferNormalMode: React.FC<{ isShow: boolean; }> = ({ isShow }) => {
 	}), []);
 
 	const isBalanceGreaterThan0 = maxAvailableBalance && Unit.greaterThan(maxAvailableBalance, Unit.fromStandardUnit(0));
-	const canClickButton = needApprove === true || (needApprove === false && isBalanceGreaterThan0);
+	const canClickButton = inTransfer === false && (needApprove === true || (needApprove === false && isBalanceGreaterThan0));
 
 	return (
 		<form onSubmit={onSubmit}>
@@ -269,13 +271,13 @@ const TransferNormalMode: React.FC<{ isShow: boolean; }> = ({ isShow }) => {
 					step={1e-18}
 					min={Unit.fromMinUnit(1).toDecimalStandardUnit()}
 					max={maxAvailableBalance?.toDecimalStandardUnit()}
-					disabled={!isBalanceGreaterThan0}
+					disabled={inTransfer || !isBalanceGreaterThan0}
 					{...register('amount', { required: !needApprove, min: Unit.fromMinUnit(1).toDecimalStandardUnit(), max: maxAvailableBalance?.toDecimalStandardUnit(), onBlur: handleCheckAmount})}
 					suffix={
 						<button
 							className={cx("absolute right-[16px] top-[50%] -translate-y-[50%] text-[14px] text-[#808BE7] cursor-pointer", isBalanceGreaterThan0 && 'hover:underline')}
 							onClick={handleClickMax}
-							disabled={!isBalanceGreaterThan0}
+							disabled={inTransfer || !isBalanceGreaterThan0}
 							tabIndex={isShow ? 5 : -1}
 							type="button"
 						>
@@ -286,38 +288,38 @@ const TransferNormalMode: React.FC<{ isShow: boolean; }> = ({ isShow }) => {
 				/>
 				<button
 					id="eSpace2Core-transfer"
-					className='button-contained button-normal ml-[16px] text-[14px]'
+					className='button-contained button-normal ml-[16px] text-[14px] min-w-[88px]'
 					disabled={!canClickButton}
 					onClick={checkNeedWithdraw}
 					tabIndex={isShow ? 6 : -1}
 				>
-					{needApprove ? 'Approve' : needApprove === false ? i18n.transfer : 'Checking Approval...'}
+					{(needApprove === undefined || inTransfer) && <Spin className='text-[28px] text-white' />}
+					{needApprove && !inTransfer && 'Approve'}
+					{needApprove === false && !inTransfer && i18n.transfer}
 				</button>
-				{fluentStatus === 'active' && needApprove &&
-					<p
-						id="eSpace2Core-transfer-needApproveTip"
-						className='absolute -top-[16px] right-0 text-[12px] text-[#A9ABB2] whitespace-nowrap'>
-							Approval value must be greater than your transfer balance.
-					</p>
-				}
 			</div>
 			
 			<p className="text-[14px] leading-[18px] text-[#3D3F4C]">
 				<span className="text-[#15C184]" id="eSpace-balance">eSpace</span> Balance:
-				{currentTokenBalance ? 
-					(
-						(currentTokenBalance.toDecimalMinUnit() !== '0' && Unit.lessThan(currentTokenBalance, Unit.fromStandardUnit('0.000001'))) ?
-						<Tooltip text={`${currentTokenBalance.toDecimalStandardUnit()} ${currentToken.symbol}`} placement="right">
-							<span
-								id="eSpace2Core-currentTokenBalance"
-								className="ml-[4px]"
-							>
-								＜0.000001 {currentToken.symbol}
-							</span>
-						</Tooltip>
-						: <span id="eSpace2Core-currentTokenBalance" className="ml-[4px]">{`${currentTokenBalance} ${currentToken.symbol}`}</span>
-					)
-					: <span id="eSpace2Core-currentTokenBalance" className="ml-[4px]">loading...</span>
+				{inTransfer && <span id="eSpace2Core-currentTokenBalance" className="ml-[4px]">...</span>}
+				{!inTransfer &&
+					<>
+						{currentTokenBalance ? 
+							(
+								(currentTokenBalance.toDecimalMinUnit() !== '0' && Unit.lessThan(currentTokenBalance, Unit.fromStandardUnit('0.000001'))) ?
+								<Tooltip text={`${currentTokenBalance.toDecimalStandardUnit()} ${currentToken.symbol}`} placement="right">
+									<span
+										id="eSpace2Core-currentTokenBalance"
+										className="ml-[4px]"
+									>
+										＜0.000001 {currentToken.symbol}
+									</span>
+								</Tooltip>
+								: <span id="eSpace2Core-currentTokenBalance" className="ml-[4px]">{`${currentTokenBalance} ${currentToken.symbol}`}</span>
+							)
+							: <span id="eSpace2Core-currentTokenBalance" className="ml-[4px]">loading...</span>
+						}
+					</>
 				}
 			</p>
 			<p className="mt-[8px] text-[14px] leading-[18px] text-[#3D3F4C]">
@@ -386,24 +388,24 @@ const TransferAdvancedMode: React.FC<{ isShow: boolean; }> = ({ isShow }) => {
 }
 
 
-const Withdraw2Core: React.FC<{ isShow: boolean; }> = ({ isShow }) => {
+const Withdraw2Core: React.FC<{ isShow: boolean; inTransfer: boolean; }> = ({ isShow, inTransfer }) => {
 	const { currentToken } = useToken();
 	const hasESpaceMirrorAddress = useESpaceMirrorAddress();
 	const withdrawableBalance = useESpaceWithdrawableBalance();
 	const fluentStatus = useFluentStatus();
 	const metaMaskStatus = useMetaMaskStatus();
 
-	const [inWithdraw, setInWithdraw ] = useState(false);
+	const [inWithdraw, setInWithdraw] = useState(false);
 	const handleClickWithdraw = useCallback(() => {
 		handleWithdraw({ setInWithdraw });
 	}, []);
 
 	let disabled: boolean;
 	if (currentToken.isNative) {
-		disabled = fluentStatus === 'active' ? (!withdrawableBalance || Unit.equals(withdrawableBalance, Unit.fromMinUnit(0)) || inWithdraw) : fluentStatus !== 'not-active';
+		disabled = fluentStatus === 'active' ? (!withdrawableBalance || Unit.equals(withdrawableBalance, Unit.fromMinUnit(0)) || inWithdraw || inTransfer) : fluentStatus !== 'not-active';
 	} else {
 		disabled = fluentStatus === 'active' && metaMaskStatus === 'active' ? 
-			(!withdrawableBalance || Unit.equals(withdrawableBalance, Unit.fromMinUnit(0)) || inWithdraw)
+			(!withdrawableBalance || Unit.equals(withdrawableBalance, Unit.fromMinUnit(0)) || inWithdraw || inTransfer)
 			: (fluentStatus !== 'not-active' && metaMaskStatus !== 'not-active');
 	}
 
@@ -416,12 +418,12 @@ const Withdraw2Core: React.FC<{ isShow: boolean; }> = ({ isShow }) => {
 
 			<div className='flex items-center mb-[20px]'>
 				<span className='mr-[8px] text-[14px] text-[#A9ABB2]'>Withdrawable:</span>
-				{!inWithdraw && 
+				{(!inWithdraw && !inTransfer) && 
 					<span className='text-[16px] text-[#3D3F4C] font-medium'>
 						{`${withdrawableBalance ? `${withdrawableBalance.toDecimalStandardUnit()} ${currentToken.symbol}` : (currentToken.isNative && hasESpaceMirrorAddress ? 'loading...' : '--')}`}
 					</span>
 				}
-				{inWithdraw && 
+				{(inWithdraw || inTransfer) && 
 					<span className='text-[16px] text-[#3D3F4C] font-medium'>...</span>
 				}
 			</div>
@@ -433,7 +435,7 @@ const Withdraw2Core: React.FC<{ isShow: boolean; }> = ({ isShow }) => {
 				onClick={handleClickWithdraw}
 				tabIndex={isShow ? 7 : -1}
 			>
-				{inWithdraw ? 'Withdrawing...' : 'Withdraw'}
+				{inWithdraw ? 'Withdrawing...' : inTransfer ? 'Waiting Transfer...' : 'Withdraw'}
 			</button>
 		</>
 	);
