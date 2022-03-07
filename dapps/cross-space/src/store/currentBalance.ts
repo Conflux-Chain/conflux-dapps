@@ -44,13 +44,14 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
     const provider = space === 'core' ? fluentProvider : metaMaskProvider;
     const rpcPrefix = space === 'core' ? 'cfx' : 'eth';
     const balanceStore = space === 'core' ? coreBalanceStore as typeof eSpaceBalanceStore : eSpaceBalanceStore;
+    let balanceTick = 0;
     if (!provider) return;
 
     const getAccount = () => walletStore.getState().accounts?.[0]; 
 
     // same balance should not reset obj state causes duplicate render.
-    const handleBalanceChanged = (newBalance: Unit, type: 'currentTokenBalance' | 'approvedBalance') => {
-        if (!newBalance) return;
+    const handleBalanceChanged = (newBalance: Unit, type: 'currentTokenBalance' | 'approvedBalance', currentBalanceTick: number) => {
+        if (!newBalance || (currentBalanceTick !== (balanceTick - 1))) return;
         const preBalance = balanceStore.getState()[type];
 
         if (preBalance === undefined || !preBalance.equalsWith(newBalance)) {
@@ -73,6 +74,8 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
         if (!account) {
             return;
         }
+        const currentBalanceTick = balanceTick;
+        balanceTick += 1;
 
         const { currentToken, currentTokenContract } = currentTokenStore.getState();
         const { confluxSideContractAddress, evmSideContractAddress } = confluxStore.getState();
@@ -80,7 +83,7 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
 
         // if CFX, directly get balance from @cfxjs/use-wallet
         if (currentToken.isNative) {
-            handleBalanceChanged(walletStore.getState().balance!, 'currentTokenBalance');
+            handleBalanceChanged(walletStore.getState().balance!, 'currentTokenBalance', currentBalanceTick);
             callback?.();
             return;
         }
@@ -95,7 +98,7 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
             }, 
             space === 'core' ? 'latest_state' : 'latest']
         })
-            .then(minUnitBalance => handleBalanceChanged(Unit.fromMinUnit(minUnitBalance), 'currentTokenBalance'))
+            .then(minUnitBalance => handleBalanceChanged(Unit.fromMinUnit(minUnitBalance), 'currentTokenBalance', currentBalanceTick))
             .catch(err => console.log(`Get ${currentToken.symbol} balance error: `, err))
             .finally(callback);
 
@@ -109,16 +112,31 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
             }, 
             space === 'core' ? 'latest_state' : 'latest']
         })
-            .then(approvalMinUnitBalance => handleBalanceChanged(Unit.fromMinUnit(approvalMinUnitBalance), 'approvedBalance'))
+            .then(approvalMinUnitBalance => handleBalanceChanged(Unit.fromMinUnit(approvalMinUnitBalance), 'approvedBalance', currentBalanceTick))
             .catch(err => console.log(`Get ${currentToken.symbol} approved balance error: `, err));
     }
 
 
+
     let balanceTimer: number | null = null;
     let setUndefinedTimer: NodeJS.Timeout | null = null;
+    const clearBalanceTimer = () => {
+        if (balanceTimer !== null) {
+            clearInterval(balanceTimer);
+            balanceTimer = null;
+        }
+    }
+    const clearUndefinedTimer = () => {
+        if (setUndefinedTimer !== null) {
+            clearTimeout(setUndefinedTimer);
+            setUndefinedTimer = null;
+        }
+    }
+    
     const trackCurrentTokenBalance = async () => {
-        const currentToken = currentTokenStore.getState().currentToken;
+        clearUndefinedTimer();
 
+        const currentToken = currentTokenStore.getState().currentToken;
         if (currentToken.isNative) {
             balanceStore.setState({ approvedBalance: undefined });
         }
@@ -130,13 +148,6 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
             setUndefinedTimer = null;
         }, 50);
 
-        const clearBalanceTimer = () => {
-            if (balanceTimer !== null) {
-                clearInterval(balanceTimer);
-                balanceTimer = null;
-            }
-        }
-
         const account = getAccount();
         if (!account) {
             balanceStore.setState({ currentTokenBalance: undefined });
@@ -145,14 +156,7 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
         }
 
         // Clear the setUndefinedTimer after first fetch balance, if this timer is not already in effect.
-        setTimeout(() => {
-            getBalance(() => {
-                if (setUndefinedTimer !== null) {
-                    clearTimeout(setUndefinedTimer);
-                    setUndefinedTimer = null;
-                }
-            })
-        }, 10);
+        setTimeout(() => getBalance(clearUndefinedTimer), 10);
 
         clearBalanceTimer();
         balanceTimer = setInterval(getBalance, 1500);
@@ -166,9 +170,10 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
 // track eSpace withdrawable balance
 (function() {
     if (!metaMaskProvider) return;
+    let balanceTick = 0;
 
-    const handleBalanceChanged = (newBalance: Unit) => {
-        if (!newBalance) return;
+    const handleBalanceChanged = (newBalance: Unit, currentBalanceTick: number) => {
+        if (!newBalance || (currentBalanceTick !== (balanceTick - 1))) return;
         const preBalance = eSpaceBalanceStore.getState().withdrawableBalance;
 
         if (preBalance === undefined || !preBalance.equalsWith(newBalance)) {
@@ -185,6 +190,9 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
 
         if (!eSpaceMirrorAddress || !eSpaceNetwork) return;
 
+        const currentBalanceTick = balanceTick;
+        balanceTick += 1;
+
         if (currentToken.isNative) {
             // CFX cross space does not require MetaMask to be installed, so we cannot use MetaMask's provider here.
             fetch(eSpaceNetwork.url, {
@@ -200,9 +208,9 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
                 .then(response => response.json()).then((balanceRes: Record<string, string>) => {
                     const minUnitBalance = balanceRes?.result;
                     if (typeof minUnitBalance === 'string') {
-                        handleBalanceChanged(Unit.fromMinUnit(minUnitBalance))
+                        handleBalanceChanged(Unit.fromMinUnit(minUnitBalance), currentBalanceTick);
                     } else {
-                        console.error(`Get CFX withdrawable balance error: `, balanceRes)
+                        console.error(`Get CFX withdrawable balance error: `, balanceRes);
                     }
                 })
                 .catch(err => console.error(`Get CFX withdrawable balance error: `, err))
@@ -222,28 +230,38 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
             }, 
             'latest']
         })
-            .then(minUnitBalance => handleBalanceChanged(Unit.fromMinUnit(minUnitBalance)))
+            .then(minUnitBalance => handleBalanceChanged(Unit.fromMinUnit(minUnitBalance), currentBalanceTick))
             .catch(err => console.log(`Get ${currentToken.symbol} withdrawable balance error: `, err))
             .finally(callback);
     }
 
+
+
     let balanceTimer: number | null = null;
     let setUndefinedTimer: NodeJS.Timeout | null = null;
+    const clearBalanceTimer = () => {
+        if (balanceTimer !== null) {
+            clearInterval(balanceTimer);
+            balanceTimer = null;
+        }
+    }
+    const clearUndefinedTimer = () => {
+        if (setUndefinedTimer !== null) {
+            clearTimeout(setUndefinedTimer);
+            setUndefinedTimer = null;
+        }
+    }
+
     const trackWithdrawableBalance = async () => {
+        clearUndefinedTimer();
+        
         // Prevent interface jitter from having a value to undefined to having a value again in a short time when switching tokens.
         // Shortly fail to get the value and then turn to undefined
         setUndefinedTimer = setTimeout(() => {
             eSpaceBalanceStore.setState({ withdrawableBalance: undefined });
             setUndefinedTimer = null;
         }, 50);
-
-        const clearBalanceTimer = () => {
-            if (balanceTimer !== null) {
-                clearInterval(balanceTimer);
-                balanceTimer = null;
-            }
-        }
-
+        
         const currentToken = currentTokenStore.getState().currentToken;
         const fluentAccount = fluentStore.getState().accounts?.[0];
         const metaMaskAccount = metaMaskStore.getState().accounts?.[0];
@@ -261,14 +279,7 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
             }
         }
 
-        setTimeout(() => {
-            getBalance(() => {
-                if (setUndefinedTimer !== null) {
-                    clearTimeout(setUndefinedTimer);
-                    setUndefinedTimer = null;
-                }
-            });    
-        }, 10);
+        setTimeout(() => getBalance(clearUndefinedTimer), 10);
 
         clearBalanceTimer();
         balanceTimer = setInterval(getBalance, 1500);
