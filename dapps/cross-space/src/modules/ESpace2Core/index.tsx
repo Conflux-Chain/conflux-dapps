@@ -1,7 +1,8 @@
 import React, { useState, useCallback, useEffect, useRef, memo } from 'react';
 import { a } from '@react-spring/web';
 import { useForm } from 'react-hook-form';
-import useClipboard from 'react-use-clipboard'
+import useClipboard from 'react-use-clipboard';
+import cx from 'clsx';
 import { shortenAddress } from '@fluent-wallet/shorten-address';
 import { useAccount as useFluentAccount, useStatus as useFluentStatus, Unit } from '@cfxjs/use-wallet';
 import { useStatus as useMetaMaskStatus, useAccount as useMetaMaskAccount } from '@cfxjs/use-wallet/dist/ethereum';
@@ -262,6 +263,7 @@ const TransferNormalMode: React.FC<{ isShow: boolean; }> = ({ isShow }) => {
 			<div className="relative mt-[16px] mb-[12px] flex items-center">
 				<Input
 					id="eSpace2Core-transferAamount-input"
+					className='pr-[52px]'
 					placeholder="Amount you want to transfer"
 					type="number"
 					step={1e-18}
@@ -271,7 +273,7 @@ const TransferNormalMode: React.FC<{ isShow: boolean; }> = ({ isShow }) => {
 					{...register('amount', { required: !needApprove, min: Unit.fromMinUnit(1).toDecimalStandardUnit(), max: maxAvailableBalance?.toDecimalStandardUnit(), onBlur: handleCheckAmount})}
 					suffix={
 						<button
-							className="absolute right-[16px] top-[50%] -translate-y-[50%] text-[14px] text-[#808BE7] cursor-pointer hover:underline"
+							className={cx("absolute right-[16px] top-[50%] -translate-y-[50%] text-[14px] text-[#808BE7] cursor-pointer", isBalanceGreaterThan0 && 'hover:underline')}
 							onClick={handleClickMax}
 							disabled={!isBalanceGreaterThan0}
 							tabIndex={isShow ? 5 : -1}

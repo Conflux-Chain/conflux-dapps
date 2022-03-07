@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, memo } from 'react';
+import React, { useCallback, useEffect, memo, useState } from 'react';
 import { a } from '@react-spring/web';
 import cx from 'clsx';
 import { useForm, type UseFormRegister, type FieldValues } from 'react-hook-form';
@@ -13,6 +13,7 @@ import MetaMask from 'common/assets/MetaMask.svg';
 import TokenList from '@components/TokenList';
 import TurnPage from '@assets/turn-page.svg';
 import ArrowLeft from '@assets/arrow-left.svg';
+import InputClose from '@assets/input-close.svg';
 import Success from '@assets/success.svg';
 import handleSubmit from './handleSubmit';
 
@@ -43,7 +44,7 @@ const Core2ESpace: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 	const fluentAccount = useFluentAccount();
 	const metaMaskAccount = useMetaMaskAccount();
 	const metaMaskStatus = useMetaMaskStatus();
-	const isUsedCurrentMetaMaskAccount = metaMaskStatus === 'active' && watch("eSpaceAccount") === metaMaskAccount;
+	const isUsedCurrentMetaMaskAccount = metaMaskStatus === 'active' && String(watch("eSpaceAccount")).toLowerCase() === metaMaskAccount;
 
 	const setAmount = useCallback((val: string, error?: string) => {
 		if (!eSpaceReceived) {
@@ -64,17 +65,24 @@ const Core2ESpace: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 
 	useEffect(() => setAmount(''), [fluentAccount, currentToken]);
 
+	const [isLockMetaMaskAccount, setIsLockMetaMaskAccount] = useState(false);
 	const onClickUseMetaMaskAccount = useCallback(() => {
 		if (metaMaskStatus === 'active') {
 			setValue('eSpaceAccount', metaMaskAccount!);
+			setIsLockMetaMaskAccount(true);
 		} else if (metaMaskStatus === 'not-active') {
 			connectToWallet('MetaMask').then((account) => {
 				if (account) {
 					setValue('eSpaceAccount', account);
+					setIsLockMetaMaskAccount(true);
 				}
 			});
 		}
 	}, [metaMaskAccount, metaMaskStatus]);
+	const unlockMetaMaskAccount = useCallback(() => {
+		setValue('eSpaceAccount', '');
+		setIsLockMetaMaskAccount(false);
+	}, []);
 
 	const onSubmit = useCallback(withForm(async (data) => {
 		const { eSpaceAccount, amount } = data;
@@ -108,6 +116,7 @@ const Core2ESpace: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 					<div className='relative flex items-center'>
 						<Input
 							id="core2eSpace-eSpaceAccount-input"
+							className='pr-[40px]'
 							outerPlaceholder={
 								<p className='input-placeholder text-[14px]'>
 									<span className='font-semibold text-[#15C184]'>Conflux eSpace</span> <span className='text-[#979797]'>Destination Address</span>
@@ -120,6 +129,18 @@ const Core2ESpace: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 								required: !needApprove,
 							})}
 							tabIndex={isShow ? 2 : -1}
+							disabled={isLockMetaMaskAccount}
+							suffix={
+								<button
+									id="core2eSpace-eSpaceAccount-clear"
+									className={cx("absolute right-[12px] top-[50%] -translate-y-[50%] cursor-pointer z-10", !isLockMetaMaskAccount && 'hidden')}
+									tabIndex={-1}
+									type="button"
+									onClick={unlockMetaMaskAccount}
+								>
+									<img src={InputClose} alt="close icon" className='w-[18px] h-[18px]'/>
+								</button>
+							}
 						/>
 	
 
@@ -187,6 +208,7 @@ const Transfer2ESpace: React.FC<{ isShow: boolean; register: UseFormRegister<Fie
 		<>
 			<Input
 				id="core2eSpace-transferAamount-input"
+				className='pr-[52px]'
 				wrapperClassName='mt-[16px] mb-[12px]'
 				placeholder="Amount you want to transfer"
 				type="number"
@@ -198,7 +220,7 @@ const Transfer2ESpace: React.FC<{ isShow: boolean; register: UseFormRegister<Fie
 				suffix={
 					<button
 						id="core2eSpace-transferAamount-max"
-						className="absolute right-[16px] top-[50%] -translate-y-[50%] text-[14px] text-[#808BE7] cursor-pointer hover:underline"
+						className={cx("absolute right-[16px] top-[50%] -translate-y-[50%] text-[14px] text-[#808BE7] cursor-pointer", isBalanceGreaterThan0 && 'hover:underline')}
 						onClick={handleClickMax}
 						disabled={!isBalanceGreaterThan0}
 						tabIndex={isShow ? 5 : -1}

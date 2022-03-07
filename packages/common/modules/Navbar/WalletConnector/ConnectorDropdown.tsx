@@ -82,6 +82,7 @@ const WalletOperate: React.FC<{ wallet: 'Fluent' | 'MetaMask'; }> = ({ wallet })
             buttonSize="small"
             connectTextType="concise"
             fullWidth
+            showLogo
             authContent={() =>
                 <div className='flex items-center h-[20px] text-[14px] text-[#3d3f4c]'>
                     <img src={Logo} alt={`${wallet} logo`} className="mr-[4px] w-[20px] h-[20px]" />
