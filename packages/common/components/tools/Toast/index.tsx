@@ -11,6 +11,7 @@ Toast.setListStyle({
     transform: 'unset',
     right: '12px',
     flexDirection: 'column',
+    zIndex: 10000
 });
 
 Toast.setItemWrapperClassName('toast-item-wrapper');

@@ -151,6 +151,7 @@ const DropdownContent: React.FC<{ space: 'core' | 'eSpace'; visible: boolean; hi
 
                 <Input
                     id={`tokenlist-search-input-${space}`}
+                    className='pr-[12px]'
                     ref={inputRef}
                     prefixIcon={Search}
                     placeholder={i18n.search_placeholder}
