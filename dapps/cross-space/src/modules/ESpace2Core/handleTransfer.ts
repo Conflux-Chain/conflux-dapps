@@ -1,26 +1,26 @@
 import { store as fluentStore } from '@cfxjs/use-wallet';
 import { sendTransaction as sendTransactionWithMetaMask, Unit } from '@cfxjs/use-wallet/dist/ethereum';
-import { currentTokenStore, eSpaceBalanceStore, recheckApproval, confluxStore, trackBalanceChangeOnce, checkNeedApprove } from '@store/index';
+import { currentTokenStore, recheckApproval, confluxStore, trackBalanceChangeOnce, checkNeedApprove } from '@store/index';
 import { showWaitWallet, showActionSubmitted, hideWaitWallet, hideActionSubmitted } from 'common/components/tools/Modal';
 import { showToast } from 'common/components/tools/Toast';
 
 // return value === true means need clear input transfer amount;
-export const handleTransferSubmit = async (amount: string) => {
+export const handleTransferSubmit = async ({ amount, setInTransfer }: { amount: string; setInTransfer: React.Dispatch<React.SetStateAction<boolean>>; }) => {
     const currentToken = currentTokenStore.getState().currentToken;
 
     if (currentToken.isNative) {
         await handleTransferCFX(amount);
-        return true;
+        return ({ needClearAmount: true });
     } else {
         const checkApproveRes = checkNeedApprove('eSpace');
-        if (checkApproveRes === undefined) return false;
+        if (checkApproveRes === undefined) return ({ needClearAmount: false });
 
         if (checkApproveRes) {
             await handleApproveCRC20();
-            return false;
+            return ({ needClearAmount: false });
         } else {
-            await handleTransferMappedCRC20(amount, currentToken.nativeSpace === 'core' ? 'lockMappedToken' : 'lockToken');
-            return true;
+            await handleTransferCRC20(amount, currentToken.nativeSpace === 'core' ? 'lockMappedToken' : 'lockToken', setInTransfer);
+            return ({ needClearAmount: true });
         }
     }
 };
@@ -105,7 +105,7 @@ const handleApproveCRC20 = async () => {
     }
 };
 
-const handleTransferMappedCRC20 = async (amount: string, methodType: 'lockMappedToken' | 'lockToken') => {
+const handleTransferCRC20 = async (amount: string, methodType: 'lockMappedToken' | 'lockToken', setInTransfer: React.Dispatch<React.SetStateAction<boolean>>) => {
     const fluentAccount = fluentStore.getState().accounts?.[0];
     const { evmSideContract, evmSideContractAddress } = confluxStore.getState();
     if (!fluentAccount || !evmSideContract || !evmSideContractAddress) return;
@@ -122,8 +122,10 @@ const handleTransferMappedCRC20 = async (amount: string, methodType: 'lockMapped
             to: evmSideContractAddress,
             data: evmSideContract[methodType](usedTokenAddress, fluentAccount, Unit.fromStandardUnit(amount).toHexMinUnit()).data,
         });
+        setInTransfer(true);
         transactionSubmittedKey = showActionSubmitted(TxnHash);
-        trackBalanceChangeOnce.eSpaceCurrentTokenBalance(() => {
+        trackBalanceChangeOnce.eSpaceWithdrawableBalance(() => {
+            setInTransfer(false);
             hideActionSubmitted(transactionSubmittedKey);
             showToast(`Transfer ${currentToken.symbol} to eSpace mirror address success.`);
         });

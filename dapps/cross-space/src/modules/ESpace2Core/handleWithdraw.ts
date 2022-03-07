@@ -5,9 +5,7 @@ import { currentTokenStore, eSpaceBalanceStore, confluxStore, trackBalanceChange
 import { showWaitWallet, showActionSubmitted, hideWaitWallet, hideActionSubmitted } from 'common/components/tools/Modal';
 import { showToast } from 'common/components/tools/Toast';
 
-type SetInWithdraw = React.Dispatch<React.SetStateAction<boolean>>;
-
-export const handleWithdraw = async ({ setInWithdraw }: { setInWithdraw: SetInWithdraw }) => {
+export const handleWithdraw = async ({ setInWithdraw }: { setInWithdraw: React.Dispatch<React.SetStateAction<boolean>> }) => {
     const currentToken = currentTokenStore.getState().currentToken;
     const withdrawableBalance = eSpaceBalanceStore.getState().withdrawableBalance;
 
@@ -19,7 +17,7 @@ export const handleWithdraw = async ({ setInWithdraw }: { setInWithdraw: SetInWi
     }
 };
 
-const handleWithdrawCFX = async ({ withdrawableBalance, setInWithdraw }: { withdrawableBalance: Unit; setInWithdraw: SetInWithdraw }) => {
+const handleWithdrawCFX = async ({ withdrawableBalance, setInWithdraw }: { withdrawableBalance: Unit; setInWithdraw: React.Dispatch<React.SetStateAction<boolean>> }) => {
     const { crossSpaceContract, crossSpaceContractAddress, eSpaceMirrorAddress } = confluxStore.getState();
     if (!crossSpaceContract || !crossSpaceContractAddress || !eSpaceMirrorAddress) return;
 
@@ -49,7 +47,7 @@ const handleWithdrawCFX = async ({ withdrawableBalance, setInWithdraw }: { withd
     }
 };
 
-const handleWithdrawCRC20 = async ({ withdrawableBalance, setInWithdraw, methodType }: { withdrawableBalance: Unit; setInWithdraw: SetInWithdraw, methodType: 'withdrawFromEvm' | 'crossFromEvm'; }) => {
+const handleWithdrawCRC20 = async ({ withdrawableBalance, setInWithdraw, methodType }: { withdrawableBalance: Unit; setInWithdraw: React.Dispatch<React.SetStateAction<boolean>>, methodType: 'withdrawFromEvm' | 'crossFromEvm'; }) => {
     const metaMaskAccount = metaMaskStore.getState().accounts?.[0];
     const { confluxSideContract, confluxSideContractAddress } = confluxStore.getState();
     if (!metaMaskAccount || !confluxSideContract || !confluxSideContractAddress) return;
