@@ -3,7 +3,7 @@
         "name": "Conflux Hydra", 
         "url": "https://main.confluxrpc.com",
         "networkId": "1029",
-        "scan": "https://confluxscan.io",
+        "scan": "https://confluxscan.net",
         "innerTokenList": "",
         "CRC20CrossSpaceContractAddress": "",
         "eSpace": {
