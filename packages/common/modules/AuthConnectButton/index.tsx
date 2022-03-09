@@ -34,11 +34,11 @@ export const connectToWallet = async (wallet: 'Fluent' | 'MetaMask') => {
     try {
         await connect();
         const account = await provider?.request?.({ method: `${ wallet === 'Fluent' ? 'cfx' : 'eth'}_accounts` });
-        showToast(`Connect to ${wallet} Success!`);
+        showToast(`Connect to ${wallet} Success!`, { type: 'success' });
         return account?.[0];
     } catch (err) {
         if ((err as any)?.code === 4001) {
-            showToast('You cancel the connection reqeust.');
+            showToast('You cancel the connection reqeust.', { type: 'failed' });
         }
     }
 }
@@ -50,7 +50,7 @@ const switchToChain = async (wallet: 'Fluent' | 'MetaMask', network: Network) =>
 
     try {
         await switchChain(targetChainId);
-        showToast(`Switch ${wallet} to ${network.name} Success!`);
+        showToast(`Switch ${wallet} to ${network.name} Success!`, { type: 'success' });
     } catch (switchError) {
         // This error code indicates that the chain has not been added to MetaMask.
         if ((switchError as any)?.code === 4902) {
@@ -68,11 +68,11 @@ const switchToChain = async (wallet: 'Fluent' | 'MetaMask', network: Network) =>
                 });
             } catch (addError) {
                 if ((addError as any)?.code === 4001) {
-                    showToast('You cancel the add chain reqeust.');
+                    showToast('You cancel the add chain reqeust.', { type: 'failed' });
                 }
             }
         } else if ((switchError as any)?.code === 4001) {
-            showToast('You cancel the switch chain reqeust.');
+            showToast('You cancel the switch chain reqeust.', { type: 'failed' });
         }
     }
 } 

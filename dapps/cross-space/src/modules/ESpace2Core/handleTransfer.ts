@@ -41,13 +41,13 @@ const handleTransferCFX = async (amount: string) => {
         transactionSubmittedKey = showActionSubmitted(TxnHash);
         trackBalanceChangeOnce.eSpaceWithdrawableBalance(() => {
             hideActionSubmitted(transactionSubmittedKey);
-            showToast(`Transfer CFX to eSpace mirror address success.`);
+            showToast(`Transfer CFX to eSpace mirror address success.`, { type: 'success' });
         });
     } catch (err) {
         console.error(`Transfer CFX to eSpace mirror address failed: `, err);
         hideWaitWallet(waitFluentKey);
         if ((err as { code: number })?.code === 4001 && (err as any)?.message?.indexOf('User denied transaction signature') !== -1) {
-            showToast('You canceled the transaction.');
+            showToast('You canceled the transaction.', { type: 'failed' });
         }
     }
 };
@@ -71,13 +71,13 @@ const handleApproveCRC20 = async () => {
         transactionSubmittedKey = showActionSubmitted(TxnHash, 'Approve', { duration: 15000 });
         trackBalanceChangeOnce.eSpaceApprovedBalance(() => {
             hideActionSubmitted(transactionSubmittedKey);
-            showToast(`Approve ${currentToken.symbol} use success.`);
+            showToast(`Approve ${currentToken.symbol} use success.`, { type: 'success' });
         });
     } catch (err) {
         console.error(`Approve ${currentToken.symbol} use error: `, err);
         hideWaitWallet(waitFluentKey);
         if ((err as { code: number })?.code === 4001 && (err as any)?.message?.indexOf('User denied transaction signature') !== -1) {
-            showToast('You canceled the Approve.');
+            showToast('You canceled the Approve.', { type: 'failed' });
         } else {
             // In cUSDT, you need to approve 0 and then approve again to change the Approval Value.
             try {
@@ -93,12 +93,12 @@ const handleApproveCRC20 = async () => {
                 transactionSubmittedKey = showActionSubmitted(TxnHash, 'Approve', { duration: 9000 });
                 trackBalanceChangeOnce.eSpaceApprovedBalance(() => {
                     hideActionSubmitted(transactionSubmittedKey);
-                    showToast(`Re approve ${currentToken.symbol} use success.`);
+                    showToast(`Re approve ${currentToken.symbol} use success.`, { type: 'success' });
                 });
             } catch {
                 hideWaitWallet(waitFluentKey);
                 if ((err as { code: number })?.code === 4001 && (err as any)?.message?.indexOf('User denied transaction signature') !== -1) {
-                    showToast('You canceled the Re Approve.');
+                    showToast('You canceled the Re Approve.', { type: 'failed' });
                 }
             }
         }
@@ -127,13 +127,13 @@ const handleTransferCRC20 = async (amount: string, methodType: 'lockMappedToken'
         trackBalanceChangeOnce.eSpaceWithdrawableBalance(() => {
             setInTransfer(false);
             hideActionSubmitted(transactionSubmittedKey);
-            showToast(`Transfer ${currentToken.symbol} to eSpace mirror address success.`);
+            showToast(`Transfer ${currentToken.symbol} to eSpace mirror address success.`, { type: 'success' });
         });
     } catch (err) {
         console.error(`Transfer ${currentToken.symbol} to eSpace mirror address failed: `, err);
         hideWaitWallet(waitFluentKey);
         if ((err as { code: number })?.code === 4001 && (err as any)?.message?.indexOf('User denied transaction signature') !== -1) {
-            showToast('You canceled the transaction.');
+            showToast('You canceled the transaction.', { type: 'failed' });
         }
     }
 };
