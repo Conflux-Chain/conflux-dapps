@@ -36,13 +36,13 @@ const handleWithdrawCFX = async ({ withdrawableBalance, setInWithdraw }: { withd
         trackBalanceChangeOnce.eSpaceWithdrawableBalance(() => {
             setInWithdraw(false);
             hideActionSubmitted(transactionSubmittedKey);
-            showToast('Withdraw CFX from eSpace mirror address success!');
+            showToast('Withdraw CFX from eSpace mirror address success!', { type: 'success' });
         });
     } catch (err) {
         console.error('Withdraw CFX from eSpace mirror address error: ', err);
         hideWaitWallet(waitFluentKey);
         if ((err as { code: number })?.code === 4001 && (err as any)?.message?.indexOf('UserRejected') !== -1) {
-            showToast('You canceled withdraw.');
+            showToast('You canceled withdraw.', { type: 'failed' });
         }
     }
 };
@@ -68,13 +68,13 @@ const handleWithdrawCRC20 = async ({ withdrawableBalance, setInWithdraw, methodT
         trackBalanceChangeOnce.eSpaceWithdrawableBalance(() => {
             setInWithdraw(false);
             hideActionSubmitted(transactionSubmittedKey);
-            showToast(`Withdraw ${currentToken.symbol} from eSpace mirror address success.`);
+            showToast(`Withdraw ${currentToken.symbol} from eSpace mirror address success.`, { type: 'success' });
         });
     } catch (err) {
         console.error(`Withdraw ${currentToken.symbol} from eSpace mirror address failed: `, err);
         hideWaitWallet(waitFluentKey);
         if ((err as { code: number })?.code === 4001 && (err as any)?.message?.indexOf('UserRejected') !== -1) {
-            showToast('You canceled the withdraw.');
+            showToast('You canceled the withdraw.', { type: 'failed' });
         }
     }
 }

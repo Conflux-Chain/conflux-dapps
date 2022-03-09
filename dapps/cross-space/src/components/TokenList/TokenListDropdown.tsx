@@ -43,12 +43,12 @@ const TokenListDropdown: React.FC<{ children: (triggerDropdown: () => void, visi
     const triggerDropdown = useCallback(() => {
         setVisible(pre => {
             if (!pre && metaMaskStatus === 'not-installed') {
-                showToast('To cross space CRC20 token, please install MetaMask first.');
+                showToast('To cross space CRC20 token, please install MetaMask first.', { type: 'warning' });
                 return false;
             }
             const disabledReason = tokenListStore.getState().disabled;
             if (!pre && typeof disabledReason === 'string') {
-                showToast(disabledReason);
+                showToast(disabledReason, { type: 'warning' });
                 return false;
             }
             return !pre;
@@ -286,7 +286,7 @@ const TokenItem = memo<TokenItemProps>(({
                     image: icon
                 },
             });
-            space === 'core' && showToast(`Add ${symbol} to ${space === 'core' ? 'Fluent' : 'MetaMask'} success!`);
+            space === 'core' && showToast(`Add ${symbol} to ${space === 'core' ? 'Fluent' : 'MetaMask'} success!`, { type: 'success' });
         } catch (err) {
             console.error((`Add ${symbol} to ${space === 'core' ? 'Fluent' : 'MetaMask'} failed!`));
         }

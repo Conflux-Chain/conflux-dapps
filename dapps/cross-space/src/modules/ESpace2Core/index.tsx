@@ -239,10 +239,13 @@ const TransferNormalMode: React.FC<{ isShow: boolean; inTransfer: boolean; setIn
 		if (withdrawableBalance && !currentToken.isNative) {
 			if (Unit.greaterThan(withdrawableBalance, Unit.fromStandardUnit(0))) {
 				evt.preventDefault();
-				showToast({
-					title: 'Warning',
-					text: 'You have withdrawable balance, please withdraw it first.',
-				});
+				showToast(
+					{
+						title: 'Warning',
+						text: 'You have withdrawable balance, please withdraw it first.',
+					},
+					{ type: 'warning' }
+				);
 				return;
 			}
 		}
