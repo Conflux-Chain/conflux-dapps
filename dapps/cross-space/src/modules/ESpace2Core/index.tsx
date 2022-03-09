@@ -236,7 +236,7 @@ const TransferNormalMode: React.FC<{ isShow: boolean; inTransfer: boolean; setIn
 	}, [maxAvailableBalance])
 
 	const checkNeedWithdraw = useCallback<React.MouseEventHandler<HTMLButtonElement>>((evt) => {
-		if (withdrawableBalance) {
+		if (withdrawableBalance && !currentToken.isNative) {
 			if (Unit.greaterThan(withdrawableBalance, Unit.fromStandardUnit(0))) {
 				evt.preventDefault();
 				showToast({
@@ -246,7 +246,7 @@ const TransferNormalMode: React.FC<{ isShow: boolean; inTransfer: boolean; setIn
 				return;
 			}
 		}
-	}, [withdrawableBalance]);
+	}, [withdrawableBalance, currentToken]);
 
 	const onSubmit = useCallback(handleSubmit((data) => {
 		const { amount } = data;
