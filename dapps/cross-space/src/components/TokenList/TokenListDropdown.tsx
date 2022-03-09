@@ -112,7 +112,10 @@ const DropdownContent: React.FC<{ space: 'core' | 'eSpace'; visible: boolean; hi
                 (token.isNative ? [token.name, token.symbol] : [token.name, token.symbol, token.native_address, token.mapped_address])
                     .some(str => str.search(new RegExp(escapeRegExp(filter), 'i')) !== -1)
             )
-        ) return;
+        ) {
+            setSearchToken('waiting');
+            return;
+        }
 
         const startJudge = async () => {
             showSearchingTimer = setTimeout(() => setSearchToken('searching'), 100);
