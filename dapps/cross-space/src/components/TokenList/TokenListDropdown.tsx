@@ -4,7 +4,6 @@ import useI18n from 'common/hooks/useI18n';
 import { useStatus as useFluentStatus, useChainId as useFluentChainId, watchAsset as watchAssetFluent } from '@cfxjs/use-wallet';
 import { useStatus as useMetaMaskStatus, useChainId as useMetaMaskChainId, watchAsset as watchAssetMetaMask } from '@cfxjs/use-wallet/dist/ethereum';
 import { shortenAddress } from '@fluent-wallet/shorten-address';
-import useClipboard from 'react-use-clipboard'
 import { debounce, escapeRegExp } from 'lodash-es';
 import { useSingleton } from '@tippyjs/react';
 import CustomScrollbar from 'custom-react-scrollbar';
@@ -13,12 +12,13 @@ import Tooltip from 'common/components/Tooltip';
 import Input from 'common/components/Input';
 import Spin from 'common/components/Spin';
 import { showToast } from 'common/components/tools/Toast';
-import { useToken, type Token, useCurrentNetwork } from '@store/index';
+import { useToken, type Token, useCurrentNetwork , type Network } from '@store/index';
 import Close from 'common/assets/close.svg';
-import Copy from 'common/assets/copy.svg';
 import Add from 'common/assets/add-to-wallet.svg';
 import Search from 'common/assets/search.svg';
 import Suggest from '@assets/suggest.svg';
+import Switch from '@assets/turn-page.svg';
+import Open from '@assets/open.svg';
 import { useTokenList, tokenListStore, deleteSearchToken } from './tokenListStore';
 import judgeAddressValid from './judgeAddressValid';
 
@@ -72,7 +72,7 @@ const TokenListDropdown: React.FC<{ children: (triggerDropdown: () => void, visi
             visible={visible}
             onClickOutside={hideDropdown}
             className="relative flex flex-col w-[432px] pt-[16px] rounded-[4px] bg-white shadow contain-content overflow-hidden"
-            Content={<DropdownContent space={space} visible={visible} hideDropdown={hideDropdown} />}
+            Content={<DropdownContent fromSpace={space} visible={visible} hideDropdown={hideDropdown} />}
             appendTo={document.body}
             
         >
@@ -82,7 +82,7 @@ const TokenListDropdown: React.FC<{ children: (triggerDropdown: () => void, visi
 }
 
 let showSearchingTimer: NodeJS.Timeout | null = null;
-const DropdownContent: React.FC<{ space: 'core' | 'eSpace'; visible: boolean; hideDropdown: () => void; }>= ({ visible, space, hideDropdown }) => {
+const DropdownContent: React.FC<{ fromSpace: 'core' | 'eSpace'; visible: boolean; hideDropdown: () => void; }>= ({ visible, fromSpace, hideDropdown }) => {
     const i18n = useI18n(transitions);
     const { currentToken, setCurrentToken, commonTokens, deleteFromCommonTokens } = useToken();
     const inputRef = useRef<HTMLInputElement>(null!);
@@ -92,6 +92,14 @@ const DropdownContent: React.FC<{ space: 'core' | 'eSpace'; visible: boolean; hi
             inputRef.current.value = '';
             setFilter('');
         }
+    }, [visible]);
+
+    const [space, setUsedSpace] = useState(fromSpace);
+    const handleSwitchSpace = useCallback(() => {
+        setUsedSpace(pre => pre === 'core' ? 'eSpace' : 'core');
+    }, []);
+    useEffect(() => {
+        setUsedSpace(fromSpace);
     }, [visible]);
 
     const tokenList = useTokenList();
@@ -143,7 +151,7 @@ const DropdownContent: React.FC<{ space: 'core' | 'eSpace'; visible: boolean; hi
         );
     }, [filter, searchToken, tokenList]);
 
-    const [copyAddressSource, copyAddressSingleton] = useSingleton();
+    const [viewInScanSource, viewInScanSingleton] = useSingleton();
     const [addToWalletSource, addToWalletSingleton] = useSingleton();
     const walletStatus = (space === 'core' ? useFluentStatus : useMetaMaskStatus)();
     const walletChainId = (space === 'core' ? useFluentChainId : useMetaMaskChainId)();
@@ -189,7 +197,15 @@ const DropdownContent: React.FC<{ space: 'core' | 'eSpace'; visible: boolean; hi
             </div>
 
 
-            <p className='mt-[12px] mb-[4px] px-[16px]'>{i18n.token_list}</p>
+            <p className='flex items-center justify-between mt-[12px] mb-[4px] px-[16px]'>
+                {i18n.token_list}
+                <span className='flex items-center group text-[14px] text-[#A9ABB2] cursor-pointer' onClick={handleSwitchSpace}>
+                    <img src={Switch} alt="switch img" className='mr-[6px] w-[12px] h-[12px]' />
+                    Switch to
+                    <span className={cx('mx-[4px] group-hover:underline', space === 'eSpace' ? 'text-[#15C184]' : 'text-[#2959B4]')}>{space === 'core' ? 'eSpace' : 'Core'}</span>
+                    Address
+                </span>
+            </p>
             <CustomScrollbar className='token-list'>
                 {searchToken === 'searching' &&
                     <div className={"flex justify-center items-center h-[56px] pl-[16px] pr-[20px] bg-white text-[24px]"} >
@@ -209,17 +225,18 @@ const DropdownContent: React.FC<{ space: 'core' | 'eSpace'; visible: boolean; hi
                         setCurrentToken={setCurrentToken}
                         deleteFromCommonTokens={deleteFromCommonTokens}
                         space={space}
-                        copyAddressSingleton={copyAddressSingleton}
+                        viewInScanSingleton={viewInScanSingleton}
                         addToWalletSingleton={addToWalletSingleton}
                         walletStatus={walletStatus}
                         chainMatched={chainMatched}
                         hideDropdown={hideDropdown}
                         inSearch={!!filter}
+                        currentNetwork={currentNetwork}
                         {...token}
                     />
                 )}
             </CustomScrollbar>
-            <Tooltip text="Copy Address" singleton={copyAddressSource} />
+            <Tooltip text="View in Scan" singleton={viewInScanSource} />
             <Tooltip text={`Add To ${space === 'core' ? 'Fluent' : 'MetaMask'}`} singleton={addToWalletSource} />
         </>
     );
@@ -234,21 +251,28 @@ interface TokenItemProps extends Token {
     space: 'core' | 'eSpace';
     walletStatus: ReturnType<typeof useFluentStatus>;
     chainMatched: boolean;
-    copyAddressSingleton: ReturnType<typeof useSingleton>[1];
+    viewInScanSingleton: ReturnType<typeof useSingleton>[1];
     addToWalletSingleton: ReturnType<typeof useSingleton>[1];
     inSearch: boolean;
+    currentNetwork?: Network;
 }
 
-const TokenItem = memo<TokenItemProps>(({ isCurrent, inSearch, setCurrentToken, deleteFromCommonTokens, hideDropdown, space, walletStatus, chainMatched, copyAddressSingleton, addToWalletSingleton, ...token}) => {
+const TokenItem = memo<TokenItemProps>(({
+    isCurrent,
+    inSearch,
+    currentNetwork,
+    setCurrentToken,
+    deleteFromCommonTokens,
+    hideDropdown,
+    space,
+    walletStatus,
+    chainMatched,
+    viewInScanSingleton,
+    addToWalletSingleton,
+    ...token
+}) => {
     const { symbol, name, native_address, mapped_address, nativeSpace, icon } = token;
     const usedTokenAddress = nativeSpace ? (nativeSpace === space ? native_address : mapped_address) : native_address;
-
-    const [isCopied, setCopied] = useClipboard(usedTokenAddress ?? '', { successDuration: 1111 });
-    const handleClickCopy = useCallback<React.MouseEventHandler<HTMLImageElement>>((evt) => {
-        evt.stopPropagation();
-        // setTimeout to fix after setCopied, tooltip can't show.
-        setTimeout(setCopied, 60);
-    }, []);
 
     const handleClickAddToWallet = useCallback<React.MouseEventHandler<HTMLImageElement>>(async (evt) => {
         evt.stopPropagation();
@@ -297,14 +321,16 @@ const TokenItem = memo<TokenItemProps>(({ isCurrent, inSearch, setCurrentToken, 
 
             {!token.isNative && token.nativeSpace &&
                 <div className='flex items-center'>
-                    <span className={cx('text-[12px]', isCopied ? 'text-[#15C184]' : 'text-[#808BE7]')}>{isCopied ? 'Copy success !' : shortenAddress(usedTokenAddress)}</span>
+                    <span className='text-[12px] text-[#808BE7]'>{shortenAddress(usedTokenAddress)}</span>
                     {walletStatus === 'active' && chainMatched &&
                         <Tooltip singleton={addToWalletSingleton}>
                             <img src={Add} alt="add image" className='ml-[8px] w-[16px] h-[16px] cursor-pointer' onClick={handleClickAddToWallet}/>
                         </Tooltip>
                     }
-                    <Tooltip singleton={copyAddressSingleton}>
-                        <img src={Copy} alt="copy image" className='ml-[8px] w-[18px] h-[18px] cursor-pointer' onClick={handleClickCopy}/>
+                    <Tooltip singleton={viewInScanSingleton}>
+                        <a href={`${currentNetwork?.scan}/token/${usedTokenAddress}`} target="_blank" rel="noopener">
+                            <img src={Open} alt="open image" className='ml-[8px] w-[18px] h-[18px] cursor-pointer' />
+                        </a>
                     </Tooltip>
                     {!token.isNative && !token.isInner && token.nativeSpace && !inSearch &&
                         <img src={Close} alt="close image" className='ml-[8px] w-[20px] h-[20px] cursor-pointer' onClick={handleClickDelete} />
