@@ -22,6 +22,7 @@ import Success from '@assets/success.svg';
 import Suggest from '@assets/suggest.svg';
 import Copy from 'common/assets/copy.svg';
 import { showToast } from 'common/components/tools/Toast';
+import { tokenListStore } from '@components/TokenList/tokenListStore';
 import { handleWithdraw } from './handleWithdraw';
 import { handleTransferSubmit } from './handleTransfer';
 
@@ -395,7 +396,12 @@ const Withdraw2Core: React.FC<{ isShow: boolean; inTransfer: boolean; }> = ({ is
 	const fluentStatus = useFluentStatus();
 	const metaMaskStatus = useMetaMaskStatus();
 
-	const [inWithdraw, setInWithdraw] = useState(false);
+	const [inWithdraw, _setInWithdraw] = useState(false);
+	const setInWithdraw = useCallback((isInWithdraw: boolean) => {
+		tokenListStore.setState({ disabled: isInWithdraw ? "Can't switch token until finish withdraw" : false });
+		_setInWithdraw(isInWithdraw);
+	}, []);
+
 	const handleClickWithdraw = useCallback(() => {
 		handleWithdraw({ setInWithdraw });
 	}, []);

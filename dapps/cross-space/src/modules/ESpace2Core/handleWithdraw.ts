@@ -5,7 +5,7 @@ import { currentTokenStore, eSpaceBalanceStore, confluxStore, trackBalanceChange
 import { showWaitWallet, showActionSubmitted, hideWaitWallet, hideActionSubmitted } from 'common/components/tools/Modal';
 import { showToast } from 'common/components/tools/Toast';
 
-export const handleWithdraw = async ({ setInWithdraw }: { setInWithdraw: React.Dispatch<React.SetStateAction<boolean>> }) => {
+export const handleWithdraw = async ({ setInWithdraw }: { setInWithdraw: (disabled: boolean) => void; }) => {
     const currentToken = currentTokenStore.getState().currentToken;
     const withdrawableBalance = eSpaceBalanceStore.getState().withdrawableBalance;
 
@@ -17,7 +17,7 @@ export const handleWithdraw = async ({ setInWithdraw }: { setInWithdraw: React.D
     }
 };
 
-const handleWithdrawCFX = async ({ withdrawableBalance, setInWithdraw }: { withdrawableBalance: Unit; setInWithdraw: React.Dispatch<React.SetStateAction<boolean>> }) => {
+const handleWithdrawCFX = async ({ withdrawableBalance, setInWithdraw }: { withdrawableBalance: Unit; setInWithdraw: (disabled: boolean) => void; }) => {
     const { crossSpaceContract, crossSpaceContractAddress, eSpaceMirrorAddress } = confluxStore.getState();
     if (!crossSpaceContract || !crossSpaceContractAddress || !eSpaceMirrorAddress) return;
 
@@ -47,7 +47,7 @@ const handleWithdrawCFX = async ({ withdrawableBalance, setInWithdraw }: { withd
     }
 };
 
-const handleWithdrawCRC20 = async ({ withdrawableBalance, setInWithdraw, methodType }: { withdrawableBalance: Unit; setInWithdraw: React.Dispatch<React.SetStateAction<boolean>>, methodType: 'withdrawFromEvm' | 'crossFromEvm'; }) => {
+const handleWithdrawCRC20 = async ({ withdrawableBalance, setInWithdraw, methodType }: { withdrawableBalance: Unit; setInWithdraw: (disabled: boolean) => void, methodType: 'withdrawFromEvm' | 'crossFromEvm'; }) => {
     const metaMaskAccount = metaMaskStore.getState().accounts?.[0];
     const { confluxSideContract, confluxSideContractAddress } = confluxStore.getState();
     if (!metaMaskAccount || !confluxSideContract || !confluxSideContractAddress) return;

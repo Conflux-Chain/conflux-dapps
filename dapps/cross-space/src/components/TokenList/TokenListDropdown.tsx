@@ -19,7 +19,7 @@ import Copy from 'common/assets/copy.svg';
 import Add from 'common/assets/add-to-wallet.svg';
 import Search from 'common/assets/search.svg';
 import Suggest from '@assets/suggest.svg';
-import { useTokenList, deleteSearchToken } from './tokenListStore';
+import { useTokenList, tokenListStore, deleteSearchToken } from './tokenListStore';
 import judgeAddressValid from './judgeAddressValid';
 
 const transitions = {
@@ -44,6 +44,11 @@ const TokenListDropdown: React.FC<{ children: (triggerDropdown: () => void, visi
         setVisible(pre => {
             if (!pre && metaMaskStatus === 'not-installed') {
                 showToast('To cross space CRC20 token, please install MetaMask first.');
+                return false;
+            }
+            const disabledReason = tokenListStore.getState().disabled;
+            if (!pre && typeof disabledReason === 'string') {
+                showToast(disabledReason);
                 return false;
             }
             return !pre;
@@ -107,7 +112,10 @@ const DropdownContent: React.FC<{ space: 'core' | 'eSpace'; visible: boolean; hi
                 (token.isNative ? [token.name, token.symbol] : [token.name, token.symbol, token.native_address, token.mapped_address])
                     .some(str => str.search(new RegExp(escapeRegExp(filter), 'i')) !== -1)
             )
-        ) return;
+        ) {
+            setSearchToken('waiting');
+            return;
+        }
 
         const startJudge = async () => {
             showSearchingTimer = setTimeout(() => setSearchToken('searching'), 100);

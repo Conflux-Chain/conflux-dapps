@@ -39,7 +39,7 @@ const handleTransferCFX = async (amount: string) => {
             value: Unit.fromStandardUnit(amount).toHexMinUnit(),
         });
         transactionSubmittedKey = showActionSubmitted(TxnHash);
-        trackBalanceChangeOnce.eSpaceCurrentTokenBalance(() => {
+        trackBalanceChangeOnce.eSpaceWithdrawableBalance(() => {
             hideActionSubmitted(transactionSubmittedKey);
             showToast(`Transfer CFX to eSpace mirror address success.`);
         });

@@ -5,6 +5,7 @@ import NetworkConfig from '../../../network-config.json';
 
 
 interface TokenListStore {
+    disabled: boolean | string;
     tokenList: Array<Token>;
     getInnerTokenList: (confluxNetwork: Network) => Promise<void>;
 }
@@ -12,6 +13,7 @@ interface TokenListStore {
 type FetchRes = { core_native_tokens: Array<Token>; evm_native_tokens: Array<Token>; };
 
 export const tokenListStore = create<TokenListStore>((set) => ({
+    disabled: false,
     tokenList: [nativeToken],
     getInnerTokenList: async (confluxNetwork: Network) => {
         try {
