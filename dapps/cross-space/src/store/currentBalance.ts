@@ -169,7 +169,6 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
 
 // track eSpace withdrawable balance
 (function() {
-    if (!metaMaskProvider) return;
     let balanceTick = 0;
 
     const handleBalanceChanged = (newBalance: Unit, currentBalanceTick: number) => {
@@ -218,7 +217,7 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
             return;
         }
 
-        if (!evmSideContract || !eSpaceMirrorAddress || !fluentAccount || !metaMaskAccount) return;
+        if (!evmSideContract || !eSpaceMirrorAddress || !fluentAccount || !metaMaskAccount || !metaMaskProvider) return;
         const usedTokenAddress = currentToken.nativeSpace === 'eSpace' ? currentToken.native_address : currentToken.mapped_address;
         const lockedTokenKey = currentToken.nativeSpace === 'eSpace' ? 'lockedToken' : 'lockedMappedToken';
 

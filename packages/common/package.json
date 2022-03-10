@@ -6,7 +6,6 @@
     "types": "./index.tsx",
     "license": "MIT",
     "devDependencies": {
-        "@react-spring/web": "^9.4.3",
         "@types/lodash-es": "^4.17.6",
         "@types/react": "^17.0.39",
         "@types/react-dom": "^17.0.11",
@@ -14,6 +13,7 @@
         "typescript": "^4.5.5"
     },
     "dependencies": {
+        "@react-spring/web": "^9.4.3",
         "@cfxjs/use-wallet": "^0.0.18",
         "@fluent-wallet/shorten-address": "^0.1.2",
         "@tippyjs/react": "^4.2.6",
