@@ -123,7 +123,12 @@ const Transfer2Bridge: React.FC<{ isShow: boolean; inTransfer: boolean; setInTra
 
 	const { currentToken } = useToken();
 
+	const metaMaskStatus = useMetaMaskStatus();
 	const [mode, setMode] = useState<'normal' | 'advanced'>(() => {
+		if (metaMaskStatus === 'not-installed') {
+			LocalStorage.set('eSpace-transfer2bridge-mode', 'advanced', 0, 'cross-space');
+			return 'advanced';
+		}
 		const local = LocalStorage.get('eSpace-transfer2bridge-mode', 'cross-space') as 'normal';
 		if (local === 'normal' || local === 'advanced') {
 			return local;
