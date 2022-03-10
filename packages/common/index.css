@@ -48,6 +48,10 @@ body {
     contain: layout paint style;
 }
 
+.main-scroll {
+    height: calc(100vh - 64px);
+}
+
 
 button:not(:hover):not(.button-contained):not(.button-outlined) {
     @apply focus:outline-none focus:ring-2 focus:ring-[#808BE7];
