@@ -180,10 +180,10 @@ const DropdownContent: React.FC<{ fromSpace: 'core' | 'eSpace'; visible: boolean
                 <CustomScrollbar contentClassName="items-center pb-[16px] gap-[12px]" direction='horizontal'>
                     {commonTokens.map(commonToken => 
                         <div
-                            key={commonToken.symbol}
+                            key={commonToken.native_address || commonToken.symbol}
                             className={cx(
                                 "shrink-0 px-[16px] h-[32px] leading-[32px] rounded-[18px] border border-[#EAECEF] text-center text-[14px] cursor-pointer hover:border-[#808BE7] transition-colors",
-                                currentToken.symbol === commonToken.symbol ? 'bg-[#808BE7] text-white pointer-events-none' : 'text-[#3D3F4C]'
+                                (commonToken.isNative ? currentToken.isNative : commonToken.native_address === currentToken.native_address)? 'bg-[#808BE7] text-white pointer-events-none' : 'text-[#3D3F4C]'
                             )}
                             onClick={() => {
                                 setCurrentToken(commonToken);
