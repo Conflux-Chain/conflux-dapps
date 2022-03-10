@@ -7,6 +7,7 @@ import CFX from '@assets/CFX.svg';
 import { confluxStore } from './conflux';
 import CRC20TokenABI from '@contracts/abi/ERC20.json'
 import { Unit } from '@cfxjs/use-wallet';
+import { store as metaMaskStore } from '@cfxjs/use-wallet/dist/ethereum';
 
 export const nativeToken = {
     name: "Conflux Network",
@@ -47,6 +48,13 @@ export const currentTokenStore = create(subscribeWithSelector(() => ({
     currentTokenContract: undefined,
     commonTokens: [nativeToken, ...commonTokensCache.toArr()],
 }) as TokenStore));
+
+metaMaskStore.subscribe(state => state.status, (status) => {
+    if (status === 'not-installed') {
+        currentTokenStore.setState({ currentToken: nativeToken });
+        LocalStorage.set(`currentToken`, nativeToken, 0, 'cross-space');
+    }
+}, { fireImmediately: true });
 
 const selectors = {
     token: (state: TokenStore) => state.currentToken,
