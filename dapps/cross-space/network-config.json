@@ -4,14 +4,14 @@
         "url": "https://main.confluxrpc.com",
         "networkId": "1029",
         "scan": "https://confluxscan.net",
-        "innerTokenList": "",
-        "CRC20CrossSpaceContractAddress": "",
+        "innerTokenList": "https://raw.githubusercontent.com/Conflux-Chain/conflux-evm-bridge/main/native_token_list_mainnet.json",
+        "CRC20CrossSpaceContractAddress": "cfx:acfcrckktgx99scxwr6jtjx81yhm4ggsfatprwzb3x",
         "eSpace": {
             "name": "Conflux eSpace",
             "url": "https://evm.confluxrpc.com",
             "networkId": "1030",
             "scan": "https://evm.confluxscan.net",
-            "CRC20CrossSpaceContractAddress": ""
+            "CRC20CrossSpaceContractAddress": "0x4f9e3186513224cf152016ccd86019e7b9a3c809"
         }
     },
     "1": {

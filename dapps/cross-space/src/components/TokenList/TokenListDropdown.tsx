@@ -152,6 +152,7 @@ const DropdownContent: React.FC<{ fromSpace: 'core' | 'eSpace'; visible: boolean
 
     const [viewInScanSource, viewInScanSingleton] = useSingleton();
     const [addToWalletSource, addToWalletSingleton] = useSingleton();
+    const [deleteFromListSource, deleteFromListSingleton] = useSingleton();
     const walletStatus = (space === 'core' ? useFluentStatus : useMetaMaskStatus)();
     const walletChainId = (space === 'core' ? useFluentChainId : useMetaMaskChainId)();
     const currentNetwork = useCurrentNetwork(space);
@@ -226,6 +227,7 @@ const DropdownContent: React.FC<{ fromSpace: 'core' | 'eSpace'; visible: boolean
                         space={space}
                         viewInScanSingleton={viewInScanSingleton}
                         addToWalletSingleton={addToWalletSingleton}
+                        deleteFromListSingleton={deleteFromListSingleton}
                         walletStatus={walletStatus}
                         chainMatched={chainMatched}
                         hideDropdown={hideDropdown}
@@ -237,6 +239,7 @@ const DropdownContent: React.FC<{ fromSpace: 'core' | 'eSpace'; visible: boolean
             </CustomScrollbar>
             <Tooltip text="View in Scan" singleton={viewInScanSource} />
             <Tooltip text={`Add To ${space === 'core' ? 'Fluent' : 'MetaMask'}`} singleton={addToWalletSource} />
+            <Tooltip text="Delete from TokenList" singleton={deleteFromListSource} />
         </>
     );
 };
@@ -252,6 +255,7 @@ interface TokenItemProps extends Token {
     chainMatched: boolean;
     viewInScanSingleton: ReturnType<typeof useSingleton>[1];
     addToWalletSingleton: ReturnType<typeof useSingleton>[1];
+    deleteFromListSingleton: ReturnType<typeof useSingleton>[1];
     inSearch: boolean;
     currentNetwork?: Network;
 }
@@ -268,6 +272,7 @@ const TokenItem = memo<TokenItemProps>(({
     chainMatched,
     viewInScanSingleton,
     addToWalletSingleton,
+    deleteFromListSingleton,
     ...token
 }) => {
     const { symbol, name, native_address, mapped_address, nativeSpace, icon } = token;
@@ -332,7 +337,9 @@ const TokenItem = memo<TokenItemProps>(({
                         </a>
                     </Tooltip>
                     {!token.isNative && !token.isInner && token.nativeSpace && !inSearch &&
-                        <img src={Close} alt="close image" className='ml-[8px] w-[20px] h-[20px] cursor-pointer' onClick={handleClickDelete} />
+                        <Tooltip singleton={deleteFromListSingleton}>
+                            <img src={Close} alt="close image" className='ml-[8px] w-[20px] h-[20px] cursor-pointer' onClick={handleClickDelete} />
+                        </Tooltip>
                     }
                 </div>
             }
