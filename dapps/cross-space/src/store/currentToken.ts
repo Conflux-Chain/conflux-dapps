@@ -10,8 +10,10 @@ import { Unit } from '@cfxjs/use-wallet';
 import { store as metaMaskStore } from '@cfxjs/use-wallet/dist/ethereum';
 
 export const nativeToken = {
-    name: "Conflux Network",
-    symbol: "CFX",
+    core_space_name: "Conflux Network",
+    core_space_symbol: "CFX",
+    evm_space_name: "Conflux Network",
+    evm_space_symbol: "CFX",
     decimals: '18',
     icon: CFX,
     isNative: true
@@ -20,8 +22,10 @@ export const nativeToken = {
 export interface Token {
     native_address: string;
     mapped_address: string;
-    name: string;
-    symbol: string;
+    core_space_name: string;
+    core_space_symbol: string;
+    evm_space_name: string;
+    evm_space_symbol: string;
     decimals: string;
     icon: string;
     nativeSpace?: 'core' | 'eSpace';

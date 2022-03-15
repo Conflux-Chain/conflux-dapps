@@ -99,7 +99,7 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
             space === 'core' ? 'latest_state' : 'latest']
         })
             .then(minUnitBalance => handleBalanceChanged(Unit.fromMinUnit(minUnitBalance), 'currentTokenBalance', currentBalanceTick))
-            .catch(err => console.log(`Get ${currentToken.symbol} balance error: `, err))
+            .catch(err => console.log(`Get ${currentToken[space === 'core' ? 'core_space_symbol' : 'evm_space_symbol']} balance error: `, err))
             .finally(callback);
 
         // and at same time get approval value;
@@ -113,7 +113,7 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
             space === 'core' ? 'latest_state' : 'latest']
         })
             .then(approvalMinUnitBalance => handleBalanceChanged(Unit.fromMinUnit(approvalMinUnitBalance), 'approvedBalance', currentBalanceTick))
-            .catch(err => console.log(`Get ${currentToken.symbol} approved balance error: `, err));
+            .catch(err => console.log(`Get ${currentToken[space === 'core' ? 'core_space_symbol' : 'evm_space_symbol']} approved balance error: `, err));
     }
 
 
@@ -230,7 +230,7 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
             'latest']
         })
             .then(minUnitBalance => handleBalanceChanged(Unit.fromMinUnit(minUnitBalance), currentBalanceTick))
-            .catch(err => console.log(`Get ${currentToken.symbol} withdrawable balance error: `, err))
+            .catch(err => console.log(`Get ${currentToken.core_space_symbol} withdrawable balance error: `, err))
             .finally(callback);
     }
 

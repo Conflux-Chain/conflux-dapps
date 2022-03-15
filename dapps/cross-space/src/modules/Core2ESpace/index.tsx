@@ -61,7 +61,7 @@ const Core2ESpace: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 		setValue('amount', _val);
 		setTransferBalance('core', _val);
 
-		eSpaceReceived.textContent = _val ? `${_val} ${currentToken.symbol}` : '--';
+		eSpaceReceived.textContent = _val ? `${_val} ${currentToken.evm_space_symbol}` : '--';
 	}, [currentToken])
 
 	useEffect(() => setAmount(''), [fluentAccount, currentToken]);
@@ -238,15 +238,15 @@ const Transfer2ESpace: React.FC<{ isShow: boolean; register: UseFormRegister<Fie
 				{currentTokenBalance ? 
 					(
 						(currentTokenBalance.toDecimalMinUnit() !== '0' && Unit.lessThan(currentTokenBalance, Unit.fromStandardUnit('0.000001'))) ?
-						<Tooltip text={`${currentTokenBalance.toDecimalStandardUnit()} ${currentToken.symbol}`} placement="right">
+						<Tooltip text={`${currentTokenBalance.toDecimalStandardUnit()} ${currentToken.core_space_symbol}`} placement="right">
 							<span
 								className="ml-[4px]"
 								id="core2eSpace-currentTokenBalance"
 							>
-								＜0.000001 {currentToken.symbol}
+								＜0.000001 {currentToken.core_space_symbol}
 							</span>
 						</Tooltip>
-						: <span className="ml-[4px]" id="core2eSpace-currentTokenBalance">{`${currentTokenBalance} ${currentToken.symbol}`}</span>
+						: <span className="ml-[4px]" id="core2eSpace-currentTokenBalance">{`${currentTokenBalance} ${currentToken.core_space_symbol}`}</span>
 					)
 					: <span className="ml-[4px]" id="core2eSpace-currentTokenBalance">{fluentStatus === 'active' ? 'loading...' : '--'}</span>
 				}

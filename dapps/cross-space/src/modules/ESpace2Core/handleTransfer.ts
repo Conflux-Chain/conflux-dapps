@@ -71,10 +71,10 @@ const handleApproveCRC20 = async () => {
         transactionSubmittedKey = showActionSubmitted(TxnHash, 'Approve', { duration: 15000 });
         trackBalanceChangeOnce.eSpaceApprovedBalance(() => {
             hideActionSubmitted(transactionSubmittedKey);
-            showToast(`Approve ${currentToken.symbol} use success.`, { type: 'success' });
+            showToast(`Approve ${currentToken.evm_space_symbol} use success.`, { type: 'success' });
         });
     } catch (err) {
-        console.error(`Approve ${currentToken.symbol} use error: `, err);
+        console.error(`Approve ${currentToken.evm_space_symbol} use error: `, err);
         hideWaitWallet(waitFluentKey);
         if ((err as { code: number })?.code === 4001 && (err as any)?.message?.indexOf('User denied transaction signature') !== -1) {
             showToast('You canceled the Approve.', { type: 'failed' });
@@ -93,7 +93,7 @@ const handleApproveCRC20 = async () => {
                 transactionSubmittedKey = showActionSubmitted(TxnHash, 'Approve', { duration: 9000 });
                 trackBalanceChangeOnce.eSpaceApprovedBalance(() => {
                     hideActionSubmitted(transactionSubmittedKey);
-                    showToast(`Re approve ${currentToken.symbol} use success.`, { type: 'success' });
+                    showToast(`Re approve ${currentToken.evm_space_symbol} use success.`, { type: 'success' });
                 });
             } catch {
                 hideWaitWallet(waitFluentKey);
@@ -127,10 +127,10 @@ const handleTransferCRC20 = async (amount: string, methodType: 'lockMappedToken'
         trackBalanceChangeOnce.eSpaceWithdrawableBalance(() => {
             setInTransfer(false);
             hideActionSubmitted(transactionSubmittedKey);
-            showToast(`Transfer ${currentToken.symbol} to eSpace mirror address success.`, { type: 'success' });
+            showToast(`Transfer ${currentToken.evm_space_symbol} to eSpace mirror address success.`, { type: 'success' });
         });
     } catch (err) {
-        console.error(`Transfer ${currentToken.symbol} to eSpace mirror address failed: `, err);
+        console.error(`Transfer ${currentToken.evm_space_symbol} to eSpace mirror address failed: `, err);
         hideWaitWallet(waitFluentKey);
         if ((err as { code: number })?.code === 4001 && (err as any)?.message?.indexOf('User denied transaction signature') !== -1) {
             showToast('You canceled the transaction.', { type: 'failed' });
