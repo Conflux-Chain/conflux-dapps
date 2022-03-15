@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import create from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import LocalStorage from 'common/utils/LocalStorage';
@@ -6,10 +6,15 @@ import Cache from 'common/utils/LRUCache';
 import CFX from '@assets/CFX.svg';
 import { confluxStore } from './conflux';
 import CRC20TokenABI from '@contracts/abi/ERC20.json'
+import { Unit } from '@cfxjs/use-wallet';
+import { store as metaMaskStore } from '@cfxjs/use-wallet/dist/ethereum';
 
 export const nativeToken = {
-    name: "Conflux Network",
-    symbol: "CFX",
+    core_space_name: "Conflux Network",
+    core_space_symbol: "CFX",
+    evm_space_name: "Conflux Network",
+    evm_space_symbol: "CFX",
+    decimals: '18',
     icon: CFX,
     isNative: true
 } as Token;
@@ -17,8 +22,10 @@ export const nativeToken = {
 export interface Token {
     native_address: string;
     mapped_address: string;
-    name: string;
-    symbol: string;
+    core_space_name: string;
+    core_space_symbol: string;
+    evm_space_name: string;
+    evm_space_symbol: string;
     decimals: string;
     icon: string;
     nativeSpace?: 'core' | 'eSpace';
@@ -46,6 +53,13 @@ export const currentTokenStore = create(subscribeWithSelector(() => ({
     commonTokens: [nativeToken, ...commonTokensCache.toArr()],
 }) as TokenStore));
 
+metaMaskStore.subscribe(state => state.status, (status) => {
+    if (status === 'not-installed') {
+        currentTokenStore.setState({ currentToken: nativeToken });
+        LocalStorage.set(`currentToken`, nativeToken, 0, 'cross-space');
+    }
+}, { fireImmediately: true });
+
 const selectors = {
     token: (state: TokenStore) => state.currentToken,
     tokenContract: (state: TokenStore) => state.currentTokenContract,
@@ -54,6 +68,10 @@ const selectors = {
 
 
 currentTokenStore.subscribe(state => state.currentToken, (currentToken) => {
+    if (currentToken) {
+        Unit.setDecimals(currentToken.decimals ? Number(currentToken.decimals) : 18);
+    }
+
     const conflux = confluxStore.getState().conflux!;
     if (!conflux || !currentToken || currentToken.isNative) return;
     currentTokenStore.setState({

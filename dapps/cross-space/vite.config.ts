@@ -22,6 +22,7 @@ export default defineConfig({
         }
     },
     build: {
+        minify: false,
         target: 'esnext',
         rollupOptions: {
             plugins: [visualizer()],

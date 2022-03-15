@@ -12,28 +12,28 @@ export interface Network {
 
 interface CurrentNetworkStore {
     core?: Network;
-    target_eSpace?: Network;
+    eSpace?: Network;
 }
 
 export const currentNetworkStore = create(subscribeWithSelector(() => ({
     core: undefined,
-    target_eSpace: undefined
+    eSpace: undefined
 }) as CurrentNetworkStore));
 
 
 (function() {
-    const isProduction = location.origin.endsWith('.com');
+    const isProduction = location.host.endsWith('.com') || location.host.startsWith('evm-stage');
     const currentNetwork = networkConfig[isProduction ? '1029' : '1'];
     if (!currentNetwork) return;
     currentNetworkStore.setState({
         core: { name: currentNetwork.name, url: currentNetwork.url, networkId: currentNetwork.networkId, scan: currentNetwork.scan, CRC20CrossSpaceContractAddress: currentNetwork.CRC20CrossSpaceContractAddress },
-        target_eSpace: { name: currentNetwork.eSpace.name, url: currentNetwork.eSpace.url, networkId: currentNetwork.eSpace.networkId, scan: currentNetwork.eSpace.scan, CRC20CrossSpaceContractAddress: currentNetwork.eSpace.CRC20CrossSpaceContractAddress }
+        eSpace: { name: currentNetwork.eSpace.name, url: currentNetwork.eSpace.url, networkId: currentNetwork.eSpace.networkId, scan: currentNetwork.eSpace.scan, CRC20CrossSpaceContractAddress: currentNetwork.eSpace.CRC20CrossSpaceContractAddress }
     });
 }());
 
 const selectors = {
     core: (state: CurrentNetworkStore) => state.core,
-    target_eSpace: (state: CurrentNetworkStore) => state.target_eSpace
+    eSpace: (state: CurrentNetworkStore) => state.eSpace
 }
 
-export const useCurrentNetwork = (type: 'core' | 'target_eSpace') => currentNetworkStore(selectors[type]);
+export const useCurrentNetwork = (type: 'core' | 'eSpace') => currentNetworkStore(selectors[type]);

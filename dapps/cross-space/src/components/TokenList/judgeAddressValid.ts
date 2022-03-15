@@ -21,7 +21,7 @@ function hexToAddress(hex: string, isBase32: boolean) {
     const hexAddress = '0x' + hex.slice(26);
     if (isBase32) return hexAddress;
     const chainId = fluentStore.getState().chainId!;
-    return format.address('0x' + hex.slice(26), +chainId) as string;
+    return format.address(hexAddress, +chainId) as string;
 }
 
 interface TokenContract {
@@ -43,8 +43,32 @@ const judgeAddressValid = async (tokenAddress: string) => {
 
         const canCrossSpace = await judgeCanCrossSpace({ tokenAddress, isBase32 });
 
-        if (!canCrossSpace) return { ...isCRC20Token, icon: TokenDefaultIcon, native_address: tokenAddress } as unknown as Token;
-        const token = { ...isCRC20Token, ...canCrossSpace, icon: TokenDefaultIcon } as unknown as Token;
+        if (!canCrossSpace) {
+            return {
+                core_space_name: isCRC20Token.name,
+                core_space_symbol: isCRC20Token.symbol,
+                evm_space_name: isCRC20Token.name,
+                evm_space_symbol: isCRC20Token.symbol,
+                decimals: isCRC20Token.decimals,
+                icon: TokenDefaultIcon,
+                native_address: tokenAddress
+            } as unknown as Token;
+        }
+
+        const anotherAddress = isBase32 ? (canCrossSpace.nativeSpace === 'core' ? canCrossSpace.mapped_address : canCrossSpace.native_address)
+            : (canCrossSpace.nativeSpace === 'core' ? canCrossSpace.native_address : canCrossSpace.mapped_address);
+        const anotherSpaceInfo = await judgeIsCRC20Token({ tokenAddress: anotherAddress, isBase32: !isBase32 });
+        if (!anotherSpaceInfo) return false;
+
+        const token = {
+            core_space_name: isBase32 ? isCRC20Token.name : anotherSpaceInfo.name,
+            core_space_symbol: isBase32 ? isCRC20Token.symbol : anotherSpaceInfo.symbol,
+            evm_space_name: isBase32 ? anotherSpaceInfo.name : isCRC20Token.name,
+            evm_space_symbol: isBase32 ? anotherSpaceInfo.symbol : isCRC20Token.symbol,
+            decimals: isCRC20Token.decimals,
+            ...canCrossSpace,
+            icon: TokenDefaultIcon
+        } as unknown as Token;
         mergeSearchToken(token);
         return token
     } catch (err) {
@@ -119,7 +143,7 @@ const judgeCanCrossSpace = async ({ tokenAddress, isBase32 } : { tokenAddress: s
         return {
             mapped_address: currentSideRes === zeroAddress ? acrossAddress : tokenAddress,
             native_address: currentSideRes === zeroAddress ? tokenAddress : acrossAddress,
-            nativeSpace: isBase32 ? (currentSideRes === zeroAddress ? 'core' : 'eSpace') : (currentSideRes === zeroAddress ? 'eSpace' : 'core')
+            nativeSpace: (isBase32 ? (currentSideRes === zeroAddress ? 'core' : 'eSpace') : (currentSideRes === zeroAddress ? 'eSpace' : 'core')) as 'core' | 'eSpace'
         }
     } catch (err) {
         console.error(`address: ${tokenAddress} can't cross space`, err);

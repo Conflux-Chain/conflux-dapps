@@ -1,5 +1,5 @@
 .input {
-    @apply w-full h-[48px] px-[12px] bg-white border-[1px] border-[#EAECEF] rounded-[2px] text-[16px] transition-colors placeholder-[#979797]
+    @apply w-full h-[48px] pl-[12px] overflow-ellipsis bg-white border-[1px] border-[#EAECEF] rounded-[2px] text-[16px] transition-colors placeholder-[#979797]
     focus:outline-none focus:border-[#808BE7] focus:ring-1 focus:ring-[#808BE7]
     invalid:border-[#E96170] invalid:text-[#E96170]
     focus:invalid:border-[#E96170] focus:invalid:ring-[#E96170];
@@ -39,7 +39,11 @@ input::-webkit-inner-spin-button {
     margin: 0;
 }
 
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
 .input:disabled {
-    @apply opacity-75 cursor-not-allowed;
+    @apply bg-[#F7F8FA] text-opacity-70 cursor-not-allowed;
 }
 

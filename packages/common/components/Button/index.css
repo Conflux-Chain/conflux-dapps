@@ -1,32 +1,36 @@
-.button-mini {
+button.button-mini {
     @apply px-[12px] h-[24px] text-[12px];
 }
 
-.button-small {
+button.button-small {
     @apply px-[12px] h-[32px] text-[12px];
 }
 
-.button-normal {
+button.button-normal {
     @apply px-[16px] h-[48px] text-[16px];
 }
 
-.button-outlined {
+button.button-outlined {
     @apply flex justify-center items-center rounded-[4px] border border-[#808BE7] bg-white hover:bg-opacity-90 text-[#808BE7] transition-colors;
 }
 
-.button-outlined.button-error {
+button.button-outlined.button-error {
     @apply border-[#E96170] text-[#E96170];
 }
 
-.button-contained {
+button.button-contained {
     @apply flex justify-center items-center rounded-[4px] bg-[#808BE7] hover:bg-opacity-90 text-white transition-colors;
 }
 
-.button-contained.button-reverse {
+button.button-contained.button-reverse {
     @apply bg-[#F0F3FF] text-[#808BE7];
 }
 
-.button-contained.button-error {
+button.button-contained.button-error.button-reverse {
+    @apply text-white;
+}
+
+button.button-contained.button-error {
     @apply bg-[#E96170]
 }
 

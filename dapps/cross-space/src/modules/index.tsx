@@ -35,14 +35,12 @@ const Apps: React.FC = () => {
         config: { mass: 5, tension: 500, friction: 80, clamp: true },
     });
 
-    const handleClickFlipped = useCallback(
-        () =>
-            setFlipped((pre) => {
-                LocalStorage.set('flipped', !pre, 0, 'cross-space');
-                return !pre;
-            }),
-        []
-    );
+    const handleClickFlipped = useCallback(() => {
+        setFlipped((pre) => {
+            LocalStorage.set('flipped', !pre, 0, 'cross-space');
+            return !pre;
+        });
+    }, []);
 
     return (
         <div className="relative w-[480px] m-auto pt-[16px] mb-24px">
@@ -56,6 +54,7 @@ const Apps: React.FC = () => {
                         opacity: opacity.to(o => 1 - o),
                         transform,
                     }}
+                    isShow={!flipped}
                     handleClickFlipped={handleClickFlipped}
                 />
                 <ESpace2Core
@@ -65,6 +64,7 @@ const Apps: React.FC = () => {
                         transform,
                         rotateY: '180deg',
                     }}
+                    isShow={flipped}
                     handleClickFlipped={handleClickFlipped}
                 />
             </div>

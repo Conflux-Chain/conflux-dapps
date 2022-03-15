@@ -1,7 +1,7 @@
-import React, { useCallback, memo } from 'react';
+import React, { useCallback, memo, type ButtonHTMLAttributes } from 'react';
 import cx from 'clsx';
-import { connect as connectFluent, useStatus as useFluentStatus, useChainId as useFluentChainId, switchChain as switchFluentChain, addChain as addFluentChain } from '@cfxjs/use-wallet';
-import { connect as connectMetaMask, useStatus as useMetaMaskStatus, useChainId as useMetaMaskChainId, switchChain as switchMetaMaskChain, addChain as addMetaMaskChain } from '@cfxjs/use-wallet/dist/ethereum';
+import { connect as connectFluent, useStatus as useFluentStatus, useChainId as useFluentChainId, switchChain as switchFluentChain, addChain as addFluentChain, provider as fluentProvider } from '@cfxjs/use-wallet';
+import { connect as connectMetaMask, useStatus as useMetaMaskStatus, useChainId as useMetaMaskChainId, switchChain as switchMetaMaskChain, addChain as addMetaMaskChain, provider as metaMaskProvider } from '@cfxjs/use-wallet/dist/ethereum';
 import { useCurrentNetwork, type Network } from '../../../../dapps/cross-space/src/store/index';
 import { showToast } from '../../components/tools/Toast';
 import useI18n, { compiled } from '../../hooks/useI18n';
@@ -29,12 +29,16 @@ const transitions = {
 
 export const connectToWallet = async (wallet: 'Fluent' | 'MetaMask') => {
     const connect = wallet === 'Fluent' ? connectFluent : connectMetaMask;
+    const provider = wallet === 'Fluent' ? fluentProvider! : metaMaskProvider!;
+
     try {
         await connect();
-        showToast(`Connect to ${wallet} Success!`);
+        const account = await provider?.request?.({ method: `${ wallet === 'Fluent' ? 'cfx' : 'eth'}_accounts` });
+        showToast(`Connect to ${wallet} Success!`, { type: 'success' });
+        return account?.[0];
     } catch (err) {
         if ((err as any)?.code === 4001) {
-            showToast('You cancel the connection reqeust.');
+            showToast('You cancel the connection reqeust.', { type: 'failed' });
         }
     }
 }
@@ -46,7 +50,7 @@ const switchToChain = async (wallet: 'Fluent' | 'MetaMask', network: Network) =>
 
     try {
         await switchChain(targetChainId);
-        showToast(`Switch ${wallet} to ${network.name} Success!`);
+        showToast(`Switch ${wallet} to ${network.name} Success!`, { type: 'success' });
     } catch (switchError) {
         // This error code indicates that the chain has not been added to MetaMask.
         if ((switchError as any)?.code === 4902) {
@@ -64,16 +68,16 @@ const switchToChain = async (wallet: 'Fluent' | 'MetaMask', network: Network) =>
                 });
             } catch (addError) {
                 if ((addError as any)?.code === 4001) {
-                    showToast('You cancel the add chain reqeust.');
+                    showToast('You cancel the add chain reqeust.', { type: 'failed' });
                 }
             }
         } else if ((switchError as any)?.code === 4001) {
-            showToast('You cancel the switch chain reqeust.');
+            showToast('You cancel the switch chain reqeust.', { type: 'failed' });
         }
     }
-}  
+} 
 
-const AuthConnectButton = memo<{
+interface AuthProps {
     wallet: 'Fluent' | 'MetaMask' | 'Both-FluentFirst' | 'Both-MetaMaskFirst';
     authContent: any;
     buttonType: 'contained' | 'outlined';
@@ -82,15 +86,13 @@ const AuthConnectButton = memo<{
     buttonReverse?: boolean;
     showLogo?: boolean;
     fullWidth?: boolean;
-    disabled?: boolean;
-    id?: string;
-    className?: string;
-    onClick?: () => void;
-}>(({ wallet, authContent, buttonType, buttonSize, buttonReverse, showLogo, disabled, fullWidth, id, className, connectTextType = 'specific', onClick }) => {
+}
+
+const AuthConnectButton = memo<AuthProps & ButtonHTMLAttributes<HTMLButtonElement>>(({ wallet, authContent, buttonType, buttonSize, buttonReverse, showLogo, fullWidth, className, connectTextType = 'specific', onClick, ...props }) => {
     const i18n = useI18n(transitions);
 
     const currentCoreNetwork = useCurrentNetwork('core');
-    const currentESpaceNetwork = useCurrentNetwork('target_eSpace');
+    const currentESpaceNetwork = useCurrentNetwork('eSpace');
     const fluentChainId = useFluentChainId();
     const metaMaskChainId = useMetaMaskChainId();
 
@@ -113,7 +115,7 @@ const AuthConnectButton = memo<{
     const currentWalletChain = currentWallet == 'Fluent' ? fluentChainId : metaMaskChainId;
     const chainMatched = currentWalletChain === currentNetwork?.networkId;
 
-	const handleClick = useCallback<React.MouseEventHandler>((evt) => {
+	const handleClick = useCallback<React.MouseEventHandler<HTMLButtonElement>>((evt) => {
 		if (status !== 'active') {
 			evt.preventDefault();
             connectToWallet(currentWallet);
@@ -121,7 +123,7 @@ const AuthConnectButton = memo<{
             if (!currentNetwork) return;
             switchToChain(currentWallet, currentNetwork);
         } else {
-            onClick?.();
+            onClick?.(evt);
         }
 	}, [currentWallet, chainMatched, currentNetwork, status, onClick]);
     
@@ -135,10 +137,10 @@ const AuthConnectButton = memo<{
     
     return (
         <button
-            id={id}
             className={cx(`button-${buttonType} button-${buttonSize}`, buttonReverse && 'button-reverse', fullWidth && 'w-full', status === 'not-installed' && 'button-error', className)}
             onClick={handleClick}
-            disabled={typeof disabled !== 'undefined' ? disabled : (status !== 'active' && status !== 'not-active')}
+            disabled={status !== 'active' && status !== 'not-active'}
+            {...props}
         >
             {showLogo && <img src={Logo} alt={`${currentWallet} logo`} className="mr-[4px] w-[14px] h-[14px]" draggable="false" />}
 

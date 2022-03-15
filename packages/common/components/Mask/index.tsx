@@ -1,4 +1,4 @@
-import { HTMLAttributes, useEffect } from 'react';
+import { useEffect, type HTMLAttributes } from 'react';
 import { a, useTransition } from '@react-spring/web';
 import classNames from 'clsx';
 import { lock, clearBodyLocks } from '../../utils/body-scroll-lock';

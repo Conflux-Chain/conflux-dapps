@@ -2,6 +2,9 @@ import React, { memo } from 'react';
 import { useSpring, a } from '@react-spring/web';
 import { PopupClass, PopupProps } from '../../Popup';
 import Close from '../../../assets/close.svg';
+import Success from '../../../assets/success-blue.svg';
+import Warning from '../../../assets/warning.svg';
+import Error from '../../../assets/error.svg';
 import './index.css';
 
 const Toast = new PopupClass();
@@ -11,11 +14,20 @@ Toast.setListStyle({
     transform: 'unset',
     right: '12px',
     flexDirection: 'column',
+    zIndex: 10000
 });
 
 Toast.setItemWrapperClassName('toast-item-wrapper');
 
-const ToastComponent: React.FC<{ content: string | Content; duration: number; hide: () => void; }> = memo(({ content, duration, hide }) => {
+const iconTypeMap = {
+    success: Success,
+    warning: Warning,
+    failed: Error
+} as const;
+
+type Type = 'info' | 'success' | 'warning' | 'failed';
+
+const ToastComponent: React.FC<{ content: string | Content; duration: number; hide: () => void; type: Type; }> = memo(({ content, duration, type = 'info', hide }) => {
     const props = useSpring({
         from: { transform: 'translateX(-100%)' },
         to: { transform: 'translateX(0%)' },
@@ -23,8 +35,9 @@ const ToastComponent: React.FC<{ content: string | Content; duration: number; hi
     });
 
     return (
-        <div className="relative bg-white rounded  overflow-hidden">
-            <div className='p-[24px]'>
+        <div className="relative max-w[400px] min-w-[300px] bg-white rounded  overflow-hidden">
+            <div className={type === 'info' ? 'p-[24px]' : 'pl-[56px] py-[24px] pr-[24px]'}>
+                {type !== 'info' && <img src={iconTypeMap[type]} alt="type img" className="absolute w-[24px] h-[24px] left-[16px] top-[24px]" /> }
                 <p className='relative mb-[8px] leading-[22px] text-[16px] text-[#3D3F4C] font-medium'>
                     {typeof content === 'object' && content.title ? content.title : 'Notification'}
                     <img src={Close} alt="close img" className='absolute right-0 top-[50%] -translate-y-[50%] w-[16px] h-[16px] cursor-pointer' onClick={hide} />
@@ -48,12 +61,12 @@ interface Content {
     text?: string;
 }
 
-export const showToast = (content: string | Content, config?: Partial<PopupProps>) => {
+export const showToast = (content: string | Content, config?: Partial<PopupProps> & { type?: Type; }) => {
     let toastKey: number | string | null;
     const hide = () => toastKey && Toast.hide(toastKey);
 
     toastKey = Toast.show({
-        Content: <ToastComponent content={content} duration={config?.duration ?? 6000} hide={hide}/>,
+        Content: <ToastComponent content={content} duration={config?.duration ?? 6000} hide={hide} type={config?.type ?? 'info'} />,
         duration: config?.duration ?? 6000,
         animationType: 'slideRight',
         ...config,

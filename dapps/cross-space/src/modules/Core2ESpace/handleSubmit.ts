@@ -1,5 +1,5 @@
 import { sendTransaction as sendTransactionWithFluent, Unit } from '@cfxjs/use-wallet';
-import { currentTokenStore, coreBalanceStore, recheckApproval, confluxStore, trackBalanceChangeOnce } from '@store/index';
+import { currentTokenStore, recheckApproval, confluxStore, trackBalanceChangeOnce, checkNeedApprove } from '@store/index';
 import { showWaitWallet, showActionSubmitted, hideWaitWallet, hideActionSubmitted } from 'common/components/tools/Modal';
 import { showToast } from 'common/components/tools/Toast';
 
@@ -8,21 +8,23 @@ interface Data {
     amount: string;
 }
 
+// return value === true means need clear input transfer amount;
 const handleSubmit = async (data: Data) => {
     const currentToken = currentTokenStore.getState().currentToken;
 
     if (currentToken.isNative) {
         await handleTransferCFX(data);
+        return true;
     } else {
-        const { currentTokenBalance, approvedBalance } = coreBalanceStore.getState();
-        if (!currentTokenBalance || !approvedBalance) return;
-        const needApprove = Unit.lessThanOrEqualTo(approvedBalance, currentTokenBalance);
+        const checkApproveRes = checkNeedApprove('core');
+        if (checkApproveRes === undefined) return false;
         
-        if (needApprove) {
+        if (checkApproveRes) {
             await handleApproveCRC20();
+            return false;
         } else {
-            if (!data?.amount) return;
-            handleTransferCRC20({ ...data, methodType: currentToken.nativeSpace === 'core' ? 'crossToEvm' : 'withdrawToEvm' });
+            await handleTransferCRC20({ ...data, methodType: currentToken.nativeSpace === 'core' ? 'crossToEvm' : 'withdrawToEvm' });
+            return true;
         }
     }
 };
@@ -30,8 +32,6 @@ const handleSubmit = async (data: Data) => {
 const handleTransferCFX = async ({ eSpaceAccount, amount }: Data) => {
     const { crossSpaceContract, crossSpaceContractAddress } = confluxStore.getState();
     if (!crossSpaceContract || !crossSpaceContractAddress) return;
-
-    const currentToken = currentTokenStore.getState().currentToken;
 
     let waitFluentKey: string | number = null!;
     let transactionSubmittedKey: string | number = null!;
@@ -46,13 +46,13 @@ const handleTransferCFX = async ({ eSpaceAccount, amount }: Data) => {
         transactionSubmittedKey = showActionSubmitted(TxnHash);
         trackBalanceChangeOnce.coreCurrentTokenBalance(() => {
             hideActionSubmitted(transactionSubmittedKey);
-            showToast(`Transfer CFX to eSpace success.`);
+            showToast(`Transfer CFX to eSpace success.`, { type: 'success' });
         });
     } catch (err) {
         console.error(`Transfer CFX to eSpace failed: `, err);
         hideWaitWallet(waitFluentKey);
         if ((err as { code: number })?.code === 4001 && (err as any)?.message?.indexOf('UserRejected') !== -1) {
-            showToast('You canceled the transaction.');
+            showToast('You canceled the transaction.', { type: 'failed' });
         }
     }
 };
@@ -76,13 +76,13 @@ const handleApproveCRC20 = async () => {
         transactionSubmittedKey = showActionSubmitted(TxnHash, 'Approve', { duration: 15000 });
         trackBalanceChangeOnce.coreApprovedBalance(() => {
             hideActionSubmitted(transactionSubmittedKey);
-            showToast(`Approve ${currentToken.symbol} used success.`);
+            showToast(`Approve ${currentToken.core_space_symbol} use success.`, { type: 'success' });
         });
     } catch (err) {
-        console.error(`Approve ${currentToken.symbol} used error: `, err);
+        console.error(`Approve ${currentToken.core_space_symbol} use error: `, err);
         hideWaitWallet(waitFluentKey);
         if ((err as { code: number })?.code === 4001 && (err as any)?.message?.indexOf('UserRejected') !== -1) {
-            showToast('You canceled the Approve.');
+            showToast('You canceled the Approve.', { type: 'failed' });
         } else {
             // In cUSDT, you need to approve 0 and then approve again to change the Approval Value.
             try {
@@ -98,12 +98,12 @@ const handleApproveCRC20 = async () => {
                 transactionSubmittedKey = showActionSubmitted(TxnHash, 'Approve', { duration: 15000 });
                 trackBalanceChangeOnce.coreApprovedBalance(() => {
                     hideActionSubmitted(transactionSubmittedKey);
-                    showToast(`Re approve ${currentToken.symbol} used success.`);
+                    showToast(`Re approve ${currentToken.core_space_symbol} use success.`, { type: 'success' });
                 });
             } catch {
                 hideWaitWallet(waitFluentKey);
                 if ((err as { code: number })?.code === 4001 && (err as any)?.message?.indexOf('UserRejected') !== -1) {
-                    showToast('You canceled the Re Approve.');
+                    showToast('You canceled the Re Approve.', { type: 'failed' });
                 }
             }
         }
@@ -128,13 +128,13 @@ const handleTransferCRC20 = async ({ eSpaceAccount, amount, methodType }: Data &
         transactionSubmittedKey = showActionSubmitted(TxnHash);
         trackBalanceChangeOnce.coreCurrentTokenBalance(() => {
             hideActionSubmitted(transactionSubmittedKey);
-            showToast(`Transfer ${currentToken.symbol} to eSpace success.`);
+            showToast(`Transfer ${currentToken.core_space_symbol} to eSpace success.`, { type: 'success' });
         });
     } catch (err) {
-        console.error(`Transfer ${currentToken.symbol} to eSpace failed: `, err);
+        console.error(`Transfer ${currentToken.core_space_symbol} to eSpace failed: `, err);
         hideWaitWallet(waitFluentKey);
         if ((err as { code: number })?.code === 4001 && (err as any)?.message?.indexOf('UserRejected') !== -1) {
-            showToast('You canceled the transaction.');
+            showToast('You canceled the transaction.', { type: 'failed' });
         }
     }
 };
