@@ -76,10 +76,10 @@ const handleApproveCRC20 = async () => {
         transactionSubmittedKey = showActionSubmitted(TxnHash, 'Approve', { duration: 15000 });
         trackBalanceChangeOnce.coreApprovedBalance(() => {
             hideActionSubmitted(transactionSubmittedKey);
-            showToast(`Approve ${currentToken.symbol} use success.`, { type: 'success' });
+            showToast(`Approve ${currentToken.core_space_symbol} use success.`, { type: 'success' });
         });
     } catch (err) {
-        console.error(`Approve ${currentToken.symbol} use error: `, err);
+        console.error(`Approve ${currentToken.core_space_symbol} use error: `, err);
         hideWaitWallet(waitFluentKey);
         if ((err as { code: number })?.code === 4001 && (err as any)?.message?.indexOf('UserRejected') !== -1) {
             showToast('You canceled the Approve.', { type: 'failed' });
@@ -98,7 +98,7 @@ const handleApproveCRC20 = async () => {
                 transactionSubmittedKey = showActionSubmitted(TxnHash, 'Approve', { duration: 15000 });
                 trackBalanceChangeOnce.coreApprovedBalance(() => {
                     hideActionSubmitted(transactionSubmittedKey);
-                    showToast(`Re approve ${currentToken.symbol} use success.`, { type: 'success' });
+                    showToast(`Re approve ${currentToken.core_space_symbol} use success.`, { type: 'success' });
                 });
             } catch {
                 hideWaitWallet(waitFluentKey);
@@ -128,10 +128,10 @@ const handleTransferCRC20 = async ({ eSpaceAccount, amount, methodType }: Data &
         transactionSubmittedKey = showActionSubmitted(TxnHash);
         trackBalanceChangeOnce.coreCurrentTokenBalance(() => {
             hideActionSubmitted(transactionSubmittedKey);
-            showToast(`Transfer ${currentToken.symbol} to eSpace success.`, { type: 'success' });
+            showToast(`Transfer ${currentToken.core_space_symbol} to eSpace success.`, { type: 'success' });
         });
     } catch (err) {
-        console.error(`Transfer ${currentToken.symbol} to eSpace failed: `, err);
+        console.error(`Transfer ${currentToken.core_space_symbol} to eSpace failed: `, err);
         hideWaitWallet(waitFluentKey);
         if ((err as { code: number })?.code === 4001 && (err as any)?.message?.indexOf('UserRejected') !== -1) {
             showToast('You canceled the transaction.', { type: 'failed' });

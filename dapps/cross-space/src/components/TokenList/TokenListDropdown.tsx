@@ -116,7 +116,8 @@ const DropdownContent: React.FC<{ fromSpace: 'core' | 'eSpace'; visible: boolean
             return;
         }
         if (tokenList?.some(token =>
-                (token.isNative ? [token.name, token.symbol] : [token.name, token.symbol, token.native_address, token.mapped_address])
+                (token.isNative ? [token.core_space_name, token.core_space_symbol] :
+                    [token.core_space_name, token.core_space_symbol, token.evm_space_name, token.evm_space_symbol, token.native_address, token.mapped_address])
                     .some(str => str.search(new RegExp(escapeRegExp(filter), 'i')) !== -1)
             )
         ) {
@@ -145,7 +146,7 @@ const DropdownContent: React.FC<{ fromSpace: 'core' | 'eSpace'; visible: boolean
         if (typeof searchToken === 'object') return [searchToken];
         if (searchToken === false) return [];
         return tokenList?.filter(token =>
-            (token.isNative ? [token.name, token.symbol] : [token.name, token.symbol, token.native_address, token.mapped_address])
+            (token.isNative ? [token.core_space_name, token.core_space_symbol] : [token.core_space_name, token.core_space_symbol, token.evm_space_name, token.evm_space_symbol, token.native_address, token.mapped_address])
                 .some(str => str.search(new RegExp(escapeRegExp(filter), 'i')) !== -1)
         );
     }, [filter, searchToken, tokenList]);
@@ -161,10 +162,6 @@ const DropdownContent: React.FC<{ fromSpace: 'core' | 'eSpace'; visible: boolean
     return (
         <>
             <div className='px-[16px]'>
-                <p className="mb-[16px] text-center text-[16px] text-[#3D3F4C] font-medium">
-                    {i18n.select_token}
-                </p>
-
                 <Input
                     id={`tokenlist-search-input-${space}`}
                     className='pr-[12px]'
@@ -180,7 +177,7 @@ const DropdownContent: React.FC<{ fromSpace: 'core' | 'eSpace'; visible: boolean
                 <CustomScrollbar contentClassName="items-center pb-[16px] gap-[12px]" direction='horizontal'>
                     {commonTokens.map(commonToken => 
                         <div
-                            key={commonToken.native_address || commonToken.symbol}
+                            key={commonToken.native_address || commonToken.core_space_symbol}
                             className={cx(
                                 "shrink-0 px-[16px] h-[32px] leading-[32px] rounded-[18px] border border-[#EAECEF] text-center text-[14px] cursor-pointer hover:border-[#808BE7] transition-colors",
                                 (commonToken.isNative ? currentToken.isNative : commonToken.native_address === currentToken.native_address)? 'bg-[#808BE7] text-white pointer-events-none' : 'text-[#3D3F4C]'
@@ -190,7 +187,7 @@ const DropdownContent: React.FC<{ fromSpace: 'core' | 'eSpace'; visible: boolean
                                 hideDropdown();
                             }}
                         >
-                            {commonToken.symbol}
+                            {commonToken[space === 'core' ? 'core_space_symbol' : 'evm_space_symbol']}
                         </div>
                     )}
                 </CustomScrollbar>
@@ -199,12 +196,15 @@ const DropdownContent: React.FC<{ fromSpace: 'core' | 'eSpace'; visible: boolean
 
             <p className='flex items-center justify-between mt-[12px] mb-[4px] px-[16px]'>
                 {i18n.token_list}
-                <span className='flex items-center group text-[14px] text-[#A9ABB2] cursor-pointer' onClick={handleSwitchSpace}>
-                    <img src={Switch} alt="switch img" className='mr-[6px] w-[12px] h-[12px]' />
-                    Switch to
-                    <span className={cx('mx-[4px] group-hover:underline', space === 'eSpace' ? 'text-[#15C184]' : 'text-[#2959B4]')}>{space === 'core' ? 'eSpace' : 'Core'}</span>
-                    Address
-                </span>
+
+                {typeof searchToken !== 'object' &&
+                    <span className='flex items-center group text-[14px] text-[#A9ABB2] cursor-pointer' onClick={handleSwitchSpace}>
+                        <img src={Switch} alt="switch img" className='mr-[6px] w-[12px] h-[12px]' />
+                        Switch to
+                        <span className={cx('mx-[4px] group-hover:underline', space === 'eSpace' ? 'text-[#15C184]' : 'text-[#2959B4]')}>{space === 'core' ? 'eSpace' : 'Core'}</span>
+                        info
+                    </span>
+                }
             </p>
             <CustomScrollbar className='token-list'>
                 {searchToken === 'searching' &&
@@ -220,8 +220,8 @@ const DropdownContent: React.FC<{ fromSpace: 'core' | 'eSpace'; visible: boolean
                 }
                 {filterTokenList.map(token =>
                     <TokenItem
-                        key={token.native_address || token.symbol}
-                        isCurrent={token.native_address ? token.native_address === currentToken.native_address : token.symbol === currentToken.symbol}
+                        key={token.native_address || token.core_space_symbol}
+                        isCurrent={token.native_address ? token.native_address === currentToken.native_address : token.core_space_symbol === currentToken.core_space_symbol}
                         setCurrentToken={setCurrentToken}
                         deleteFromCommonTokens={deleteFromCommonTokens}
                         space={space}
@@ -275,8 +275,10 @@ const TokenItem = memo<TokenItemProps>(({
     deleteFromListSingleton,
     ...token
 }) => {
-    const { symbol, name, native_address, mapped_address, nativeSpace, icon } = token;
+    const { core_space_symbol, core_space_name, evm_space_symbol, evm_space_name, native_address, mapped_address, nativeSpace, icon } = token;
     const usedTokenAddress = nativeSpace ? (nativeSpace === space ? native_address : mapped_address) : native_address;
+    const symbol = space === 'core' ? core_space_symbol : evm_space_symbol;
+    const name = space === 'core' ? core_space_name : evm_space_name;
 
     const handleClickAddToWallet = useCallback<React.MouseEventHandler<HTMLImageElement>>(async (evt) => {
         evt.stopPropagation();
@@ -290,6 +292,8 @@ const TokenItem = memo<TokenItemProps>(({
                     image: icon
                 },
             });
+            // watchAssetMetaMask will instantly resolve the res promise after popup open.
+            // So Toast only show in fluent.
             space === 'core' && showToast(`Add ${symbol} to ${space === 'core' ? 'Fluent' : 'MetaMask'} success!`, { type: 'success' });
         } catch (err) {
             console.error((`Add ${symbol} to ${space === 'core' ? 'Fluent' : 'MetaMask'} failed!`));
@@ -298,7 +302,7 @@ const TokenItem = memo<TokenItemProps>(({
 
     const handleClickDelete = useCallback<React.MouseEventHandler<HTMLImageElement>>((evt) => {
         evt.stopPropagation();
-        deleteSearchToken(token, { isCurrent, setCurrentToken, deleteFromCommonTokens });
+        setTimeout(() => deleteSearchToken(token, { isCurrent, setCurrentToken, deleteFromCommonTokens }), 100);
     }, [isCurrent]);
 
     return (
