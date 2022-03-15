@@ -169,8 +169,8 @@ const Transfer2Bridge: React.FC<{ isShow: boolean; inTransfer: boolean; setInTra
 				}
 			</div>
 			<p className="mt-[8px] text-[#A9ABB2] text-[14px] leading-[18px]">
-				{mode === 'normal' && `Transfer ${currentToken.symbol} to cross space bridge.`}
-				{mode === 'advanced' && `Self-transfer ${currentToken.symbol} to cross space birdge on eSpace.`}
+				{mode === 'normal' && `Transfer ${currentToken.evm_space_symbol} to cross space bridge.`}
+				{mode === 'advanced' && `Self-transfer ${currentToken.evm_space_symbol} to cross space birdge on eSpace.`}
 			</p>
 
 			{mode === 'normal' && 
@@ -216,7 +216,7 @@ const TransferNormalMode: React.FC<{ isShow: boolean; inTransfer: boolean; setIn
 		setValue('amount', _val);
 		setTransferBalance('eSpace', _val);
 
-		bridgeReceived.current.textContent = _val ? `${_val} ${currentToken.symbol}` : '--';
+		bridgeReceived.current.textContent = _val ? `${_val} ${currentToken.core_space_symbol}` : '--';
 	}, [currentToken])
 
 	useEffect(() => setAmount(''), [metaMaskAccount, currentToken]);
@@ -316,15 +316,15 @@ const TransferNormalMode: React.FC<{ isShow: boolean; inTransfer: boolean; setIn
 						{currentTokenBalance ? 
 							(
 								(currentTokenBalance.toDecimalMinUnit() !== '0' && Unit.lessThan(currentTokenBalance, Unit.fromStandardUnit('0.000001'))) ?
-								<Tooltip text={`${currentTokenBalance.toDecimalStandardUnit()} ${currentToken.symbol}`} placement="right">
+								<Tooltip text={`${currentTokenBalance.toDecimalStandardUnit()} ${currentToken.evm_space_symbol}`} placement="right">
 									<span
 										id="eSpace2Core-currentTokenBalance"
 										className="ml-[4px]"
 									>
-										＜0.000001 {currentToken.symbol}
+										＜0.000001 {currentToken.evm_space_symbol}
 									</span>
 								</Tooltip>
-								: <span id="eSpace2Core-currentTokenBalance" className="ml-[4px]">{`${currentTokenBalance} ${currentToken.symbol}`}</span>
+								: <span id="eSpace2Core-currentTokenBalance" className="ml-[4px]">{`${currentTokenBalance} ${currentToken.evm_space_symbol}`}</span>
 							)
 							: <span id="eSpace2Core-currentTokenBalance" className="ml-[4px]">loading...</span>
 						}
@@ -434,7 +434,7 @@ const Withdraw2Core: React.FC<{ isShow: boolean; inTransfer: boolean; }> = ({ is
 				<span className='mr-[8px] text-[14px] text-[#A9ABB2]'>Withdrawable:</span>
 				{(!inWithdraw && !inTransfer) && 
 					<span className='text-[16px] text-[#3D3F4C] font-medium'>
-						{`${withdrawableBalance ? `${withdrawableBalance.toDecimalStandardUnit()} ${currentToken.symbol}` : (currentToken.isNative && hasESpaceMirrorAddress ? 'loading...' : '--')}`}
+						{`${withdrawableBalance ? `${withdrawableBalance.toDecimalStandardUnit()} ${currentToken.core_space_symbol}` : (currentToken.isNative && hasESpaceMirrorAddress ? 'loading...' : '--')}`}
 					</span>
 				}
 				{(inWithdraw || inTransfer) && 
