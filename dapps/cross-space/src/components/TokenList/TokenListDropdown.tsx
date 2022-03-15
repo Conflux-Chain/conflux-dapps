@@ -39,21 +39,31 @@ const transitions = {
 
 const TokenListDropdown: React.FC<{ children: (triggerDropdown: () => void, visible: boolean) => JSX.Element; space: 'core' | 'eSpace'; }> = ({ children, space }) => {
     const [visible, setVisible] = useState(false);
+
+    const coreNetwork = useCurrentNetwork('core');
+    const eSpaceNetwork = useCurrentNetwork('eSpace');
+    const metaMaskChainId = useMetaMaskChainId();
     const metaMaskStatus = useMetaMaskStatus();
+    const fluentStatus = useFluentStatus();
+    const fluentChainId = useFluentChainId();
+
     const triggerDropdown = useCallback(() => {
         setVisible(pre => {
-            if (!pre && metaMaskStatus === 'not-installed') {
-                showToast('To cross space CRC20 token, please install MetaMask first.', { type: 'warning' });
+            let disabled: boolean | string = false;
+            if (!pre && fluentStatus === 'not-installed') disabled = 'Please install Fluent first.';
+            else if (!pre && metaMaskStatus === 'not-installed') disabled = 'To cross space CRC20 token, please install MetaMask first.';
+            else if (!pre && coreNetwork?.networkId !== fluentChainId) disabled = `Please switch Fluent to ${coreNetwork?.name} first.`;
+            else if (!pre && eSpaceNetwork?.networkId !== metaMaskChainId) disabled = `Please switch MetaMask to ${eSpaceNetwork?.name} first.`;
+            if (disabled === false) disabled = tokenListStore.getState().disabled;
+
+            if (!pre && typeof disabled === 'string') {
+                showToast(disabled, { type: 'warning' });
                 return false;
             }
-            const disabledReason = tokenListStore.getState().disabled;
-            if (!pre && typeof disabledReason === 'string') {
-                showToast(disabledReason, { type: 'warning' });
-                return false;
-            }
+
             return !pre;
         });
-    }, [metaMaskStatus]);
+    }, [metaMaskChainId, metaMaskStatus, fluentStatus, fluentChainId, coreNetwork, eSpaceNetwork]);
     const hideDropdown = useCallback(() => setVisible(false), []);
 
     useEffect(() => {
@@ -196,15 +206,12 @@ const DropdownContent: React.FC<{ fromSpace: 'core' | 'eSpace'; visible: boolean
 
             <p className='flex items-center justify-between mt-[12px] mb-[4px] px-[16px]'>
                 {i18n.token_list}
-
-                {typeof searchToken !== 'object' &&
-                    <span className='flex items-center group text-[14px] text-[#A9ABB2] cursor-pointer' onClick={handleSwitchSpace}>
-                        <img src={Switch} alt="switch img" className='mr-[6px] w-[12px] h-[12px]' />
-                        Switch to
-                        <span className={cx('mx-[4px] group-hover:underline', space === 'eSpace' ? 'text-[#15C184]' : 'text-[#2959B4]')}>{space === 'core' ? 'eSpace' : 'Core'}</span>
-                        info
-                    </span>
-                }
+                <span className='flex items-center group text-[14px] text-[#A9ABB2] cursor-pointer' onClick={handleSwitchSpace}>
+                    <img src={Switch} alt="switch img" className='mr-[6px] w-[12px] h-[12px]' />
+                    Switch to
+                    <span className={cx('mx-[4px] group-hover:underline', space === 'eSpace' ? 'text-[#15C184]' : 'text-[#2959B4]')}>{space === 'core' ? 'eSpace' : 'Core'}</span>
+                    info
+                </span>
             </p>
             <CustomScrollbar className='token-list'>
                 {searchToken === 'searching' &&
