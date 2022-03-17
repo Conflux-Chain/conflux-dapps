@@ -259,7 +259,7 @@ const Transfer2ESpace: React.FC<{ isShow: boolean; register: UseFormRegister<Fie
 			<AuthConnectButton
 				id="core2eSpace-auth-both-transfer"
 				className="mt-[24px]"
-				wallet="Fluent"
+				wallet="Both-FluentFirst"
 				buttonType="contained"
 				buttonSize="normal"
 				fullWidth

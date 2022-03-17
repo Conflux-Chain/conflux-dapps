@@ -52,6 +52,8 @@ const TokenListDropdown: React.FC<{ children: (triggerDropdown: () => void, visi
             let disabled: boolean | string = false;
             if (!pre && fluentStatus === 'not-installed') disabled = 'Please install Fluent first.';
             else if (!pre && metaMaskStatus === 'not-installed') disabled = 'To cross space CRC20 token, please install MetaMask first.';
+            else if (!pre && fluentStatus === 'not-active') disabled = 'Please connect Fluent first.';
+            else if (!pre && metaMaskStatus === 'not-active') disabled = 'Please connect MetaMask first.';
             else if (!pre && coreNetwork?.networkId !== fluentChainId) disabled = `Please switch Fluent to ${coreNetwork?.name} first.`;
             else if (!pre && eSpaceNetwork?.networkId !== metaMaskChainId) disabled = `Please switch MetaMask to ${eSpaceNetwork?.name} first.`;
             if (disabled === false) disabled = tokenListStore.getState().disabled;
