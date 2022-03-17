@@ -1,0 +1,6 @@
+.leftbar-container {
+    box-shadow: 0px 8px 16px rgba(164, 170, 216, 0.08);
+}
+.leftbar-container img {
+    max-width: none;
+}
