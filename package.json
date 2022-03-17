@@ -8,11 +8,16 @@
     ],
     "scripts": {
         "build": "turbo run build",
-        "dev": "turbo run dev --parallel",
         "lint": "turbo run lint",
         "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+        "dev-all": "turbo run dev --parallel",
+        "dev": "turbo run dev --scope={dapp-box,shuttle-flow}",
+        "dev:dapp-box": "turbo run dev --scope={dapp-box,shuttle-flow}",
+        "build:dapp-box": "turbo run build --scope=dapp-box",
         "dev:cross-space": "turbo run dev --scope=cross-space",
-        "build:cross-space": "turbo run build --scope=cross-space"
+        "build:cross-space": "turbo run build --scope=cross-space",
+        "dev:shuttle-flow": "turbo run dev --scope=shuttle-flow",
+        "build:shuttle-flow": "turbo run build --scope=shuttle-flow"
     },
     "devDependencies": {
         "@types/node": "^10.17.60",
