@@ -156,15 +156,31 @@ export const zoom = {
     },
 };
 
-export const door = {
-    from: { transform: 'scale3d(0, 1, 1)' },
+export const zoomX = {
+    from: { transform: 'scale3d(0.2, 1, 1)', opacity: .3 },
     enter: {
         transform: 'scale3d(1, 1, 1)',
-        config: { mass: 1, tension: 210, friction: 26 },
+        opacity: 1,
+        config: { mass: 1, tension: 200, friction: 28 },
     },
     leave: {
-        transform: 'scale3d(0, 1, 0.1)',
-        config: { mass: 1, tension: 240, friction: 26, clamp: true },
+        transform: 'scale3d(0, 1, 1)',
+        opacity: 0,
+        config: { mass: 1, tension: 220, friction: 28, clamp: true },
+    },
+};
+
+export const door = {
+    from: { transform: 'scale3d(0, 1, 1)', opacity: .2 },
+    enter: {
+        transform: 'scale3d(1, 1, 1)',
+        opacity: 1,
+        config: { mass: 1, tension: 200, friction: 28 },
+    },
+    leave: {
+        transform: 'scale3d(0.3, 1, 1)',
+        opacity: 0,
+        config: { mass: 1, tension: 220, friction: 28, clamp: true },
     },
 };
 
@@ -192,6 +208,7 @@ const transitions = {
     door,
     doorY,
     zoom,
+    zoomX,
     slideUp,
     slideDown,
     slideRight,

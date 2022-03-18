@@ -1,4 +1,3 @@
-const path = require('path');
 const { name } = require('./package');
 const TestServerUrl = 'https://test.shuttleflow.confluxnetwork.org'
 const ProxyConfig = {
