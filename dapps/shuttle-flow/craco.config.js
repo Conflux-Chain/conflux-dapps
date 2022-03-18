@@ -30,15 +30,13 @@ module.exports = {
     return devServerConfig
   },
   webpack: {
-    configure: (webpackConfig, { paths }) => {
-      paths.appBuild = 'dist';
+    configure: (webpackConfig) => {
       webpackConfig.output = {  
         ...webpackConfig.output,
         library: name,
         libraryTarget: 'umd',
         jsonpFunction: `webpackJsonp_${name}`,
         globalObject: 'window',
-        path: path.resolve(__dirname, 'dist'),
       }
       return webpackConfig
     }
