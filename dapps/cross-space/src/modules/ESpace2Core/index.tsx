@@ -6,8 +6,8 @@ import cx from 'clsx';
 import { shortenAddress } from '@fluent-wallet/shorten-address';
 import { useAccount as useFluentAccount, useStatus as useFluentStatus, Unit } from '@cfxjs/use-wallet';
 import { useStatus as useMetaMaskStatus, useAccount as useMetaMaskAccount } from '@cfxjs/use-wallet/dist/ethereum';
-import { useMaxAvailableBalance, useCurrentTokenBalance, useESpaceMirrorAddress, useESpaceWithdrawableBalance, useNeedApprove, setTransferBalance } from '@store/index';
-import { useToken } from '@store/index';
+import { useMaxAvailableBalance, useCurrentTokenBalance, useESpaceMirrorAddress, useESpaceWithdrawableBalance, useNeedApprove, setTransferBalance } from 'cross-space/src/store/index';
+import { useToken } from 'cross-space/src/store/index';
 import LocalStorage from 'common/utils/LocalStorage';
 import AuthConnectButton from 'common/modules/AuthConnectButton';
 import Input from 'common/components/Input';
@@ -15,14 +15,14 @@ import Tooltip from 'common/components/Tooltip';
 import Spin from 'common/components/Spin';
 import useI18n from 'common/hooks/useI18n';
 import Fluent from 'common/assets/Fluent.svg';
-import TokenList from '@components/TokenList';
-import TurnPage from '@assets/turn-page.svg';
-import Switch from '@assets/switch.svg';
-import Success from '@assets/success.svg';
-import Suggest from '@assets/suggest.svg';
+import TokenList from 'cross-space/src/components/TokenList';
+import TurnPage from 'cross-space/src/assets/turn-page.svg';
+import Switch from 'cross-space/src/assets/switch.svg';
+import Success from 'cross-space/src/assets/success.svg';
+import Suggest from 'cross-space/src/assets/suggest.svg';
 import Copy from 'common/assets/copy.svg';
 import { showToast } from 'common/components/tools/Toast';
-import { tokenListStore } from '@components/TokenList/tokenListStore';
+import { tokenListStore } from 'cross-space/src/components/TokenList/tokenListStore';
 import { handleWithdraw } from './handleWithdraw';
 import { handleTransferSubmit } from './handleTransfer';
 
@@ -204,13 +204,8 @@ const TransferNormalMode: React.FC<{ isShow: boolean; inTransfer: boolean; setIn
 
 	const bridgeReceived = useRef<HTMLSpanElement>(null!);
 
-	const setAmount = useCallback((val: string, error?: string) => {
+	const setAmount = useCallback((val: string) => {
 		if (!bridgeReceived.current) return;
-
-		if (error) {
-			bridgeReceived.current.textContent = error;
-			return;
-		}
 
 		const _val = val.replace(/(?:\.0*|(\.\d+?)0+)$/, '$1');
 		setValue('amount', _val);
@@ -224,12 +219,12 @@ const TransferNormalMode: React.FC<{ isShow: boolean; inTransfer: boolean; setIn
 	const handleCheckAmount = useCallback(async (evt: React.FocusEvent<HTMLInputElement, Element>) => {
 		if (!evt.target.value) return;
 		if (Number(evt.target.value) < 0) {
-			return setAmount('', '--');
+			return setAmount('');
 		}
 
 		if (!maxAvailableBalance) return;
 		if (Unit.greaterThan(Unit.fromStandardUnit(evt.target.value), maxAvailableBalance)) {
-			return setAmount('', '--');
+			return setAmount('');
 		}
 
 		return setAmount(evt.target.value);

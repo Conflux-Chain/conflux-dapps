@@ -3,10 +3,10 @@ import { store as fluentStore, provider as fluentProvider } from '@cfxjs/use-wal
 import { provider as metaMaskProvider } from '@cfxjs/use-wallet/dist/ethereum';
 import { validateBase32Address } from '@fluent-wallet/base32-address';
 import { isHexAddress } from '@fluent-wallet/account';
-import { confluxStore, type Token } from '@store/index';
+import { confluxStore, type Token } from 'cross-space/src/store/index';
 import { mergeSearchToken } from './tokenListStore';
-import TokenDefaultIcon from '@assets/TokenDefaultIcon.png';
-import CRC20TokenABI from '@contracts/abi/ERC20.json';
+import TokenDefaultIcon from 'cross-space/src/assets/TokenDefaultIcon.png';
+import CRC20TokenABI from 'cross-space/src/contracts/abi/ERC20.json';
 
 function hexToAscii(hex: string) {
     let hexString = hex;

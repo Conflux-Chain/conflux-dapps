@@ -5,6 +5,9 @@ import Close from '../../../assets/close.svg';
 import Spin from '../../Spin';
 
 const WaitWalletModal = new PopupClass();
+WaitWalletModal.setListStyle({
+    top: '320px',
+});
 const TransactionSubmittedModal = new PopupClass();
 
 const WaitWalletContent: React.FC<{ wallet: 'Fluent' | 'MetaMask'; tip?: string; }> = memo(({ wallet, tip }) => {

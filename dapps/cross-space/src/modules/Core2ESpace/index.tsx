@@ -4,18 +4,18 @@ import cx from 'clsx';
 import { useForm, type UseFormRegister, type FieldValues } from 'react-hook-form';
 import { useAccount as useFluentAccount, useStatus as useFluentStatus, Unit } from '@cfxjs/use-wallet';
 import { useStatus as useMetaMaskStatus, useAccount as useMetaMaskAccount } from '@cfxjs/use-wallet/dist/ethereum';
-import { useMaxAvailableBalance, useCurrentTokenBalance, useNeedApprove, useToken, setTransferBalance } from '@store/index';
+import { useMaxAvailableBalance, useCurrentTokenBalance, useNeedApprove, useToken, setTransferBalance } from 'cross-space/src/store/index';
 import AuthConnectButton, { connectToWallet } from 'common/modules/AuthConnectButton';
 import Input from 'common/components/Input';
 import Tooltip from 'common/components/Tooltip';
 import Spin from 'common/components/Spin';
 import useI18n from 'common/hooks/useI18n';
 import MetaMask from 'common/assets/MetaMask.svg';
-import TokenList from '@components/TokenList';
-import TurnPage from '@assets/turn-page.svg';
-import ArrowLeft from '@assets/arrow-left.svg';
-import InputClose from '@assets/input-close.svg';
-import Success from '@assets/success.svg';
+import TokenList from 'cross-space/src/components/TokenList';
+import TurnPage from 'cross-space/src/assets/turn-page.svg';
+import ArrowLeft from 'cross-space/src/assets/arrow-left.svg';
+import InputClose from 'cross-space/src/assets/input-close.svg';
+import Success from 'cross-space/src/assets/success.svg';
 import handleSubmit from './handleSubmit';
 
 const transitions = {
@@ -47,14 +47,9 @@ const Core2ESpace: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 	const metaMaskStatus = useMetaMaskStatus();
 	const isUsedCurrentMetaMaskAccount = metaMaskStatus === 'active' && String(watch("eSpaceAccount")).toLowerCase() === metaMaskAccount;
 
-	const setAmount = useCallback((val: string, error?: string) => {
+	const setAmount = useCallback((val: string) => {
 		if (!eSpaceReceived) {
 			eSpaceReceived = document.querySelector('#core2eSpace-willReceive') as HTMLSpanElement;
-		}
-
-		if (error) {
-			eSpaceReceived.textContent = error;
-			return;
 		}
 
 		const _val = val.replace(/(?:\.0*|(\.\d+?)0+)$/, '$1');
@@ -173,7 +168,7 @@ const Core2ESpace: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 )
 }
 
-const Transfer2ESpace: React.FC<{ isShow: boolean; register: UseFormRegister<FieldValues>; setAmount: (val: string, error?: string) => void; }> = memo(({ isShow, register, setAmount }) => {
+const Transfer2ESpace: React.FC<{ isShow: boolean; register: UseFormRegister<FieldValues>; setAmount: (val: string) => void; }> = memo(({ isShow, register, setAmount }) => {
 	const i18n = useI18n(transitions);
 
 	const { currentToken } = useToken();
@@ -184,14 +179,14 @@ const Transfer2ESpace: React.FC<{ isShow: boolean; register: UseFormRegister<Fie
 	const needApprove = useNeedApprove(currentToken, 'core');
 	
 	const handleCheckAmount = useCallback(async (evt: React.FocusEvent<HTMLInputElement, Element>) => {
-		if (!evt.target.value) return;
+		if (!evt.target.value) return setAmount('');
 		if (Number(evt.target.value) < 0) {
-			return setAmount('', '--');
+			return setAmount('');
 		}
 
 		if (!maxAvailableBalance) return;
 		if (Unit.greaterThan(Unit.fromStandardUnit(evt.target.value), maxAvailableBalance)) {
-			return setAmount('', '--');
+			return setAmount('');
 		}
 
 		return setAmount(evt.target.value);

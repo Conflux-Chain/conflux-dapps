@@ -4,8 +4,8 @@ import { store as fluentStore } from '@cfxjs/use-wallet';
 import { Conflux, format, address } from 'js-conflux-sdk';
 import { CrossSpaceCall } from 'js-conflux-sdk/src/contract/internal/index.js';
 import { currentNetworkStore } from './currentNetwork';
-import ConfluxSide from '@contracts/abi/ConfluxSide.json'
-import EVMSide from '@contracts/abi/EVMSide.json'
+import ConfluxSide from 'cross-space/src/contracts/abi/ConfluxSide.json'
+import EVMSide from 'cross-space/src/contracts/abi/EVMSide.json'
 
 interface ConfluxStore {
     conflux?: Conflux;

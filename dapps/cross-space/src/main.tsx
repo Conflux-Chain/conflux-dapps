@@ -14,10 +14,3 @@ Promise.all([completeDetect(), completeDetectEthereum()]).then(() => {
         document.getElementById('root'),
     );
 });
-
-
-document.addEventListener('click', (evt) => {
-    if ((evt?.target as HTMLButtonElement)?.nodeName === 'BUTTON') {
-        (evt.target as HTMLButtonElement)?.blur();
-    }
-});

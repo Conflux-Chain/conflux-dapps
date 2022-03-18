@@ -17,6 +17,8 @@
     "abi-decoder": "^2.4.0",
     "clsx": "^1.1.1",
     "common": "*",
+    "cross-space": "*",
+    "dapp-box": "*",
     "custom-react-scrollbar": "^0.0.2",
     "decimal.js": "^10.3.1",
     "js-conflux-sdk": "^2.0.4",

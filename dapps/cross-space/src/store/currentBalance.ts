@@ -118,7 +118,7 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
 
 
 
-    let balanceTimer: number | null = null;
+    let balanceTimer: NodeJS.Timer | null = null;
     let setUndefinedTimer: NodeJS.Timeout | null = null;
     const clearBalanceTimer = () => {
         if (balanceTimer !== null) {
@@ -236,7 +236,7 @@ export const eSpaceBalanceStore = create(subscribeWithSelector(() => ({
 
 
 
-    let balanceTimer: number | null = null;
+    let balanceTimer: NodeJS.Timer | null = null;
     let setUndefinedTimer: NodeJS.Timeout | null = null;
     const clearBalanceTimer = () => {
         if (balanceTimer !== null) {

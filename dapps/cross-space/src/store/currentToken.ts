@@ -3,9 +3,9 @@ import create from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import LocalStorage from 'common/utils/LocalStorage';
 import Cache from 'common/utils/LRUCache';
-import CFX from '@assets/CFX.svg';
+import CFX from 'cross-space/src/assets/CFX.svg';
 import { confluxStore } from './conflux';
-import CRC20TokenABI from '@contracts/abi/ERC20.json'
+import CRC20TokenABI from 'cross-space/src/contracts/abi/ERC20.json'
 import { Unit } from '@cfxjs/use-wallet';
 import { store as metaMaskStore } from '@cfxjs/use-wallet/dist/ethereum';
 
