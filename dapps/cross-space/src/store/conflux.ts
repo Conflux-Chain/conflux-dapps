@@ -54,27 +54,34 @@ export const confluxStore = create(subscribeWithSelector(() => ({
 } as ConfluxStore)));
 
 
-// get cfxMappedEVMSpaceAddress
-fluentStore.subscribe(state => state.accounts, accounts => {
-    const account = accounts?.[0];
-    confluxStore.setState({ eSpaceMirrorAddress: account ? (address as any).cfxMappedEVMSpaceAddress(account) : undefined });
-}, { fireImmediately: true });
+export const startSubConflux = () => {
+    // get cfxMappedEVMSpaceAddress
+    const unsub1 = fluentStore.subscribe(state => state.accounts, accounts => {
+        const account = accounts?.[0];
+        confluxStore.setState({ eSpaceMirrorAddress: account ? (address as any).cfxMappedEVMSpaceAddress(account) : undefined });
+    }, { fireImmediately: true });
 
-// get conflux & crossSpaceContractAddress && crossSpaceContract
-currentNetworkStore.subscribe(state => state.core, () => {
-    const { core: coreNetwork, eSpace: eSpaceNetwork } = currentNetworkStore.getState();
-    if (!coreNetwork || !eSpaceNetwork) return;
-    const conflux = new Conflux({ url: coreNetwork.url, networkId: +coreNetwork.networkId });
-    confluxStore.setState({
-        conflux,
-        crossSpaceContract: conflux.Contract(CrossSpaceCall) as unknown as ConfluxStore['crossSpaceContract'],
-        crossSpaceContractAddress: format.address(CrossSpaceCall.address, +coreNetwork.networkId),
-        confluxSideContract: conflux.Contract(ConfluxSide) as unknown as ConfluxStore['confluxSideContract'],
-        confluxSideContractAddress: coreNetwork.CRC20CrossSpaceContractAddress,
-        evmSideContract: conflux.Contract(EVMSide) as unknown as ConfluxStore['evmSideContract'],
-        evmSideContractAddress: eSpaceNetwork.CRC20CrossSpaceContractAddress
-    });
-}, { fireImmediately: true });
+    // get conflux & crossSpaceContractAddress && crossSpaceContract
+    const unsub2 = currentNetworkStore.subscribe(state => state.core, () => {
+        const { core: coreNetwork, eSpace: eSpaceNetwork } = currentNetworkStore.getState();
+        if (!coreNetwork || !eSpaceNetwork) return;
+        const conflux = new Conflux({ url: coreNetwork.url, networkId: +coreNetwork.networkId });
+        confluxStore.setState({
+            conflux,
+            crossSpaceContract: conflux.Contract(CrossSpaceCall) as unknown as ConfluxStore['crossSpaceContract'],
+            crossSpaceContractAddress: format.address(CrossSpaceCall.address, +coreNetwork.networkId),
+            confluxSideContract: conflux.Contract(ConfluxSide) as unknown as ConfluxStore['confluxSideContract'],
+            confluxSideContractAddress: coreNetwork.CRC20CrossSpaceContractAddress,
+            evmSideContract: conflux.Contract(EVMSide) as unknown as ConfluxStore['evmSideContract'],
+            evmSideContractAddress: eSpaceNetwork.CRC20CrossSpaceContractAddress
+        });
+    }, { fireImmediately: true });
+
+    return () => {
+        unsub1();
+        unsub2();
+    }
+}
 
 const selectors = {
     crossSpaceContract: (state: ConfluxStore) => ({ contract: state.crossSpaceContract, address: state.crossSpaceContractAddress }),

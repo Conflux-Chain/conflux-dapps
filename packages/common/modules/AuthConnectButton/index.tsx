@@ -86,9 +86,10 @@ interface AuthProps {
     buttonReverse?: boolean;
     showLogo?: boolean;
     fullWidth?: boolean;
+    checkChainMatch?: boolean;
 }
 
-const AuthConnectButton = memo<AuthProps & ButtonHTMLAttributes<HTMLButtonElement>>(({ wallet, authContent, buttonType, buttonSize, buttonReverse, showLogo, fullWidth, className, connectTextType = 'specific', onClick, ...props }) => {
+const AuthConnectButton = memo<AuthProps & ButtonHTMLAttributes<HTMLButtonElement>>(({ wallet, authContent, buttonType, buttonSize, buttonReverse, showLogo, fullWidth, className, connectTextType = 'specific', checkChainMatch = true, onClick, ...props }) => {
     const i18n = useI18n(transitions);
 
     const currentCoreNetwork = useCurrentNetwork('core');
@@ -113,19 +114,19 @@ const AuthConnectButton = memo<AuthProps & ButtonHTMLAttributes<HTMLButtonElemen
     const Logo = currentWallet == 'Fluent' ? FluentLogo : MetaMaskLogo;
     const currentNetwork = currentWallet == 'Fluent' ? currentCoreNetwork : currentESpaceNetwork;
     const currentWalletChain = currentWallet == 'Fluent' ? fluentChainId : metaMaskChainId;
-    const chainMatched = currentWalletChain === currentNetwork?.networkId;
+    const chainMatched = checkChainMatch ? currentWalletChain === currentNetwork?.networkId : true;
 
 	const handleClick = useCallback<React.MouseEventHandler<HTMLButtonElement>>((evt) => {
 		if (status !== 'active') {
 			evt.preventDefault();
             connectToWallet(currentWallet);
-		} else if (!chainMatched) {
+		} else if (checkChainMatch && !chainMatched) {
             if (!currentNetwork) return;
             switchToChain(currentWallet, currentNetwork);
         } else {
             onClick?.(evt);
         }
-	}, [currentWallet, chainMatched, currentNetwork, status, onClick]);
+	}, [currentWallet, chainMatched, checkChainMatch, currentNetwork, status, onClick]);
     
     if (status === 'active' && chainMatched && typeof authContent !== 'string') {
         if (typeof authContent === 'function') {

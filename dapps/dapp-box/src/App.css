@@ -1,8 +1,8 @@
-#dapp-root {
+#dapp-box-root {
     @apply flex;
 }
 
-#dapp-root > .scrollbar__wrapper {
+#dapp-box-root > .scrollbar__wrapper {
     @apply flex-1 px-[32px];
 }
 

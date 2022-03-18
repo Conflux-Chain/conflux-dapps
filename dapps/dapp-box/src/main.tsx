@@ -8,7 +8,7 @@ ReactDOM.render(
     <React.StrictMode>
         <App />
     </React.StrictMode>,
-    document.getElementById('dapp-root')
+    document.getElementById('dapp-box-root')
 );
 
 registerMicroApps([
