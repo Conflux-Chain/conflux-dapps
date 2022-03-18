@@ -1,7 +1,7 @@
 import type React from 'react';
 import { sendTransaction as sendTransactionWithFluent, Unit } from '@cfxjs/use-wallet';
 import { store as metaMaskStore } from '@cfxjs/use-wallet/dist/ethereum';
-import { currentTokenStore, eSpaceBalanceStore, confluxStore, trackBalanceChangeOnce } from '@store/index';
+import { currentTokenStore, eSpaceBalanceStore, confluxStore, trackBalanceChangeOnce } from 'cross-space/src/store/index';
 import { showWaitWallet, showActionSubmitted, hideWaitWallet, hideActionSubmitted } from 'common/components/tools/Modal';
 import { showToast } from 'common/components/tools/Toast';
 

@@ -26,7 +26,7 @@ function History() {
   )
   const onBack = () => {
     const pathWithQuery = queryString.stringifyUrl({
-      url: '/shuttle',
+      url: window.__POWERED_BY_QIANKUN__ ? '/' : '/shuttle',
       query: {
         ...others,
         fromChain,

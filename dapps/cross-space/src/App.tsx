@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import CustomScrollbar from 'custom-react-scrollbar';
 import Navbar from 'common/modules/Navbar';
-import Modules from '@modules/index';
+import Modules from 'cross-space/src/modules';
 import { LocaleContext } from 'common/hooks/useI18n';
 import { ModeContext } from 'common/hooks/useMode';
 

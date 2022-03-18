@@ -12,13 +12,13 @@ import Tooltip from 'common/components/Tooltip';
 import Input from 'common/components/Input';
 import Spin from 'common/components/Spin';
 import { showToast } from 'common/components/tools/Toast';
-import { useToken, type Token, useCurrentNetwork , type Network } from '@store/index';
+import { useToken, type Token, useCurrentNetwork , type Network } from 'cross-space/src/store/index';
 import Close from 'common/assets/close.svg';
 import Add from 'common/assets/add-to-wallet.svg';
 import Search from 'common/assets/search.svg';
-import Suggest from '@assets/suggest.svg';
-import Switch from '@assets/turn-page.svg';
-import Open from '@assets/open.svg';
+import Suggest from 'cross-space/src/assets/suggest.svg';
+import Switch from 'cross-space/src/assets/turn-page.svg';
+import Open from 'cross-space/src/assets/open.svg';
 import { useTokenList, tokenListStore, deleteSearchToken } from './tokenListStore';
 import judgeAddressValid from './judgeAddressValid';
 

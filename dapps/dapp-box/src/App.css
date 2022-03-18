@@ -3,9 +3,9 @@
 }
 
 #dapp-root > .scrollbar__wrapper {
-    @apply flex-1 bg-gray-100;
+    @apply flex-1 px-[32px];
 }
 
 .main-scroll.main-scroll {
-    height: 100vh;
+    @apply relative h-[100vh];
 }

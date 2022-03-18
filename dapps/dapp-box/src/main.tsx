@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { registerMicroApps, start as startQianKun } from 'qiankun';
 import App from './App';
+import 'custom-react-scrollbar/dist/style.css';
 
 ReactDOM.render(
     <React.StrictMode>
@@ -14,8 +15,8 @@ registerMicroApps([
     {
         name: 'shuttle-flow',
         entry: '//localhost:3002',
-        container: '.main-scroll',
-        activeRule: '/shuttle-flow',
+        container: '#shuttle-flow',
+        activeRule: 'shuttle-flow',
     },
 ]);
 startQianKun({  });
