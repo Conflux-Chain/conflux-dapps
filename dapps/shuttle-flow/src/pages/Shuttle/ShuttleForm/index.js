@@ -83,11 +83,9 @@ function ShuttleForm({
     chainOfContract,
     toToken,
   )
-  const balanceVal =
-    balance && balance?.length > 0
-      ? convertDecimal(balance, 'divide', isFromChainCfx ? Decimal18 : decimals)
-      : null
-  console.log('val', balanceVal)
+  const balanceVal = balance
+    ? convertDecimal(balance, 'divide', isFromChainCfx ? Decimal18 : decimals)
+    : null
   const maxAmount = (
     balanceVal
       ? isNativeToken
