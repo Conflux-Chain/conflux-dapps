@@ -62,7 +62,6 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #fff;
-  @apply font-body;
   @apply text-sm;
   @apply font-normal;
 }
@@ -72,6 +71,7 @@ strong {
 }
 
 #root {
+  @apply font-body;
   display: flex;
   flex-direction: column;
 }

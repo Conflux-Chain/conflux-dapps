@@ -4,6 +4,7 @@ import Navbar from 'common/modules/Navbar';
 import Modules from 'cross-space/src/modules';
 import { LocaleContext } from 'common/hooks/useI18n';
 import { ModeContext } from 'common/hooks/useMode';
+import CrossSpaceIcon from 'dapp-box/src/assets/cross-space.svg';
 
 const AppRouter = () => {
     const [mode, setMode] = useState<'light' | 'dark'>(() => {
@@ -43,7 +44,7 @@ const AppRouter = () => {
     return (
         <ModeContext.Provider value={mode}>
             <LocaleContext.Provider value={locale}>
-                <Navbar handleSwitchLocale={handleSwitchLocale} handleSwitchMode={handleSwitchMode} />
+                <Navbar handleSwitchLocale={handleSwitchLocale} handleSwitchMode={handleSwitchMode} dappIcon={CrossSpaceIcon} dappName="Cross Space" />
                 <CustomScrollbar contentClassName='main-scroll'>
                     <Modules />
                 </CustomScrollbar>

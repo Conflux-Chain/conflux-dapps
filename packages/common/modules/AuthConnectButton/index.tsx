@@ -43,7 +43,7 @@ export const connectToWallet = async (wallet: 'Fluent' | 'MetaMask') => {
     }
 }
 
-const switchToChain = async (wallet: 'Fluent' | 'MetaMask', network: Network) => {
+export const switchToChain = async (wallet: 'Fluent' | 'MetaMask', network: Network) => {
     const switchChain = wallet === 'Fluent' ? switchFluentChain : switchMetaMaskChain;
     const addChain = wallet === 'Fluent' ? addFluentChain : addMetaMaskChain;
     const targetChainId = '0x' + Number(network.networkId).toString(16);

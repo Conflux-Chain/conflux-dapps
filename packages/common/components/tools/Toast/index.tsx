@@ -47,6 +47,17 @@ const ToastComponent: React.FC<{ content: string | Content; duration: number; hi
                         {typeof content === 'string' ? content : content.text}
                     </p>
                 }
+
+                {typeof content === 'object' && (typeof content.onClickOk === 'function' || typeof content.onClickCancel === 'function') &&
+                    <div className='mt-[20px] flex justify-end items-center gap-[16px]'>
+                        {typeof content.onClickCancel === 'function' &&
+                            <button className='button-outlined button-small min-w-[72px]' onClick={content.onClickCancel}>{content?.cancelButtonText ?? 'Cancel'}</button>
+                        }
+                        {typeof content.onClickOk === 'function' &&
+                            <button className='button-contained button-small min-w-[72px]' onClick={content.onClickOk}>{content?.okButtonText ?? 'OK'}</button>
+                        }
+                    </div>
+                }
             </div>
 
             {duration ? (
@@ -56,17 +67,37 @@ const ToastComponent: React.FC<{ content: string | Content; duration: number; hi
     );
 });
 
-interface Content {
+export interface Content {
     title?: string;
     text?: string;
+    okButtonText?: string;
+    cancelButtonText?: string;
+    onClickOk?: () => void;
+    onClickCancel?: () => void;
 }
 
 export const showToast = (content: string | Content, config?: Partial<PopupProps> & { type?: Type; }) => {
     let toastKey: number | string | null;
     const hide = () => toastKey && Toast.hide(toastKey);
+    let _content: Content = {};
+    if (typeof content === 'object') {
+        _content = { ...content };
+        if (typeof content.onClickCancel === 'function') {
+            _content.onClickCancel = () => {
+                content.onClickCancel?.();
+                hide();
+            }
+        }
+        if (typeof content.onClickOk === 'function') {
+            _content.onClickOk = () => {
+                content.onClickOk?.();
+                hide();
+            }
+        }
+    }
 
     toastKey = Toast.show({
-        Content: <ToastComponent content={content} duration={config?.duration ?? 6000} hide={hide} type={config?.type ?? 'info'} />,
+        Content: <ToastComponent content={typeof content === 'object' ? _content : content} duration={config?.duration ?? 6000} hide={hide} type={config?.type ?? 'info'} />,
         duration: config?.duration ?? 6000,
         animationType: 'slideRight',
         ...config,

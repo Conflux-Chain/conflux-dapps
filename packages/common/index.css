@@ -27,9 +27,8 @@
     font-display: auto;
 }
 
-html {
+#dapp-box-root {
     font-family: 'SF Pro Display';
-    overflow: hidden;
 }
 
 body {
