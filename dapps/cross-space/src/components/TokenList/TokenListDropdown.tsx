@@ -53,7 +53,14 @@ const TokenListDropdown: React.FC<{ children: (triggerDropdown: () => void, visi
         setVisible(pre => {
             let disabled: boolean | string | Content = false;
             if (!pre && fluentStatus === 'not-installed') disabled = 'Please install Fluent first.';
-            else if (!pre && metaMaskStatus === 'not-installed') disabled = 'To cross space CRC20 token, please install MetaMask first.';
+            else if (!pre && metaMaskStatus === 'not-installed') {
+                if (currentToken.isNative) disabled = 'To cross space CRC20 token, please install MetaMask first.';
+                else disabled = {
+                    text: 'To cross space CRC20 token, please install MetaMask first.',
+                    onClickCancel: () => setCurrentToken(nativeToken),
+                    cancelButtonText: 'Switch Token to CFX'
+                }
+            }
             else if (!pre && fluentStatus === 'not-active') {
                 disabled = {
                     text: `Please connect to Fluent first.`,
@@ -102,11 +109,6 @@ const TokenListDropdown: React.FC<{ children: (triggerDropdown: () => void, visi
             return pre;
         });
     }, [fluentStatus, metaMaskStatus, fluentChainId, metaMaskChainId, coreNetwork, eSpaceNetwork]);
-    useEffect(() => {
-        if (metaMaskStatus === 'not-installed') {
-            setCurrentToken(nativeToken);
-        }
-    }, [metaMaskStatus]);
 
 
     useEffect(() => {
