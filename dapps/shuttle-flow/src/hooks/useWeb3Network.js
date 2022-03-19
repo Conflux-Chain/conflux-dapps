@@ -5,6 +5,7 @@
  */
 import {useEffect, useState, useMemo} from 'react'
 import {useWeb3React, UnsupportedChainIdError} from '@web3-react/core'
+import {useChainId, useAccount} from '@cfxjs/use-wallet/dist/ethereum'
 import {isMobile} from 'react-device-detect'
 import Big from 'big.js'
 import {
@@ -127,7 +128,10 @@ export function useAddress() {
 }
 
 export function useConnect() {
-  const {error, account, activate, chainId} = useWeb3React()
+  const {error, activate} = useWeb3React()
+  const account = useAccount()
+  const chainId = useChainId();
+  
   const isInstalled = useInstalled()
   const [type, setType] = useState(
     isInstalled ? TypeConnectWallet.success : TypeConnectWallet.uninstalled,

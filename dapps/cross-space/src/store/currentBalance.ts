@@ -102,7 +102,7 @@ export const startSubBalance = () => {
                 space === 'core' ? 'latest_state' : 'latest']
             })
                 .then(minUnitBalance => handleBalanceChanged(Unit.fromMinUnit(minUnitBalance), 'currentTokenBalance', currentBalanceTick))
-                .catch(err => console.log(`Get ${currentToken[space === 'core' ? 'core_space_symbol' : 'evm_space_symbol']} balance error: `, err))
+                .catch(err => {})
                 .finally(callback);
 
             // and at same time get approval value;
@@ -116,7 +116,7 @@ export const startSubBalance = () => {
                 space === 'core' ? 'latest_state' : 'latest']
             })
                 .then(approvalMinUnitBalance => handleBalanceChanged(Unit.fromMinUnit(approvalMinUnitBalance), 'approvedBalance', currentBalanceTick))
-                .catch(err => console.log(`Get ${currentToken[space === 'core' ? 'core_space_symbol' : 'evm_space_symbol']} approved balance error: `, err));
+                .catch(err => {});
         }
 
 
@@ -219,7 +219,7 @@ export const startSubBalance = () => {
                             console.error(`Get CFX withdrawable balance error: `, balanceRes);
                         }
                     })
-                    .catch(err => console.error(`Get CFX withdrawable balance error: `, err))
+                    .catch(err => {})
                     .finally(callback);
                 return;
             }
@@ -237,7 +237,7 @@ export const startSubBalance = () => {
                 'latest']
             })
                 .then(minUnitBalance => handleBalanceChanged(Unit.fromMinUnit(minUnitBalance), currentBalanceTick))
-                .catch(err => console.log(`Get ${currentToken.core_space_symbol} withdrawable balance error: `, err))
+                .catch(err => {})
                 .finally(callback);
         }
 
@@ -346,7 +346,7 @@ export const startSubBalance = () => {
                         balanceStore.setState({ maxAvailableBalance:  Unit.fromMinUnit(estimateRes.nativeMaxDrip) });
                     }).catch(err => {
                         balanceStore.setState({ maxAvailableBalance: undefined });
-                        console.error('Get fluent max available balance error: ', err);
+                        // console.error('Get fluent max available balance error: ', err);
                     }).finally(clearUndefinedTimer);
                 } else {
                     // estimate MetaMask max available balance
@@ -370,7 +370,7 @@ export const startSubBalance = () => {
                         balanceStore.setState({ maxAvailableBalance: Unit.greaterThan(currentTokenBalance, gasFee) ? Unit.sub(currentTokenBalance, gasFee) : Unit.fromMinUnit(0) });
                     }).catch(err => {
                         balanceStore.setState({ maxAvailableBalance: undefined });
-                        console.error('Get MetaMask max available balance error: ', err);
+                        // console.error('Get MetaMask max available balance error: ', err);
                     }).finally(clearUndefinedTimer);
                 }
             } else {

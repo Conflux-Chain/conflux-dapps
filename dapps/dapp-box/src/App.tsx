@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import CustomScrollbar from 'custom-react-scrollbar';
 import Navbar from 'common/modules/Navbar';
 import { LocaleContext } from 'common/hooks/useI18n';
@@ -15,13 +15,6 @@ import 'common/index.css';
 
 export const dapps = [
     {
-        name: 'Cross Space',
-        icon: CrossSpaceIcon,
-        path: 'cross-space',
-        element: <CrossSpace />,
-        index: true,
-    },
-    {
         name: 'Shuttle Flow',
         icon: ShuttleFlowIcon,
         path: 'shuttle-flow',
@@ -30,6 +23,13 @@ export const dapps = [
             Content: <ShuttleFlowNavbarEnhance />,
         }
     },
+    {
+        name: 'Cross Space',
+        icon: CrossSpaceIcon,
+        path: 'cross-space',
+        element: <CrossSpace />,
+        index: true,
+    }
 ];
 
 const App = () => {
@@ -96,7 +96,6 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                 Enhance={currentDapp.NavbarEnhance}
             />
             <Routes>
-                <Route index element={<CrossSpace />} />
                 {dapps
                     .filter((dapp) => dapp.element)
                     .map(({ path, element }) => (
@@ -105,8 +104,9 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                 {dapps
                     .filter((dapp) => !dapp.element)
                     .map(({ path }) => (
-                        <Route key={path} path={path + '*'} element={<div id={path} />} />
+                        <Route key={path} path={path + '/*'} element={<div id={path} />} />
                     ))}
+                        <Route path="*" element={<Navigate to="shuttle-flow"/>} />
             </Routes>
         </CustomScrollbar>
     );
