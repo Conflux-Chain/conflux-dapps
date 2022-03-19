@@ -1,4 +1,5 @@
-import React, { useState, useCallback, useEffect, memo } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
+import cx from 'clsx';
 import { useAccount as useFluentAccount } from '@cfxjs/use-wallet';
 import { useAccount as useMetaMaskAccount } from '@cfxjs/use-wallet/dist/ethereum';
 import { shortenAddress } from '@fluent-wallet/shorten-address';
@@ -11,10 +12,10 @@ import Close from '../../../assets/close.svg';
 
 const transitions = {
     en: {
-        wallet: 'Wallet',
+        accounts: 'Accounts',
     },
     zh: {
-        wallet: '钱包',
+        accounts: '账户',
     },
 } as const;
 
@@ -59,33 +60,32 @@ const DropdownContent: React.FC<{ hideDropdown: () => void; }>= ({ hideDropdown 
                 onClick={hideDropdown}
                 draggable="false"
             />
-            <p className='mb-[8px] leading-[16px] text-[12px] text-[#3D3F4C] font-medium'>{i18n.wallet}</p>
+            <p className='mb-[8px] leading-[16px] text-[12px] text-[#A9ABB2] font-medium'>{i18n.accounts}</p>
 
-            <p className='mb-[8px] leading-[16px] text-[12px] text-[#898D9A]'>Conflux Core</p>
-            <WalletOperate wallet={'Fluent'} />
-
-            <p className='mt-[12px] mb-[8px] leading-[16px] text-[12px] text-[#898D9A]'>Conflux eSpace</p>
-            <WalletOperate wallet={'MetaMask'} />
+            <WalletOperate wallet='Fluent' />
+            <WalletOperate wallet='MetaMask' className='mt-[12px]' />
         </>
     );
 };
 
 
-const WalletOperate: React.FC<{ wallet: 'Fluent' | 'MetaMask'; }> = ({ wallet }) => {
+const WalletOperate: React.FC<{ wallet: 'Fluent' | 'MetaMask'; className?: string; }> = ({ wallet, className }) => {
     const account = wallet === 'Fluent' ? useFluentAccount() : useMetaMaskAccount();
     const Logo = wallet == 'Fluent' ? FluentLogo : MetaMaskLogo;
 
     return (
         <AuthConnectButton
+            className={className}
             wallet={wallet}
             buttonType="outlined"
             buttonSize="small"
+            buttonColor="green"
             connectTextType="concise"
             fullWidth
             showLogo
             checkChainMatch={false}
             authContent={() =>
-                <div className='flex items-center h-[20px] text-[14px] text-[#3d3f4c]'>
+                <div className={cx('flex items-center h-[20px] text-[14px] text-[#3d3f4c]', className)}>
                     <img src={Logo} alt={`${wallet} logo`} className="mr-[4px] w-[20px] h-[20px]" />
                     {shortenAddress(account!)}
                 </div>

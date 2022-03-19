@@ -8,6 +8,8 @@ import App from './pages/App'
 import reportWebVitals from './reportWebVitals'
 import {NetworkContextName} from './constants'
 import getLibrary from './utils/getLibrary'
+import Notification from './components/Notification'
+
 
 const Web3ProviderNetwork = createWeb3ReactRoot(NetworkContextName)
 
@@ -47,6 +49,7 @@ export async function mount(props) {
  * 应用每次 切出/卸载 会调用的方法，通常在这里我们会卸载微应用的应用实例
  */
 export async function unmount(props) {
+  Notification.destroy();
   const {container} = props
   ReactDOM.unmountComponentAtNode(
     container

@@ -82,6 +82,7 @@ interface AuthProps {
     authContent: any;
     buttonType: 'contained' | 'outlined';
     buttonSize: 'mini' | 'small' | 'normal';
+    buttonColor?: '' | 'green';
     connectTextType?: 'concise' | 'specific';
     buttonReverse?: boolean;
     showLogo?: boolean;
@@ -89,7 +90,7 @@ interface AuthProps {
     checkChainMatch?: boolean;
 }
 
-const AuthConnectButton = memo<AuthProps & ButtonHTMLAttributes<HTMLButtonElement>>(({ wallet, authContent, buttonType, buttonSize, buttonReverse, showLogo, fullWidth, className, connectTextType = 'specific', checkChainMatch = true, onClick, ...props }) => {
+const AuthConnectButton = memo<AuthProps & ButtonHTMLAttributes<HTMLButtonElement>>(({ wallet, authContent, buttonType, buttonSize, buttonReverse, buttonColor = '', showLogo, fullWidth, className, connectTextType = 'specific', checkChainMatch = true, onClick, ...props }) => {
     const i18n = useI18n(transitions);
 
     const currentCoreNetwork = useCurrentNetwork('core');
@@ -138,7 +139,7 @@ const AuthConnectButton = memo<AuthProps & ButtonHTMLAttributes<HTMLButtonElemen
     
     return (
         <button
-            className={cx(`button-${buttonType} button-${buttonSize}`, buttonReverse && 'button-reverse', fullWidth && 'w-full', status === 'not-installed' && 'button-error', className)}
+            className={cx(`button-${buttonType} button-${buttonSize}`, buttonReverse && 'button-reverse', buttonColor && `button-${buttonColor}`, fullWidth && 'w-full', status === 'not-installed' && 'button-error', className)}
             onClick={handleClick}
             disabled={status !== 'active' && status !== 'not-active'}
             {...props}

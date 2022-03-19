@@ -40,7 +40,7 @@ const WalletConnector: React.FC = () => {
                 <div 
                     className={cx(
                         "connector flex justify-center items-center h-[32px] rounded-[20px] border cursor-pointer select-none transition-all overflow-hidden contain-content",
-                        fluentStatus === 'not-active' && metaMaskStatus === 'not-active' ? 'border-[#808BE7]' : 'border-[#EAECEF] bg-[#EAECEF]',
+                        fluentStatus === 'not-active' && metaMaskStatus === 'not-active' ? 'border-[#44D7B6]' : 'border-[#EAECEF] bg-[#EAECEF]',
                         { 
                             'pl-[10px]': !!singleConnected,
                             'dropdown-visible': visible
@@ -49,7 +49,7 @@ const WalletConnector: React.FC = () => {
                     onClick={triggerDropdown}
                 >
                     {fluentStatus !== 'active' && metaMaskStatus !== 'active' && 
-                        <div className="flex items-center px-[12px] h-full text-[14px] text-[#808BE7] bg-white">
+                        <div className="flex items-center px-[12px] h-full text-[14px] text-[#44D7B6] bg-white">
                             <span className="connected-spin mr-[4px]" />
                             {i18n.connect_wallet}
                             <img src={ArrowDown} alt="arrow down" className="arrow-down ml-[4px] w-[16px] h-[16px] transition-transform" draggable="false" />
