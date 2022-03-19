@@ -121,8 +121,8 @@ export const startSubBalance = () => {
 
 
 
-        let balanceTimer: NodeJS.Timer | null = null;
-        let setUndefinedTimer: NodeJS.Timeout | null = null;
+        let balanceTimer: number | null = null;
+        let setUndefinedTimer: number | null = null;
         const clearBalanceTimer = () => {
             if (balanceTimer !== null) {
                 clearInterval(balanceTimer);
@@ -162,7 +162,7 @@ export const startSubBalance = () => {
             setTimeout(() => getBalance(clearUndefinedTimer), 10);
 
             clearBalanceTimer();
-            balanceTimer = setInterval(getBalance, 1500);
+            balanceTimer = setInterval(getBalance, 1500) as unknown as number;
         }
 
         unSubExec.push(walletStore.subscribe(state => state.accounts, trackCurrentTokenBalance, { fireImmediately: true }));
@@ -243,8 +243,8 @@ export const startSubBalance = () => {
 
 
 
-        let balanceTimer: NodeJS.Timer | null = null;
-        let setUndefinedTimer: NodeJS.Timeout | null = null;
+        let balanceTimer: number | null = null;
+        let setUndefinedTimer: number | null = null;
         const clearBalanceTimer = () => {
             if (balanceTimer !== null) {
                 clearInterval(balanceTimer);
@@ -288,7 +288,7 @@ export const startSubBalance = () => {
             setTimeout(() => getBalance(clearUndefinedTimer), 10);
 
             clearBalanceTimer();
-            balanceTimer = setInterval(getBalance, 1500);
+            balanceTimer = setInterval(getBalance, 1500) as unknown as number;
         }
 
         unSubExec.push(metaMaskStore.subscribe(state => state.accounts, trackWithdrawableBalance, { fireImmediately: true }));
@@ -304,7 +304,7 @@ export const startSubBalance = () => {
     ([coreBalanceStore, eSpaceBalanceStore] as const).forEach((balanceStore: typeof coreBalanceStore) => {
         const walletStore = balanceStore === coreBalanceStore ? fluentStore : metaMaskStore;
 
-        let setUndefinedTimer: NodeJS.Timeout | null = null;
+        let setUndefinedTimer: number | null = null;
         const clearUndefinedTimer = () => {
             if (setUndefinedTimer !== null) {
                 clearTimeout(setUndefinedTimer);

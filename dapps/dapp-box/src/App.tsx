@@ -4,12 +4,12 @@ import CustomScrollbar from 'custom-react-scrollbar';
 import Navbar from 'common/modules/Navbar';
 import { LocaleContext } from 'common/hooks/useI18n';
 import { ModeContext } from 'common/hooks/useMode';
-import Sidebar from '@modules/Sidebar';
+import Sidebar from 'dapp-box/src/modules/Sidebar';
 import CrossSpace from 'cross-space/src/modules';
 import ShuttleFlowNavbarEnhance from 'dapp-box/src/modules/NavbarEnhance/ShuttleFlow';
 import useCurrentDapp from 'dapp-box/src/hooks/useCurrentDapp';
-import ShuttleFlowIcon from '@assets/shuttle-flow.svg';
-import CrossSpaceIcon from '@assets/cross-space.svg';
+import ShuttleFlowIcon from 'dapp-box/src/assets/shuttle-flow.svg';
+import CrossSpaceIcon from 'dapp-box/src/assets/cross-space.svg';
 import './App.css';
 import 'common/index.css';
 

@@ -47,7 +47,7 @@ const Popper: React.FC<Props> = ({
                         className ? cx(className, 'popper') : 
                         (typeof Content !== 'string' &&
                         typeof Content !== 'number' &&
-                        typeof Content !== 'boolean') ? 'popper popper-custom' : 'popper popper-default'
+                        typeof Content !== 'boolean') ? 'popper popper--custom' : 'popper popper--default'
                 }
                     style={{ ...style, ...styles }}
                     {...attrs}

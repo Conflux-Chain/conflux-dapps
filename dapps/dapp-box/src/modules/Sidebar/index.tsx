@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import cx from 'clsx';
 import Popper from 'common/components/Popper';
 import useCurrentDapp from 'dapp-box/src/hooks/useCurrentDapp';
-import Logo from '@assets/logo.svg';
-import Expand from '@assets/expand.svg';
+import Logo from 'dapp-box/src/assets/logo.svg';
+import Expand from 'dapp-box/src/assets/expand.svg';
 import { dapps } from 'dapp-box/src/App';
 import './index.css';
 
@@ -42,7 +42,7 @@ const Sidebar: React.FC = () => {
     });
 
     return (
-        <a.div className={'leftbar-container relative flex-shrink-0 flex flex-col px-[8px] pb-[36px] bg-white z-10'} style={drawerStyle}>
+        <a.div className={'leftbar-container relative flex-shrink-0 flex flex-col px-[8px] pb-[36px] bg-white z-10 select-none'} style={drawerStyle}>
             <div className="relative flex items-center h-[64px]">
                 <div className="ml-[9px] flex items-center overflow-hidden">
                     <img src={Logo} className="w-[38px] h-[38px]" alt="logo" draggable="false" />

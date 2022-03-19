@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import {useMemo, useState, useCallback, useEffect} from 'react'
-import {useBalance as usePortalBalance} from '@cfxjs/react-hooks'
-import {connect, useStatus, useChainId, useAccount} from '@cfxjs/use-wallet'
+import {connect, useStatus, useChainId, useAccount, useBalance as useFluentBalance } from '@cfxjs/use-wallet'
+import { useTrackERC20Balance } from '@cfxjs/use-wallet-enhance';
 import {ERC20_ABI} from '../abi'
 import {KeyOfCfx} from '../constants/chainConfig'
 import {TypeConnectWallet} from '../constants'
@@ -80,33 +80,25 @@ export function useTokenContract(tokenAddress) {
  * get CFX balance from Conflux Network
  * @returns balance of account
  */
-export function useNativeTokenBalance(address) {
-  // eslint-disable-next-line no-unused-vars
-  const [balance, tokenBalance, isValidating] = usePortalBalance(address, [])
-  return !isValidating ? balance : null
+// eslint-disable-next-line no-unused-vars
+export function useNativeTokenBalance(_) {
+  const balance = useFluentBalance();
+  return balance ? balance.toDecimalMinUnit() : null;
 }
 
-export function useTokenBalance(address, tokenAddress) {
+export function useTokenBalance(tokenAddress) {
   // eslint-disable-next-line no-unused-vars
-  const [balance, tokenBalance, isValidating] = usePortalBalance(
-    address,
-    tokenAddress && checkCfxTokenAddress(tokenAddress, 'contract')
-      ? [tokenAddress]
-      : [],
-  )
-  return !isValidating ? tokenBalance : null
+  const balance = useTrackERC20Balance(tokenAddress);
+  return balance ? balance.toDecimalMinUnit() : null;
 }
 
 export function useBalance(address, tokenAddress) {
   const isNativeToken = !checkCfxTokenAddress(tokenAddress, 'contract')
-  const tokenBalance = useTokenBalance(address, tokenAddress)
+  const tokenBalance = useTokenBalance(tokenAddress)
   const nativeTokenBalance = useNativeTokenBalance(address)
   return isNativeToken ? nativeTokenBalance : tokenBalance
 }
 
-export function useMultipleBalance(address, tokenAddressArr) {
-  return usePortalBalance(address, tokenAddressArr)
-}
 
 /**
  * call some method from contract and get the value

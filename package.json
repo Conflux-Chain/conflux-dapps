@@ -11,7 +11,7 @@
         "lint": "turbo run lint",
         "format": "prettier --write \"**/*.{ts,tsx,md}\"",
         "dev-all": "turbo run dev --parallel",
-        "dev": "turbo run dev --scope={dapp-box,shuttle-flow}",
+        "dev": "turbo run dev --scope=dapp-box --scope=shuttle-flow",
         "dev:dapp-box": "turbo run dev --scope=dapp-box",
         "build:dapp-box": "turbo run build --scope=dapp-box",
         "dev:cross-space": "turbo run dev --scope=cross-space",
