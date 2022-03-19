@@ -82,6 +82,7 @@ html {
   height: 100%;
 }
 
+
 .light {
   --color-primary-10: #f0fcfa;
   --color-primary-90: #1e2a28;
@@ -102,6 +103,9 @@ html {
   --color-gray-90: #2a2c33;
   --color-gray-100: #1b1b1c;
   --shadow-common: 2px 8px 44px #e3edff;
+}
+
+.light .bg-image {
   @apply bg-light;
   @apply bg-no-repeat;
   @apply bg-cover;
@@ -127,6 +131,9 @@ html {
   --color-gray-90: #f7f8fa;
   --color-gray-100: #fff;
   --shadow-common: 2px 8px 44px #1d1d1d;
+}
+
+.dark .bg-image {
   @apply bg-dark;
   @apply bg-no-repeat;
   @apply bg-cover;
