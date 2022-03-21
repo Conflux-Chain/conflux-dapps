@@ -45,7 +45,7 @@ function App() {
           <div className="container mx-auto flex flex-1 justify-center md:pb-6 h-0">
             <Web3ReactManager>
               <Switch>
-                <Route path={window.__POWERED_BY_QIANKUN__ ? "/" : "/shuttle"} exact={!!window.__POWERED_BY_QIANKUN__}>
+                <Route path={window.__POWERED_BY_QIANKUN__ ? "" : "/shuttle"} exact={!!window.__POWERED_BY_QIANKUN__}>
                   <Shuttle />
                 </Route>
                 <Route path="/history">
