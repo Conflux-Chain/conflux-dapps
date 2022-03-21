@@ -129,6 +129,7 @@ export const startSubBalance = () => {
                     .catch(err => {});
             }
 
+            // and at same time get maximumLiquidity value if current token is core native token;
             if (space === 'core' && currentToken.nativeSpace === 'core' && confluxSideContractAddress) {
                 fluentProvider!.request({
                     method: 'cfx_call',
