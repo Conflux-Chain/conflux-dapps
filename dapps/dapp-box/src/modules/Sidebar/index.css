@@ -1,0 +1,10 @@
+.leftbar-container {
+    box-shadow: 0px 8px 16px rgba(164, 170, 216, 0.08);
+}
+.leftbar-container img {
+    max-width: none;
+}
+
+.expand-button {
+    box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.08);
+}

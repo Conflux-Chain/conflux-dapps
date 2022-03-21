@@ -1,6 +1,7 @@
 {
     "name": "cross-space",
     "version": "0.0.0",
+    "private": true,
     "scripts": {
         "dev": "vite --port 3001 --host",
         "build": "vite build"
@@ -11,18 +12,18 @@
         "@fluent-wallet/base32-address": "^0.1.1",
         "@fluent-wallet/estimate-tx": "^0.1.1",
         "@fluent-wallet/shorten-address": "^0.1.2",
-        "@react-spring/web": "^9.4.3",
+        "@react-spring/web": "^9.4.4",
         "@tippyjs/react": "^4.2.6",
         "abi-decoder": "^2.4.0",
         "clsx": "^1.1.1",
         "common": "*",
         "custom-react-scrollbar": "^0.0.2",
         "decimal.js": "^10.3.1",
-        "js-conflux-sdk": "^2.0.2",
+        "js-conflux-sdk": "^2.0.4",
         "lodash-es": "^4.17.21",
         "react": "^17.0.2",
         "react-dom": "^17.0.2",
-        "react-hook-form": "^7.27.1",
+        "react-hook-form": "^7.28.0",
         "react-use-clipboard": "^1.0.7",
         "tippy.js": "^6.3.7",
         "zustand": "^3.7.1"
@@ -31,18 +32,18 @@
         "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
         "@esbuild-plugins/node-modules-polyfill": "^0.1.4",
         "@types/lodash-es": "^4.17.6",
-        "@types/react": "^17.0.39",
-        "@types/react-dom": "^17.0.11",
+        "@types/react": "^17.0.40",
+        "@types/react-dom": "^17.0.13",
         "@vitejs/plugin-react": "^1.2.0",
-        "autoprefixer": "^10.4.2",
+        "autoprefixer": "^10.4.4",
         "config": "*",
         "eslint": "^7.32.0",
-        "postcss": "^8.4.7",
+        "postcss": "^8.4.12",
         "rollup-plugin-visualizer": "^5.6.0",
         "tailwindcss": "^3.0.23",
         "tsconfig": "*",
-        "typescript": "^4.5.5",
-        "vite": "^2.8.4"
+        "typescript": "^4.6.2",
+        "vite": "^2.8.6"
     },
     "license": "MIT"
 }

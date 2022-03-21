@@ -3,9 +3,9 @@ import create from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import LocalStorage from 'common/utils/LocalStorage';
 import Cache from 'common/utils/LRUCache';
-import CFX from '@assets/CFX.svg';
+import CFX from 'cross-space/src/assets/CFX.svg';
 import { confluxStore } from './conflux';
-import CRC20TokenABI from '@contracts/abi/ERC20.json'
+import CRC20TokenABI from 'cross-space/src/contracts/abi/ERC20.json'
 import { Unit } from '@cfxjs/use-wallet';
 import { store as metaMaskStore } from '@cfxjs/use-wallet/dist/ethereum';
 
@@ -53,42 +53,53 @@ export const currentTokenStore = create(subscribeWithSelector(() => ({
     commonTokens: [nativeToken, ...commonTokensCache.toArr()],
 }) as TokenStore));
 
-metaMaskStore.subscribe(state => state.status, (status) => {
-    if (status === 'not-installed') {
-        currentTokenStore.setState({ currentToken: nativeToken });
-        LocalStorage.set(`currentToken`, nativeToken, 0, 'cross-space');
-    }
-}, { fireImmediately: true });
-
 const selectors = {
     token: (state: TokenStore) => state.currentToken,
     tokenContract: (state: TokenStore) => state.currentTokenContract,
     commonTokens: (state: TokenStore) => state.commonTokens,
 };
 
+export const startSubToken = () => {
+    const unSubExec: Function[] = [];
 
-currentTokenStore.subscribe(state => state.currentToken, (currentToken) => {
-    if (currentToken) {
-        Unit.setDecimals(currentToken.decimals ? Number(currentToken.decimals) : 18);
-    }
-
-    const conflux = confluxStore.getState().conflux!;
-    if (!conflux || !currentToken || currentToken.isNative) return;
-    currentTokenStore.setState({
-        currentTokenContract: conflux.Contract({ abi: CRC20TokenABI, address: currentToken.native_address }) as unknown as TokenContract
-    });
-}, { fireImmediately: true });
-
-
-confluxStore.subscribe(state => state.conflux, (conflux) => {
-    const currentToken = currentTokenStore.getState().currentToken;
-    if (!conflux) return;
-    if (!currentToken.isNative) {
+    const unsub1 = metaMaskStore.subscribe(state => state.status, (status) => {
+        if (status === 'not-installed') {
+            currentTokenStore.setState({ currentToken: nativeToken });
+            LocalStorage.set(`currentToken`, nativeToken, 0, 'cross-space');
+        }
+    }, { fireImmediately: true });
+    
+    
+    const unsub2 = currentTokenStore.subscribe(state => state.currentToken, (currentToken) => {
+        if (currentToken) {
+            Unit.setDecimals(currentToken.decimals ? Number(currentToken.decimals) : 18);
+        }
+    
+        const conflux = confluxStore.getState().conflux!;
+        if (!conflux || !currentToken || currentToken.isNative) return;
         currentTokenStore.setState({
-            currentTokenContract: conflux.Contract({ abi: CRC20TokenABI, address: currentToken.native_address }) as unknown as TokenContract,
+            currentTokenContract: conflux.Contract({ abi: CRC20TokenABI, address: currentToken.native_address }) as unknown as TokenContract
         });
+    }, { fireImmediately: true });
+    
+    
+    const unsub3 = confluxStore.subscribe(state => state.conflux, (conflux) => {
+        const currentToken = currentTokenStore.getState().currentToken;
+        if (!conflux) return;
+        if (!currentToken.isNative) {
+            currentTokenStore.setState({
+                currentTokenContract: conflux.Contract({ abi: CRC20TokenABI, address: currentToken.native_address }) as unknown as TokenContract,
+            });
+        }
+    }, { fireImmediately: true });
+
+    unSubExec.push(unsub1, unsub2, unsub3);
+
+    return () => {
+        unSubExec.forEach(unsub => unsub());
     }
-}, { fireImmediately: true });
+}
+
 
 export const useToken = () => {
     const currentToken = currentTokenStore(selectors.token);

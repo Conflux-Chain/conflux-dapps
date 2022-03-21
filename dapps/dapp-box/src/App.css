@@ -1,0 +1,19 @@
+#dapp-box-root {
+    @apply flex;
+}
+
+#dapp-box-root > .scrollbar__wrapper {
+    @apply flex-1 px-[32px];
+}
+
+.main-scroll.main-scroll {
+    @apply relative h-[100vh];
+    @apply flex flex-col;
+}
+
+#shuttle-flow {
+  @apply flex-1;
+}
+#__qiankun_microapp_wrapper_for_shuttle_flow__{
+  @apply h-full;
+}

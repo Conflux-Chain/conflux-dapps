@@ -1,7 +1,6 @@
-import type React from 'react';
 import { sendTransaction as sendTransactionWithFluent, Unit } from '@cfxjs/use-wallet';
 import { store as metaMaskStore } from '@cfxjs/use-wallet/dist/ethereum';
-import { currentTokenStore, eSpaceBalanceStore, confluxStore, trackBalanceChangeOnce } from '@store/index';
+import { currentTokenStore, eSpaceBalanceStore, confluxStore, trackBalanceChangeOnce } from 'cross-space/src/store/index';
 import { showWaitWallet, showActionSubmitted, hideWaitWallet, hideActionSubmitted } from 'common/components/tools/Modal';
 import { showToast } from 'common/components/tools/Toast';
 
@@ -43,6 +42,14 @@ const handleWithdrawCFX = async ({ withdrawableBalance, setInWithdraw }: { withd
         hideWaitWallet(waitFluentKey);
         if ((err as { code: number })?.code === 4001 && (err as any)?.message?.indexOf('UserRejected') !== -1) {
             showToast('You canceled withdraw.', { type: 'failed' });
+        } else {
+            showToast(
+                {
+                    title: `Withdraw CFX from eSpace mirror address error`,
+                    text: (err as any)?.message ?? '',
+                },
+                { type: 'failed', duration: 30000 }
+            );
         }
     }
 };
@@ -58,7 +65,7 @@ const handleWithdrawCRC20 = async ({ withdrawableBalance, setInWithdraw, methodT
     let transactionSubmittedKey: string | number = null!;
 
     try {
-        waitFluentKey = showWaitWallet('MetaMask');
+        waitFluentKey = showWaitWallet('Fluent');
         const TxnHash = await sendTransactionWithFluent({
             to: confluxSideContractAddress,
             data: confluxSideContract[methodType](currentToken.native_address, metaMaskAccount, withdrawableBalance.toHexMinUnit()).data,
@@ -75,6 +82,14 @@ const handleWithdrawCRC20 = async ({ withdrawableBalance, setInWithdraw, methodT
         hideWaitWallet(waitFluentKey);
         if ((err as { code: number })?.code === 4001 && (err as any)?.message?.indexOf('UserRejected') !== -1) {
             showToast('You canceled the withdraw.', { type: 'failed' });
+        } else {
+            showToast(
+                {
+                    title: `Withdraw ${currentToken.core_space_symbol} from eSpace mirror address failed`,
+                    text: (err as any)?.message ?? '',
+                },
+                { type: 'failed', duration: 30000 }
+            );
         }
     }
 }

@@ -1,26 +1,32 @@
-import React from 'react';
-import Conflux from '../../assets/Conflux.svg';
+import React, { isValidElement } from 'react';
 import WalletConnector from './WalletConnector';
 import './index.css';
 
 interface Props {
     handleSwitchLocale?: () => void;
     handleSwitchMode?: () => void;
+    dappIcon: string;
+    dappName: string;
+    Enhance?: {
+        type: 'childRoutes';
+        Content: React.ReactNode;
+    }
 }
 
-const Navbar: React.FC<Props> = ({ handleSwitchLocale, handleSwitchMode }) => {
+const Navbar: React.FC<Props> = ({ handleSwitchLocale, handleSwitchMode, dappIcon, dappName, Enhance }) => {
     return (
         <nav className="h-[64px]">
             <div className="container h-full m-auto flex justify-between items-center whitespace-nowrap">
                 <div className="flex items-center">
                     <img
                         className="mr-[4px] w-[24px] h-[24px]"
-                        src={Conflux}
+                        src={dappIcon}
                         alt="conflux-network icon"
                     />
                     <h4 className="flex items-center h-[22px] text-[16px] font-medium text-black">
-                        Conflux Network
+                        {dappName}
                     </h4>
+                    {Enhance?.type === 'childRoutes' && isValidElement(Enhance?.Content) && Enhance?.Content}
                 </div>
 
                 <div className="flex justify-center items-center">

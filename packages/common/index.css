@@ -27,9 +27,8 @@
     font-display: auto;
 }
 
-html {
+#dapp-box-root {
     font-family: 'SF Pro Display';
-    overflow: hidden;
 }
 
 body {
@@ -54,7 +53,7 @@ body {
 
 
 button:not(:hover):not(.button-contained):not(.button-outlined) {
-    @apply focus:outline-none focus:ring-2 focus:ring-[#808BE7];
+    @apply outline-none focus-visible:ring-2 focus-visible:ring-[#808BE7];
 }
 
 button > img {
