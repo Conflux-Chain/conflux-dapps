@@ -68,7 +68,7 @@ function App() {
               </Switch>
             </Web3ReactManager>
           </div>
-          {isMobile && <MobileFooter />}
+          {isMobile && !window.__POWERED_BY_QIANKUN__ && <MobileFooter />}
         </div>
       </Router>
     </Suspense>
