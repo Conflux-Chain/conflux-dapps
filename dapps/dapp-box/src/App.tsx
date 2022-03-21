@@ -110,7 +110,7 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                 {dapps
                     .filter((dapp) => !dapp.element)
                     .map(({ path }) => (
-                        <Route key={path} path={path + '/*'} element={<div id={path} />} />
+                        <Route key={path} path={path} element={<div id={path} />} />
                     ))}
                         <Route path="*" element={<Navigate to="shuttle-flow"/>} />
             </Routes>
