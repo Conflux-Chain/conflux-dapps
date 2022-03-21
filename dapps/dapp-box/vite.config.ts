@@ -13,7 +13,6 @@ const ProxyConfig = {
 
 export default defineConfig({
     plugins: [react()],
-    base: './',
     optimizeDeps: {
         esbuildOptions: {
             // Node.js global to browser globalThis
