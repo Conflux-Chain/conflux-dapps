@@ -6,6 +6,7 @@ import { useAccount as useFluentAccount, useStatus as useFluentStatus, Unit } fr
 import { useStatus as useMetaMaskStatus, useAccount as useMetaMaskAccount } from '@cfxjs/use-wallet/dist/ethereum';
 import { useMaxAvailableBalance, useCurrentTokenBalance, useNeedApprove, useToken, setTransferBalance } from 'cross-space/src/store/index';
 import AuthConnectButton, { connectToWallet } from 'common/modules/AuthConnectButton';
+import numFormat from 'common/utils/numFormat';
 import Input from 'common/components/Input';
 import Tooltip from 'common/components/Tooltip';
 import Spin from 'common/components/Spin';
@@ -56,7 +57,7 @@ const Core2ESpace: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 		setValue('amount', _val);
 		setTransferBalance('core', _val);
 
-		eSpaceReceived.textContent = _val ? `${_val} ${currentToken.evm_space_symbol}` : '--';
+		eSpaceReceived.textContent = _val ? `${numFormat(_val)} ${currentToken.evm_space_symbol}` : '--';
 	}, [currentToken])
 
 	useEffect(() => setAmount(''), [fluentAccount, currentToken]);
@@ -179,7 +180,9 @@ const Transfer2ESpace: React.FC<{ isShow: boolean; register: UseFormRegister<Fie
 	const needApprove = useNeedApprove(currentToken, 'core');
 	
 	const handleCheckAmount = useCallback(async (evt: React.FocusEvent<HTMLInputElement, Element>) => {
-		if (!evt.target.value) return setAmount('');
+		if (!evt.target.value) {
+			return setAmount('');
+		}
 		if (Number(evt.target.value) < 0) {
 			return setAmount('');
 		}
@@ -233,7 +236,7 @@ const Transfer2ESpace: React.FC<{ isShow: boolean; register: UseFormRegister<Fie
 				{currentTokenBalance ? 
 					(
 						(currentTokenBalance.toDecimalMinUnit() !== '0' && Unit.lessThan(currentTokenBalance, Unit.fromStandardUnit('0.000001'))) ?
-						<Tooltip text={`${currentTokenBalance.toDecimalStandardUnit()} ${currentToken.core_space_symbol}`} placement="right">
+						<Tooltip text={`${numFormat(currentTokenBalance.toDecimalStandardUnit())} ${currentToken.core_space_symbol}`} placement="right">
 							<span
 								className="ml-[4px]"
 								id="core2eSpace-currentTokenBalance"
@@ -241,7 +244,7 @@ const Transfer2ESpace: React.FC<{ isShow: boolean; register: UseFormRegister<Fie
 								＜0.000001 {currentToken.core_space_symbol}
 							</span>
 						</Tooltip>
-						: <span className="ml-[4px]" id="core2eSpace-currentTokenBalance">{`${currentTokenBalance} ${currentToken.core_space_symbol}`}</span>
+						: <span className="ml-[4px]" id="core2eSpace-currentTokenBalance">{`${numFormat(currentTokenBalance.toDecimalStandardUnit())} ${currentToken.core_space_symbol}`}</span>
 					)
 					: <span className="ml-[4px]" id="core2eSpace-currentTokenBalance">{fluentStatus === 'active' ? 'loading...' : '--'}</span>
 				}

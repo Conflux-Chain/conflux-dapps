@@ -8,7 +8,8 @@ import { estimate } from '@fluent-wallet/estimate-tx';
 import { currentTokenStore, type Token } from './currentToken';
 import { currentNetworkStore } from './index';
 
-interface CoreBalanceStore {
+
+interface BalanceStore {
     currentTokenBalance?: Unit;
     transferBalance?: Unit;
     maxAvailableBalance?: Unit;
@@ -16,8 +17,15 @@ interface CoreBalanceStore {
     reCheckApproveCount?: number;
 }
 
-interface ESpaceBalanceStore extends CoreBalanceStore {
+interface CoreBalanceStore extends BalanceStore {
+    maximumLiquidity?: Unit;
+}
+
+interface ESpaceBalanceStore extends BalanceStore {
     withdrawableBalance?: Unit;
+
+    // for ts union check, but eSpace store not have maximumLiquidity.
+    maximumLiquidity?: Unit;
 }
 
 export const coreBalanceStore = create(subscribeWithSelector(() => ({
@@ -25,7 +33,8 @@ export const coreBalanceStore = create(subscribeWithSelector(() => ({
     transferBalance: undefined,
     maxAvailableBalance: undefined,
     approvedBalance: undefined,
-    reCheckApproveCount: 0
+    reCheckApproveCount: 0,
+    maximumLiquidity: undefined
 } as CoreBalanceStore)));
 
 
@@ -53,7 +62,7 @@ export const startSubBalance = () => {
         const getAccount = () => walletStore.getState().accounts?.[0]; 
 
         // same balance should not reset obj state causes duplicate render.
-        const handleBalanceChanged = (newBalance: Unit, type: 'currentTokenBalance' | 'approvedBalance', currentBalanceTick: number) => {
+        const handleBalanceChanged = (newBalance: Unit, type: 'currentTokenBalance' | 'approvedBalance' | 'maximumLiquidity', currentBalanceTick: number) => {
             if (!newBalance || (currentBalanceTick !== (balanceTick - 1))) return;
             const preBalance = balanceStore.getState()[type];
 
@@ -107,17 +116,31 @@ export const startSubBalance = () => {
 
 
             // and at same time get approval value;
-            if (!currentTokenContract || !eachSideContractAddress) return;
-            provider!.request({
-                method: `${rpcPrefix as 'cfx'}_call`,
-                params: [{
-                    data: currentTokenContract.allowance(account, eachSideContractAddress).data,
-                    to: usedTokenAddress
-                }, 
-                space === 'core' ? 'latest_state' : 'latest']
-            })
-                .then(approvalMinUnitBalance => handleBalanceChanged(Unit.fromMinUnit(approvalMinUnitBalance), 'approvedBalance', currentBalanceTick))
-                .catch(err => {});
+            if (currentTokenContract && eachSideContractAddress) {
+                provider!.request({
+                    method: `${rpcPrefix as 'cfx'}_call`,
+                    params: [{
+                        data: currentTokenContract.allowance(account, eachSideContractAddress).data,
+                        to: usedTokenAddress
+                    }, 
+                    space === 'core' ? 'latest_state' : 'latest']
+                })
+                    .then(approvalMinUnitBalance => handleBalanceChanged(Unit.fromMinUnit(approvalMinUnitBalance), 'approvedBalance', currentBalanceTick))
+                    .catch(err => {});
+            }
+
+            if (space === 'core' && currentToken.nativeSpace === 'core' && confluxSideContractAddress) {
+                fluentProvider!.request({
+                    method: 'cfx_call',
+                    params: [{
+                        data:  '0x70a08231000000000000000000000000' + format.hexAddress(confluxSideContractAddress).slice(2),
+                        to: currentToken.native_address
+                    }, 
+                    'latest_state']
+                })
+                    .then(maximumLiquidityMinUnitBalance => handleBalanceChanged(Unit.fromMinUnit(maximumLiquidityMinUnitBalance), 'maximumLiquidity', currentBalanceTick))
+                    .catch(err => {});
+            }
         }
 
 
@@ -144,11 +167,14 @@ export const startSubBalance = () => {
             if (currentToken.isNative) {
                 balanceStore.setState({ approvedBalance: undefined });
             }
+            if (space === 'core' && currentToken.nativeSpace !== 'core') {
+                balanceStore.setState({ maximumLiquidity: undefined });
+            }
 
             // Prevent interface jitter from having a value to undefined to having a value again in a short time when switching tokens.
             // Shortly fail to get the value and then turn to undefined
             setUndefinedTimer = setTimeout(() => {
-                balanceStore.setState({ currentTokenBalance: undefined, approvedBalance: undefined });
+                balanceStore.setState({ currentTokenBalance: undefined, approvedBalance: undefined, maximumLiquidity: undefined });
                 setUndefinedTimer = null;
             }, 50) as unknown as number;
 
@@ -192,7 +218,7 @@ export const startSubBalance = () => {
             const currentToken = currentTokenStore.getState().currentToken;
             const fluentAccount = fluentStore.getState().accounts?.[0];
             const metaMaskAccount = metaMaskStore.getState().accounts?.[0];
-            const { evmSideContract, evmSideContractAddress, eSpaceMirrorAddress, confluxSideContractAddress } = confluxStore.getState();
+            const { evmSideContract, evmSideContractAddress, eSpaceMirrorAddress } = confluxStore.getState();
             const eSpaceNetwork = currentNetworkStore.getState().eSpace;
 
             if (!eSpaceMirrorAddress || !eSpaceNetwork) return;
@@ -225,7 +251,7 @@ export const startSubBalance = () => {
                 return;
             }
 
-            if (!evmSideContract || !eSpaceMirrorAddress || !fluentAccount || !metaMaskAccount || !metaMaskProvider || !fluentProvider || !confluxSideContractAddress) return;
+            if (!evmSideContract || !eSpaceMirrorAddress || !fluentAccount || !metaMaskAccount || !metaMaskProvider) return;
             const usedTokenAddress = currentToken.nativeSpace === 'eSpace' ? currentToken.native_address : currentToken.mapped_address;
             const lockedTokenKey = currentToken.nativeSpace === 'eSpace' ? 'lockedToken' : 'lockedMappedToken';
 
@@ -240,18 +266,6 @@ export const startSubBalance = () => {
                 .then(minUnitBalance => handleBalanceChanged(Unit.fromMinUnit(minUnitBalance), currentBalanceTick))
                 .catch(err => {})
                 .finally(callback);
-            if (currentToken.nativeSpace === 'core') {
-                // fluentProvider!.request({
-                //     method: 'cfx_call',
-                //     params: [{
-                //         data:  '0x70a08231000000000000000000000000' + format.hexAddress(confluxSideContractAddress).slice(2),
-                //         to: currentToken.native_address
-                //     }, 
-                //     'latest_state']
-                // })
-                //     .then(minUnitBalance => console.log(Unit.fromMinUnit(minUnitBalance).toDecimalStandardUnit()))
-                //     .catch(err => console.log(err))
-            }
         }
 
 
@@ -312,6 +326,7 @@ export const startSubBalance = () => {
             clearUndefinedTimer();
         });
     }());
+
 
     // trackMaxAvailableBalance
     ([coreBalanceStore, eSpaceBalanceStore] as const).forEach((balanceStore: typeof coreBalanceStore) => {
@@ -408,7 +423,8 @@ const selectors = {
     maxAvailableBalance: (state: CoreBalanceStore) => state.maxAvailableBalance,
     withdrawableBalance: (state: ESpaceBalanceStore) => state.withdrawableBalance,
     approvedBalance: (state: CoreBalanceStore) => state.approvedBalance,
-    reCheckApproveCount: (state: CoreBalanceStore) => state.reCheckApproveCount
+    reCheckApproveCount: (state: CoreBalanceStore) => state.reCheckApproveCount,
+    maximumLiquidity: (state: CoreBalanceStore) => state.maximumLiquidity,
 } as const;
 
 // track balance change once
@@ -516,4 +532,16 @@ export const useCurrentTokenBalance = (space: 'core' | 'eSpace') =>
 
 export const useMaxAvailableBalance = (space: 'core' | 'eSpace') =>
     (space === 'core' ? coreBalanceStore as typeof eSpaceBalanceStore : eSpaceBalanceStore)(selectors.maxAvailableBalance);
+
 export const useESpaceWithdrawableBalance = () => eSpaceBalanceStore(selectors.withdrawableBalance);
+
+export const useIsCurrentTokenHasEnoughLiquidity = (currentToken: Token, type: 'transfer' | 'withdraw'): [boolean, Unit | undefined] => {
+    const maximumLiquidity = coreBalanceStore(selectors.maximumLiquidity);
+    const transferBalance = eSpaceBalanceStore(selectors.transferBalance);
+    const withdrawableBalance = eSpaceBalanceStore(selectors.withdrawableBalance);
+
+    const targetBalance = type === 'transfer' ? transferBalance : withdrawableBalance;
+    if (currentToken.nativeSpace !== 'core') return [true, undefined];
+    if (!targetBalance || !maximumLiquidity) return [true, undefined];
+    return [Unit.lessThanOrEqualTo(targetBalance, maximumLiquidity), maximumLiquidity];
+}

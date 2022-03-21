@@ -16,7 +16,7 @@ import 'common/index.css';
 
 export const dapps = [
     {
-        name: 'Shuttle Flow',
+        name: 'ShuttleFlow',
         icon: ShuttleFlowIcon,
         path: 'shuttle-flow',
         NavbarEnhance: {

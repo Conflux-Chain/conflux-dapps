@@ -153,7 +153,7 @@ const handleTransferCRC20 = async (amount: string, methodType: 'lockMappedToken'
             setInTransfer(false);
             hideActionSubmitted(transactionSubmittedKey);
             if (amount === '0') {
-                showToast(`Cancel locked ${currentToken.evm_space_symbol} from eSpace mirror address success.`, { type: 'success' });
+                showToast(`${currentToken.evm_space_symbol} successfully refunded to eSpace.`, { type: 'success' });
             } else {
                 showToast(`Transfer ${currentToken.evm_space_symbol} to eSpace mirror address success.`, { type: 'success' });
             }
@@ -164,10 +164,10 @@ const handleTransferCRC20 = async (amount: string, methodType: 'lockMappedToken'
             showToast('You canceled the transaction.', { type: 'failed' });
         } else {
             if (amount === '0') {
-                console.error(`Cancel locked ${currentToken.evm_space_symbol} from eSpace mirror address failed: `, err);
+                console.error(`${currentToken.evm_space_symbol} refunded to eSpace failed: `, err);
                 showToast(
                     {
-                        title: `Cancel locked ${currentToken.evm_space_symbol} from eSpace mirror address failed`,
+                        title: `${currentToken.evm_space_symbol} refunded to eSpace failed`,
                         text: (err as any)?.message ?? '',
                     },
                     { type: 'failed', duration: 30000 }

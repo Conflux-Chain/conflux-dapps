@@ -6,8 +6,9 @@ import cx from 'clsx';
 import { shortenAddress } from '@fluent-wallet/shorten-address';
 import { useAccount as useFluentAccount, useStatus as useFluentStatus, Unit } from '@cfxjs/use-wallet';
 import { useStatus as useMetaMaskStatus, useAccount as useMetaMaskAccount } from '@cfxjs/use-wallet/dist/ethereum';
-import { useMaxAvailableBalance, useCurrentTokenBalance, useESpaceMirrorAddress, useESpaceWithdrawableBalance, useNeedApprove, setTransferBalance } from 'cross-space/src/store/index';
+import { useMaxAvailableBalance, useCurrentTokenBalance, useESpaceMirrorAddress, useESpaceWithdrawableBalance, useNeedApprove, setTransferBalance, useIsCurrentTokenHasEnoughLiquidity } from 'cross-space/src/store/index';
 import { useToken } from 'cross-space/src/store/index';
+import numFormat from 'common/utils/numFormat';
 import LocalStorage from 'common/utils/LocalStorage';
 import AuthConnectButton from 'common/modules/AuthConnectButton';
 import Input from 'common/components/Input';
@@ -76,10 +77,6 @@ const ESpace2Core: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 			<p className="mt-[24px] flex items-center h-[24px] text-[16px] text-[#3D3F4C] font-medium">
 				<span className="mr-[8px] px-[10px] h-[24px] leading-[24px] rounded-[4px] bg-[#F0F3FF] text-center text-[12px] text-[#808BE7]">Step 2</span>
 				Withdraw
-			</p>
-			<p className="mt-[8px] text-[14px] leading-[20px] text-[#A9ABB2] ">
-				After Step 1, withdraw your asset on
-				<span className='text-[#2959B4] font-medium'> Core</span> here.
 			</p>
 			<AuthConnectButton
 				id="eSpace2Core-auth-both-withdraw"
@@ -201,23 +198,25 @@ const TransferNormalMode: React.FC<{ isShow: boolean; inTransfer: boolean; setIn
 	const maxAvailableBalance = useMaxAvailableBalance('eSpace');
 	const withdrawableBalance = useESpaceWithdrawableBalance();
 	const needApprove = useNeedApprove(currentToken, 'eSpace');
+	const [isCurrentTokenHasEnoughLiquidity, maximumLiquidity] = useIsCurrentTokenHasEnoughLiquidity(currentToken, 'transfer');
 
 	const bridgeReceived = useRef<HTMLSpanElement>(null!);
 
 	const setAmount = useCallback((val: string) => {
-		if (!bridgeReceived.current) return;
-
 		const _val = val.replace(/(?:\.0*|(\.\d+?)0+)$/, '$1');
 		setValue('amount', _val);
 		setTransferBalance('eSpace', _val);
 
-		bridgeReceived.current.textContent = _val ? `${_val} ${currentToken.core_space_symbol}` : '--';
+		if (!bridgeReceived.current) return;
+		bridgeReceived.current.textContent = _val ? `${numFormat(_val)} ${currentToken.core_space_symbol}` : '--';
 	}, [currentToken])
 
 	useEffect(() => setAmount(''), [metaMaskAccount, currentToken]);
 
 	const handleCheckAmount = useCallback(async (evt: React.FocusEvent<HTMLInputElement, Element>) => {
-		if (!evt.target.value) return;
+		if (!evt.target.value) {
+			return setAmount('');
+		}
 		if (Number(evt.target.value) < 0) {
 			return setAmount('');
 		}
@@ -262,7 +261,7 @@ const TransferNormalMode: React.FC<{ isShow: boolean; inTransfer: boolean; setIn
 	}), []);
 
 	const isBalanceGreaterThan0 = maxAvailableBalance && Unit.greaterThan(maxAvailableBalance, Unit.fromStandardUnit(0));
-	const canClickButton = inTransfer === false && (needApprove === true || (needApprove === false && isBalanceGreaterThan0));
+	const canClickButton = inTransfer === false && (needApprove === true || (needApprove === false && isBalanceGreaterThan0)) && isCurrentTokenHasEnoughLiquidity;
 
 	return (
 		<form onSubmit={onSubmit}>
@@ -311,7 +310,7 @@ const TransferNormalMode: React.FC<{ isShow: boolean; inTransfer: boolean; setIn
 						{currentTokenBalance ? 
 							(
 								(currentTokenBalance.toDecimalMinUnit() !== '0' && Unit.lessThan(currentTokenBalance, Unit.fromStandardUnit('0.000001'))) ?
-								<Tooltip text={`${currentTokenBalance.toDecimalStandardUnit()} ${currentToken.evm_space_symbol}`} placement="right">
+								<Tooltip text={`${numFormat(currentTokenBalance.toDecimalStandardUnit())} ${currentToken.evm_space_symbol}`} placement="right">
 									<span
 										id="eSpace2Core-currentTokenBalance"
 										className="ml-[4px]"
@@ -319,17 +318,24 @@ const TransferNormalMode: React.FC<{ isShow: boolean; inTransfer: boolean; setIn
 										＜0.000001 {currentToken.evm_space_symbol}
 									</span>
 								</Tooltip>
-								: <span id="eSpace2Core-currentTokenBalance" className="ml-[4px]">{`${currentTokenBalance} ${currentToken.evm_space_symbol}`}</span>
+								: <span id="eSpace2Core-currentTokenBalance" className="ml-[4px]">{`${numFormat(currentTokenBalance.toDecimalStandardUnit())} ${currentToken.evm_space_symbol}`}</span>
 							)
 							: <span id="eSpace2Core-currentTokenBalance" className="ml-[4px]">loading...</span>
 						}
 					</>
 				}
 			</p>
-			<p className="mt-[8px] text-[14px] leading-[18px] text-[#3D3F4C]">
-				Will receive on <span className="font-medium">bridge</span>:
-				<span className="ml-[4px]" id="eSpace2Core-willReceive" ref={bridgeReceived} />
-			</p>		
+			<p className={cx("mt-[8px] text-[14px] leading-[18px]", isCurrentTokenHasEnoughLiquidity ? 'text-[#3D3F4C]' : 'text-[#E96170]')}>
+				<span className={cx(!isCurrentTokenHasEnoughLiquidity && 'absolute opacity-0')}>
+					Will receive on <span className="font-medium">bridge</span>:
+					<span className="ml-[4px]" id="eSpace2Core-willReceive" ref={bridgeReceived} />
+				</span>
+				{!isCurrentTokenHasEnoughLiquidity &&
+					<span>
+						{`Insufficient liquidity on Core, maximum liquidity is ${numFormat(maximumLiquidity?.toDecimalStandardUnit())} ${currentToken.evm_space_symbol}`}
+					</span>
+				}
+			</p>
 		</form>
 	);
 }
@@ -398,6 +404,7 @@ const Withdraw2Core: React.FC<{ isShow: boolean; inTransfer: boolean; setInTrans
 	const withdrawableBalance = useESpaceWithdrawableBalance();
 	const fluentStatus = useFluentStatus();
 	const metaMaskStatus = useMetaMaskStatus();
+	const [isCurrentTokenHasEnoughLiquidity] = useIsCurrentTokenHasEnoughLiquidity(currentToken, 'withdraw');
 
 	const [inWithdraw, _setInWithdraw] = useState(false);
 	const setInWithdraw = useCallback((isInWithdraw: boolean) => {
@@ -405,13 +412,13 @@ const Withdraw2Core: React.FC<{ isShow: boolean; inTransfer: boolean; setInTrans
 		_setInWithdraw(isInWithdraw);
 	}, []);
 
-	const handleClickWithdraw = useCallback(() => {
-		handleWithdraw({ setInWithdraw });
-	}, []);
-
-	const handleClickCancel = useCallback(() => {
-		handleTransferSubmit({ amount: '0', setInTransfer });
-	}, []);
+	const handleClick = useCallback(() => {
+		if (isCurrentTokenHasEnoughLiquidity) {
+			handleWithdraw({ setInWithdraw });
+		} else {
+			handleTransferSubmit({ amount: '0', setInTransfer });
+		}
+	}, [isCurrentTokenHasEnoughLiquidity]);
 
 	let disabled: boolean;
 	if (currentToken.isNative) {
@@ -424,16 +431,29 @@ const Withdraw2Core: React.FC<{ isShow: boolean; inTransfer: boolean; setInTrans
 
 	return (
 		<>	
-			<div className='flex items-center my-[8px]'>
-				<span className='mr-[4px] text-[14px] text-[#A9ABB2]'>Current Address:</span>
-				<FluentConnected tabIndex={-1} />
-			</div>
+			{isCurrentTokenHasEnoughLiquidity &&
+				<>
+					<p className="mt-[8px] text-[14px] leading-[20px] text-[#A9ABB2] ">
+						After Step 1, withdraw your asset on
+						<span className='text-[#2959B4] font-medium'> Core</span> here.
+					</p>
+					<div className='flex items-center my-[8px]'>
+						<span className='mr-[4px] text-[14px] text-[#A9ABB2]'>Current Address:</span>
+						<FluentConnected tabIndex={-1} />
+					</div>
+				</>
+			}
+			{!isCurrentTokenHasEnoughLiquidity &&
+				<p className='my-[8px] text-[14px] text-[#E96170]'>
+					{`Insufficient ${currentToken.evm_space_symbol} liquidity on Core, please back to eSpace`}
+				</p>
+			}
 
 			<div className='flex items-center mb-[20px]'>
-				<span className='mr-[8px] text-[14px] text-[#A9ABB2]'>Withdrawable:</span>
+				<span className='mr-[8px] text-[14px] text-[#A9ABB2]'>{isCurrentTokenHasEnoughLiquidity ? 'Withdrawable:' : 'Pending:'}</span>
 				{(!inWithdraw && !inTransfer) && 
 					<span className='text-[16px] text-[#3D3F4C] font-medium'>
-						{`${withdrawableBalance ? `${withdrawableBalance.toDecimalStandardUnit()} ${currentToken.core_space_symbol}` : (currentToken.isNative && hasESpaceMirrorAddress ? 'loading...' : '--')}`}
+						{`${withdrawableBalance ? `${numFormat(withdrawableBalance.toDecimalStandardUnit())} ${currentToken.core_space_symbol}` : (currentToken.isNative && hasESpaceMirrorAddress ? 'loading...' : '--')}`}
 					</span>
 				}
 				{(inWithdraw || inTransfer) && 
@@ -441,29 +461,15 @@ const Withdraw2Core: React.FC<{ isShow: boolean; inTransfer: boolean; setInTrans
 				}
 			</div>
 
-			<div className='flex gap-[24px]'>
 				<button
 					id="eSpace2Core-withdraw"
-					className='button-contained button-normal min-w-[108px] px-[38px] text-[14px]'
+					className='button-contained button-normal min-w-[100px] px-[38px] text-[14px]'
 					disabled={disabled}
-					onClick={handleClickWithdraw}
+					onClick={handleClick}
 					tabIndex={isShow ? 7 : -1}
 				>
-					{(inWithdraw || inTransfer) ? <Spin className='text-[28px] text-white' /> : 'Withdraw'}
+					{(inWithdraw || inTransfer) ? <Spin className='text-[28px] text-white' /> : (isCurrentTokenHasEnoughLiquidity ? 'Withdraw' : 'Refund')}
 				</button>
-
-				{!currentToken.isNative &&
-					<button
-						id="eSpace2Core-cancel"
-						className='button-contained button-normal min-w-[108px] px-[38px] text-[14px]'
-						disabled={disabled}
-						onClick={handleClickCancel}
-						tabIndex={isShow ? 8 : -1}
-					>
-						{(inWithdraw || inTransfer) ? <Spin className='text-[28px] text-white' /> : 'Cancel'}
-					</button>
-				}
-			</div>
 		</>
 	);
 };
