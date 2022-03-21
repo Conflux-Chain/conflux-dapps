@@ -50,57 +50,56 @@ const TokenListDropdown: React.FC<{ children: (triggerDropdown: () => void, visi
     const fluentChainId = useFluentChainId();
 
     const triggerDropdown = useCallback(() => {
-        setVisible(pre => {
-            let disabled: boolean | string | Content = false;
-            if (!pre && fluentStatus === 'not-installed') disabled = 'Please install Fluent first.';
-            else if (!pre && metaMaskStatus === 'not-installed') {
-                if (currentToken.isNative) disabled = 'To cross space CRC20 token, please install MetaMask first.';
-                else disabled = {
-                    text: 'To cross space CRC20 token, please install MetaMask first.',
-                    onClickCancel: () => setCurrentToken(nativeToken),
-                    cancelButtonText: 'Switch Token to CFX'
-                }
+        const pre = visible;
+        let disabled: boolean | string | Content = false;
+        if (!pre && fluentStatus === 'not-installed') disabled = 'Please install Fluent first.';
+        else if (!pre && metaMaskStatus === 'not-installed') {
+            if (currentToken.isNative) disabled = 'To cross space CRC20 token, please install MetaMask first.';
+            else disabled = {
+                text: 'To cross space CRC20 token, please install MetaMask first.',
+                onClickCancel: () => setCurrentToken(nativeToken),
+                cancelButtonText: 'Switch Token to CFX'
             }
-            else if (!pre && fluentStatus === 'not-active') {
-                disabled = {
-                    text: `Please connect to Fluent first.`,
-                    onClickOk: () => connectToWallet('Fluent'),
-                    okButtonText: 'Connect'
-                }
+        }
+        else if (!pre && fluentStatus === 'not-active') {
+            disabled = {
+                text: `Please connect to Fluent first.`,
+                onClickOk: () => connectToWallet('Fluent'),
+                okButtonText: 'Connect'
             }
-            else if (!pre && metaMaskStatus === 'not-active') {
-                disabled = {
-                    text: `To cross space CRC20 token, please connect to MetaMask first.`,
-                    onClickOk: () => connectToWallet('MetaMask'),
-                    okButtonText: 'Connect',
-                    ...(currentToken.isNative ? {} : { onClickCancel: () => setCurrentToken(nativeToken), cancelButtonText: 'Switch Token to CFX' })
-                }
+        }
+        else if (!pre && metaMaskStatus === 'not-active') {
+            disabled = {
+                text: `To cross space CRC20 token, please connect to MetaMask first.`,
+                onClickOk: () => connectToWallet('MetaMask'),
+                okButtonText: 'Connect',
+                ...(currentToken.isNative ? {} : { onClickCancel: () => setCurrentToken(nativeToken), cancelButtonText: 'Switch Token to CFX' })
             }
-            else if (!pre && coreNetwork?.networkId !== fluentChainId) {
-                disabled = {
-                    text: `Please switch Fluent to ${coreNetwork?.name} first.`,
-                    onClickOk: () => switchToChain('Fluent', coreNetwork!),
-                    okButtonText: 'Switch'
-                }
+        }
+        else if (!pre && coreNetwork?.networkId !== fluentChainId) {
+            disabled = {
+                text: `Please switch Fluent to ${coreNetwork?.name} first.`,
+                onClickOk: () => switchToChain('Fluent', coreNetwork!),
+                okButtonText: 'Switch'
             }
-            else if (!pre && eSpaceNetwork?.networkId !== metaMaskChainId) {
-                disabled = {
-                    text: `To cross space CRC20 token, please switch MetaMask to ${eSpaceNetwork?.name} first.`,
-                    onClickOk: () => switchToChain('MetaMask', eSpaceNetwork!),
-                    okButtonText: 'Switch',
-                    ...(currentToken.isNative ? {} : { onClickCancel: () => setCurrentToken(nativeToken), cancelButtonText: 'Switch Token to CFX' })
-                }
+        }
+        else if (!pre && eSpaceNetwork?.networkId !== metaMaskChainId) {
+            disabled = {
+                text: `To cross space CRC20 token, please switch MetaMask to ${eSpaceNetwork?.name} first.`,
+                onClickOk: () => switchToChain('MetaMask', eSpaceNetwork!),
+                okButtonText: 'Switch',
+                ...(currentToken.isNative ? {} : { onClickCancel: () => setCurrentToken(nativeToken), cancelButtonText: 'Switch Token to CFX' })
             }
-            if (disabled === false) disabled = tokenListStore.getState().disabled;
+        }
+        if (disabled === false) disabled = tokenListStore.getState().disabled;
 
-            if (!pre && (typeof disabled === 'string' || typeof disabled === 'object')) {
-                showToast(disabled, { type: 'warning' });
-                return false;
-            }
+        if (!pre && (typeof disabled === 'string' || typeof disabled === 'object')) {
+            showToast(disabled, { type: 'warning' });
+            return setVisible(false);
+        }
 
-            return !pre;
-        });
-    }, [currentToken, metaMaskChainId, metaMaskStatus, fluentStatus, fluentChainId, coreNetwork, eSpaceNetwork]);
+        setVisible(!pre);
+    }, [visible, currentToken, metaMaskChainId, metaMaskStatus, fluentStatus, fluentChainId, coreNetwork, eSpaceNetwork]);
 
     const hideDropdown = useCallback(() => setVisible(false), []);
     useEffect(() => {

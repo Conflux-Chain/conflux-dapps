@@ -88,7 +88,7 @@ const ESpace2Core: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 				buttonSize='normal'
 				wallet={currentToken.isNative ? 'Fluent' : 'Both-FluentFirst'}
 				fullWidth
-				authContent={() => <Withdraw2Core isShow={isShow} inTransfer={inTransfer} />}
+				authContent={() => <Withdraw2Core isShow={isShow} inTransfer={inTransfer} setInTransfer={setInTransfer} />}
 			/>
 		</a.div>
 	);
@@ -242,7 +242,7 @@ const TransferNormalMode: React.FC<{ isShow: boolean; inTransfer: boolean; setIn
 				showToast(
 					{
 						title: 'Warning',
-						text: 'You have withdrawable balance, please withdraw it first.',
+						text: 'You have withdrawable balance, please withdraw it or cancel it first.',
 					},
 					{ type: 'warning' }
 				);
@@ -392,7 +392,7 @@ const TransferAdvancedMode: React.FC<{ isShow: boolean; }> = ({ isShow }) => {
 }
 
 
-const Withdraw2Core: React.FC<{ isShow: boolean; inTransfer: boolean; }> = ({ isShow, inTransfer }) => {
+const Withdraw2Core: React.FC<{ isShow: boolean; inTransfer: boolean; setInTransfer: React.Dispatch<React.SetStateAction<boolean>>; }> = ({ isShow, inTransfer, setInTransfer }) => {
 	const { currentToken } = useToken();
 	const hasESpaceMirrorAddress = useESpaceMirrorAddress();
 	const withdrawableBalance = useESpaceWithdrawableBalance();
@@ -407,6 +407,10 @@ const Withdraw2Core: React.FC<{ isShow: boolean; inTransfer: boolean; }> = ({ is
 
 	const handleClickWithdraw = useCallback(() => {
 		handleWithdraw({ setInWithdraw });
+	}, []);
+
+	const handleClickCancel = useCallback(() => {
+		handleTransferSubmit({ amount: '0', setInTransfer });
 	}, []);
 
 	let disabled: boolean;
@@ -437,15 +441,29 @@ const Withdraw2Core: React.FC<{ isShow: boolean; inTransfer: boolean; }> = ({ is
 				}
 			</div>
 
-			<button
-				id="eSpace2Core-withdraw"
-				className='button-contained button-normal px-[38px] text-[14px]'
-				disabled={disabled}
-				onClick={handleClickWithdraw}
-				tabIndex={isShow ? 7 : -1}
-			>
-				{inWithdraw ? 'Withdrawing...' : inTransfer ? 'Waiting Transfer...' : 'Withdraw'}
-			</button>
+			<div className='flex gap-[24px]'>
+				<button
+					id="eSpace2Core-withdraw"
+					className='button-contained button-normal min-w-[108px] px-[38px] text-[14px]'
+					disabled={disabled}
+					onClick={handleClickWithdraw}
+					tabIndex={isShow ? 7 : -1}
+				>
+					{(inWithdraw || inTransfer) ? <Spin className='text-[28px] text-white' /> : 'Withdraw'}
+				</button>
+
+				{!currentToken.isNative &&
+					<button
+						id="eSpace2Core-cancel"
+						className='button-contained button-normal min-w-[108px] px-[38px] text-[14px]'
+						disabled={disabled}
+						onClick={handleClickCancel}
+						tabIndex={isShow ? 8 : -1}
+					>
+						{(inWithdraw || inTransfer) ? <Spin className='text-[28px] text-white' /> : 'Cancel'}
+					</button>
+				}
+			</div>
 		</>
 	);
 };

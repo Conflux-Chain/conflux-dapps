@@ -18,7 +18,7 @@ const handleSubmit = async (data: Data) => {
     } else {
         const checkApproveRes = checkNeedApprove('core');
         if (checkApproveRes === undefined) return false;
-        
+
         if (checkApproveRes) {
             await handleApproveCRC20();
             return false;
@@ -53,6 +53,14 @@ const handleTransferCFX = async ({ eSpaceAccount, amount }: Data) => {
         hideWaitWallet(waitFluentKey);
         if ((err as { code: number })?.code === 4001 && (err as any)?.message?.indexOf('UserRejected') !== -1) {
             showToast('You canceled the transaction.', { type: 'failed' });
+        } else {
+            showToast(
+                {
+                    title: `Transfer CFX to eSpace failed`,
+                    text: (err as any)?.message ?? '',
+                },
+                { type: 'failed', duration: 30000 }
+            );
         }
     }
 };
@@ -84,33 +92,51 @@ const handleApproveCRC20 = async () => {
         if ((err as { code: number })?.code === 4001 && (err as any)?.message?.indexOf('UserRejected') !== -1) {
             showToast('You canceled the Approve.', { type: 'failed' });
         } else {
-            // In cUSDT, you need to approve 0 and then approve again to change the Approval Value.
-            try {
-                waitFluentKey = showWaitWallet('Fluent', {
-                    key: 'approve',
-                    tip: 'In cUSDT, you need to approve 0 and then approve again to change the Approval Value.',
-                });
-                const TxnHash = await sendTransactionWithFluent({
-                    to: usedTokenAddress,
-                    data: currentTokenContract!.approve(confluxSideContractAddress!, '0x0').data,
-                });
-                recheckApproval('core');
-                transactionSubmittedKey = showActionSubmitted(TxnHash, 'Approve', { duration: 15000 });
-                trackBalanceChangeOnce.coreApprovedBalance(() => {
-                    hideActionSubmitted(transactionSubmittedKey);
-                    showToast(`Re approve ${currentToken.core_space_symbol} use success.`, { type: 'success' });
-                });
-            } catch {
-                hideWaitWallet(waitFluentKey);
-                if ((err as { code: number })?.code === 4001 && (err as any)?.message?.indexOf('UserRejected') !== -1) {
-                    showToast('You canceled the Re Approve.', { type: 'failed' });
+            if (currentToken.core_space_symbol !== 'cUSDT') {
+                showToast(
+                    {
+                        title: `Approve ${currentToken.core_space_symbol} use error`,
+                        text: (err as any)?.message ?? '',
+                    },
+                    { type: 'failed', duration: 30000 }
+                );
+            } else {
+                // In cUSDT, you need to approve 0 and then approve again to change the Approval Value.
+                try {
+                    waitFluentKey = showWaitWallet('Fluent', {
+                        key: 'approve',
+                        tip: 'In cUSDT, you need to approve 0 and then approve again to change the Approval Value.',
+                    });
+                    const TxnHash = await sendTransactionWithFluent({
+                        to: usedTokenAddress,
+                        data: currentTokenContract!.approve(confluxSideContractAddress!, '0x0').data,
+                    });
+                    recheckApproval('core');
+                    transactionSubmittedKey = showActionSubmitted(TxnHash, 'Approve', { duration: 15000 });
+                    trackBalanceChangeOnce.coreApprovedBalance(() => {
+                        hideActionSubmitted(transactionSubmittedKey);
+                        showToast(`Re approve ${currentToken.core_space_symbol} use success.`, { type: 'success' });
+                    });
+                } catch {
+                    hideWaitWallet(waitFluentKey);
+                    if ((err as { code: number })?.code === 4001 && (err as any)?.message?.indexOf('UserRejected') !== -1) {
+                        showToast('You canceled the Re Approve.', { type: 'failed' });
+                    } else {
+                        showToast(
+                            {
+                                title: `Re approve ${currentToken.core_space_symbol} use error`,
+                                text: (err as any)?.message ?? '',
+                            },
+                            { type: 'failed', duration: 30000 }
+                        );
+                    }
                 }
             }
         }
     }
 };
 
-const handleTransferCRC20 = async ({ eSpaceAccount, amount, methodType }: Data & { methodType: 'crossToEvm' | 'withdrawToEvm'; }) => {
+const handleTransferCRC20 = async ({ eSpaceAccount, amount, methodType }: Data & { methodType: 'crossToEvm' | 'withdrawToEvm' }) => {
     const { confluxSideContract, confluxSideContractAddress } = confluxStore.getState();
     if (!confluxSideContract || !confluxSideContractAddress) return;
 
@@ -135,6 +161,14 @@ const handleTransferCRC20 = async ({ eSpaceAccount, amount, methodType }: Data &
         hideWaitWallet(waitFluentKey);
         if ((err as { code: number })?.code === 4001 && (err as any)?.message?.indexOf('UserRejected') !== -1) {
             showToast('You canceled the transaction.', { type: 'failed' });
+        } else {
+            showToast(
+                {
+                    title: `Transfer ${currentToken.core_space_symbol} to eSpace failed`,
+                    text: (err as any)?.message ?? '',
+                },
+                { type: 'failed', duration: 30000 }
+            );
         }
     }
 };
