@@ -7,6 +7,7 @@ const ProxyConfig = {
   changeOrigin: true,
 }
 
+
 module.exports = {
   style: {
     postcss: {
@@ -40,6 +41,7 @@ module.exports = {
         jsonpFunction: `webpackJsonp_${name}`,
         globalObject: 'window',
         path: path.resolve('dist'),
+        publicPath: process.env.NODE_ENV === 'production' ? '/shuttle-flow' : '/',
       }
       return webpackConfig
     },

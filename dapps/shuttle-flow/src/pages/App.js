@@ -39,13 +39,13 @@ function App() {
         </div>
       }
     >
-      <Router>
+      <Router basename={window.__POWERED_BY_QIANKUN__ ? '/shuttle-flow' : ''}>
         <div className={`flex flex-col h-full relative overflow-x-hidden ${!window.__POWERED_BY_QIANKUN__ ? 'bg-image' : ''}`}>
           {!window.__POWERED_BY_QIANKUN__ && <Header />}
           <div className="container mx-auto flex flex-1 justify-center md:pb-6 h-0">
             <Web3ReactManager>
               <Switch>
-                <Route path={window.__POWERED_BY_QIANKUN__ ? "/shuttle-flow" : "/shuttle"} exact={!!window.__POWERED_BY_QIANKUN__}>
+                <Route path={window.__POWERED_BY_QIANKUN__ ? "/" : "/shuttle"} exact={!!window.__POWERED_BY_QIANKUN__}>
                   <Shuttle />
                 </Route>
                 <Route path="/history">
