@@ -7,9 +7,5 @@
         "eslint-preset.js",
         "postcss.config.js",
         "tailwind.config.js"
-    ],
-    "dependencies": {
-        "eslint": "^7.32.0",
-        "eslint-config-prettier": "^8.3.0"
-    }
+    ]
 }
