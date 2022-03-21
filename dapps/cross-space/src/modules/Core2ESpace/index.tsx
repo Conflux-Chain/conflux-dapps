@@ -189,7 +189,7 @@ const Transfer2ESpace: React.FC<{ isShow: boolean; register: UseFormRegister<Fie
 
 		if (!maxAvailableBalance) return;
 		if (Unit.greaterThan(Unit.fromStandardUnit(evt.target.value), maxAvailableBalance)) {
-			return setAmount('');
+			// return setAmount('');
 		}
 
 		return setAmount(evt.target.value);

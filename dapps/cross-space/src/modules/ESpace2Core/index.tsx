@@ -223,7 +223,7 @@ const TransferNormalMode: React.FC<{ isShow: boolean; inTransfer: boolean; setIn
 
 		if (!maxAvailableBalance) return;
 		if (Unit.greaterThan(Unit.fromStandardUnit(evt.target.value), maxAvailableBalance)) {
-			return setAmount('');
+			// return setAmount('');
 		}
 
 		return setAmount(evt.target.value);

@@ -32,6 +32,7 @@
 }
 
 body {
+    @apply overflow-x-hidden;
     background-color: #f8f9ff;
 }
 
