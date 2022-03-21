@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import CustomScrollbar from 'custom-react-scrollbar';
 import Navbar from 'common/modules/Navbar';
 import { LocaleContext } from 'common/hooks/useI18n';
