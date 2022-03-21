@@ -40,8 +40,7 @@ module.exports = {
         libraryTarget: 'umd',
         jsonpFunction: `webpackJsonp_${name}`,
         globalObject: 'window',
-        path: path.resolve('dist'),
-        publicPath: process.env.NODE_ENV === 'production' ? '/shuttle-flow' : '/',
+        path: path.resolve('dist')
       }
       return webpackConfig
     },
