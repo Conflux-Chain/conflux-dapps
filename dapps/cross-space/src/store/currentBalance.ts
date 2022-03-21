@@ -105,6 +105,7 @@ export const startSubBalance = () => {
                 .catch(err => {})
                 .finally(callback);
 
+
             // and at same time get approval value;
             if (!currentTokenContract || !eachSideContractAddress) return;
             provider!.request({
@@ -149,7 +150,7 @@ export const startSubBalance = () => {
             setUndefinedTimer = setTimeout(() => {
                 balanceStore.setState({ currentTokenBalance: undefined, approvedBalance: undefined });
                 setUndefinedTimer = null;
-            }, 50);
+            }, 50) as unknown as number;
 
             const account = getAccount();
             if (!account) {
@@ -191,7 +192,7 @@ export const startSubBalance = () => {
             const currentToken = currentTokenStore.getState().currentToken;
             const fluentAccount = fluentStore.getState().accounts?.[0];
             const metaMaskAccount = metaMaskStore.getState().accounts?.[0];
-            const { evmSideContract, evmSideContractAddress, eSpaceMirrorAddress } = confluxStore.getState();
+            const { evmSideContract, evmSideContractAddress, eSpaceMirrorAddress, confluxSideContractAddress } = confluxStore.getState();
             const eSpaceNetwork = currentNetworkStore.getState().eSpace;
 
             if (!eSpaceMirrorAddress || !eSpaceNetwork) return;
@@ -224,7 +225,7 @@ export const startSubBalance = () => {
                 return;
             }
 
-            if (!evmSideContract || !eSpaceMirrorAddress || !fluentAccount || !metaMaskAccount || !metaMaskProvider) return;
+            if (!evmSideContract || !eSpaceMirrorAddress || !fluentAccount || !metaMaskAccount || !metaMaskProvider || !fluentProvider || !confluxSideContractAddress) return;
             const usedTokenAddress = currentToken.nativeSpace === 'eSpace' ? currentToken.native_address : currentToken.mapped_address;
             const lockedTokenKey = currentToken.nativeSpace === 'eSpace' ? 'lockedToken' : 'lockedMappedToken';
 
@@ -239,6 +240,18 @@ export const startSubBalance = () => {
                 .then(minUnitBalance => handleBalanceChanged(Unit.fromMinUnit(minUnitBalance), currentBalanceTick))
                 .catch(err => {})
                 .finally(callback);
+            if (currentToken.nativeSpace === 'core') {
+                // fluentProvider!.request({
+                //     method: 'cfx_call',
+                //     params: [{
+                //         data:  '0x70a08231000000000000000000000000' + format.hexAddress(confluxSideContractAddress).slice(2),
+                //         to: currentToken.native_address
+                //     }, 
+                //     'latest_state']
+                // })
+                //     .then(minUnitBalance => console.log(Unit.fromMinUnit(minUnitBalance).toDecimalStandardUnit()))
+                //     .catch(err => console.log(err))
+            }
         }
 
 
@@ -266,7 +279,7 @@ export const startSubBalance = () => {
             setUndefinedTimer = setTimeout(() => {
                 eSpaceBalanceStore.setState({ withdrawableBalance: undefined });
                 setUndefinedTimer = null;
-            }, 50);
+            }, 50) as unknown as number;
             
             const currentToken = currentTokenStore.getState().currentToken;
             const fluentAccount = fluentStore.getState().accounts?.[0];
@@ -325,7 +338,7 @@ export const startSubBalance = () => {
                 setUndefinedTimer = setTimeout(() => {
                     balanceStore.setState({ maxAvailableBalance: undefined });
                     clearUndefinedTimer();
-                }, 50);
+                }, 50) as unknown as number;
 
                 if (balanceStore === coreBalanceStore) {
                     // estimate Fluent max available balance

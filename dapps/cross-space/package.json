@@ -1,6 +1,7 @@
 {
     "name": "cross-space",
     "version": "0.0.0",
+    "private": true,
     "scripts": {
         "dev": "vite --port 3001 --host",
         "build": "vite build"
@@ -15,7 +16,6 @@
         "@tippyjs/react": "^4.2.6",
         "abi-decoder": "^2.4.0",
         "clsx": "^1.1.1",
-        "cross-space": "*",
         "common": "*",
         "custom-react-scrollbar": "^0.0.2",
         "decimal.js": "^10.3.1",
