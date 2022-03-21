@@ -14,7 +14,7 @@ ReactDOM.render(
 registerMicroApps([
     {
         name: 'shuttle-flow',
-        entry: '//localhost:3002',
+        entry: `//${import.meta.env.VITE_SHUTTLE_FLOW_URL}`,
         container: '#shuttle-flow',
         activeRule: 'shuttle-flow',
     },
