@@ -11,10 +11,17 @@ ReactDOM.render(
     document.getElementById('dapp-box-root')
 );
 
+let entry = 'localhost:3002';
+if (location.host.startsWith('test-dapp.')) {
+    entry = 'test-rigel.shuttleflow.io';
+} else if (location.host.startsWith('dapp.')) {
+    entry = 'shuttleflow.io';
+}
+
 registerMicroApps([
     {
         name: 'shuttle-flow',
-        entry: `//${import.meta.env.VITE_SHUTTLE_FLOW_URL}`,
+        entry: `//${entry}`,
         container: '#shuttle-flow',
         activeRule: 'shuttle-flow',
     },
