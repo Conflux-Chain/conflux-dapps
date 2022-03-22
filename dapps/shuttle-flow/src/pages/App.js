@@ -15,6 +15,7 @@ import {Loading} from '../components'
 import {useIsMobile} from '../hooks'
 import {useUpdateTxs} from '../hooks/useTransaction'
 import {useUpdateClaimedTxs} from '../hooks/useClaimedTx'
+import {usePendingTransactions} from './components/WalletHub/index'
 
 // eslint-disable-next-line no-unused-vars
 import cfx from '../utils/cfx'
@@ -33,9 +34,10 @@ import cfx from '../utils/cfx'
 //   environment: IS_DEV ? 'development' : 'production',
 // })
 
-function Controller() {
+function TxsUpdater() {
   useUpdateTxs();
   useUpdateClaimedTxs();
+  usePendingTransactions();
   return null;
 }
 
@@ -53,7 +55,7 @@ function App() {
       <Router basename={window.__POWERED_BY_QIANKUN__ ? '/shuttle-flow' : ''}>
         <div className={`flex flex-col h-full relative overflow-x-hidden ${!window.__POWERED_BY_QIANKUN__ ? 'bg-image' : ''}`}>
           {!window.__POWERED_BY_QIANKUN__ && <Header />}
-          <Controller />
+          <TxsUpdater />
           <div className="container mx-auto flex flex-1 justify-center md:pb-6 h-0">
             <Web3ReactManager>
               <Switch>
