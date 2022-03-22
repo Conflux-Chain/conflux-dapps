@@ -1,6 +1,5 @@
 import React, { isValidElement } from 'react';
 import WalletConnector from './WalletConnector';
-import './index.css';
 
 interface Props {
     handleSwitchLocale?: () => void;
@@ -15,7 +14,7 @@ interface Props {
 
 const Navbar: React.FC<Props> = ({ handleSwitchLocale, handleSwitchMode, dappIcon, dappName, Enhance }) => {
     return (
-        <nav className="h-[64px]">
+        <nav className="h-[64px] flex-shrink-0">
             <div className="container h-full m-auto flex justify-between items-center whitespace-nowrap">
                 <div className="flex items-center">
                     <img

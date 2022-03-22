@@ -5,6 +5,7 @@ import Modules from 'cross-space/src/modules';
 import { LocaleContext } from 'common/hooks/useI18n';
 import { ModeContext } from 'common/hooks/useMode';
 import CrossSpaceIcon from 'dapp-box/src/assets/cross-space.svg';
+import './App.css';
 
 const AppRouter = () => {
     const [mode, setMode] = useState<'light' | 'dark'>(() => {
