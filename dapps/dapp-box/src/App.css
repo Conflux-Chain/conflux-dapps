@@ -8,7 +8,7 @@
 
 .main-scroll.main-scroll {
     @apply relative h-[100vh];
-    @apply flex flex-col;
+    @apply flex flex-col flex-nowrap;
 }
 
 #shuttle-flow {

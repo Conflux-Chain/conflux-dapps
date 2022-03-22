@@ -13,6 +13,9 @@ import NotFound from '../pages/NotFound'
 import {Web3ReactManager, Header, MobileFooter} from '../pages/components'
 import {Loading} from '../components'
 import {useIsMobile} from '../hooks'
+
+// eslint-disable-next-line no-unused-vars
+import cfx from '../utils/cfx'
 // import * as Sentry from '@sentry/browser'
 // import {Integrations} from '@sentry/tracing'
 // import {IS_DEV} from '../utils'

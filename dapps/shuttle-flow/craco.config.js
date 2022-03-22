@@ -1,6 +1,6 @@
 const {name} = require('./package')
 const path = require('path')
-const TestServerUrl = 'https://test.shuttleflow.confluxnetwork.org'
+const TestServerUrl = 'https://test-rigel.shuttleflow.io'
 const ProxyConfig = {
   target: TestServerUrl,
   // target: 'https://shuttleflow.io',
