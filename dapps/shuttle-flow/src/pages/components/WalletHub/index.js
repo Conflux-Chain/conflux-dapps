@@ -1,4 +1,4 @@
-import {useState} from 'react'
+import {useState, useEffect} from 'react'
 import PropTypes from 'prop-types'
 import queryString from 'query-string'
 import {useHistory, useLocation} from 'react-router-dom'
@@ -25,12 +25,47 @@ import {useTxData} from '../../../hooks/useTransaction'
 import {useConnectData} from '../../../hooks'
 import {ShuttleStatus, TypeTransaction} from '../../../constants'
 
+
+export const usePendingTransactions = () => {
+    const pendingTransactions = useTxData(
+      [ShuttleStatus.pending, ShuttleStatus.waiting],
+      Object.values(TypeTransaction),
+    );
+
+    useEffect(() => {
+      if (!window.__POWERED_BY_QIANKUN__) return;
+      
+      const historyLink = document.querySelector('#all');
+      if (!historyLink) return;
+      let icons = null;
+      if (pendingTransactions?.length > 0) {
+        icons = document.createElement('span');
+        icons.id = 'pendingTransactions';
+        icons.className = "absolute flex items-center justify-center w-4 h-4 rounded-full bg-error text-xs text-white";
+        icons.style="right: -12px; top: -8px;";
+        icons.innerHTML = pendingTransactions.length > 99 ? '99+' : pendingTransactions.length;
+        historyLink.insertAdjacentElement('beforeend', icons)
+      } 
+      return () => {
+        if (icons) {
+          icons?.remove?.();
+        }
+      }
+    }, [pendingTransactions]);
+
+    const pendingTransactionsIcon = pendingTransactions.length > 0 && (
+      <div className="flex items-center justify-center w-4 h-4 absolute -top-1 -right-1 rounded-full bg-error text-xs text-white">
+        {pendingTransactions.length > 99 ? '99+' : pendingTransactions.length}
+      </div>
+    )
+
+    return [pendingTransactions, pendingTransactionsIcon];
+}
+
+
 function WalletHub() {
   const connectData = useConnectData()
-  const pendingTransactions = useTxData(
-    [ShuttleStatus.pending, ShuttleStatus.waiting],
-    Object.values(TypeTransaction),
-  )
+  const [pendingTransactions, pendingTransactionsIcon] = usePendingTransactions();
 
   const [arrow, setArrow] = useState('down')
   const {t} = useTranslation()
@@ -40,11 +75,7 @@ function WalletHub() {
     if (visible) setArrow('top')
     if (!visible) setArrow('down')
   }
-  const pendingTransactionsIcon = pendingTransactions.length > 0 && (
-    <div className="flex items-center justify-center w-4 h-4 absolute -top-1 -right-1 rounded-full bg-error text-xs text-white">
-      {pendingTransactions.length > 99 ? '99+' : pendingTransactions.length}
-    </div>
-  )
+
   let children
   if (length === 0) {
     children = (

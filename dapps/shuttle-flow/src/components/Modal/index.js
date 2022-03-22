@@ -70,6 +70,7 @@ function Modal({
               closeIconComp
             ) : (
               <Close
+                id={props.id ? `${props.id}-close` : undefined}
                 className={`${
                   size === 'medium' ? 'w-6 h-6' : 'w-4 h-4'
                 } text-gray-40`}
@@ -109,4 +110,5 @@ Modal.propTypes = {
   content: PropTypes.node.isRequired,
   icon: PropTypes.node,
   closeIcon: PropTypes.node,
+  id: PropTypes.string,
 }

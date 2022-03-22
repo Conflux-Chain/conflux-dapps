@@ -4,7 +4,7 @@ import cx from 'clsx';
 
 const NavLink: React.FC<{ name: string; path: string; isCurrent: boolean; id?: string }> = ({ name, path, id, isCurrent }) => {
     return (
-        <Link to={path} className={cx('text-[16px]', isCurrent ? 'text-[#1B1B1C] underline underline-offset-[4px]' : 'text-[#898D9A]')} id={id}>
+        <Link to={path} className={cx('relative text-[16px]', isCurrent ? 'text-[#1B1B1C] underline underline-offset-[4px]' : 'text-[#898D9A]')} id={id}>
             {name}
         </Link>
     );
