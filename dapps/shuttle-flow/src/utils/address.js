@@ -1,5 +1,5 @@
-import {isHexAddress} from '@cfxjs/account'
-import {validateBase32Address} from '@cfxjs/base32-address'
+import {isHexAddress} from '@fluent-wallet/account'
+import {validateBase32Address} from '@fluent-wallet/base32-address'
 import {validate} from 'bitcoin-address-validation'
 import {ChainIdsCfx, KeyOfCfx, KeyOfBtc} from '../constants/chainConfig'
 import {getEllipsStr, IS_DEV} from '../utils'

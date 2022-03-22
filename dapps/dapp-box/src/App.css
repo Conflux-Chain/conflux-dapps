@@ -1,14 +1,14 @@
 #dapp-box-root {
     @apply flex;
+    font-family: 'SF Pro Display';
 }
 
 #dapp-box-root > .scrollbar__wrapper {
     @apply flex-1 px-[32px];
 }
 
-.main-scroll.main-scroll {
-    @apply relative h-[100vh];
-    @apply flex flex-col;
+.main-scroll {
+  @apply relative flex flex-col h-[100vh];
 }
 
 #shuttle-flow {
