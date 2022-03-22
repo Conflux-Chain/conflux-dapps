@@ -1,6 +1,5 @@
-import {format, Conflux} from 'js-conflux-sdk/dist/js-conflux-sdk.umd.min.js'
+import {Conflux} from 'js-conflux-sdk/dist/js-conflux-sdk.umd.min.js'
 
-console.log('util', format)
 let cfx
 if (window?.confluxJS?.version !== '2.0.3') {
   cfx = new Conflux({
@@ -12,7 +11,6 @@ if (window?.confluxJS?.version !== '2.0.3') {
 
   window.confluxJS = cfx
   window.confluxJS.provider = window.conflux
-  console.log(window.confluxJS)
 }
 
 export default cfx
