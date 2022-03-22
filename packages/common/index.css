@@ -27,10 +27,6 @@
     font-display: auto;
 }
 
-#dapp-box-root {
-    font-family: 'SF Pro Display';
-}
-
 body {
     @apply overflow-x-hidden;
     background-color: #f8f9ff;
@@ -47,11 +43,6 @@ body {
 .contain-content {
     contain: layout paint style;
 }
-
-.main-scroll {
-    height: calc(100vh - 64px);
-}
-
 
 button:not(:hover):not(.button-contained):not(.button-outlined) {
     @apply outline-none focus-visible:ring-2 focus-visible:ring-[#808BE7];

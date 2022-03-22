@@ -1,5 +1,6 @@
 #dapp-box-root {
     @apply flex;
+    font-family: 'SF Pro Display';
 }
 
 #dapp-box-root > .scrollbar__wrapper {
@@ -7,13 +8,13 @@
 }
 
 .main-scroll.main-scroll {
-    @apply relative h-[100vh];
-    @apply flex flex-col;
+  @apply relative flex flex-col h-[100vh];
 }
 
 #shuttle-flow {
   @apply flex-1;
 }
+
 #__qiankun_microapp_wrapper_for_shuttle_flow__{
   @apply h-full;
 }

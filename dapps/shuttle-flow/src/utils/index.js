@@ -1,6 +1,7 @@
 import {ChainConfig, KeyOfCfx} from '../constants/chainConfig'
 import {Mainnet, Testnet} from '../constants'
 import Big from 'big.js'
+import BN from 'bn.js'
 import {BigNumber} from '@ethersproject/bignumber'
 import {BigNumZero} from '../constants'
 import {checkCfxTokenAddress} from './address'
@@ -28,6 +29,22 @@ export function isNumber(value) {
   return /^(?:-?\d+|-?\d{1,3}(?:,\d{3})+)?(?:\.\d+)?$/.test(value)
 }
 
+export function isHexPrefixed(str) {
+  if (typeof str !== 'string') {
+    throw new Error("[is-hex-prefixed] value must be type 'string', is currently type " + (typeof str) + ", while checking isHexPrefixed.");
+  }
+
+  return str.slice(0, 2) === '0x';
+}
+
+export const addHexPrefix = function (str) {
+  if (typeof str !== 'string') {
+    return str
+  }
+
+  return isHexPrefixed(str) ? str : '0x' + str
+}
+
 export const getMaxAmount = (chain, amount) => {
   const remainderAmount = ChainConfig[chain]?.remainderAmount
   let amountBig = new Big(amount)
@@ -40,9 +57,10 @@ export const getMaxAmount = (chain, amount) => {
 
 // add 10%
 export function calculateGasMargin(value, margin = 0.1) {
-  return BigNumber.from(value?.toString(10))
+  const addedValue = BigNumber.from(value?.toString(10))
     .mul(BigNumber.from(10000).add(BigNumber.from(10000 * margin)))
-    .div(BigNumber.from(10000))
+    .div(BigNumber.from(10000)).toString()
+  return addHexPrefix(new BN(addedValue, 10).toString(16))
 }
 
 export function getExponent(decimals) {

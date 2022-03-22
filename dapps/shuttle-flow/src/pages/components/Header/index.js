@@ -7,9 +7,6 @@ import {useIsMobile} from '../../../hooks'
 import useTheme from '../../../hooks/useTheme'
 import {WalletHub, LanguageButton, ThemeButton} from '../../components'
 import './header.css'
-import {useUpdateTxs} from '../../../hooks/useTransaction'
-import {useUpdateClaimedTxs} from '../../../hooks/useClaimedTx'
-
 function Header() {
   const {t, i18n} = useTranslation()
   const {language} = i18n
@@ -19,8 +16,7 @@ function Header() {
   const fromTokenAddress = useSearchParam('fromTokenAddress')
   const isMobile = useIsMobile()
   const {value: isDarkMode} = useTheme()
-  useUpdateTxs()
-  useUpdateClaimedTxs()
+  
   if (pathname === '/maintenance' || pathname === '/notfound') {
     return null
   }

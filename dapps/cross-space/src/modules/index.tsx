@@ -49,7 +49,7 @@ const Apps: React.FC = () => {
     }, []);
 
     return (
-        <div className="relative w-[480px] m-auto pt-[16px] mb-24px">
+        <div className="relative w-[480px] mx-auto pt-[16px] mb-24px">
             <p className="pl-[32px] font-medium	text-[28px] leading-[36px] text-[#3D3F4C]">{i18n.transfer_assets}</p>
             <p className="pl-[32px] text-[16px] leading-[22px] mt-[4px] text-[#A9ABB2]">{i18n.between_space}</p>
 

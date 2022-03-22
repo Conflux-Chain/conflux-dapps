@@ -1,12 +1,11 @@
 const {name} = require('./package')
 const path = require('path')
-const TestServerUrl = 'https://test.shuttleflow.confluxnetwork.org'
+const TestServerUrl = 'https://test-rigel.shuttleflow.io'
 const ProxyConfig = {
   target: TestServerUrl,
   // target: 'https://shuttleflow.io',
   changeOrigin: true,
 }
-
 
 module.exports = {
   style: {
@@ -40,9 +39,30 @@ module.exports = {
         libraryTarget: 'umd',
         jsonpFunction: `webpackJsonp_${name}`,
         globalObject: 'window',
-        path: path.resolve('dist')
+        path: path.resolve('dist'),
       }
       return webpackConfig
     },
+  },
+  babel: {
+    presets: [
+      [
+        '@babel/preset-env',
+        {
+          modules: 'auto',
+          useBuiltIns: 'entry',
+          // https://babeljs.io/docs/en/babel-preset-env#usebuiltins
+          // https://github.com/zloirock/core-js/blob/master/docs/2019-03-19-core-js-3-babel-and-a-look-into-the-future.md
+          corejs: {
+            version: 3, // 使用core-js@3
+            proposals: true,
+          },
+        },
+      ],
+    ],
+    plugins: [
+      // 配置解析器
+      ['@babel/plugin-proposal-optional-chaining'],
+    ],
   },
 }

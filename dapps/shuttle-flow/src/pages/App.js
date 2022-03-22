@@ -13,6 +13,11 @@ import NotFound from '../pages/NotFound'
 import {Web3ReactManager, Header, MobileFooter} from '../pages/components'
 import {Loading} from '../components'
 import {useIsMobile} from '../hooks'
+import {useUpdateTxs} from '../hooks/useTransaction'
+import {useUpdateClaimedTxs} from '../hooks/useClaimedTx'
+
+// eslint-disable-next-line no-unused-vars
+import cfx from '../utils/cfx'
 // import * as Sentry from '@sentry/browser'
 // import {Integrations} from '@sentry/tracing'
 // import {IS_DEV} from '../utils'
@@ -28,9 +33,15 @@ import {useIsMobile} from '../hooks'
 //   environment: IS_DEV ? 'development' : 'production',
 // })
 
+function Controller() {
+  useUpdateTxs();
+  useUpdateClaimedTxs();
+  return null;
+}
+
 function App() {
   const isMobile = useIsMobile()
-  
+
   return (
     <Suspense
       fallback={
@@ -42,6 +53,7 @@ function App() {
       <Router basename={window.__POWERED_BY_QIANKUN__ ? '/shuttle-flow' : ''}>
         <div className={`flex flex-col h-full relative overflow-x-hidden ${!window.__POWERED_BY_QIANKUN__ ? 'bg-image' : ''}`}>
           {!window.__POWERED_BY_QIANKUN__ && <Header />}
+          <Controller />
           <div className="container mx-auto flex flex-1 justify-center md:pb-6 h-0">
             <Web3ReactManager>
               <Switch>
