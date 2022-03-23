@@ -8,7 +8,7 @@ ReactDOM.render(
     <React.StrictMode>
         <App />
     </React.StrictMode>,
-    document.getElementById('dapp-box-root')
+    document.getElementById('conflux-hub-root')
 );
 
 let entry = 'localhost:3002';
