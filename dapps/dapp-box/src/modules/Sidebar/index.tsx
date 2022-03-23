@@ -1,10 +1,11 @@
 import React, { useCallback, useState } from 'react';
-import { a, useSpring, config } from '@react-spring/web';
+import { a, useSpring, useTrail, config } from '@react-spring/web';
 import { useNavigate } from 'react-router-dom';
 import cx from 'clsx';
 import Popper from 'common/components/Popper';
 import useCurrentDapp from 'dapp-box/src/hooks/useCurrentDapp';
-import Logo from 'dapp-box/src/assets/logo.svg';
+import ConfluxHub from 'dapp-box/src/assets/ConfluxHub.svg';
+import ConfluxHubText from 'dapp-box/src/assets/ConfluxHub-text.svg';
 import Expand from 'dapp-box/src/assets/expand.svg';
 import { dapps } from 'dapp-box/src/App';
 import './index.css';
@@ -31,24 +32,33 @@ const Sidebar: React.FC = () => {
         config: config.stiff,
     });
 
-    const textOpacityStyle = useSpring({
+    const textLeaveStyle = useSpring({
+        x: expand ? 0 : 40,
         opacity: expand ? 1 : 0,
-        config: config.stiff,
+        config: config.gentle,
     });
 
-    const textTransformStyle = useSpring({
+    const textEnterStyles = useTrail(dapps.length + 1, {
+        config: config.stiff,
         x: expand ? 0 : 40,
-        config: expand ? config.stiff : config.slow,
+        opacity: expand ? 1 : 0,
+    });
+
+    const advertStyle = useSpring({
+        config: config.stiff,
+        marginLeft: expand ? 12 : 0,
+        width: expand ? 182 : 56,
+        height: expand ? 182 : 56,
+        borderRadius: expand ? 24 : 6,
+        opacity: expand ? 1 : 0
     });
 
     return (
         <a.div className={'leftbar-container relative flex-shrink-0 flex flex-col px-[8px] pb-[36px] bg-white z-10 select-none'} style={drawerStyle}>
             <div className="relative flex items-center h-[64px]">
-                <div className="ml-[9px] flex items-center overflow-hidden">
-                    <img src={Logo} className="w-[38px] h-[38px]" alt="logo" draggable="false" />
-                    <a.span className="ml-[12px] text-[16px] text-black font-semibold" style={{ ...textOpacityStyle, ...textTransformStyle }}>
-                        Conflux Hub
-                    </a.span>
+                <div className="ml-[12px] flex items-center overflow-hidden">
+                    <img src={ConfluxHub} className="w-[32px] h-[32px] mr-[2px]" alt="logo" draggable="false" />
+                    <a.img src={ConfluxHubText} className="w-[90px] h-[14px]" alt="logo" draggable="false" style={expand ? textEnterStyles[0] : textLeaveStyle}/>
                 </div>
 
                 <div
@@ -58,64 +68,70 @@ const Sidebar: React.FC = () => {
                     )}
                     onClick={triggerExpand}
                 >
-                    <img className="w-[14px] h-[14px]" alt="expand button" src={Expand} draggable='false'/>
+                    <img className="w-[14px] h-[14px]" alt="expand button" src={Expand} draggable="false" />
                 </div>
             </div>
 
-            <p className="mt-[32px] mb-[8px] ml-[17.62px] text-[12px] leading-[16px] text-[#A9ABB2]">App</p>
+            <p className="mt-[32px] mb-[8px] ml-[17.62px] text-[12px] leading-[16px] text-[#A9ABB2]">APP</p>
 
-            {dapps.map((dapp, index) => (
-                <Popper
-                    key={dapp.name}
-                    Content={<DappTooltip name={dapp.name} />}
-                    placement="right"
-                    arrow={false}
-                    delay={100}
-                    offset={[0, 0]}
-                    disabled={expand}
-                    animationType="zoom"
-                >
-                    <div
-                        className={cx(
-                            'relative group flex items-center pl-[8px] h-[48px] rounded-[8px] transition-colors overflow-hidden',
-                            index !== 0 && 'mt-[12px]',
-                            currentDapp.path === dapp.path && 'bg-[#F8F9FE]',
-                            expand && currentDapp.path !== dapp.path && 'hover:bg-[#F8F9FE] cursor-pointer'
-                        )}
-                        onClick={() => navigate(dapp.path)}
+            <div className="flex flex-col gap-[12px]">
+                {dapps.map((dapp, index) => (
+                    <Popper
+                        key={dapp.name}
+                        Content={<DappTooltip name={dapp.name} />}
+                        placement="right"
+                        arrow={false}
+                        delay={100}
+                        offset={[0, 0]}
+                        disabled={expand}
+                        animationType="zoom"
                     >
-                        <div
-                            className={cx(
-                                'flex-shrink-0 inline-flex items-center justify-center w-[40px] h-[40px] rounded-[8px] transition-colors',
-                                currentDapp.path === dapp.path && 'bg-[#F8F9FE]',
-                                !expand && currentDapp.path !== dapp.path && 'group-hover:bg-[#F8F9FE] cursor-pointer'
-                            )}
-                        >
-                            <img src={dapp.icon} className="w-[30px] h-[30px]" alt={`${dapp.name} icon`} draggable="false" />
+                        <div className="relative">
+                            <div
+                                className={cx(
+                                    'group flex items-center pl-[8px] h-[48px] rounded-[8px] transition-colors overflow-hidden contain-content',
+                                    currentDapp.path === dapp.path && 'bg-[#F8F9FE]',
+                                    expand && currentDapp.path !== dapp.path && 'hover:bg-[#F8F9FE] cursor-pointer'
+                                )}
+                                onClick={() => navigate(dapp.path)}
+                            >
+                                <div
+                                    className={cx(
+                                        'flex-shrink-0 inline-flex items-center justify-center w-[40px] h-[40px] rounded-[8px] transition-colors',
+                                        currentDapp.path === dapp.path && 'bg-[#F8F9FE]',
+                                        !expand && currentDapp.path !== dapp.path && 'group-hover:bg-[#F8F9FE] cursor-pointer'
+                                    )}
+                                >
+                                    <img src={dapp.icon} className="w-[30px] h-[30px]" alt={`${dapp.name} icon`} draggable="false" />
+                                </div>
+                                <a.span
+                                    className={cx(
+                                        'ml-[6px] text-[14px] font-semibold whitespace-nowrap transition-colors',
+                                        currentDapp.path === dapp.path ? 'text-[#3D3F4C] ' : 'text-[#A9ABB2]'
+                                    )}
+                                    style={expand ? textEnterStyles[index + 1] : textLeaveStyle}
+                                >
+                                    {dapp.name}
+                                </a.span>
+                            </div>
+
+                            <span
+                                className={cx(
+                                    'absolute right-[-8px] top-[50%] -translate-y-[50%] w-[2px] h-[20px] bg-[#4C70FF] opacity-0 transition-opacity',
+                                    !expand && currentDapp.path === dapp.path && 'opacity-100'
+                                )}
+                            />
                         </div>
-                        <a.span
-                            className={cx(
-                                'ml-[6px] text-[14px] font-semibold whitespace-nowrap transition-colors',
-                                currentDapp.path === dapp.path ? 'text-[#3D3F4C] ' : 'text-[#A9ABB2]'
-                            )}
-                            style={{ ...textOpacityStyle, ...textTransformStyle }}
-                        >
-                            {dapp.name}
-                        </a.span>
-                        {!expand && currentDapp.path === dapp.path && (
-                            <span className="absolute right-[-8px] top-[50%] -translate-y-[50%] w-[2px] h-[20px] bg-[#4C70FF]" />
-                        )}
-                    </div>
-                </Popper>
-            ))}
+                    </Popper>
+                ))}
+            </div>
 
             {
-                <div
-                    className={cx(
-                        'mt-auto bg-[#F5F7FF] transition-all duration-300 ease-in-out',
-                        expand ? 'ml-[12px] w-[182px] h-[182px] rounded-[24px] opacity-100' : 'ml-[0px] w-[56px] h-[56px] rounded-[6px] opacity-0'
-                    )}
-                />
+                <a.div
+                    className='mt-auto bg-[#F5F7FF]'
+                    style={advertStyle}
+                >
+                </a.div>
             }
         </a.div>
     );
