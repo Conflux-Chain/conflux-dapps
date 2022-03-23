@@ -22,7 +22,7 @@ export const currentNetworkStore = create(subscribeWithSelector(() => ({
 
 
 (function() {
-    const isProduction = location.host.endsWith('.com') || location.host.startsWith('evm-stage');
+    const isProduction = !location.host.startsWith('test') && !location.host.startsWith('localhost');
     const currentNetwork = networkConfig[isProduction ? '1029' : '1'];
     if (!currentNetwork) return;
     currentNetworkStore.setState({
