@@ -4,7 +4,7 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
 import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill';
 
-const TestServerUrl = 'https://test.shuttleflow.confluxnetwork.org';
+const TestServerUrl = 'https://test-rigel.confluxhub.io';
 const ProxyConfig = {
     target: TestServerUrl,
     // target: 'https://shuttleflow.io',
