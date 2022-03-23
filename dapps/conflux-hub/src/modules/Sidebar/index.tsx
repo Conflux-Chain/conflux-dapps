@@ -3,10 +3,10 @@ import { a, useSpring, config } from '@react-spring/web';
 import { useNavigate } from 'react-router-dom';
 import cx from 'clsx';
 import Popper from 'common/components/Popper';
-import useCurrentDapp from 'dapp-box/src/hooks/useCurrentDapp';
-import Logo from 'dapp-box/src/assets/logo.svg';
-import Expand from 'dapp-box/src/assets/expand.svg';
-import { dapps } from 'dapp-box/src/App';
+import useCurrentDapp from 'conflux-hub/src/hooks/useCurrentDapp';
+import Logo from 'conflux-hub/src/assets/logo.svg';
+import Expand from 'conflux-hub/src/assets/expand.svg';
+import { dapps } from 'conflux-hub/src/App';
 import './index.css';
 
 const Sidebar: React.FC = () => {
@@ -47,7 +47,7 @@ const Sidebar: React.FC = () => {
                 <div className="ml-[9px] flex items-center overflow-hidden">
                     <img src={Logo} className="w-[38px] h-[38px]" alt="logo" draggable="false" />
                     <a.span className="ml-[12px] text-[16px] text-black font-semibold" style={{ ...textOpacityStyle, ...textTransformStyle }}>
-                        LOGO
+                        Conflux Hub
                     </a.span>
                 </div>
 

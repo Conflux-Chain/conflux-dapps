@@ -7,12 +7,12 @@
         "packages/*"
     ],
     "scripts": {
-        "build": "turbo run build --scope=cross-space --scope=dapp-box --scope=shuttle-flow",
+        "build": "turbo run build --scope=cross-space --scope=conflux-hub --scope=shuttle-flow",
         "lint": "turbo run lint",
         "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-        "dev": "turbo run dev --scope=dapp-box --scope=shuttle-flow",
-        "dev:dapp-box": "turbo run dev --scope=dapp-box",
-        "build:dapp-box": "turbo run build --scope=dapp-box",
+        "dev": "turbo run dev --scope=conflux-hub --scope=shuttle-flow",
+        "dev:conflux-hub": "turbo run dev --scope=conflux-hub",
+        "build:conflux-hub": "turbo run build --scope=conflux-hub",
         "dev:cross-space": "turbo run dev --scope=cross-space",
         "build:cross-space": "turbo run build --scope=cross-space",
         "dev:shuttle-flow": "turbo run dev --scope=shuttle-flow",
