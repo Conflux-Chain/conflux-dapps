@@ -11,11 +11,11 @@ ReactDOM.render(
     document.getElementById('conflux-hub-root')
 );
 
-let entry = 'localhost:3002';
-if (location.host.startsWith('test-dapp.')) {
-    entry = 'test-rigel.shuttleflow.io';
-} else if (location.host.startsWith('dapp.')) {
-    entry = 'shuttleflow.io';
+let entry = 'shuttleflow.io';
+if (location.host.startsWith('test')) {
+    entry = 'test-rigel.confluxhub.io';
+} else if (location.host.startsWith('localhost')) {
+    entry = 'localhost:3002';
 }
 
 registerMicroApps([
