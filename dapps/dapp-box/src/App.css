@@ -1,0 +1,20 @@
+#conflux-hub-root {
+    @apply flex;
+    font-family: 'SF Pro Display';
+}
+
+#conflux-hub-root > .scrollbar__wrapper {
+    @apply flex-1 px-[32px];
+}
+
+.main-scroll.main-scroll {
+  @apply relative flex flex-col h-[100vh];
+}
+
+#shuttle-flow {
+  @apply flex-1;
+}
+
+#__qiankun_microapp_wrapper_for_shuttle_flow__{
+  @apply h-full;
+}

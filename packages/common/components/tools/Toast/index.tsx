@@ -38,14 +38,25 @@ const ToastComponent: React.FC<{ content: string | Content; duration: number; hi
         <div className="relative max-w[400px] min-w-[300px] bg-white rounded  overflow-hidden">
             <div className={type === 'info' ? 'p-[24px]' : 'pl-[56px] py-[24px] pr-[24px]'}>
                 {type !== 'info' && <img src={iconTypeMap[type]} alt="type img" className="absolute w-[24px] h-[24px] left-[16px] top-[24px]" /> }
-                <p className='relative mb-[8px] leading-[22px] text-[16px] text-[#3D3F4C] font-medium'>
+                <p className='relative mb-[8px] leading-[22px] text-[16px] text-[#3D3F4C] font-medium max-w-[280px]'>
                     {typeof content === 'object' && content.title ? content.title : 'Notification'}
                     <img src={Close} alt="close img" className='absolute right-0 top-[50%] -translate-y-[50%] w-[16px] h-[16px] cursor-pointer' onClick={hide} />
                 </p>
                 {(typeof content === 'string' || content.text) &&
-                    <p className='leading-[18px] text-[14px] text-[#898D9A]'>
+                    <p className='leading-[18px] text-[14px] text-[#898D9A] max-w-[320px]'>
                         {typeof content === 'string' ? content : content.text}
                     </p>
+                }
+
+                {typeof content === 'object' && (typeof content.onClickOk === 'function' || typeof content.onClickCancel === 'function') &&
+                    <div className='mt-[20px] flex justify-end items-center gap-[16px]'>
+                        {typeof content.onClickCancel === 'function' &&
+                            <button className='button-outlined button-small min-w-[72px]' onClick={content.onClickCancel}>{content?.cancelButtonText ?? 'Cancel'}</button>
+                        }
+                        {typeof content.onClickOk === 'function' &&
+                            <button className='button-contained button-small min-w-[72px]' onClick={content.onClickOk}>{content?.okButtonText ?? 'OK'}</button>
+                        }
+                    </div>
                 }
             </div>
 
@@ -56,17 +67,37 @@ const ToastComponent: React.FC<{ content: string | Content; duration: number; hi
     );
 });
 
-interface Content {
+export interface Content {
     title?: string;
     text?: string;
+    okButtonText?: string;
+    cancelButtonText?: string;
+    onClickOk?: () => void;
+    onClickCancel?: () => void;
 }
 
 export const showToast = (content: string | Content, config?: Partial<PopupProps> & { type?: Type; }) => {
     let toastKey: number | string | null;
     const hide = () => toastKey && Toast.hide(toastKey);
+    let _content: Content = {};
+    if (typeof content === 'object') {
+        _content = { ...content };
+        if (typeof content.onClickCancel === 'function') {
+            _content.onClickCancel = () => {
+                content.onClickCancel?.();
+                hide();
+            }
+        }
+        if (typeof content.onClickOk === 'function') {
+            _content.onClickOk = () => {
+                content.onClickOk?.();
+                hide();
+            }
+        }
+    }
 
     toastKey = Toast.show({
-        Content: <ToastComponent content={content} duration={config?.duration ?? 6000} hide={hide} type={config?.type ?? 'info'} />,
+        Content: <ToastComponent content={typeof content === 'object' ? _content : content} duration={config?.duration ?? 6000} hide={hide} type={config?.type ?? 'info'} />,
         duration: config?.duration ?? 6000,
         animationType: 'slideRight',
         ...config,
@@ -75,3 +106,4 @@ export const showToast = (content: string | Content, config?: Partial<PopupProps
 
 
 export const hideToast = Toast.hide;
+export const hideAllToast = Toast.hideAll;

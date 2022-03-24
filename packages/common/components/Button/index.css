@@ -14,6 +14,10 @@ button.button-outlined {
     @apply flex justify-center items-center rounded-[4px] border border-[#808BE7] bg-white hover:bg-opacity-90 text-[#808BE7] transition-colors;
 }
 
+button.button-outlined.button-green {
+    @apply border-[#44D7B6] text-[#44D7B6]
+}
+
 button.button-outlined.button-error {
     @apply border-[#E96170] text-[#E96170];
 }

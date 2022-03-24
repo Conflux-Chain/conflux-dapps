@@ -68,7 +68,7 @@ export const slideUp = {
     leave: {
         opacity: 0,
         transform: 'translate3d(0, 200%, 0)',
-        config: { mass: 1, tension: 170, friction: 26, clamp: true },
+        config: { mass: 1, tension: 170, friction: 23, clamp: true },
     },
 };
 
@@ -82,7 +82,7 @@ export const slideDown = {
     leave: {
         opacity: 0,
         transform: 'translate3d(0, -200%, 0)',
-        config: { mass: 1, tension: 170, friction: 26, clamp: true },
+        config: { mass: 1, tension: 170, friction: 23, clamp: true },
     },
 };
 
@@ -96,7 +96,7 @@ export const slideLeft = {
     leave: {
         opacity: 0,
         transform: 'translate3d(-175%, 0, 0)',
-        config: { mass: 1, tension: 170, friction: 26, clamp: true },
+        config: { mass: 1, tension: 170, friction: 23, clamp: true },
     },
 };
 
@@ -110,7 +110,7 @@ export const slideRight = {
     leave: {
         opacity: 0,
         transform: 'translate3d(175%, 0, 0)',
-        config: { mass: 1, tension: 280, friction: 60 },
+        config: { mass: 1, tension: 170, friction: 23, clamp: true },
     },
 };
 
@@ -157,14 +157,16 @@ export const zoom = {
 };
 
 export const door = {
-    from: { transform: 'scale3d(0, 1, 1)' },
+    from: { transform: 'scale3d(0, 1, 1)', opacity: .2 },
     enter: {
         transform: 'scale3d(1, 1, 1)',
+        opacity: 1,
         config: { mass: 1, tension: 210, friction: 26 },
     },
     leave: {
-        transform: 'scale3d(0, 1, 0.1)',
-        config: { mass: 1, tension: 240, friction: 26, clamp: true },
+        transform: 'scale3d(0.3, 1, 1)',
+        opacity: 0,
+        config: { mass: 1, tension: 220, friction: 26, clamp: true },
     },
 };
 

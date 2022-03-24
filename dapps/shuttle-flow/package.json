@@ -1,0 +1,142 @@
+{
+  "name": "shuttle-flow",
+  "description": "Shuttleflow Interface",
+  "homepage": ".",
+  "private": true,
+  "version": "0.0.0",
+  "dependencies": {
+    "@babel/plugin-proposal-optional-chaining": "^7.16.7",
+    "@cfxjs/data-format": "^0.0.3",
+    "@cfxjs/use-wallet": "^0.0.18",
+    "@cfxjs/use-wallet-enhance": "^0.0.3",
+    "@craco/craco": "^6.1.1",
+    "@ethersproject/address": "^5.3.0",
+    "@ethersproject/bignumber": "^5.3.0",
+    "@ethersproject/constants": "^5.3.0",
+    "@ethersproject/contracts": "^5.3.0",
+    "@ethersproject/logger": "^5.3.0",
+    "@ethersproject/providers": "^5.1.2",
+    "@fluent-wallet/account": "^0.1.0",
+    "@fluent-wallet/base32-address": "^0.1.1",
+    "@sentry/browser": "^6.10.0",
+    "@sentry/tracing": "^6.10.0",
+    "@web3-react/core": "^6.1.9",
+    "@web3-react/injected-connector": "^6.0.7",
+    "big.js": "^6.1.1",
+    "bitcoin-address-validation": "^2.1.0",
+    "bn.js": "^5.2.0",
+    "i18next": "^20.2.1",
+    "i18next-browser-languagedetector": "^6.1.1",
+    "i18next-http-backend": "^1.2.4",
+    "js-conflux-sdk": "2.0.3",
+    "object.fromentries": "^2.0.4",
+    "prop-types": "^15.7.2",
+    "qrcode.react": "^1.0.1",
+    "query-string": "^7.0.0",
+    "rc-dropdown": "^3.2.0",
+    "rc-notification": "4.4.0",
+    "rc-tooltip": "^5.1.1",
+    "react": "^17.0.2",
+    "react-copy-to-clipboard": "^5.0.3",
+    "react-device-detect": "^1.17.0",
+    "react-dom": "^17.0.2",
+    "react-i18next": "^11.8.13",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "4.0.0",
+    "react-use": "^17.2.4",
+    "swr": "^0.5.5",
+    "underscore": "^1.13.1",
+    "use-dark-mode": "^2.3.1",
+    "web-vitals": "^1.0.1",
+    "zustand": "^3.5.0"
+  },
+  "devDependencies": {
+    "@svgr/cli": "^5.5.0",
+    "@svgr/webpack": "^5.5.0",
+    "@tailwindcss/postcss7-compat": "^2.2.2",
+    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/react": "^11.1.0",
+    "@testing-library/user-event": "^12.1.10",
+    "autoprefixer": "^9",
+    "eslint": "^7.24.0",
+    "eslint-config-prettier": "^8.2.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jest": "^24.3.5",
+    "eslint-plugin-jsx-a11y": "^6.4.1",
+    "eslint-plugin-prettier": "^3.3.1",
+    "eslint-plugin-react": "^7.23.2",
+    "eslint-plugin-react-hooks": "^4.2.0",
+    "eslint-plugin-testing-library": "^4.0.0",
+    "husky": "4.3.0",
+    "lint-staged": "^10.5.4",
+    "postcss": "^8.2.10",
+    "prettier": "^2.2.1",
+    "stylelint": "^13.12.0",
+    "stylelint-config-prettier": "^8.0.2",
+    "stylelint-config-standard": "^21.0.0",
+    "tailwindcss": "npm:@tailwindcss/postcss7-compat",
+    "webpack-cli": "^4.7.0",
+    "webpack-dev-server": "^3.11.2"
+  },
+  "scripts": {
+    "dev": "craco start",
+    "build": "craco build",
+    "test": "craco test",
+    "eject": "react-scripts eject",
+    "lint": "eslint --ignore-path .gitignore packages",
+    "lint:fix": "yarn run lint --fix"
+  },
+  "browserslist": [
+    "last 2 Chrome versions",
+    "last 2 Firefox versions",
+    "last 2 Edge versions"
+  ],
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "prepare-commit-msg": "exec < /dev/tty && git cz --hook || true"
+    }
+  },
+  "prettier": {
+    "semi": false,
+    "bracketSpacing": false,
+    "proseWrap": "never",
+    "singleQuote": true,
+    "trailingComma": "all",
+    "arrowParens": "avoid"
+  },
+  "lint-staged": {
+    "*.{js,jsx}": [
+      "eslint --cache --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ],
+    "*.css": [
+      "prettier --write",
+      "stylelint"
+    ]
+  },
+  "stylelint": {
+    "extends": [
+      "stylelint-config-standard",
+      "stylelint-config-prettier"
+    ],
+    "rules": {
+      "at-rule-no-unknown": [
+        true,
+        {
+          "ignoreAtRules": [
+            "tailwind",
+            "apply",
+            "layer",
+            "variants",
+            "responsive",
+            "screen"
+          ]
+        }
+      ]
+    }
+  }
+}

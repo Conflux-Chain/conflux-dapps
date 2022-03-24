@@ -43,7 +43,7 @@ export const connectToWallet = async (wallet: 'Fluent' | 'MetaMask') => {
     }
 }
 
-const switchToChain = async (wallet: 'Fluent' | 'MetaMask', network: Network) => {
+export const switchToChain = async (wallet: 'Fluent' | 'MetaMask', network: Network) => {
     const switchChain = wallet === 'Fluent' ? switchFluentChain : switchMetaMaskChain;
     const addChain = wallet === 'Fluent' ? addFluentChain : addMetaMaskChain;
     const targetChainId = '0x' + Number(network.networkId).toString(16);
@@ -82,13 +82,15 @@ interface AuthProps {
     authContent: any;
     buttonType: 'contained' | 'outlined';
     buttonSize: 'mini' | 'small' | 'normal';
+    buttonColor?: '' | 'green';
     connectTextType?: 'concise' | 'specific';
     buttonReverse?: boolean;
     showLogo?: boolean;
     fullWidth?: boolean;
+    checkChainMatch?: boolean;
 }
 
-const AuthConnectButton = memo<AuthProps & ButtonHTMLAttributes<HTMLButtonElement>>(({ wallet, authContent, buttonType, buttonSize, buttonReverse, showLogo, fullWidth, className, connectTextType = 'specific', onClick, ...props }) => {
+const AuthConnectButton = memo<AuthProps & ButtonHTMLAttributes<HTMLButtonElement>>(({ wallet, authContent, buttonType, buttonSize, buttonReverse, buttonColor = '', showLogo, fullWidth, className, connectTextType = 'specific', checkChainMatch = true, onClick, ...props }) => {
     const i18n = useI18n(transitions);
 
     const currentCoreNetwork = useCurrentNetwork('core');
@@ -113,19 +115,19 @@ const AuthConnectButton = memo<AuthProps & ButtonHTMLAttributes<HTMLButtonElemen
     const Logo = currentWallet == 'Fluent' ? FluentLogo : MetaMaskLogo;
     const currentNetwork = currentWallet == 'Fluent' ? currentCoreNetwork : currentESpaceNetwork;
     const currentWalletChain = currentWallet == 'Fluent' ? fluentChainId : metaMaskChainId;
-    const chainMatched = currentWalletChain === currentNetwork?.networkId;
+    const chainMatched = checkChainMatch ? currentWalletChain === currentNetwork?.networkId : true;
 
 	const handleClick = useCallback<React.MouseEventHandler<HTMLButtonElement>>((evt) => {
 		if (status !== 'active') {
 			evt.preventDefault();
             connectToWallet(currentWallet);
-		} else if (!chainMatched) {
+		} else if (checkChainMatch && !chainMatched) {
             if (!currentNetwork) return;
             switchToChain(currentWallet, currentNetwork);
         } else {
             onClick?.(evt);
         }
-	}, [currentWallet, chainMatched, currentNetwork, status, onClick]);
+	}, [currentWallet, chainMatched, checkChainMatch, currentNetwork, status, onClick]);
     
     if (status === 'active' && chainMatched && typeof authContent !== 'string') {
         if (typeof authContent === 'function') {
@@ -137,7 +139,7 @@ const AuthConnectButton = memo<AuthProps & ButtonHTMLAttributes<HTMLButtonElemen
     
     return (
         <button
-            className={cx(`button-${buttonType} button-${buttonSize}`, buttonReverse && 'button-reverse', fullWidth && 'w-full', status === 'not-installed' && 'button-error', className)}
+            className={cx(`button-${buttonType} button-${buttonSize}`, buttonReverse && 'button-reverse', buttonColor && `button-${buttonColor}`, fullWidth && 'w-full', status === 'not-installed' && 'button-error', className)}
             onClick={handleClick}
             disabled={status !== 'active' && status !== 'not-active'}
             {...props}
