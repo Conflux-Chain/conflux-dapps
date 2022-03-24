@@ -7,7 +7,6 @@ import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfil
 const TestServerUrl = 'https://test-rigel.confluxhub.io';
 const ProxyConfig = {
     target: TestServerUrl,
-    // target: 'https://shuttleflow.io',
     changeOrigin: true,
 };
 

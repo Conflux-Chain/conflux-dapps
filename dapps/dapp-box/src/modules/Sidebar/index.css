@@ -8,3 +8,7 @@
 .expand-button {
     box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.08);
 }
+
+.advert {
+    background: linear-gradient(180deg, rgba(245, 249, 255, 0.4) 0%, rgba(197, 208, 255, 0.4) 100%);
+}
