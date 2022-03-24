@@ -18,3 +18,7 @@
 #__qiankun_microapp_wrapper_for_shuttle_flow__{
   @apply h-full;
 }
+
+body {
+  @apply overflow-y-hidden
+}

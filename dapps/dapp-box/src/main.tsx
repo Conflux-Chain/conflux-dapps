@@ -16,6 +16,8 @@ if (location.host.startsWith('test')) {
     entry = 'test-rigel.confluxhub.io';
 } else if (location.host.startsWith('localhost')) {
     entry = 'localhost:3002';
+}  else if (location.host.startsWith('stage')) {
+    entry = 'stage-rigel.confluxhub.io'
 }
 
 registerMicroApps([
