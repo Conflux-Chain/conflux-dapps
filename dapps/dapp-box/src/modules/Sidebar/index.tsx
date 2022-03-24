@@ -90,12 +90,12 @@ const Sidebar: React.FC = () => {
 
                 <div
                     className={cx(
-                        'absolute top-[50%] -translate-y-[50%] expand-button flex items-center justify-center w-[24px] h-[24px] rounded-full bg-white transition-transform cursor-pointer',
-                        expand ? '-right-[20px] rotate-180' : '-right-[44px]'
+                        'absolute top-[50%] -translate-y-[50%] expand-button flex items-center justify-center w-[24px] h-[24px] rounded-full bg-white transition-all cursor-pointer',
+                        expand ? '-right-[20px]' : '-right-[44px]'
                     )}
                     onClick={triggerExpand}
                 >
-                    <img className="w-[14px] h-[14px]" alt="expand button" src={Expand} draggable="false" />
+                    <img className={cx("w-[14px] h-[14px] transition-transform", expand ? 'rotate-180' : 'rotate-0')} alt="expand button" src={Expand} draggable="false" />
                 </div>
             </div>
 
