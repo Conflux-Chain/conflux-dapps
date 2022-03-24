@@ -10,5 +10,5 @@
 }
 
 .advert {
-    background: linear-gradient(180deg, #F5F9FF 0%, #C5D0FF 100%);
+    background: linear-gradient(180deg, rgba(245, 249, 255, 0.4) 0%, rgba(197, 208, 255, 0.4) 100%);
 }
