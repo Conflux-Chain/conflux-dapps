@@ -1,9 +1,10 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useSpring } from '@react-spring/web';
 import useI18n from 'common/hooks/useI18n';
 import LocalStorage from 'common/utils/LocalStorage';
 import Core2ESpace from './Core2ESpace';
 import ESpace2Core from './ESpace2Core'
+import { startSub } from 'cross-space/src/store';
 import './index.css';
 
 const transitions = {
@@ -19,6 +20,11 @@ const transitions = {
 
 const Apps: React.FC = () => {
     const i18n = useI18n(transitions);
+
+    useEffect(() => {
+        const unsub = startSub();
+        return unsub;
+    }, []);
 
     const [flipped, setFlipped] = useState(() => {
         if (window.location.hash.slice(1).indexOf('source=fluent-wallet') !== -1) {
@@ -43,7 +49,7 @@ const Apps: React.FC = () => {
     }, []);
 
     return (
-        <div className="relative w-[480px] m-auto pt-[16px] mb-24px">
+        <div className="relative w-[480px] mx-auto pt-[16px] mb-24px">
             <p className="pl-[32px] font-medium	text-[28px] leading-[36px] text-[#3D3F4C]">{i18n.transfer_assets}</p>
             <p className="pl-[32px] text-[16px] leading-[22px] mt-[4px] text-[#A9ABB2]">{i18n.between_space}</p>
 

@@ -1,6 +1,6 @@
 import create from 'zustand';
 import LocalStorage from 'common/utils/LocalStorage';
-import { nativeToken, type Token, currentNetworkStore, type Network } from '@store/index';
+import { nativeToken, type Token, currentNetworkStore, type Network } from 'cross-space/src/store/index';
 import NetworkConfig from '../../../network-config.json';
 
 

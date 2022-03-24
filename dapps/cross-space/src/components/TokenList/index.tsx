@@ -1,7 +1,7 @@
 import React from 'react';
 import cx from 'clsx';
-import ArrowRight from '@assets/arrow-right.svg';
-import { useToken } from '@store/index';
+import ArrowRight from 'cross-space/src/assets/arrow-right.svg';
+import { useToken } from 'cross-space/src/store/index';
 import TokenListDropdown from './TokenListDropdown';
 import './index.css';
 

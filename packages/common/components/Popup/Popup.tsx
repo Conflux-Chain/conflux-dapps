@@ -65,9 +65,10 @@ const PopupContainer = forwardRef<PopupMethods>((_, ref) => {
     const [listClassName, setListClassName] = useState<string | undefined>(undefined);
     const [itemWrapperStyle, setItemWrapperStyle] = useState<CSSProperties | undefined>(undefined);
     const [itemWrapperClassName, setItemWrapperClassName] = useState<string | undefined>(undefined);
-
+    
     const pushPopup = useCallback(({ Content, duration = 3000, showMask = false, key, preventDuplicate, maximum, unique, queue, ...props }: PartialOptional<PopupProps, 'key'>) => {
         const usedKey = key ?? uniqueId('popup');
+
         setPopupList(curList => {
             if (key && curList.find((item: PopupProps) => item.key === key)) return curList;
             if (queue && curList.length) {

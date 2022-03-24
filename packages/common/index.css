@@ -27,12 +27,10 @@
     font-display: auto;
 }
 
-html {
-    font-family: 'SF Pro Display';
-    overflow: hidden;
-}
-
 body {
+    -webkit-font-smoothing: initial !important;
+    -moz-osx-font-smoothing: initial !important;
+    @apply overflow-x-hidden;
     background-color: #f8f9ff;
 }
 
@@ -48,13 +46,8 @@ body {
     contain: layout paint style;
 }
 
-.main-scroll {
-    height: calc(100vh - 64px);
-}
-
-
 button:not(:hover):not(.button-contained):not(.button-outlined) {
-    @apply focus:outline-none focus:ring-2 focus:ring-[#808BE7];
+    @apply outline-none focus-visible:ring-2 focus-visible:ring-[#808BE7];
 }
 
 button > img {
