@@ -4,7 +4,7 @@
 }
 
 #conflux-hub-root > .scrollbar__wrapper {
-    @apply flex-1 px-[32px];
+    @apply flex-1 px-[32px] bg-[#f8f9ff];
 }
 
 .main-scroll.main-scroll {
