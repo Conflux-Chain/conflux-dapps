@@ -53,7 +53,7 @@ function App() {
       }
     >
       <Router basename={window.__POWERED_BY_QIANKUN__ ? '/shuttle-flow' : ''}>
-        <div className={`flex flex-col h-full relative overflow-x-hidden ${!window.__POWERED_BY_QIANKUN__ ? 'bg-image' : ''}`}>
+        <div className={`flex flex-col h-full relative overflow-x-hidden ${!window.__POWERED_BY_QIANKUN__ ? 'bg-image' : 'bg-[#f8f9ff]'}`}>
           {!window.__POWERED_BY_QIANKUN__ && <Header />}
           <TxsUpdater />
           <div className="container mx-auto flex flex-1 justify-center md:pb-6 h-0">
