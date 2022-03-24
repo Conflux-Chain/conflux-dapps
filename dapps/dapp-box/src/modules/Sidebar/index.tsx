@@ -49,7 +49,7 @@ const Sidebar: React.FC = () => {
     });
 
     const [isExploreOpen, setExploreOpen] = useState(() => {
-        const last = (localStorage.getItem('ConfluxHub-explore-open') as 'true') || 'false';
+        const last = (localStorage.getItem('ConfluxHub-explore-open') as 'true') || 'true';
         if (last === 'true' || last === 'false') return last === 'true';
         return true;
     });
