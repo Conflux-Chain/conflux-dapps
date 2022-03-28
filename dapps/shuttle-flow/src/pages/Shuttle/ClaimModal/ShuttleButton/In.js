@@ -8,6 +8,7 @@ import {BigNumber} from '@ethersproject/bignumber'
 import {Button} from '../../../../components'
 import {SupportedChains, KeyOfCfx} from '../../../../constants/chainConfig'
 import {ContractType} from '../../../../constants/contractConfig'
+import Big from 'big.js'
 
 import {
   ZeroAddrHex,
@@ -93,7 +94,7 @@ function ShuttleInButton({
         format.hexAddress(toAddress),
         ZeroAddrHex,
         {
-          value: convertDecimal(value, 'multiply', decimals),
+          value: new Big(convertDecimal(value, 'multiply', decimals)).toString(),
         },
       ]
       try {
@@ -125,7 +126,7 @@ function ShuttleInButton({
           fromTokenAddress,
           format.hexAddress(toAddress),
           ZeroAddrHex,
-          convertDecimal(value, 'multiply', decimals),
+          new Big(convertDecimal(value, 'multiply', decimals)).toString(),
           {
             value: BigNumber.from(0),
           },
@@ -153,10 +154,11 @@ function ShuttleInButton({
               setSendStatus(SendStatus.error)
             })
         } catch (error) {
+          console.log(error)
           setSendStatus(SendStatus.error)
         }
       } else {
-        const amountVal = convertDecimal(value, 'multiply', decimals)
+        const amountVal = new Big(convertDecimal(value, 'multiply', decimals)).toString()
         try {
           const gasData = await tokenContract.estimateGas.transfer(
             shuttleAddress,
@@ -172,10 +174,12 @@ function ShuttleInButton({
               setTxHash(data?.hash)
               setSendStatus(SendStatus.success)
             })
-            .catch(() => {
+            .catch((error) => {
+              console.log(error)
               setSendStatus(SendStatus.error)
             })
-        } catch {
+        } catch(error) {
+          console.log(error)
           setSendStatus(SendStatus.error)
         }
       }
