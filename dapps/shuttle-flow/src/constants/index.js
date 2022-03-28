@@ -2,7 +2,7 @@ import Big from 'big.js'
 
 Big.DP = 40
 Big.NE = -40
-Big.PE = 40
+Big.PE = 1000
 
 export const NetworkContextName = 'NETWORK'
 
