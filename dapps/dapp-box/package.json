@@ -7,14 +7,13 @@
     "build": "vite build"
   },
   "dependencies": {
-    "@cfxjs/use-wallet": "^0.0.18",
+    "@cfxjs/use-wallet": "^0.0.19",
     "@fluent-wallet/account": "^0.1.0",
     "@fluent-wallet/base32-address": "^0.1.1",
     "@fluent-wallet/estimate-tx": "^0.1.1",
     "@fluent-wallet/shorten-address": "^0.1.2",
     "@react-spring/web": "^9.4.4",
     "@tippyjs/react": "^4.2.6",
-    "abi-decoder": "^2.4.0",
     "clsx": "^1.1.1",
     "common": "*",
     "custom-react-scrollbar": "^0.0.2",

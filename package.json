@@ -15,6 +15,8 @@
         "build:dapp-box": "turbo run build --scope=dapp-box",
         "dev:cross-space": "turbo run dev --scope=cross-space",
         "build:cross-space": "turbo run build --scope=cross-space",
+        "dev:espace-bridge": "turbo run dev --scope=espace-bridge",
+        "build:espace-bridge": "turbo run build --scope=espace-bridge",
         "dev:shuttle-flow": "turbo run dev --scope=shuttle-flow",
         "build:shuttle-flow": "turbo run build --scope=shuttle-flow"
     },

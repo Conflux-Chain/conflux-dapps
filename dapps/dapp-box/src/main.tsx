@@ -1,8 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { registerMicroApps, start as startQianKun } from 'qiankun';
-import App from './App';
 import 'custom-react-scrollbar/dist/style.css';
+import 'common/index.css';
+import App from './App';
 
 ReactDOM.render(
     <React.StrictMode>

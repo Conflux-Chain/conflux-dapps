@@ -1,6 +1,6 @@
 import create from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
-import networkConfig from '../../network-config.json';
+import networkConfig from 'cross-space/network-config.json';
 
 export interface Network {
     name: string;
@@ -37,3 +37,5 @@ const selectors = {
 }
 
 export const useCurrentNetwork = (type: 'core' | 'eSpace') => currentNetworkStore(selectors[type]);
+export const useCoreNetwork = () => currentNetworkStore(selectors.core);
+export const useESpaceNetwork = () => currentNetworkStore(selectors.eSpace);

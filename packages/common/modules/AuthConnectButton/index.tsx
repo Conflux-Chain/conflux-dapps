@@ -2,7 +2,8 @@ import React, { useCallback, memo, type ButtonHTMLAttributes } from 'react';
 import cx from 'clsx';
 import { connect as connectFluent, useStatus as useFluentStatus, useChainId as useFluentChainId, switchChain as switchFluentChain, addChain as addFluentChain, provider as fluentProvider } from '@cfxjs/use-wallet';
 import { connect as connectMetaMask, useStatus as useMetaMaskStatus, useChainId as useMetaMaskChainId, switchChain as switchMetaMaskChain, addChain as addMetaMaskChain, provider as metaMaskProvider } from '@cfxjs/use-wallet/dist/ethereum';
-import { useCurrentNetwork, type Network } from '../../../../dapps/cross-space/src/store/index';
+import { useCoreNetwork, useESpaceNetwork, type Network } from 'cross-space/src/store/index';
+import { type Network as Network2 } from 'espace-bridge/src/store/index';
 import { showToast } from '../../components/tools/Toast';
 import useI18n, { compiled } from '../../hooks/useI18n';
 import FluentLogo from '../../assets/Fluent.svg';
@@ -43,7 +44,7 @@ export const connectToWallet = async (wallet: 'Fluent' | 'MetaMask') => {
     }
 }
 
-export const switchToChain = async (wallet: 'Fluent' | 'MetaMask', network: Network) => {
+export const switchToChain = async (wallet: 'Fluent' | 'MetaMask', network: Network | Network2) => {
     const switchChain = wallet === 'Fluent' ? switchFluentChain : switchMetaMaskChain;
     const addChain = wallet === 'Fluent' ? addFluentChain : addMetaMaskChain;
     const targetChainId = '0x' + Number(network.networkId).toString(16);
@@ -88,32 +89,49 @@ interface AuthProps {
     showLogo?: boolean;
     fullWidth?: boolean;
     checkChainMatch?: boolean;
+    useFluentNetwork?: () => any;
+    useMetaMaskNetwork?: () => any;
 }
 
-const AuthConnectButton = memo<AuthProps & ButtonHTMLAttributes<HTMLButtonElement>>(({ wallet, authContent, buttonType, buttonSize, buttonReverse, buttonColor = '', showLogo, fullWidth, className, connectTextType = 'specific', checkChainMatch = true, onClick, ...props }) => {
+const AuthConnectButton = memo<AuthProps & ButtonHTMLAttributes<HTMLButtonElement>>(({
+    wallet,
+    authContent,
+    buttonType,
+    buttonSize,
+    buttonReverse,
+    buttonColor = '',
+    showLogo,
+    fullWidth,
+    className,
+    connectTextType = 'specific',
+    checkChainMatch = true,
+    onClick,
+    useFluentNetwork = useCoreNetwork,
+    useMetaMaskNetwork = useESpaceNetwork,
+    ...props
+}) => {
     const i18n = useI18n(transitions);
-
-    const currentCoreNetwork = useCurrentNetwork('core');
-    const currentESpaceNetwork = useCurrentNetwork('eSpace');
+    const fluentNetwork = useFluentNetwork();
+    const metaMaskNetwork = useMetaMaskNetwork();
     const fluentChainId = useFluentChainId();
     const metaMaskChainId = useMetaMaskChainId();
-
     const fluentStatus = useFluentStatus();
     const metaMaskStatus = useMetaMaskStatus();
+
     let currentWallet: 'Fluent' | 'MetaMask' = !wallet.startsWith('Both') ? wallet as 'Fluent' : null!;
     if (currentWallet === null) {
         if (wallet === 'Both-MetaMaskFirst') {
-            if (metaMaskStatus !== 'active' || metaMaskChainId !== currentESpaceNetwork?.networkId) currentWallet = 'MetaMask';
+            if (metaMaskStatus !== 'active' || metaMaskChainId !== metaMaskNetwork?.networkId) currentWallet = 'MetaMask';
             else currentWallet = 'Fluent';
         } else {
-            if (fluentStatus !== 'active' || fluentChainId !== currentCoreNetwork?.networkId) currentWallet = 'Fluent';
+            if (fluentStatus !== 'active' || fluentChainId !== fluentNetwork?.networkId) currentWallet = 'Fluent';
             else currentWallet = 'MetaMask';
         }
     }
 
     const status = currentWallet === 'Fluent' ? fluentStatus : metaMaskStatus;
     const Logo = currentWallet == 'Fluent' ? FluentLogo : MetaMaskLogo;
-    const currentNetwork = currentWallet == 'Fluent' ? currentCoreNetwork : currentESpaceNetwork;
+    const currentNetwork = currentWallet == 'Fluent' ? fluentNetwork : metaMaskNetwork;
     const currentWalletChain = currentWallet == 'Fluent' ? fluentChainId : metaMaskChainId;
     const chainMatched = checkChainMatch ? currentWalletChain === currentNetwork?.networkId : true;
 
