@@ -6,6 +6,10 @@ button.button-small {
     @apply px-[12px] h-[32px] text-[12px];
 }
 
+button.button-light {
+    @apply px-[14px] h-[40px] text-[14px];
+}
+
 button.button-normal {
     @apply px-[16px] h-[48px] text-[16px];
 }

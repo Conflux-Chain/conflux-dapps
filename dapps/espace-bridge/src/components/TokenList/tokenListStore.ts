@@ -11,7 +11,7 @@ interface TokenListStore {
 
 export const tokenListStore = create<TokenListStore>(() => ({
     disabled: false,
-    tokenList: changeTokenList(LocalStorage.get('flipped', 'espace-bridge') === true ? 'crossChain' : 'eSpace'),
+    tokenList: getCurrentFromTokenList(LocalStorage.get('flipped', 'espace-bridge') === true ? 'crossChain' : 'eSpace'),
 }));
 
 
@@ -19,7 +19,7 @@ const tokenListSelector = (state: TokenListStore) => state.tokenList;
 export const useTokenList = () => tokenListStore(tokenListSelector);
 
 
-function changeTokenList (currentFrom: 'crossChain' | 'eSpace' = 'eSpace') {
+function getCurrentFromTokenList (currentFrom: 'crossChain' | 'eSpace' = 'eSpace') {
     let tokens: Array<Token> = [];
     if (currentFrom === 'eSpace') {
         tokens = currentESpaceConfig.tokens;
@@ -32,8 +32,12 @@ function changeTokenList (currentFrom: 'crossChain' | 'eSpace' = 'eSpace') {
     if (!isInTokens) {
         setToken(tokens[0]);
     }
-    
+
     return tokens;
 }
 
-networkStore.subscribe(state => state.currentFrom, changeTokenList,  { fireImmediately: true });
+function changeToCurrentFromTokenList (currentFrom: 'crossChain' | 'eSpace' = 'eSpace') {
+    tokenListStore.setState({ tokenList: getCurrentFromTokenList(currentFrom) });
+}
+
+networkStore.subscribe(state => state.currentFrom, changeToCurrentFromTokenList,  { fireImmediately: true });

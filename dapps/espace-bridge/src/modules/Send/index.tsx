@@ -8,9 +8,9 @@ import Input from 'common/components/Input';
 import Spin from 'common/components/Spin';
 import AuthConnectButton from 'common/modules/AuthConnectButton';
 import BalanceText from 'common/modules/BalanceText';
-import numFormat from 'common/utils/numFormat';
 import TokenList from 'espace-bridge/src/components/TokenList';
 import ChainSelect from './ChainSelect';
+import handleSubmit from './handleSubmit';
 
 const transitions = {
     en: {},
@@ -21,11 +21,11 @@ const Send: React.FC = () => {
     const i18n = useI18n(transitions);
 
     return (
-        <div className="">
+        <>
             <ChainSelect />
             <TokenList />
             <Form />
-        </div>
+        </>
     );
 };
 
@@ -72,16 +72,26 @@ const Form: React.FC = () => {
 		setAmount(maxAvailableBalance.toDecimalStandardUnit());
 	}, [maxAvailableBalance])
 
+	const onSubmit = useCallback(withForm(async (data) => {
+		const { amount } = data;
+		handleSubmit(amount)
+			.then(needClearAmount => {
+				if (needClearAmount) {
+					setAmount('');
+				}
+			});
+	}), []);
+
 	const isBalanceGreaterThan0 = maxAvailableBalance && Unit.greaterThan(maxAvailableBalance, Unit.fromStandardUnit(0));
 	const canClickButton = needApprove === true || (needApprove === false && isBalanceGreaterThan0);
     
     return (
-        <form>
+        <form onSubmit={onSubmit}>
             <Input
-				id="core2eSpace-transferAamount-input"
+				id="eSpaceBridge-DepositAamount-input"
 				className='pr-[52px]'
 				wrapperClassName='mt-[16px] mb-[12px]'
-				placeholder="Amount you want to transfer"
+				placeholder="Amount you want to deposit"
 				type="number"
 				step={1e-18}
 				min={Unit.fromMinUnit(1).toDecimalStandardUnit()}
@@ -90,7 +100,7 @@ const Form: React.FC = () => {
 				{...register('amount', { required: !needApprove, min: Unit.fromMinUnit(1).toDecimalStandardUnit(), max: maxAvailableBalance?.toDecimalStandardUnit(), onBlur: handleCheckAmount})}
 				suffix={
 					<button
-						id="core2eSpace-transferAamount-max"
+						id="eSpaceBridge-DepositAamount-max"
 						className={cx("absolute right-[16px] top-[50%] -translate-y-[50%] text-[14px] text-[#808BE7] cursor-pointer", isBalanceGreaterThan0 && 'hover:underline')}
 						onClick={handleClickMax}
 						disabled={!isBalanceGreaterThan0}

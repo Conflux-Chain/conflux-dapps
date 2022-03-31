@@ -244,7 +244,7 @@ const createTrackBalanceChangeOnce = ({ balanceSelector }: { balanceSelector: Va
     let unsubAccount: Function | null = null;
     if (walletStore) {
         unsubAccount = walletStore.subscribe(
-            (state) => state.accounts,
+            (state) => [state.accounts, state.chainId],
             () => {
                 if (!unsubAccount) return;
                 if (unsubBalance) {

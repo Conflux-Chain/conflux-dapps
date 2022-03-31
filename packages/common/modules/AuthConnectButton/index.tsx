@@ -51,7 +51,7 @@ export const switchToChain = async (wallet: 'Fluent' | 'MetaMask', network: Netw
 
     try {
         await switchChain(targetChainId);
-        showToast(`Switch ${wallet} to ${network.name} Success!`, { type: 'success' });
+        showToast(`Switch ${network.name} to ${wallet} Success!`, { type: 'success' });
     } catch (switchError) {
         // This error code indicates that the chain has not been added to MetaMask.
         if ((switchError as any)?.code === 4902) {
@@ -67,6 +67,7 @@ export const switchToChain = async (wallet: 'Fluent' | 'MetaMask', network: Netw
                     rpcUrls: [network.url],
                     blockExplorerUrls: [network.scan],
                 });
+                showToast(`Add ${network.name} to ${wallet} Success!`, { type: 'success' });
             } catch (addError) {
                 if ((addError as any)?.code === 4001) {
                     showToast('You cancel the add chain reqeust.', { type: 'failed' });
@@ -82,7 +83,7 @@ interface AuthProps {
     wallet: 'Fluent' | 'MetaMask' | 'Both-FluentFirst' | 'Both-MetaMaskFirst';
     authContent: any;
     buttonType: 'contained' | 'outlined';
-    buttonSize: 'mini' | 'small' | 'normal';
+    buttonSize: 'mini' | 'small' | 'light' | 'normal';
     buttonColor?: '' | 'green';
     connectTextType?: 'concise' | 'specific';
     buttonReverse?: boolean;

@@ -9,7 +9,7 @@ interface ContractStore {
     eSpaceBridgeContractAddress?: string;
     crossChainBridgeContractAddress?: string;
     bridgeContract?: { 
-        deposit(address: string, num: 1e19, chainId: string, receiverAddress: string, timestamp: string): Record<string, string>;
+        deposit(address: string, amount: string, chainId: string, receiverAddress: string, timestamp: string): Record<string, string>;
     };
 }
 

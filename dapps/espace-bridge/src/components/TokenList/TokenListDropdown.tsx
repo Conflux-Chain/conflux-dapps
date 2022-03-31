@@ -101,7 +101,7 @@ const DropdownContent: React.FC<{ visible: boolean; hideDropdown: () => void; }>
     const metaMaskChainId = useChainId();
     const currentFromNetwork = useCurrentFromNetwork();
     const chainMatched = metaMaskChainId === currentFromNetwork?.networkId;
-
+    
     return (
         <>
             <CustomScrollbar className='token-list'>
