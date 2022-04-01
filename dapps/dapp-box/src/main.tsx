@@ -1,15 +1,16 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { registerMicroApps, start as startQianKun } from 'qiankun';
 import 'custom-react-scrollbar/dist/style.css';
 import 'common/index.css';
 import App from './App';
 
-ReactDOM.render(
+const container = document.getElementById('conflux-hub-root')!;
+const root = createRoot(container);
+root.render(        
     <React.StrictMode>
         <App />
-    </React.StrictMode>,
-    document.getElementById('conflux-hub-root')
+    </React.StrictMode>
 );
 
 let entry = 'shuttleflow.io';

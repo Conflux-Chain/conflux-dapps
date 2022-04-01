@@ -1,5 +1,6 @@
 import React, { createRef, RefObject } from 'react';
-import { createPortal, render } from 'react-dom';
+import { createPortal } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import isDOMElement from '../../utils/isDOMElement';
 import PopupComponent, { type PopupMethods } from './Popup';
 import { uniqueId } from 'lodash-es';
@@ -17,6 +18,8 @@ export class PopupClass implements PopupMethods {
     setListClassName: PopupMethods['setListClassName'];
     setItemWrapperStyle: PopupMethods['setItemWrapperStyle'];
     setItemWrapperClassName: PopupMethods['setItemWrapperClassName'];
+    initTimer: number | null = null;
+    execDelay: Array<[method: keyof PopupMethods, args?: any]> = [];
 
     constructor() {
         this.popupRef = createRef<PopupMethods>();
@@ -33,10 +36,12 @@ export class PopupClass implements PopupMethods {
     }
 
     judgeInit(method: keyof PopupMethods, args?: any): any {
-        if (typeof window === 'undefined') return undefined;
+        if (typeof window === 'undefined') return () => {};
 
         if (!this.popupRef.current) {
+            this.execDelay.push([method, args]);
             this.init();
+            return () => {};
         }
         return this[method](args);
     }
@@ -52,10 +57,12 @@ export class PopupClass implements PopupMethods {
         this.setListClassName = this.popupRef.current!.setListClassName;
         this.setItemWrapperStyle = this.popupRef.current!.setItemWrapperStyle;
         this.setItemWrapperClassName = this.popupRef.current!.setItemWrapperClassName;
+        this.execDelay.forEach(([method, args]) => this[method](args));
+        this.execDelay = [];
     };
 
     init = (container?: HTMLElement) => {
-        if (typeof window === 'undefined') return;
+        if (typeof window === 'undefined' || this.initTimer !== null) return;
 
         if (!container || !isDOMElement(container)) {
             container = document.createElement('div');
@@ -63,8 +70,15 @@ export class PopupClass implements PopupMethods {
             container.style.position = 'absolute';
             document.body.appendChild(container);
         }
-        render(<PopupComponent ref={this.popupRef} />, container);
-        this.resetMethod();
+        const root = createRoot(container);
+        root.render(<PopupComponent ref={this.popupRef} />);
+        this.initTimer = setInterval(() => {
+            if (this.popupRef.current) {
+                this.resetMethod();
+                clearInterval(this.initTimer as number);
+                this.initTimer = null;
+            }
+        }, 10) as unknown as number;
     };
 
     Provider = ({ container }: { container?: HTMLElement; [otherProps: string]: any }) => {

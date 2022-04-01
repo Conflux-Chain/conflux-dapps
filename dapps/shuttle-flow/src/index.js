@@ -10,7 +10,6 @@ import {NetworkContextName} from './constants'
 import getLibrary from './utils/getLibrary'
 import Notification from './components/Notification'
 
-
 const Web3ProviderNetwork = createWeb3ReactRoot(NetworkContextName)
 
 function render(props) {

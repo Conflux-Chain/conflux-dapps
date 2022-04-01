@@ -267,6 +267,7 @@ const createTrackBalanceChangeOnce = ({ balanceSelector }: { balanceSelector: Va
 
 const trackBalanceChangeOnce = {
     balance: createTrackBalanceChangeOnce({ balanceSelector: selectors.balance }),
+    approvedBalance: createTrackBalanceChangeOnce({ balanceSelector: selectors.approvedBalance }),
     maxAvailableBalance: createTrackBalanceChangeOnce({ balanceSelector: selectors.maxAvailableBalance }),
 };
 

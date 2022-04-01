@@ -8,9 +8,15 @@ const config = {
         "url": "https://evm.confluxrpc.com",
         "networkId": "1030",
         "scan": "https://evm.confluxscan.net",
+        "rpcUrl": "https://ebridge-testnet.shuttleflow.io/",
         "BridgeContractAddress": "0x6c421153f5d506d4d1b9d586c4b32b9185dbf593",
         "color": "#15C184",
         "logo": ConfluxLogo,
+        "nativeCurrency": {
+            "name": "Conflux",
+            "symbol": "CFX",
+            "decimals": 18,
+        },
         "tokens": [{
             "name": "Conflux Network",
             "symbol": "CFX",
@@ -32,6 +38,11 @@ const config = {
             "BridgeContractAddress": "0xe1fab6d373fabcb16fb092deadf17cc20b196cb5",
             "color": "#F3BA2F",
             "logo": "https://bin.bnbstatic.com/static/images/common/logo.png",
+            "nativeCurrency": {
+                "name": "BSC",
+                "symbol": "BSC",
+                "decimals": 18,
+            },
             "tokens": [{
                 "name": "BSC Conflux",
                 "symbol": "bCFX",
@@ -52,9 +63,15 @@ const config = {
         "url": "https://evmtestnet.confluxrpc.com",
         "networkId": "71",
         "scan": "https://evmtestnet.confluxscan.net",
+        "rpcUrl": "https://ebridge-testnet.shuttleflow.io/",
         "BridgeContractAddress": "0x6c421153f5d506d4d1b9d586c4b32b9185dbf593",
         "color": "#15C184",
         "logo": ConfluxLogo,
+        "nativeCurrency": {
+            "name": "Conflux",
+            "symbol": "CFX",
+            "decimals": 18,
+        },
         "tokens": [{
             "name": "Conflux Network",
             "symbol": "CFX",
@@ -76,6 +93,11 @@ const config = {
             "BridgeContractAddress": "0xe1fab6d373fabcb16fb092deadf17cc20b196cb5",
             "color": "#F3BA2F",
             "logo": "https://bin.bnbstatic.com/static/images/common/logo.png",
+            "nativeCurrency": {
+                "name": "BSC",
+                "symbol": "BSC",
+                "decimals": 18,
+            },
             "tokens": [{
                 "name": "BSC Conflux",
                 "symbol": "bCFX",

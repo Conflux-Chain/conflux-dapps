@@ -59,7 +59,7 @@ export const switchToChain = async (wallet: 'Fluent' | 'MetaMask', network: Netw
                 await addChain({
                     chainId: targetChainId,
                     chainName: network.name,
-                    nativeCurrency: {
+                    nativeCurrency: (network as Network2)?.nativeCurrency ?? {
                         name: 'Conflux',
                         symbol: 'CFX',
                         decimals: 18,

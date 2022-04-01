@@ -31,9 +31,9 @@ const BalanceText: React.FC<Props> = ({ className, balance, status, id, symbol =
     const noughLen = nought ? nought.length : 0;
 
     return (
-        <Tooltip text={`${numFormat(decimalStandardUnit)} ${symbol}`} placement="right" disabled={noughLen < 12} interactive interactiveDebounce={100}>
+        <Tooltip text={`${numFormat(decimalStandardUnit)} ${symbol}`} placement="right" disabled={noughLen < 6} interactive interactiveDebounce={100}>
             <span className={className} id={id}>
-                {noughLen >= 12 ? `${numFormat(balance.toDecimalStandardUnit(12))}... ${symbol}`
+                {noughLen >= 6 ? `${numFormat(balance.toDecimalStandardUnit(6))}... ${symbol}`
                     : `${numFormat(balance.toDecimalStandardUnit())} ${symbol}`
                 }
             </span>

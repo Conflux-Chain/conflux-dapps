@@ -2,7 +2,7 @@ import React, { useEffect, useCallback, useState } from 'react';
 import cx from 'clsx';
 import { useForm } from 'react-hook-form';
 import { useAccount, useStatus, Unit } from '@cfxjs/use-wallet/dist/ethereum';
-import { useBalance, useMaxAvailableBalance, useNeedApprove, useToken, useCurrentFromNetwork, useAntoherNetwork, setTransferBalance } from 'espace-bridge/src/store';
+import { useBalance, useMaxAvailableBalance, useNeedApprove, useToken, useCurrentFromNetwork, useCurrentToNetwork, setTransferBalance } from 'espace-bridge/src/store';
 import useI18n from 'common/hooks/useI18n';
 import Input from 'common/components/Input';
 import Spin from 'common/components/Spin';
@@ -36,7 +36,7 @@ const Form: React.FC = () => {
 
     const token = useToken();
     const currentFromNetwork = useCurrentFromNetwork();
-    const antoherNetwork = useAntoherNetwork();
+    const currentToNetwork = useCurrentToNetwork();
 
     const metaMaskAccount = useAccount();
     const metaMaskStatus = useStatus();
@@ -116,7 +116,7 @@ const Form: React.FC = () => {
 				<BalanceText className="ml-[4px]" balance={balance} id="wallet-balance" symbol={token.symbol} status={metaMaskStatus} />
 			</p>
 			<p className="mt-[20px] text-[14px] leading-[18px] text-[#3D3F4C] whitespace-nowrap">
-				Will receive on <span style={{ color: antoherNetwork.color }}>{antoherNetwork.name}</span>:
+				Will receive on <span style={{ color: currentToNetwork.color }}>{currentToNetwork.name}</span>:
 				<BalanceText className="ml-[4px]" id="will-receive" balance={receiveBalance} symbol={token.symbol} />
 			</p>
 

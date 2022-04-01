@@ -90,7 +90,7 @@ const Steps: React.FC<{ currentStep: 0 | 1 | 2; changeCurrentStep: (step: 0 | 1 
                                 </div>
                             )}
                             {(currentStep === index || index === 2) && (
-                                <span className={cx('text-[16px] transition-all', currentStep === index ? 'text-[#3D3F4C] font-medium' : 'text-[#898D9A] font-normal')}>
+                                <span className={cx('text-[16px]', currentStep === index ? 'text-[#3D3F4C] font-medium' : 'text-[#898D9A] font-normal')}>
                                     {currentStep === 2 ? step.title_detail : step.title}
                                 </span>
                             )}

@@ -12,6 +12,11 @@ export interface Network {
     scan: string;
     color: string;
     logo: string;
+    nativeCurrency: {
+        name: string,
+        symbol: string,
+        decimals: number,
+    }
 }
 
 interface NetworkStore {
@@ -34,7 +39,8 @@ export const networkStore = create(
                     url: currentESpaceConfig.url,
                     scan: currentESpaceConfig.scan,
                     color: currentESpaceConfig.color,
-                    logo: ConfluxIcon
+                    logo: ConfluxIcon,
+                    nativeCurrency: currentESpaceConfig.nativeCurrency
                 },
                 crossChain: {
                     name: currentESpaceConfig.chains[0].name,
@@ -43,6 +49,7 @@ export const networkStore = create(
                     scan: currentESpaceConfig.chains[0].scan,
                     color: currentESpaceConfig.chains[0].color,
                     logo: BSCIcon,
+                    nativeCurrency: currentESpaceConfig.chains[0].nativeCurrency
                 },
             } as unknown) as NetworkStore)
     )
@@ -61,7 +68,7 @@ export const useCurrentFromNetwork = () => {
     const currentFrom = useCurrentFromChain();
     return networkStore(selectors[currentFrom ?? 'eSpace']);
 }
-export const useAntoherNetwork = () => {
+export const useCurrentToNetwork = () => {
     const currentFrom = useCurrentFromChain();
     return networkStore(selectors[currentFrom === 'eSpace' ? 'crossChain' : 'eSpace']);
 }

@@ -1,16 +1,13 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import { completeDetect } from '@cfxjs/use-wallet';
-import { completeDetect as completeDetectEthereum } from '@cfxjs/use-wallet/dist/ethereum';
+import { createRoot } from 'react-dom/client';
 import 'custom-react-scrollbar/dist/style.css';
 import 'common/index.css';
 import App from './App';
 
-Promise.all([completeDetect(), completeDetectEthereum()]).then(() => {
-    ReactDOM.render(
-        <React.StrictMode>
-            <App />
-        </React.StrictMode>,
-        document.getElementById('root'),
-    );
-});
+const container = document.getElementById('root')!;
+const root = createRoot(container);
+root.render(        
+    <React.StrictMode>
+        <App />
+    </React.StrictMode>
+);
