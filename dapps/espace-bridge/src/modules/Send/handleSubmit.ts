@@ -44,14 +44,15 @@ const handleDeposit = async (amount: string) => {
 
     try {
         waitFluentKey = showWaitWallet('Fluent');
-        const timestamp = Date.now();
+        const timestamp = parseInt(Date.now() / 1000 + '');
+        console.log(timestamp)
         const TxnHash = await sendTransaction({
             to: bridgeContractAddress,
             data: bridgeContract.deposit(token.isNative ? eSpaceCFXAddress : token.address!, Unit.fromStandardUnit(amount).toHexMinUnit(), currentToNetwork.networkId, account, timestamp.toString()).data,
             value: Unit.fromStandardUnit(amount).toHexMinUnit()
         });
 
-        addTempDepositToList({ deposit_tx_hash: TxnHash, timestamp });
+        addTempDepositToList({ deposit_tx_hash: TxnHash, timestamp, amount: Unit.fromStandardUnit(amount).toDecimalMinUnit() });
         
         transactionSubmittedKey = showActionSubmitted(TxnHash);
         trackBalanceChangeOnce.balance(() => {
@@ -61,7 +62,7 @@ const handleDeposit = async (amount: string) => {
     } catch (err) {
         console.error(`Deposit ${token.symbol} to ${currentToNetwork.name} failed: `, err);
         hideWaitWallet(waitFluentKey);
-        if ((err as { code: number })?.code === 4001 && (err as any)?.message?.indexOf('UserRejected') !== -1) {
+        if ((err as { code: number })?.code === 4001 && (err as any)?.message?.indexOf('User') !== -1) {
             showToast('You canceled the Deposit.', { type: 'failed' });
         } else {
             showToast(

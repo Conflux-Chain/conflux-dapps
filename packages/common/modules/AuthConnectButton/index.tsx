@@ -51,7 +51,7 @@ export const switchToChain = async (wallet: 'Fluent' | 'MetaMask', network: Netw
 
     try {
         await switchChain(targetChainId);
-        showToast(`Switch ${network.name} to ${wallet} Success!`, { type: 'success' });
+        showToast(`Switch ${wallet} to ${network.name} Success!`, { type: 'success' });
     } catch (switchError) {
         // This error code indicates that the chain has not been added to MetaMask.
         if ((switchError as any)?.code === 4902) {
@@ -67,7 +67,7 @@ export const switchToChain = async (wallet: 'Fluent' | 'MetaMask', network: Netw
                     rpcUrls: [network.url],
                     blockExplorerUrls: [network.scan],
                 });
-                showToast(`Add ${network.name} to ${wallet} Success!`, { type: 'success' });
+                showToast(`Add ${wallet} to ${network.name} Success!`, { type: 'success' });
             } catch (addError) {
                 if ((addError as any)?.code === 4001) {
                     showToast('You cancel the add chain reqeust.', { type: 'failed' });
@@ -166,7 +166,8 @@ const AuthConnectButton = memo<AuthProps & ButtonHTMLAttributes<HTMLButtonElemen
             {showLogo && <img src={Logo} alt={`${currentWallet} logo`} className="mr-[4px] w-[14px] h-[14px]" draggable="false" />}
 
             {status === 'active' && chainMatched && typeof authContent === 'string' && authContent}
-            {status === 'active' && !chainMatched && currentNetwork && `${compiled(i18n.switchTo, { wallet: currentWallet, networkName: currentNetwork.name })}`}
+            {status === 'active' && !chainMatched && currentNetwork && connectTextType === 'specific' && `${compiled(i18n.switchTo, { wallet: currentWallet, networkName: currentNetwork.name })}`}
+            {status === 'active' && !chainMatched && currentNetwork && connectTextType === 'concise' && `Switch Network`}
             {status === 'not-active' && connectTextType === 'specific' && `${compiled(i18n.connect_specific, { space: currentWallet === 'Fluent' ? 'Conflux Core' : 'Conflux eSpace', wallet: currentWallet })}`}
             {status === 'not-active' && connectTextType === 'concise' && `${compiled(i18n.connect_concise, { wallet: currentWallet })}`}
             {status === 'in-activating' && `${compiled(i18n.connecting, { wallet: currentWallet })}`}

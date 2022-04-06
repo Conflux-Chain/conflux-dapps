@@ -39,8 +39,8 @@ const config = {
             "color": "#F3BA2F",
             "logo": "https://bin.bnbstatic.com/static/images/common/logo.png",
             "nativeCurrency": {
-                "name": "BSC",
-                "symbol": "BSC",
+                "name": "BNB",
+                "symbol": "BNB",
                 "decimals": 18,
             },
             "tokens": [{
@@ -94,8 +94,8 @@ const config = {
             "color": "#F3BA2F",
             "logo": "https://bin.bnbstatic.com/static/images/common/logo.png",
             "nativeCurrency": {
-                "name": "BSC",
-                "symbol": "BSC",
+                "name": "BNB",
+                "symbol": "BNB",
                 "decimals": 18,
             },
             "tokens": [{
