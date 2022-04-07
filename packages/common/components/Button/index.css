@@ -1,40 +1,52 @@
-button.button-mini {
+button.button-contained, button.button-outlined, a.button-contained, a.button-outlined {
+    @apply flex justify-center items-center rounded-[4px];
+}
+
+button.button-contained.button-inline, button.button-outlined.button-inline, a.button-contained.button-inline, a.button-outlined.button-inline {
+    @apply inline-flex;
+}
+
+button.button-mini, a.button-mini {
     @apply px-[12px] h-[24px] text-[12px];
 }
 
-button.button-small {
+button.button-small, a.button-small {
     @apply px-[12px] h-[32px] text-[12px];
 }
 
-button.button-normal {
+button.button-light, a.button-light {
+    @apply px-[14px] h-[40px] text-[14px];
+}
+
+button.button-normal, a.button-normal {
     @apply px-[16px] h-[48px] text-[16px];
 }
 
-button.button-outlined {
-    @apply flex justify-center items-center rounded-[4px] border border-[#808BE7] bg-white hover:bg-opacity-90 text-[#808BE7] transition-colors;
+button.button-outlined, a.button-outlined {
+    @apply border border-[#808BE7] bg-white hover:bg-opacity-90 text-[#808BE7] transition-colors;
 }
 
-button.button-outlined.button-green {
+button.button-outlined.button-green, a.button-outlined.button-green {
     @apply border-[#44D7B6] text-[#44D7B6]
 }
 
-button.button-outlined.button-error {
+button.button-outlined.button-error, a.button-outlined.button-error {
     @apply border-[#E96170] text-[#E96170];
 }
 
-button.button-contained {
-    @apply flex justify-center items-center rounded-[4px] bg-[#808BE7] hover:bg-opacity-90 text-white transition-colors;
+button.button-contained, a.button-contained {
+    @apply bg-[#808BE7] hover:bg-opacity-90 text-white transition-colors;
 }
 
-button.button-contained.button-reverse {
+button.button-contained.button-reverse, a.button-contained.button-reverse {
     @apply bg-[#F0F3FF] text-[#808BE7];
 }
 
-button.button-contained.button-error.button-reverse {
+button.button-contained.button-error.button-reverse, a.button-contained.button-error.button-reverse {
     @apply text-white;
 }
 
-button.button-contained.button-error {
+button.button-contained.button-error, a.button-contained.button-error {
     @apply bg-[#E96170]
 }
 

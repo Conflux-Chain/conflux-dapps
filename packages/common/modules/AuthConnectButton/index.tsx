@@ -2,7 +2,8 @@ import React, { useCallback, memo, type ButtonHTMLAttributes } from 'react';
 import cx from 'clsx';
 import { connect as connectFluent, useStatus as useFluentStatus, useChainId as useFluentChainId, switchChain as switchFluentChain, addChain as addFluentChain, provider as fluentProvider } from '@cfxjs/use-wallet';
 import { connect as connectMetaMask, useStatus as useMetaMaskStatus, useChainId as useMetaMaskChainId, switchChain as switchMetaMaskChain, addChain as addMetaMaskChain, provider as metaMaskProvider } from '@cfxjs/use-wallet/dist/ethereum';
-import { useCurrentNetwork, type Network } from '../../../../dapps/cross-space/src/store/index';
+import { useCoreNetwork, useESpaceNetwork, type Network } from 'cross-space/src/store/index';
+import { type Network as Network2 } from 'espace-bridge/src/store/index';
 import { showToast } from '../../components/tools/Toast';
 import useI18n, { compiled } from '../../hooks/useI18n';
 import FluentLogo from '../../assets/Fluent.svg';
@@ -43,7 +44,7 @@ export const connectToWallet = async (wallet: 'Fluent' | 'MetaMask') => {
     }
 }
 
-export const switchToChain = async (wallet: 'Fluent' | 'MetaMask', network: Network) => {
+export const switchToChain = async (wallet: 'Fluent' | 'MetaMask', network: Network | Network2) => {
     const switchChain = wallet === 'Fluent' ? switchFluentChain : switchMetaMaskChain;
     const addChain = wallet === 'Fluent' ? addFluentChain : addMetaMaskChain;
     const targetChainId = '0x' + Number(network.networkId).toString(16);
@@ -58,7 +59,7 @@ export const switchToChain = async (wallet: 'Fluent' | 'MetaMask', network: Netw
                 await addChain({
                     chainId: targetChainId,
                     chainName: network.name,
-                    nativeCurrency: {
+                    nativeCurrency: (network as Network2)?.nativeCurrency ?? {
                         name: 'Conflux',
                         symbol: 'CFX',
                         decimals: 18,
@@ -66,6 +67,7 @@ export const switchToChain = async (wallet: 'Fluent' | 'MetaMask', network: Netw
                     rpcUrls: [network.url],
                     blockExplorerUrls: [network.scan],
                 });
+                showToast(`Add ${wallet} to ${network.name} Success!`, { type: 'success' });
             } catch (addError) {
                 if ((addError as any)?.code === 4001) {
                     showToast('You cancel the add chain reqeust.', { type: 'failed' });
@@ -81,39 +83,58 @@ interface AuthProps {
     wallet: 'Fluent' | 'MetaMask' | 'Both-FluentFirst' | 'Both-MetaMaskFirst';
     authContent: any;
     buttonType: 'contained' | 'outlined';
-    buttonSize: 'mini' | 'small' | 'normal';
+    buttonSize: 'mini' | 'small' | 'light' | 'normal';
     buttonColor?: '' | 'green';
     connectTextType?: 'concise' | 'specific';
     buttonReverse?: boolean;
-    showLogo?: boolean;
+    showLogo?: boolean | string;
     fullWidth?: boolean;
     checkChainMatch?: boolean;
+    logo?: string;
+    useFluentNetwork?: () => any;
+    useMetaMaskNetwork?: () => any;
 }
 
-const AuthConnectButton = memo<AuthProps & ButtonHTMLAttributes<HTMLButtonElement>>(({ wallet, authContent, buttonType, buttonSize, buttonReverse, buttonColor = '', showLogo, fullWidth, className, connectTextType = 'specific', checkChainMatch = true, onClick, ...props }) => {
+const AuthConnectButton = memo<AuthProps & ButtonHTMLAttributes<HTMLButtonElement>>(({
+    wallet,
+    authContent,
+    buttonType,
+    buttonSize,
+    buttonReverse,
+    buttonColor = '',
+    showLogo,
+    fullWidth,
+    className,
+    connectTextType = 'specific',
+    checkChainMatch = true,
+    onClick,
+    useFluentNetwork = useCoreNetwork,
+    useMetaMaskNetwork = useESpaceNetwork,
+    logo,
+    ...props
+}) => {
     const i18n = useI18n(transitions);
-
-    const currentCoreNetwork = useCurrentNetwork('core');
-    const currentESpaceNetwork = useCurrentNetwork('eSpace');
+    const fluentNetwork = useFluentNetwork();
+    const metaMaskNetwork = useMetaMaskNetwork();
     const fluentChainId = useFluentChainId();
     const metaMaskChainId = useMetaMaskChainId();
-
     const fluentStatus = useFluentStatus();
     const metaMaskStatus = useMetaMaskStatus();
+
     let currentWallet: 'Fluent' | 'MetaMask' = !wallet.startsWith('Both') ? wallet as 'Fluent' : null!;
     if (currentWallet === null) {
         if (wallet === 'Both-MetaMaskFirst') {
-            if (metaMaskStatus !== 'active' || metaMaskChainId !== currentESpaceNetwork?.networkId) currentWallet = 'MetaMask';
+            if (metaMaskStatus !== 'active' || metaMaskChainId !== metaMaskNetwork?.networkId) currentWallet = 'MetaMask';
             else currentWallet = 'Fluent';
         } else {
-            if (fluentStatus !== 'active' || fluentChainId !== currentCoreNetwork?.networkId) currentWallet = 'Fluent';
+            if (fluentStatus !== 'active' || fluentChainId !== fluentNetwork?.networkId) currentWallet = 'Fluent';
             else currentWallet = 'MetaMask';
         }
     }
 
     const status = currentWallet === 'Fluent' ? fluentStatus : metaMaskStatus;
     const Logo = currentWallet == 'Fluent' ? FluentLogo : MetaMaskLogo;
-    const currentNetwork = currentWallet == 'Fluent' ? currentCoreNetwork : currentESpaceNetwork;
+    const currentNetwork = currentWallet == 'Fluent' ? fluentNetwork : metaMaskNetwork;
     const currentWalletChain = currentWallet == 'Fluent' ? fluentChainId : metaMaskChainId;
     const chainMatched = checkChainMatch ? currentWalletChain === currentNetwork?.networkId : true;
 
@@ -144,10 +165,11 @@ const AuthConnectButton = memo<AuthProps & ButtonHTMLAttributes<HTMLButtonElemen
             disabled={status !== 'active' && status !== 'not-active'}
             {...props}
         >
-            {showLogo && <img src={Logo} alt={`${currentWallet} logo`} className="mr-[4px] w-[14px] h-[14px]" draggable="false" />}
+            {!!showLogo && <img src={logo ?? Logo} alt={`${currentWallet} logo`} className={typeof showLogo === 'string' ? showLogo : "mr-[4px] w-[14px] h-[14px]"} draggable="false" />}
 
             {status === 'active' && chainMatched && typeof authContent === 'string' && authContent}
-            {status === 'active' && !chainMatched && currentNetwork && `${compiled(i18n.switchTo, { wallet: currentWallet, networkName: currentNetwork.name })}`}
+            {status === 'active' && !chainMatched && currentNetwork && connectTextType === 'specific' && `${compiled(i18n.switchTo, { wallet: currentWallet, networkName: currentNetwork.name })}`}
+            {status === 'active' && !chainMatched && currentNetwork && connectTextType === 'concise' && `Switch Network`}
             {status === 'not-active' && connectTextType === 'specific' && `${compiled(i18n.connect_specific, { space: currentWallet === 'Fluent' ? 'Conflux Core' : 'Conflux eSpace', wallet: currentWallet })}`}
             {status === 'not-active' && connectTextType === 'concise' && `${compiled(i18n.connect_concise, { wallet: currentWallet })}`}
             {status === 'in-activating' && `${compiled(i18n.connecting, { wallet: currentWallet })}`}

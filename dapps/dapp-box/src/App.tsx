@@ -1,11 +1,13 @@
 import { useState, useCallback, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, Outlet } from 'react-router-dom';
 import CustomScrollbar from 'custom-react-scrollbar';
 import Navbar from 'common/modules/Navbar';
 import { LocaleContext } from 'common/hooks/useI18n';
 import { ModeContext } from 'common/hooks/useMode';
 import Sidebar from 'dapp-box/src/modules/Sidebar';
 import CrossSpace from 'cross-space/src/modules';
+import BscEspace from 'bsc-espace/src/modules';
+import ESpaceBridgeEnter from 'dapp-box/src/modules/ESpaceBridgeEnter';
 import ShuttleFlowNavbarEnhance from 'dapp-box/src/modules/NavbarEnhance/ShuttleFlow';
 import useCurrentDapp from 'dapp-box/src/hooks/useCurrentDapp';
 import ShuttleFlowIcon from 'dapp-box/src/assets/shuttle-flow.svg';
@@ -25,10 +27,10 @@ export const dapps = [
         }
     },
     {
-        name: 'Cross Space',
+        name: 'eSpace Bridge',
         icon: CrossSpaceIcon,
-        path: 'cross-space',
-        element: <CrossSpace />,
+        path: 'espace-bridge',
+        element: <ESpaceBridgeEnter />,
         index: true,
     }
 ];
@@ -102,11 +104,11 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                 Enhance={currentDapp.NavbarEnhance}
             />
             <Routes>
-                {dapps
-                    .filter((dapp) => dapp.element)
-                    .map(({ path, element }) => (
-                        <Route key={path} path={path} element={element} />
-                    ))}
+                <Route key='espace-bridge' path='espace-bridge' element={<Outlet />}>
+                    <Route index element={<ESpaceBridgeEnter />}  />
+                    <Route key='cross-space' path='cross-space' element={<CrossSpace />} />
+                    <Route key='bsc-esapce-cfx' path='bsc-esapce-cfx' element={<BscEspace />} />
+                </Route>
                 {dapps
                     .filter((dapp) => !dapp.element)
                     .map(({ path }) => (
