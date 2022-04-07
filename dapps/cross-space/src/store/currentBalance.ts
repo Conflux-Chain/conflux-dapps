@@ -441,28 +441,9 @@ const createTrackBalanceChangeOnce = ({
     if (!callback) return;
     let unsubBalance: Function | null = null;
     let unsubAccount: Function | null = null;
-    if (walletStore) {
-        unsubAccount = walletStore.subscribe(state => [state.accounts, state.chainId], () => {
-            if (!unsubAccount) return;
-            if (unsubBalance) {
-                unsubBalance();
-                unsubBalance = null;
-            }
-            unsubAccount();
-            unsubAccount = null;
-        });
-    }
-
-    unsubBalance = balanceStore.subscribe(balanceSelector as typeof selectors['currentTokenBalance'], () => {
-        if (!unsubBalance) return;
-        callback();
-        unsubBalance();
-        unsubBalance = null;
-    });
-    
+    let unsubChainId: Function | null = null;
     let unsubCurrentToken: Function | null = null;
-    unsubCurrentToken = currentTokenStore.subscribe(state => state.currentToken, () => {
-        if (!unsubCurrentToken) return;
+    const clearUnsub = () => {
         if (unsubBalance) {
             unsubBalance();
             unsubBalance = null;
@@ -471,9 +452,27 @@ const createTrackBalanceChangeOnce = ({
             unsubAccount();
             unsubAccount = null;
         }
-        unsubCurrentToken();
-        unsubCurrentToken = null;
+        if (unsubChainId) {
+            unsubChainId();
+            unsubChainId = null;
+        }
+        if (unsubCurrentToken) {
+            unsubCurrentToken();
+            unsubCurrentToken = null;
+        }
+    }
+
+    if (walletStore) {
+        unsubAccount = walletStore.subscribe(state => state.accounts, clearUnsub);
+        unsubChainId = walletStore.subscribe(state => state.chainId, clearUnsub);
+    }
+
+    unsubBalance = balanceStore.subscribe(balanceSelector as typeof selectors['currentTokenBalance'], () => {
+        callback();
+        clearUnsub();
     });
+    
+    unsubCurrentToken = currentTokenStore.subscribe(state => state.currentToken, clearUnsub);
 }
 
 const trackBalanceChangeOnce = {

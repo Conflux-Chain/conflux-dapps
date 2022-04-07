@@ -87,9 +87,10 @@ interface AuthProps {
     buttonColor?: '' | 'green';
     connectTextType?: 'concise' | 'specific';
     buttonReverse?: boolean;
-    showLogo?: boolean;
+    showLogo?: boolean | string;
     fullWidth?: boolean;
     checkChainMatch?: boolean;
+    logo?: string;
     useFluentNetwork?: () => any;
     useMetaMaskNetwork?: () => any;
 }
@@ -109,6 +110,7 @@ const AuthConnectButton = memo<AuthProps & ButtonHTMLAttributes<HTMLButtonElemen
     onClick,
     useFluentNetwork = useCoreNetwork,
     useMetaMaskNetwork = useESpaceNetwork,
+    logo,
     ...props
 }) => {
     const i18n = useI18n(transitions);
@@ -163,7 +165,7 @@ const AuthConnectButton = memo<AuthProps & ButtonHTMLAttributes<HTMLButtonElemen
             disabled={status !== 'active' && status !== 'not-active'}
             {...props}
         >
-            {showLogo && <img src={Logo} alt={`${currentWallet} logo`} className="mr-[4px] w-[14px] h-[14px]" draggable="false" />}
+            {!!showLogo && <img src={logo ?? Logo} alt={`${currentWallet} logo`} className={typeof showLogo === 'string' ? showLogo : "mr-[4px] w-[14px] h-[14px]"} draggable="false" />}
 
             {status === 'active' && chainMatched && typeof authContent === 'string' && authContent}
             {status === 'active' && !chainMatched && currentNetwork && connectTextType === 'specific' && `${compiled(i18n.switchTo, { wallet: currentWallet, networkName: currentNetwork.name })}`}

@@ -1,7 +1,7 @@
-.main-scroll {
-    height: calc(100vh - 64px);
-}
-
 html {
     font-family: 'SF Pro Display';
+}
+
+.main-scroll {
+    height: calc(100vh - 64px);
 }

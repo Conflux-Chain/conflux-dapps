@@ -29,6 +29,7 @@ export interface PopupMethods {
     setItemWrapperStyle(style?: CSSProperties): void;
     setItemWrapperClassName(className?: string): void;
     setMaskClickHandler(handler?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void): void;
+    setAnimatedSize(animatedSize: boolean): void;
 }
 
 const PopupItem = forwardRef<HTMLDivElement, PopupProps & { handleClose: () => void; }>(({ handleClose, Content, duration }, ref) => {
@@ -65,7 +66,8 @@ const PopupContainer = forwardRef<PopupMethods>((_, ref) => {
     const [listClassName, setListClassName] = useState<string | undefined>(undefined);
     const [itemWrapperStyle, setItemWrapperStyle] = useState<CSSProperties | undefined>(undefined);
     const [itemWrapperClassName, setItemWrapperClassName] = useState<string | undefined>(undefined);
-    
+    const [animatedSize, setAnimatedSize] = useState(true);
+
     const pushPopup = useCallback(({ Content, duration = 3000, showMask = false, key, preventDuplicate, maximum, unique, queue, ...props }: PartialOptional<PopupProps, 'key'>) => {
         const usedKey = key ?? uniqueId('popup');
 
@@ -107,7 +109,7 @@ const PopupContainer = forwardRef<PopupMethods>((_, ref) => {
         setMaskClickHandler(() => func);
     }, []);
 
-    useImperativeHandle(ref, () => ({ show: pushPopup, hide: popPopup, hideAll: popAllPopup, setMaskStyle, setMaskClassName, setListStyle, setListClassName, setItemWrapperStyle, setItemWrapperClassName, setMaskClickHandler: setMaskClick }));
+    useImperativeHandle(ref, () => ({ show: pushPopup, hide: popPopup, hideAll: popAllPopup, setMaskStyle, setMaskClassName, setListStyle, setListClassName, setItemWrapperStyle, setItemWrapperClassName, setMaskClickHandler: setMaskClick, setAnimatedSize }));
 
     return (
         <div>
@@ -115,7 +117,7 @@ const PopupContainer = forwardRef<PopupMethods>((_, ref) => {
             <List
                 className={classNames('fixed flex flex-col items-center w-fit left-[50%] top-[30%] translate-x-[-50%] z-[201]', listClassName)}
                 list={popupList}
-                animatedSize
+                animatedSize={animatedSize}
                 style={listStyle}
                 ItemWrapperClassName={itemWrapperClassName}
                 ItemWrapperStyle={{ marginBottom: 12, ...itemWrapperStyle }}

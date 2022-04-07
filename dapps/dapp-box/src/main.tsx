@@ -1,17 +1,20 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
+import ReactDOM from 'react-dom';
+import { completeDetect } from '@cfxjs/use-wallet';
+import { completeDetect as completeDetectEthereum } from '@cfxjs/use-wallet/dist/ethereum';
 import { registerMicroApps, start as startQianKun } from 'qiankun';
 import 'custom-react-scrollbar/dist/style.css';
 import 'common/index.css';
 import App from './App';
 
-const container = document.getElementById('conflux-hub-root')!;
-const root = createRoot(container);
-root.render(        
-    <React.StrictMode>
-        <App />
-    </React.StrictMode>
-);
+Promise.all([completeDetect(), completeDetectEthereum()]).then(() => {
+    ReactDOM.render(
+        <React.StrictMode>
+            <App />
+        </React.StrictMode>,
+        document.getElementById('conflux-hub-root')
+    );
+});
 
 let entry = 'shuttleflow.io';
 if (location.host.startsWith('test')) {
