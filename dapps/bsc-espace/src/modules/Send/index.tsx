@@ -90,7 +90,7 @@ const Form: React.FC = () => {
     return (
         <form onSubmit={onSubmit}>
             <Input
-				id="eSpaceBridge-DepositAamount-input"
+				id="bsc-espace-deposit-amount-input"
 				className='pr-[52px]'
 				wrapperClassName='mt-[16px] mb-[12px]'
 				placeholder="Amount you want to deposit"

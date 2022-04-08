@@ -42,7 +42,7 @@ const handleDeposit = async (amount: string) => {
     let transactionSubmittedKey: string | number = null!;
 
     try {
-        waitFluentKey = showWaitWallet('Fluent');
+        waitFluentKey = showWaitWallet('MetaMask');
         const timestamp = parseInt(Date.now() / 1000 + '');
         const TxnHash = await sendTransaction({
             to: bridgeContractAddress,

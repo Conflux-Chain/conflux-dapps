@@ -24,6 +24,7 @@ const Chain: React.FC<{ useNetwork: typeof useCrossNetwork; account?: string; fl
     return (
         <div className={cx('flex flex-col justify-between w-[50%] h-[78px] px-[10px] py-[12px] rounded-[8px] border-[1px] border-[#EAECEF] transition-transform duration-300', flipped && 'rotateY-180')}>
             <AuthConnectButton
+                id={`bsc-espace-network-${network.name}-auth-connect-button`}
                 className='w-fit'
                 wallet="MetaMask"
                 buttonType="contained"
@@ -33,7 +34,7 @@ const Chain: React.FC<{ useNetwork: typeof useCrossNetwork; account?: string; fl
                 showLogo
                 checkChainMatch={false}
                 useMetaMaskNetwork={useNetwork}
-                authContent={() => (
+                authContent={() => account && (
                     <div className="relative flex items-center">
                         <img src={MetaMask} alt="fluent icon" className="mr-[4px] w-[16px] h-[16px]" />
                         <span className="mr-[8px] text-[12px] text-[#3D3F4C]">{shortenAddress(account!)}</span>
@@ -74,7 +75,7 @@ const ChainSelect: React.FC = () => {
             <Chain useNetwork={(useESpaceNetwork as unknown) as typeof useCrossNetwork} account={account} flipped={flipped} />
             <Chain useNetwork={useCrossNetwork} account={account} flipped={flipped} />
             <button
-                id="bsc-espace-flip"
+                id="bsc-espace-chain-flip"
                 className="absolute left-[50%] top-[50%] -translate-x-[50%] -translate-y-[50%] turn-page flex justify-center items-center w-[28px] h-[28px] rounded-full bg-white cursor-pointer transition-transform hover:scale-105"
                 type="button"
                 onClick={handleClickFlipped}

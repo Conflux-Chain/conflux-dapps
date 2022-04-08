@@ -18,6 +18,13 @@ import 'common/index.css';
 
 export const dapps = [
     {
+        name: 'eSpace Bridge',
+        icon: CrossSpaceIcon,
+        path: 'espace-bridge',
+        element: <ESpaceBridgeEnter />,
+        index: true,
+    },
+    {
         name: 'ShuttleFlow',
         icon: ShuttleFlowIcon,
         path: 'shuttle-flow',
@@ -25,13 +32,6 @@ export const dapps = [
             type: 'childRoutes' as 'childRoutes',
             Content: <ShuttleFlowNavbarEnhance />,
         }
-    },
-    {
-        name: 'eSpace Bridge',
-        icon: CrossSpaceIcon,
-        path: 'espace-bridge',
-        element: <ESpaceBridgeEnter />,
-        index: true,
     }
 ];
 
@@ -114,7 +114,7 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                     .map(({ path }) => (
                         <Route key={path} path={path + '/*'} element={<div id={path} />} />
                     ))}
-                <Route path="*" element={<Navigate to="shuttle-flow"/>} />
+                <Route path="*" element={<Navigate to="espace-bridge"/>} />
             </Routes>
         </CustomScrollbar>
     );

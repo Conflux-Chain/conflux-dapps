@@ -56,7 +56,7 @@ const Pool: React.FC<{
     const redeemBalance = Unit.lessThan(maximumLiquidity, peggedBalance) ? maximumLiquidity : peggedBalance;
 
     return (
-        <div className="w-full px-[12px] pt-[16px] pb-[24px] rounded-[4px] bg-[#FAFBFD]">
+        <div className="w-full px-[12px] pt-[16px] pb-[24px] rounded-[4px] bg-[#FAFBFD]" id={`bsc-espace-${network.name}-pool`}>
             <p className="mb-[16px] leading-[28px] text-center text-[20px] text-[#3D3F4C] ">{`${network.name} Pool`}</p>
             <div className="mb-[24px] flex justify-between">
                 {maximumLiquidity &&
@@ -79,7 +79,7 @@ const Pool: React.FC<{
                     ))}
             </div>
             <AuthConnectButton
-                id={`${network.name}-Pool-auth`}
+                id={`bsc-espace-${network.name}-pool-auth`}
                 className="w-[344px] mx-auto"
                 wallet="MetaMask"
                 buttonType="outlined"
@@ -91,7 +91,7 @@ const Pool: React.FC<{
                 logo={network.logo}
                 authContent={() => (
                     <button
-                        id="eSpaceBridge-Send"
+                        id={`bsc-espace-${network.name}-pool-redeem`}
                         className="button-outlined button-light w-[344px] mx-auto"
                         disabled={inRedeem || redeemBalance.equalsWith(Unit.fromStandardUnit(0))}
                         onClick={() => handleRedeem(type, setInRedeem)}

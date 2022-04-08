@@ -3,7 +3,7 @@ import cx from 'clsx';
 import { connect as connectFluent, useStatus as useFluentStatus, useChainId as useFluentChainId, switchChain as switchFluentChain, addChain as addFluentChain, provider as fluentProvider } from '@cfxjs/use-wallet';
 import { connect as connectMetaMask, useStatus as useMetaMaskStatus, useChainId as useMetaMaskChainId, switchChain as switchMetaMaskChain, addChain as addMetaMaskChain, provider as metaMaskProvider } from '@cfxjs/use-wallet/dist/ethereum';
 import { useCoreNetwork, useESpaceNetwork, type Network } from 'cross-space/src/store/index';
-import { type Network as Network2 } from 'espace-bridge/src/store/index';
+import { type Network as Network2 } from 'bsc-espace/src/store/index';
 import { showToast } from '../../components/tools/Toast';
 import useI18n, { compiled } from '../../hooks/useI18n';
 import FluentLogo from '../../assets/Fluent.svg';
