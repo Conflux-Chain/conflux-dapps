@@ -16,6 +16,13 @@ import 'common/index.css';
 
 export const dapps = [
     {
+        name: 'Cross Space',
+        icon: CrossSpaceIcon,
+        path: 'cross-space',
+        element: <CrossSpace />,
+        index: true,
+    },
+    {
         name: 'ShuttleFlow',
         icon: ShuttleFlowIcon,
         path: 'shuttle-flow',
@@ -23,13 +30,6 @@ export const dapps = [
             type: 'childRoutes' as 'childRoutes',
             Content: <ShuttleFlowNavbarEnhance />,
         }
-    },
-    {
-        name: 'Cross Space',
-        icon: CrossSpaceIcon,
-        path: 'cross-space',
-        element: <CrossSpace />,
-        index: true,
     }
 ];
 
@@ -112,7 +112,7 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                     .map(({ path }) => (
                         <Route key={path} path={path + '/*'} element={<div id={path} />} />
                     ))}
-                <Route path="*" element={<Navigate to="shuttle-flow"/>} />
+                <Route path="*" element={<Navigate to="cross-space"/>} />
             </Routes>
         </CustomScrollbar>
     );
