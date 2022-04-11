@@ -26,6 +26,7 @@ export const ESpaceBridgeEnter: React.FC = () => {
                     className='bridge-dapp relative w-[348px] h-[402px] rounded-[12px] bg-cover text-center border-[1px] border-transparent hover:border-[#808BE7] cursor-pointer transition-colors'
                     key={dapp.title}
                     onClick={() => navigate(dapp.to)}
+                    id={`espace-bridge-toCard-${dapp.to}`}
                 >
                     <img src={dapp.bg} className='absolute -left-[16px] -top-[8px] max-w-none w-[378px] h-[430px] z-0 select-none' alt={dapp.title} draggable={false} />
 
@@ -35,6 +36,7 @@ export const ESpaceBridgeEnter: React.FC = () => {
                     <Link
                         className='mt-[48px] button-contained button-light button-inline w-[164px] translate-x-0'
                         to={dapp.to}
+                        id={`espace-bridge-toCard-goButton-${dapp.to}`}
                     >
                         Go
                     </Link>
