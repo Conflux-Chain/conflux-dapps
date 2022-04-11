@@ -19,6 +19,7 @@ import ArrowLeft from 'cross-space/src/assets/arrow-left.svg';
 import InputClose from 'cross-space/src/assets/input-close.svg';
 import Success from 'cross-space/src/assets/success.svg';
 import handleSubmit from './handleSubmit';
+import './index.css';
 
 const transitions = {
 	en: {
