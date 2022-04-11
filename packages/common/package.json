@@ -14,7 +14,7 @@
     },
     "dependencies": {
         "@react-spring/web": "^9.4.4",
-        "@cfxjs/use-wallet": "^0.0.18",
+        "@cfxjs/use-wallet": "^0.0.22",
         "@fluent-wallet/shorten-address": "^0.1.2",
         "@tippyjs/react": "^4.2.6",
         "clsx": "^1.1.1",
