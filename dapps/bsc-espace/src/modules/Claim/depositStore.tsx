@@ -150,7 +150,7 @@ const clearTempListTimer = () => {
 export const startSubDepositList = () => {
     const unsub1 = walletStore.subscribe(state => state.accounts, (accounts, preAccounts) => {
         const account = accounts?.[0];
-        const preAccount = accounts?.[0];
+        const preAccount = preAccounts?.[0];
         if (!!preAccount && account === preAccount && pollingFetchTimer !== null) return;
         if (!account) {
             clearPollingFetchTimer();
