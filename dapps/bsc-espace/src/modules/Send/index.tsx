@@ -143,7 +143,8 @@ const Form: React.FC = () => {
 					<button
 						id="eSpaceBridge-Send"
 						className='mt-[24px] button-contained button-normal w-full'
-						disabled={!canClickButton || !isTransferHasEnoughLiquidity}
+						// disabled={!canClickButton || !isTransferHasEnoughLiquidity}
+						disabled={!canClickButton}
 					>
 						{needApprove ? 'Approve' : needApprove === false ? 'Send' : <Spin className='text-[28px] text-white' />}
 					</button>					
