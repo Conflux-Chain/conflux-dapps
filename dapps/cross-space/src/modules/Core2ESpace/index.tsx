@@ -110,7 +110,7 @@ const Core2ESpace: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 					<div className='relative flex items-center'>
 						<Input
 							id="core2eSpace-eSpaceAccount-input"
-							className={cx(isLockMetaMaskAccount ? 'pr-[40px]' : 'pr-[12px]')}
+							className={cx('text-[13px]', isLockMetaMaskAccount ? 'pr-[40px]' : 'pr-[12px]')}
 							outerPlaceholder={
 								<p className='input-placeholder text-[14px]'>
 									<span className='font-semibold text-[#15C184]'>Conflux eSpace</span> <span className='text-[#979797]'>Destination Address</span>

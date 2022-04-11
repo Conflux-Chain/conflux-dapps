@@ -372,7 +372,7 @@ export const startSubBalance = () => {
                         tokensAmount: {},
                         isFluentRequest: true,
                     }).then(estimateRes => {
-                        balanceStore.setState({ maxAvailableBalance:  Unit.fromMinUnit(estimateRes.nativeMaxDrip) });
+                        balanceStore.setState({ maxAvailableBalance: Unit.fromMinUnit(estimateRes.nativeMaxDrip) });
                     }).catch(err => {
                         balanceStore.setState({ maxAvailableBalance: undefined });
                         // console.error('Get fluent max available balance error: ', err);

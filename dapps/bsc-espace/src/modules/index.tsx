@@ -61,15 +61,15 @@ const App: React.FC = () => {
         if (currentStep === 2 && hasPeggedCFX === false) {
             setCurrentStep(0);
         }
-    }, [currentStep, hasPeggedCFX])
+    }, [currentStep, hasPeggedCFX]);
 
     return (
         <div className="relative w-[480px] mx-auto pt-[16px] mb-24px">
             <p className="pl-[32px] font-medium	text-[28px] leading-[36px] text-[#3D3F4C]">{i18n.transfer_assets}</p>
             <p className="pl-[32px] text-[16px] leading-[22px] mt-[4px] text-[#A9ABB2]">{i18n.between_space}</p>
 
-            <div className="mt-[24px] bsc-espace-module min-h-[372px]">
-                <Steps currentStep={currentStep} changeCurrentStep={changeCurrentStep} hasPeggedCFX={hasPeggedCFX}/>
+            <div className={cx('mt-[24px] bsc-espace-module', currentStep === 2 && 'min-h-[372px]')}>
+                <Steps currentStep={currentStep} changeCurrentStep={changeCurrentStep} hasPeggedCFX={hasPeggedCFX} />
 
                 {currentStep === 0 && <Send />}
                 {currentStep === 1 && <Claim />}
@@ -79,15 +79,24 @@ const App: React.FC = () => {
     );
 };
 
-
-const Steps: React.FC<{ currentStep: 0 | 1 | 2; changeCurrentStep: (step: 0 | 1 | 2) => void; hasPeggedCFX?: boolean; }> = ({ currentStep, changeCurrentStep, hasPeggedCFX }) => {
-    
+const Steps: React.FC<{ currentStep: 0 | 1 | 2; changeCurrentStep: (step: 0 | 1 | 2) => void; hasPeggedCFX?: boolean }> = ({
+    currentStep,
+    changeCurrentStep,
+    hasPeggedCFX,
+}) => {
     return (
         <>
-            <div className={cx("flex justify-between items-center pr-[28px]")}>
+            <div className={cx('flex justify-between items-center pr-[28px]')}>
                 {steps.map((step, index) => (
                     <React.Fragment key={step.title}>
-                        <div className={cx("flex items-center cursor-pointer transition-opacity", !hasPeggedCFX && index === 2 && 'opacity-0 pointer-events-none' )} onClick={() => changeCurrentStep(index as 0 | 1 | 2)}>
+                        <div
+                            id={`bsc-espace-step-${index}`}
+                            className={cx(
+                                'flex items-center cursor-pointer transition-opacity',
+                                !hasPeggedCFX && index === 2 && 'opacity-0 pointer-events-none'
+                            )}
+                            onClick={() => changeCurrentStep(index as 0 | 1 | 2)}
+                        >
                             {index !== 2 && (
                                 <div
                                     className={cx(
@@ -104,12 +113,21 @@ const Steps: React.FC<{ currentStep: 0 | 1 | 2; changeCurrentStep: (step: 0 | 1 
                                 </span>
                             )}
                         </div>
-                        {(index !== 2) && <div className={cx('w-[40px] border-[1px] border-dashed border-[#A9ABB2] transition-opacity', !hasPeggedCFX && index === 1 && 'opacity-0')} />}
+                        {index !== 2 && (
+                            <div
+                                className={cx(
+                                    'w-[40px] border-[1px] border-dashed border-[#A9ABB2] transition-opacity',
+                                    !hasPeggedCFX && index === 1 && 'opacity-0'
+                                )}
+                            />
+                        )}
                     </React.Fragment>
                 ))}
             </div>
-            <p className={cx('mt-[24px] mb-[16px] text-[14px] text-[#898D9A] transition-opacity', !hasPeggedCFX && currentStep === 2 && 'opacity-0')}>{steps[currentStep].desc}</p>
-        </> 
+            <p className={cx('mt-[24px] mb-[16px] text-[14px] text-[#898D9A] transition-opacity', !hasPeggedCFX && currentStep === 2 && 'opacity-0')}>
+                {steps[currentStep].desc}
+            </p>
+        </>
     );
 };
 

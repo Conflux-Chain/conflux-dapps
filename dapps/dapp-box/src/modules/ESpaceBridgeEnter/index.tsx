@@ -1,8 +1,7 @@
 import React from 'react';
 import BscESpaceBg from 'dapp-box/src/assets/bsc-espace.png';
 import CrossSpaceBg from 'dapp-box/src/assets/cross-space.png';
-import { Link } from 'react-router-dom';
-import './index.css';
+import { Link, useNavigate } from 'react-router-dom';
 
 const dapps = [{
     title: 'Between Core and eSpace',
@@ -18,19 +17,23 @@ const dapps = [{
 }] as const;
 
 export const ESpaceBridgeEnter: React.FC = () => {
+    const navigate = useNavigate();
+
     return (
         <div className="pt-[94px] mx-auto w-fit flex items-stretch gap-[60px]">
             {dapps.map(dapp => 
                 <div 
-                    className='bridge-dapp w-[348px] h-[402px] rounded-[12px] bg-cover text-center'
-                    style={{ backgroundImage: `url(${dapp.bg})` }}
+                    className='bridge-dapp relative w-[348px] h-[402px] rounded-[12px] bg-cover text-center border-[1px] border-transparent hover:border-[#808BE7] cursor-pointer transition-colors'
                     key={dapp.title}
+                    onClick={() => navigate(dapp.to)}
                 >
-                    <p className='mt-[216px] text-[20px] leading-[28px] text-[#3D3F4C] font-medium'>{dapp.title}</p>
-                    <p className='mt-[12px] text-[16px] leading-[22px] text-[#808BE7]'>{dapp.tip}</p>
+                    <img src={dapp.bg} className='absolute -left-[16px] -top-[8px] max-w-none w-[378px] h-[430px] z-0 select-none' alt={dapp.title} draggable={false} />
+
+                    <p className='mt-[216px] text-[20px] leading-[28px] text-[#3D3F4C] font-medium translate-x-0'>{dapp.title}</p>
+                    <p className='mt-[12px] text-[16px] leading-[22px] text-[#808BE7] translate-x-0'>{dapp.tip}</p>
 
                     <Link
-                        className='mt-[48px] button-contained button-light button-inline w-[164px]'
+                        className='mt-[48px] button-contained button-light button-inline w-[164px] translate-x-0'
                         to={dapp.to}
                     >
                         Go
