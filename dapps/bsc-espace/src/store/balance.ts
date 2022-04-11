@@ -400,11 +400,12 @@ export const startSubBalance = () => {
         const trackBalance = () => {
             const account = walletStore.getState().accounts?.[0];
             const balance = balanceStore.getState().balance;
+            const { bridgeContract, eSpaceBridgeContractAddress } = contractStore.getState();
             const { chainId } = walletStore.getState();
             const { eSpace, crossChain, currentFrom } = networkStore.getState();
             const { token } = tokenStore.getState();
 
-            if (!currentFrom || !balance || !account || chainId !== (currentFrom === 'eSpace' ? eSpace.networkId : crossChain.networkId)) {
+            if (!bridgeContract || !currentFrom || !balance || !account || chainId !== (currentFrom === 'eSpace' ? eSpace.networkId : crossChain.networkId)) {
                 clearUndefinedTimer();
                 balanceStore.setState({ maxAvailableBalance: undefined });
                 return;
@@ -413,14 +414,14 @@ export const startSubBalance = () => {
             if (currentFrom === 'eSpace' && token.isNative) {
                 // estimate MetaMask max available balance
                 if (!provider) return;
-
                 Promise.all([
                     provider.request({
                         method: 'eth_estimateGas',
                         params: [
                             {
                                 from: account,
-                                to: '0x8a4c531EED1205E0eE6E34a1092e0298173a659d',
+                                data: bridgeContract.deposit(token.address, balance.toHexMinUnit(), crossChain.networkId, account, `${parseInt(Date.now() / 1000 + '')}`).data,
+                                to: eSpaceBridgeContractAddress,
                                 value: balance.toHexMinUnit(),
                             },
                         ],
