@@ -34,10 +34,10 @@ const Chain: React.FC<{ useNetwork: typeof useCrossNetwork; account?: string; fl
                 showLogo
                 checkChainMatch={false}
                 useMetaMaskNetwork={useNetwork}
-                authContent={() => account && (
+                authContent={() => (
                     <div className="relative flex items-center">
                         <img src={MetaMask} alt="fluent icon" className="mr-[4px] w-[16px] h-[16px]" />
-                        <span className="mr-[8px] text-[12px] text-[#3D3F4C]">{shortenAddress(account!)}</span>
+                        <span className="mr-[8px] text-[12px] text-[#3D3F4C]">{account ? shortenAddress(account!) : ''}</span>
                     </div>
                 )}
             />
