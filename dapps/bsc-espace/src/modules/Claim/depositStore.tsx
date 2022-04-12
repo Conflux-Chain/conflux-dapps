@@ -94,7 +94,7 @@ const fetchDepositList = (account: string, isFirstFetch = false) => {
     if (isFirstFetch) {
         depositListStore.setState({ inFetching: true });
     }
-    fetch(currentESpaceConfig.rpcUrl, {
+    fetch(currentESpaceConfig.serverUrl, {
         body: JSON.stringify({
             jsonrpc: '2.0',
             method: 'getDepositList',

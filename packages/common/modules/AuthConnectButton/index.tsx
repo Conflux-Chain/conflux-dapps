@@ -120,7 +120,7 @@ const AuthConnectButton = memo<AuthProps & ButtonHTMLAttributes<HTMLButtonElemen
     const metaMaskChainId = useMetaMaskChainId();
     const fluentStatus = useFluentStatus();
     const metaMaskStatus = useMetaMaskStatus();
-
+    
     let currentWallet: 'Fluent' | 'MetaMask' = !wallet.startsWith('Both') ? wallet as 'Fluent' : null!;
     if (currentWallet === null) {
         if (wallet === 'Both-MetaMaskFirst') {
