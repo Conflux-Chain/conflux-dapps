@@ -38,7 +38,7 @@ const Claim: React.FC = () => {
     useEffect(() => {
         setLoading(inFetching);
     }, [inFetching]);
-    
+
     if (!depositList?.length) {
         return (
             <div ref={ref}>
@@ -49,7 +49,15 @@ const Claim: React.FC = () => {
 
     return (
         <div ref={ref}>
-            <List id="bsc-espace-claim-list" className="flex flex-col" list={depositList} itemKey="deposit_tx_hash" animatedSize ItemWrapperClassName="deposit-item">
+            <List
+                id="bsc-espace-claim-list"
+                className="flex flex-col"
+                list={depositList}
+                itemKey="deposit_tx_hash"
+                ItemWrapperClassName="deposit-item"
+                animatedSize
+                animationType='slideRight'
+            >
                 {(deposit) => (
                     <div
                         className="relative w-[432px] py-[12px] pl-[12px] pr-[132px] border-[1px] border-[#EAECEF] rounded-[4px] bg-[#FAFBFD]"
