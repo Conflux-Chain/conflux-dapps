@@ -45,7 +45,7 @@ function getCurrentFromTokenList (currentFrom: 'crossChain' | 'eSpace' = 'eSpace
     });
 
     const token = tokenStore.getState().token;
-    const isInTokens = !!tokens.find(_token => _token.address === token.address);
+    const isInTokens = !!tokens.find(_token => _token.symbol === token.symbol);
     if (!isInTokens) {
         setToken(tokens[0]);
     }

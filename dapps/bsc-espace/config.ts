@@ -27,7 +27,7 @@ const config = {
                 icon: CFXIcon,
                 PeggedToken: {
                     name: 'Pegged Conflux',
-                    symbol: 'PeggedbCFX',
+                    symbol: 'PeggedCFX',
                     address: '0x5ce35e15080737671799911a300f112221406bb5',
                     decimals: '18',
                     icon: TokenDefaultIcon,
