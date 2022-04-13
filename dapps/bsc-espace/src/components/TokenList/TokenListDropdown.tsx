@@ -107,7 +107,7 @@ const DropdownContent: React.FC<{ visible: boolean; hideDropdown: () => void; }>
             <CustomScrollbar className='token-list'>
                 {tokenList.map(_token =>
                     <TokenItem
-                        key={_token.address || _token.symbol}
+                        key={_token.symbol}
                         isCurrent={token.address ? _token.address === token.address : !!_token.isNative }
                         viewInScanSingleton={viewInScanSingleton}
                         addToWalletSingleton={addToWalletSingleton}
