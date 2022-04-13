@@ -7,14 +7,14 @@
     "license": "MIT",
     "devDependencies": {
         "@types/lodash-es": "^4.17.6",
-        "@types/react": "^17.0.40",
-        "@types/react-dom": "^17.0.13",
+        "@types/react": "^17.0.43",
+        "@types/react-dom": "^17.0.14",
         "tsconfig": "*",
-        "typescript": "^4.6.2"
+        "typescript": "^4.6.3"
     },
     "dependencies": {
         "@react-spring/web": "^9.4.4",
-        "@cfxjs/use-wallet": "^0.0.18",
+        "@cfxjs/use-wallet": "^0.0.23",
         "@fluent-wallet/shorten-address": "^0.1.2",
         "@tippyjs/react": "^4.2.6",
         "clsx": "^1.1.1",

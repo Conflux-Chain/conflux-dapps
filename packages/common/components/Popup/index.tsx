@@ -17,6 +17,7 @@ export class PopupClass implements PopupMethods {
     setListClassName: PopupMethods['setListClassName'];
     setItemWrapperStyle: PopupMethods['setItemWrapperStyle'];
     setItemWrapperClassName: PopupMethods['setItemWrapperClassName'];
+    setAnimatedSize: PopupMethods['setAnimatedSize'];
 
     constructor() {
         this.popupRef = createRef<PopupMethods>();
@@ -30,6 +31,7 @@ export class PopupClass implements PopupMethods {
         this.setListClassName = (args) => this.judgeInit('setListClassName', args);
         this.setItemWrapperStyle = (args) => this.judgeInit('setItemWrapperStyle', args);
         this.setItemWrapperClassName = (args) => this.judgeInit('setItemWrapperClassName', args);
+        this.setAnimatedSize = (args) => this.judgeInit('setAnimatedSize', args);
     }
 
     judgeInit(method: keyof PopupMethods, args?: any): any {
@@ -52,6 +54,7 @@ export class PopupClass implements PopupMethods {
         this.setListClassName = this.popupRef.current!.setListClassName;
         this.setItemWrapperStyle = this.popupRef.current!.setItemWrapperStyle;
         this.setItemWrapperClassName = this.popupRef.current!.setItemWrapperClassName;
+        this.setAnimatedSize = this.popupRef.current!.setAnimatedSize;
     };
 
     init = (container?: HTMLElement) => {

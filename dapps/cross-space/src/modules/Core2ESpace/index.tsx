@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, memo, useState } from 'react';
+import React, { useCallback, useEffect, memo, useState, useRef } from 'react';
 import { a } from '@react-spring/web';
 import cx from 'clsx';
 import { useForm, type UseFormRegister, type FieldValues } from 'react-hook-form';
@@ -10,6 +10,7 @@ import numFormat from 'common/utils/numFormat';
 import Input from 'common/components/Input';
 import Tooltip from 'common/components/Tooltip';
 import Spin from 'common/components/Spin';
+import BalanceText from 'common/modules/BalanceText';
 import useI18n from 'common/hooks/useI18n';
 import MetaMask from 'common/assets/MetaMask.svg';
 import TokenList from 'cross-space/src/components/TokenList';
@@ -18,6 +19,7 @@ import ArrowLeft from 'cross-space/src/assets/arrow-left.svg';
 import InputClose from 'cross-space/src/assets/input-close.svg';
 import Success from 'cross-space/src/assets/success.svg';
 import handleSubmit from './handleSubmit';
+import './index.css';
 
 const transitions = {
 	en: {
@@ -35,13 +37,12 @@ const transitions = {
 } as const;
 
 
-let eSpaceReceived: HTMLSpanElement | null = null;
-
 const Core2ESpace: React.FC<{ style: any; isShow: boolean; handleClickFlipped: () => void; }> = ({ style, isShow, handleClickFlipped }) => {
 	const i18n = useI18n(transitions);
 	const { register, handleSubmit: withForm, setValue, watch } = useForm();
 	const { currentToken } = useToken();
 	const needApprove = useNeedApprove(currentToken, 'core');
+	const eSpaceReceivedRef = useRef<HTMLSpanElement>(null);
 
 	const fluentAccount = useFluentAccount();
 	const metaMaskAccount = useMetaMaskAccount();
@@ -49,15 +50,12 @@ const Core2ESpace: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 	const isUsedCurrentMetaMaskAccount = metaMaskStatus === 'active' && String(watch("eSpaceAccount")).toLowerCase() === metaMaskAccount;
 
 	const setAmount = useCallback((val: string) => {
-		if (!eSpaceReceived) {
-			eSpaceReceived = document.querySelector('#core2eSpace-willReceive') as HTMLSpanElement;
-		}
-
 		const _val = val.replace(/(?:\.0*|(\.\d+?)0+)$/, '$1');
 		setValue('amount', _val);
 		setTransferBalance('core', _val);
 
-		eSpaceReceived.textContent = _val ? `${numFormat(_val)} ${currentToken.evm_space_symbol}` : '--';
+		if(!eSpaceReceivedRef.current) return;
+		eSpaceReceivedRef.current.textContent = _val ? `${numFormat(_val)} ${currentToken.evm_space_symbol}` : '--';
 	}, [currentToken])
 
 	useEffect(() => setAmount(''), [fluentAccount, currentToken]);
@@ -113,7 +111,7 @@ const Core2ESpace: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 					<div className='relative flex items-center'>
 						<Input
 							id="core2eSpace-eSpaceAccount-input"
-							className={cx(isLockMetaMaskAccount ? 'pr-[40px]' : 'pr-[12px]')}
+							className={cx('text-[13px]', isLockMetaMaskAccount ? 'pr-[40px]' : 'pr-[12px]')}
 							outerPlaceholder={
 								<p className='input-placeholder text-[14px]'>
 									<span className='font-semibold text-[#15C184]'>Conflux eSpace</span> <span className='text-[#979797]'>Destination Address</span>
@@ -163,13 +161,13 @@ const Core2ESpace: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 
 				<TokenList space="core" />
 
-				<Transfer2ESpace isShow={isShow} register={register} setAmount={setAmount}/>
+				<Transfer2ESpace isShow={isShow} register={register} setAmount={setAmount} eSpaceReceivedRef={eSpaceReceivedRef}/>
 			</form>
 		</a.div>
 )
 }
 
-const Transfer2ESpace: React.FC<{ isShow: boolean; register: UseFormRegister<FieldValues>; setAmount: (val: string) => void; }> = memo(({ isShow, register, setAmount }) => {
+const Transfer2ESpace: React.FC<{ isShow: boolean; register: UseFormRegister<FieldValues>; setAmount: (val: string) => void; eSpaceReceivedRef:  React.RefObject<HTMLSpanElement>; }> = memo(({ isShow, register, setAmount, eSpaceReceivedRef }) => {
 	const i18n = useI18n(transitions);
 
 	const { currentToken } = useToken();
@@ -233,25 +231,11 @@ const Transfer2ESpace: React.FC<{ isShow: boolean; register: UseFormRegister<Fie
 
 			<p className="text-[14px] leading-[18px] text-[#3D3F4C]">
 				<span className="text-[#2959B4]" id="core-balance">Core</span> Balance:
-				{currentTokenBalance ? 
-					(
-						(currentTokenBalance.toDecimalMinUnit() !== '0' && Unit.lessThan(currentTokenBalance, Unit.fromStandardUnit('0.000001'))) ?
-						<Tooltip text={`${numFormat(currentTokenBalance.toDecimalStandardUnit())} ${currentToken.core_space_symbol}`} placement="right">
-							<span
-								className="ml-[4px]"
-								id="core2eSpace-currentTokenBalance"
-							>
-								＜0.000001 {currentToken.core_space_symbol}
-							</span>
-						</Tooltip>
-						: <span className="ml-[4px]" id="core2eSpace-currentTokenBalance">{`${numFormat(currentTokenBalance.toDecimalStandardUnit())} ${currentToken.core_space_symbol}`}</span>
-					)
-					: <span className="ml-[4px]" id="core2eSpace-currentTokenBalance">{fluentStatus === 'active' ? 'loading...' : '--'}</span>
-				}
+				<BalanceText className="ml-[4px]" balance={currentTokenBalance} id="core2eSpace-currentTokenBalance" symbol={currentToken.core_space_symbol} status={fluentStatus}/>
 			</p>
 			<p className="mt-[20px] text-[14px] leading-[18px] text-[#3D3F4C]">
 				Will receive on <span className="text-[#15C184]">eSpace</span>:
-				<span className="ml-[4px]" id="core2eSpace-willReceive" />
+				<span className="ml-[4px]" id="core2eSpace-willReceive" ref={eSpaceReceivedRef}/>
 			</p>
 
 			<AuthConnectButton

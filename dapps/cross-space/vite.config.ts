@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
 import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill';
+import path from 'path';
 
 export default defineConfig({
     plugins: [react()],
@@ -29,7 +30,9 @@ export default defineConfig({
     },
     resolve: {
         alias: {
-            buffer: 'rollup-plugin-node-polyfills/polyfills/buffer-es6'
+            buffer: 'rollup-plugin-node-polyfills/polyfills/buffer-es6',
+            '@cfxjs/use-wallet/dist/ethereum': path.resolve(__dirname, '../../node_modules/@cfxjs/use-wallet/dist/ethereum'),
+            '@cfxjs/use-wallet': path.resolve(__dirname, '../dapp-box/src/hooks/use-wallet')
         },
     },
 });
