@@ -7,14 +7,13 @@
         "build": "vite build"
     },
     "dependencies": {
-        "@cfxjs/use-wallet": "^0.0.18",
+        "@cfxjs/use-wallet": "^0.0.23",
         "@fluent-wallet/account": "^0.1.0",
         "@fluent-wallet/base32-address": "^0.1.1",
         "@fluent-wallet/estimate-tx": "^0.1.1",
         "@fluent-wallet/shorten-address": "^0.1.2",
         "@react-spring/web": "^9.4.4",
         "@tippyjs/react": "^4.2.6",
-        "abi-decoder": "^2.4.0",
         "clsx": "^1.1.1",
         "common": "*",
         "custom-react-scrollbar": "^0.0.2",
@@ -23,7 +22,7 @@
         "lodash-es": "^4.17.21",
         "react": "^17.0.2",
         "react-dom": "^17.0.2",
-        "react-hook-form": "^7.28.0",
+        "react-hook-form": "^7.29.0",
         "react-use-clipboard": "^1.0.7",
         "tippy.js": "^6.3.7",
         "zustand": "^3.7.1"
@@ -32,9 +31,9 @@
         "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
         "@esbuild-plugins/node-modules-polyfill": "^0.1.4",
         "@types/lodash-es": "^4.17.6",
-        "@types/react": "^17.0.40",
-        "@types/react-dom": "^17.0.13",
-        "@vitejs/plugin-react": "^1.2.0",
+        "@types/react": "^17.0.43",
+        "@types/react-dom": "^17.0.14",
+        "@vitejs/plugin-react": "^1.3.0",
         "autoprefixer": "^10.4.4",
         "config": "*",
         "eslint": "^7.32.0",
@@ -42,8 +41,8 @@
         "rollup-plugin-visualizer": "^5.6.0",
         "tailwindcss": "^3.0.23",
         "tsconfig": "*",
-        "typescript": "^4.6.2",
-        "vite": "^2.8.6"
+        "typescript": "^4.6.3",
+        "vite": "^2.9.1"
     },
     "license": "MIT"
 }

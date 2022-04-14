@@ -10,6 +10,7 @@ import numFormat from 'common/utils/numFormat';
 import Input from 'common/components/Input';
 import Tooltip from 'common/components/Tooltip';
 import Spin from 'common/components/Spin';
+import BalanceText from 'common/modules/BalanceText';
 import useI18n from 'common/hooks/useI18n';
 import MetaMask from 'common/assets/MetaMask.svg';
 import TokenList from 'cross-space/src/components/TokenList';
@@ -18,6 +19,7 @@ import ArrowLeft from 'cross-space/src/assets/arrow-left.svg';
 import InputClose from 'cross-space/src/assets/input-close.svg';
 import Success from 'cross-space/src/assets/success.svg';
 import handleSubmit from './handleSubmit';
+import './index.css';
 
 const transitions = {
 	en: {
@@ -234,21 +236,7 @@ const Transfer2ESpace: React.FC<{
 
 			<p className="text-[14px] leading-[18px] text-[#3D3F4C]">
 				<span className="text-[#2959B4]" id="core-balance">Core</span> Balance:
-				{currentTokenBalance ? 
-					(
-						(currentTokenBalance.toDecimalMinUnit() !== '0' && Unit.lessThan(currentTokenBalance, Unit.fromStandardUnit('0.000001'))) ?
-						<Tooltip text={`${numFormat(currentTokenBalance.toDecimalStandardUnit())} ${currentToken.core_space_symbol}`} placement="right">
-							<span
-								className="ml-[4px]"
-								id="core2eSpace-currentTokenBalance"
-							>
-								＜0.000001 {currentToken.core_space_symbol}
-							</span>
-						</Tooltip>
-						: <span className="ml-[4px]" id="core2eSpace-currentTokenBalance">{`${numFormat(currentTokenBalance.toDecimalStandardUnit())} ${currentToken.core_space_symbol}`}</span>
-					)
-					: <span className="ml-[4px]" id="core2eSpace-currentTokenBalance">{fluentStatus === 'active' ? 'loading...' : '--'}</span>
-				}
+				<BalanceText className="ml-[4px]" balance={currentTokenBalance} id="core2eSpace-currentTokenBalance" symbol={currentToken.core_space_symbol} status={fluentStatus}/>
 			</p>
 			<p className="mt-[20px] text-[14px] leading-[18px] text-[#3D3F4C]">
 				Will receive on <span className="text-[#15C184]">eSpace</span>:

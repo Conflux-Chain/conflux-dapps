@@ -45,6 +45,9 @@ const List = <T extends ItemProps>({
     
     const render = useTransition(list, {
         keys: (item: T) => item.key ?? ((item as any)[itemKey as string]) as string,
+        initial: (item: T) => ({
+            [mainSizeType]: undefined,
+        }),
         from: (item: T) => ({
             ...transitionAnimation[item?.animationType ?? animationType].from,
             [mainSizeType]: animatedSize ? 0 : undefined,
@@ -81,7 +84,7 @@ const List = <T extends ItemProps>({
             },
         }),
     });
-
+    
     return (
         <div {...props}>
             {render((style, item, _, index) => (
