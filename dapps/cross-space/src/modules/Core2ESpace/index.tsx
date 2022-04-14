@@ -47,14 +47,14 @@ const Core2ESpace: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 	const fluentAccount = useFluentAccount();
 	const metaMaskAccount = useMetaMaskAccount();
 	const metaMaskStatus = useMetaMaskStatus();
+	
 	const isUsedCurrentMetaMaskAccount = metaMaskStatus === 'active' && String(watch("eSpaceAccount")).toLowerCase() === metaMaskAccount;
-
 	const setAmount = useCallback((val: string) => {
 		const _val = val.replace(/(?:\.0*|(\.\d+?)0+)$/, '$1');
 		setValue('amount', _val);
 		setTransferBalance('core', _val);
 
-		if(!eSpaceReceivedRef.current) return;
+		if (!eSpaceReceivedRef.current) return;
 		eSpaceReceivedRef.current.textContent = _val ? `${numFormat(_val)} ${currentToken.evm_space_symbol}` : '--';
 	}, [currentToken])
 
@@ -111,7 +111,7 @@ const Core2ESpace: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 					<div className='relative flex items-center'>
 						<Input
 							id="core2eSpace-eSpaceAccount-input"
-							className={cx('text-[13px]', isLockMetaMaskAccount ? 'pr-[40px]' : 'pr-[12px]')}
+							className={cx('text-[13px]', isLockMetaMaskAccount ? 'pr-[24px]' : 'pr-[12px]')}
 							outerPlaceholder={
 								<p className='input-placeholder text-[14px]'>
 									<span className='font-semibold text-[#15C184]'>Conflux eSpace</span> <span className='text-[#979797]'>Destination Address</span>
@@ -161,13 +161,18 @@ const Core2ESpace: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 
 				<TokenList space="core" />
 
-				<Transfer2ESpace isShow={isShow} register={register} setAmount={setAmount} eSpaceReceivedRef={eSpaceReceivedRef}/>
+				<Transfer2ESpace isShow={isShow} register={register} setAmount={setAmount} eSpaceReceivedRef={eSpaceReceivedRef} />
 			</form>
 		</a.div>
 )
 }
 
-const Transfer2ESpace: React.FC<{ isShow: boolean; register: UseFormRegister<FieldValues>; setAmount: (val: string) => void; eSpaceReceivedRef:  React.RefObject<HTMLSpanElement>; }> = memo(({ isShow, register, setAmount, eSpaceReceivedRef }) => {
+const Transfer2ESpace: React.FC<{
+	isShow: boolean;
+	register: UseFormRegister<FieldValues>;
+	setAmount: (val: string) => void;
+	eSpaceReceivedRef: React.RefObject<HTMLSpanElement>;
+}> = memo(({ isShow, register, setAmount, eSpaceReceivedRef }) => {
 	const i18n = useI18n(transitions);
 
 	const { currentToken } = useToken();
@@ -235,7 +240,7 @@ const Transfer2ESpace: React.FC<{ isShow: boolean; register: UseFormRegister<Fie
 			</p>
 			<p className="mt-[20px] text-[14px] leading-[18px] text-[#3D3F4C]">
 				Will receive on <span className="text-[#15C184]">eSpace</span>:
-				<span className="ml-[4px]" id="core2eSpace-willReceive" ref={eSpaceReceivedRef}/>
+				<span className="ml-[4px]" id="core2eSpace-willReceive" ref={eSpaceReceivedRef} />
 			</p>
 
 			<AuthConnectButton
