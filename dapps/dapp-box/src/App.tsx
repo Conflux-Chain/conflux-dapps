@@ -7,11 +7,13 @@ import { ModeContext } from 'common/hooks/useMode';
 import Sidebar from 'dapp-box/src/modules/Sidebar';
 import CrossSpace from 'cross-space/src/modules';
 import BscEspace from 'bsc-espace/src/modules';
+import Airdrop from 'airdrop/src/modules';
 import ESpaceBridgeEnter from 'dapp-box/src/modules/ESpaceBridgeEnter';
 import ShuttleFlowNavbarEnhance from 'dapp-box/src/modules/NavbarEnhance/ShuttleFlow';
 import useCurrentDapp from 'dapp-box/src/hooks/useCurrentDapp';
 import ShuttleFlowIcon from 'dapp-box/src/assets/shuttle-flow.svg';
 import CrossSpaceIcon from 'dapp-box/src/assets/cross-space.svg';
+import AirdropIcon from 'dapp-box/src/assets/Airdrop.svg';
 import { hideAllToast } from 'common/components/tools/Toast';
 import './App.css';
 import 'common/index.css';
@@ -32,7 +34,13 @@ export const dapps = [
             type: 'childRoutes' as 'childRoutes',
             Content: <ShuttleFlowNavbarEnhance />,
         }
-    }
+    },
+    {
+        name: 'eSpace Airdrop',
+        icon: AirdropIcon,
+        path: 'espace-airdrop',
+        element: <Airdrop />,
+    },
 ];
 
 const App = () => {
@@ -109,6 +117,7 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                     <Route key='cross-space' path='cross-space' element={<CrossSpace />} />
                     <Route key='bsc-esapce-cfx' path='bsc-esapce-cfx' element={<BscEspace />} />
                 </Route>
+                <Route key='espace-airdrop' path='espace-airdrop' element={<Airdrop />} />
                 {dapps
                     .filter((dapp) => !dapp.element)
                     .map(({ path }) => (
