@@ -6,7 +6,6 @@ import tokenListConfig from '../../tokenListConfig';
 import CRC20TokenABI from 'cross-space/src/contracts/abi/ERC20.json';
 
 export interface Token {
-    core_address: string;
     eSpace_address: string;
     name: string;
     symbol: string;

@@ -6,7 +6,7 @@ import { showToast } from 'common/components/tools/Toast';
 import { tokenContract, crossSpaceContractAddress, crossSpaceContract, type Token } from 'airdrop/src/store/index';
 
 export const handleClaim = async (token: Token & { balance?: Unit; trackChangeOnce: (cb: () => void) => void; }, setInClaiming: Function) => {
-    if (!token.balance || token.balance.toDecimalStandardUnit() === '0') return;
+    if (!token.balance || token.balance.toDecimalMinUnit() === '0') return;
     const eSpaceAccount = MetaMaskStore.getState().accounts?.[0];
     if (!eSpaceAccount) return;
 

@@ -19,7 +19,7 @@ const ClaimableList: React.FC = () => {
             id="airdrop-claimable-list"
             className="flex flex-col"
             list={tokenList}
-            itemKey="core_address"
+            itemKey="eSpace_address"
             ItemWrapperClassName="airdrop-claimable-token"
             animatedSize
             animationType='slideRight'
@@ -32,7 +32,7 @@ const ClaimableList: React.FC = () => {
 }
 
 const TokenItem = memo<Token & { balance?: Unit; trackChangeOnce: (cb: () => void) => void; }>(({ children, ...token}) => {
-    const { eSpace_address, name, symbol, icon, balance } = token;
+    const { eSpace_address, name, symbol, icon, balance, decimals } = token;
     const [inClaiming, setInClaiming] = useState(false);
     const handleClickAddToWallet = useCallback<React.MouseEventHandler<HTMLImageElement>>(async (evt) => {
         evt.stopPropagation();
@@ -42,7 +42,7 @@ const TokenItem = memo<Token & { balance?: Unit; trackChangeOnce: (cb: () => voi
                 options: {
                     address: eSpace_address,
                     symbol: symbol,
-                    decimals: 18,
+                    decimals: +token.decimals,
                     image: icon
                 },
             });
@@ -66,12 +66,12 @@ const TokenItem = memo<Token & { balance?: Unit; trackChangeOnce: (cb: () => voi
 
             <div className='w-[160px]'>
                 <p className='text-[14px] text-[#3D3F4C]'>Claimable</p>
-                <BalanceText className="text-[12px] text-[#A9ABB2]" balance={balance} symbol={symbol} />
+                <BalanceText className="text-[12px] text-[#A9ABB2]" balance={balance} symbol={symbol} decimals={+decimals} />
             </div>
             
             <button
                 className="button button-outlined button-small min-w-[60px]"
-                disabled={inClaiming || !balance || balance?.toDecimalStandardUnit() === '0'}
+                disabled={inClaiming || !balance || balance?.toDecimalMinUnit() === '0'}
                 onClick={() => handleClaim(token, setInClaiming)}
             >
                 {!inClaiming && 'Claim'}
