@@ -17,6 +17,8 @@
         "build:cross-space": "turbo run build --scope=cross-space",
         "dev:bsc-espace": "turbo run dev --scope=bsc-espace",
         "build:bsc-espace": "turbo run build --scope=bsc-espace",
+        "dev:airdrop": "turbo run dev --scope=airdrop",
+        "build:airdrop": "turbo run build --scope=airdrop",
         "dev:shuttle-flow": "turbo run dev --scope=shuttle-flow",
         "build:shuttle-flow": "turbo run build --scope=shuttle-flow"
     },

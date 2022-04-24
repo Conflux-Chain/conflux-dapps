@@ -1,13 +1,14 @@
 {
-    "name": "cross-space",
+    "name": "airdrop",
     "version": "0.0.0",
     "private": true,
     "scripts": {
-        "dev": "vite --port 3001 --host",
+        "dev": "vite --port 3004 --host",
         "build": "vite build"
     },
     "dependencies": {
         "@cfxjs/use-wallet": "^0.0.25",
+        "@cfxjs/use-wallet-enhance": "^0.0.8",
         "@fluent-wallet/account": "^0.1.0",
         "@fluent-wallet/base32-address": "^0.1.1",
         "@fluent-wallet/estimate-tx": "^0.1.1",
@@ -22,8 +23,6 @@
         "lodash-es": "^4.17.21",
         "react": "^17.0.2",
         "react-dom": "^17.0.2",
-        "react-hook-form": "^7.29.0",
-        "react-use-clipboard": "^1.0.7",
         "tippy.js": "^6.3.7",
         "zustand": "^3.7.1"
     },

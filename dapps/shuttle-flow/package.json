@@ -7,8 +7,8 @@
   "dependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.16.7",
     "@cfxjs/data-format": "^0.0.3",
-    "@cfxjs/use-wallet": "^0.0.23",
-    "@cfxjs/use-wallet-enhance": "^0.0.3",
+    "@cfxjs/use-wallet": "^0.0.25",
+    "@cfxjs/use-wallet-enhance": "^0.0.4",
     "@craco/craco": "^6.1.1",
     "@ethersproject/address": "^5.3.0",
     "@ethersproject/bignumber": "^5.3.0",
