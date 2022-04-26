@@ -2,6 +2,7 @@ import create from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { store as fluentStore } from '@cfxjs/use-wallet';
 import { Conflux, format, address } from 'js-conflux-sdk';
+import { validateBase32Address } from '@fluent-wallet/base32-address';
 import { CrossSpaceCall } from 'js-conflux-sdk/src/contract/internal/index.js';
 import { currentNetworkStore } from './currentNetwork';
 import ConfluxSide from 'cross-space/src/contracts/abi/ConfluxSide.json'
@@ -58,7 +59,11 @@ export const startSubConflux = () => {
     // get cfxMappedEVMSpaceAddress
     const unsub1 = fluentStore.subscribe(state => state.accounts, accounts => {
         const account = accounts?.[0];
-        confluxStore.setState({ eSpaceMirrorAddress: account ? (address as any).cfxMappedEVMSpaceAddress(account) : undefined });
+        if (!account || !validateBase32Address(account)) {
+            confluxStore.setState({ eSpaceMirrorAddress: undefined });
+            return;
+        }
+        confluxStore.setState({ eSpaceMirrorAddress: (address as any).cfxMappedEVMSpaceAddress(account) });
     }, { fireImmediately: true });
 
     // get conflux & crossSpaceContractAddress && crossSpaceContract

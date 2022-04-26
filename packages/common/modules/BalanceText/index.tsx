@@ -8,7 +8,7 @@ interface Props {
     balance?: any;
     status?: ReturnType<typeof useStatus>;
     symbol?: string;
-    decimals?: number;
+    decimals?: string | number;
     id?: string;
 }
 
@@ -19,7 +19,7 @@ const BalanceText: React.FC<Props> = ({ className, balance, status, id, symbol =
     const needAabbreviate = Number(decimals) > 12;
 
     const decimalStandardUnit = balance.toDecimalStandardUnit(undefined, decimals);
-    if (needAabbreviate && decimalStandardUnit !== '0' && Unit.lessThan(balance, Unit.fromStandardUnit('0.000001', decimals))) {
+    if (needAabbreviate && decimalStandardUnit !== '0' && Unit.lessThan(balance, Unit.fromStandardUnit('0.000001', Number(decimals)))) {
         return (
             <Tooltip text={`${numFormat(decimalStandardUnit)} ${symbol}`} placement="right">
                 <span className={className} id={id}>

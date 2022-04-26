@@ -3,7 +3,7 @@ import { useSpring } from '@react-spring/web';
 import useI18n from 'common/hooks/useI18n';
 import LocalStorage from 'common/utils/LocalStorage';
 import Core2ESpace from './Core2ESpace';
-import ESpace2Core from './ESpace2Core'
+import ESpace2Core from './ESpace2Core';
 import { startSub } from 'cross-space/src/store';
 import './index.css';
 
