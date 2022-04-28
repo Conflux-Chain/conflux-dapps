@@ -8,16 +8,18 @@ import Error from '../../../assets/error.svg';
 import './index.css';
 
 const Toast = new PopupClass();
-Toast.setListStyle({
-    top: '80px',
-    left: 'unset',
-    transform: 'unset',
-    right: '12px',
-    flexDirection: 'column',
-    zIndex: 10000
+const SpecialToast = new PopupClass();
+[Toast, SpecialToast].forEach(_Toast => {
+    _Toast.setListStyle({
+        top: '80px',
+        left: 'unset',
+        transform: 'unset',
+        right: '12px',
+        flexDirection: 'column',
+        zIndex: 10000
+    });
+    _Toast.setItemWrapperClassName('toast-item-wrapper');
 });
-
-Toast.setItemWrapperClassName('toast-item-wrapper');
 
 const iconTypeMap = {
     success: Success,
@@ -27,7 +29,7 @@ const iconTypeMap = {
 
 type Type = 'info' | 'success' | 'warning' | 'failed';
 
-const ToastComponent: React.FC<{ content: string | Content; duration: number; hide: () => void; type: Type; }> = memo(({ content, duration, type = 'info', hide }) => {
+const ToastComponent: React.FC<{ content: string | Content; duration: number; hide: () => void; type: Type; showClose?: boolean; }> = memo(({ content, duration, type = 'info', showClose = true, hide }) => {
     const props = useSpring({
         from: { transform: 'translateX(-100%)' },
         to: { transform: 'translateX(0%)' },
@@ -41,7 +43,7 @@ const ToastComponent: React.FC<{ content: string | Content; duration: number; hi
                 <p className='mb-[8px] leading-[22px] text-[16px] text-[#3D3F4C] font-medium max-w-[280px]'>
                     {typeof content === 'object' && content.title ? content.title : 'Notification'}
                 </p>
-                <img src={Close} alt="close img" className='absolute right-[28px] top-[24px] w-[16px] h-[16px] cursor-pointer' onClick={hide} />
+                {showClose && <img src={Close} alt="close img" className='absolute right-[28px] top-[24px] w-[16px] h-[16px] cursor-pointer' onClick={hide} />}
                 {(typeof content === 'string' || content.text) &&
                     <p className='leading-[18px] text-[14px] text-[#898D9A] max-w-[320px]'>
                         {typeof content === 'string' ? content : content.text}
@@ -76,7 +78,7 @@ export interface Content {
     onClickCancel?: () => void;
 }
 
-export const showToast = (content: string | Content, config?: Partial<PopupProps> & { type?: Type; }) => {
+export const showToast = (content: string | Content, config?: Partial<PopupProps> & { type?: Type; } & { special?: boolean; }) => {
     let toastKey: number | string | null;
     const hide = () => toastKey && Toast.hide(toastKey);
     let _content: Content = {};
@@ -96,12 +98,13 @@ export const showToast = (content: string | Content, config?: Partial<PopupProps
         }
     }
 
-    toastKey = Toast.show({
-        Content: <ToastComponent content={typeof content === 'object' ? _content : content} duration={config?.duration ?? 6000} hide={hide} type={config?.type ?? 'info'} />,
+    toastKey = (config?.special ? SpecialToast: Toast).show({
+        Content: <ToastComponent content={typeof content === 'object' ? _content : content} duration={config?.duration ?? 6000} hide={hide} type={config?.type ?? 'info'} showClose={config?.showClose} />,
         duration: config?.duration ?? 6000,
         animationType: 'slideRight',
         ...config,
     });
+    return toastKey;
 }
 
 
