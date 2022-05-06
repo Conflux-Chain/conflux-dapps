@@ -5,9 +5,11 @@ import Modules from 'cross-space/src/modules';
 import { LocaleContext } from 'common/hooks/useI18n';
 import { ModeContext } from 'common/hooks/useMode';
 import CrossSpaceIcon from 'dapp-box/src/assets/cross-space.svg';
+import useFluentTip from 'common/hooks/useFluentTip';
 import './App.css';
 
 const AppRouter = () => {
+    useFluentTip('Cross Space');
     const [mode, setMode] = useState<'light' | 'dark'>(() => {
         const last = localStorage.getItem('mode') as 'light' || 'light';
         if (last === 'light' || last === 'dark') return last;
