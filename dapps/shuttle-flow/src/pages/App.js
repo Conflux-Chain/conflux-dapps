@@ -15,6 +15,7 @@ import {Loading} from '../components'
 import {useIsMobile} from '../hooks'
 import {useUpdateTxs} from '../hooks/useTransaction'
 import {useUpdateClaimedTxs} from '../hooks/useClaimedTx'
+import {useFluentTip} from '../hooks/useFluentTip'
 import {usePendingTransactions} from './components/WalletHub/index'
 
 // eslint-disable-next-line no-unused-vars
@@ -43,7 +44,8 @@ function TxsUpdater() {
 
 function App() {
   const isMobile = useIsMobile()
-
+  useFluentTip();
+  
   return (
     <Suspense
       fallback={

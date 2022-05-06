@@ -115,18 +115,18 @@ const Form: React.FC = () => {
             
 			<p className="text-[14px] leading-[18px] text-[#3D3F4C] whitespace-nowrap">
 				<span style={{ color: currentFromNetwork.color }}>{currentFromNetwork.name}</span> Balance:
-				<BalanceText className="ml-[4px]" balance={balance} id="wallet-balance" symbol={token.symbol} status={metaMaskStatus} />
+				<BalanceText className="ml-[4px]" balance={balance} id="wallet-balance" symbol={token.symbol} decimals={+token.decimals} status={metaMaskStatus} />
 			</p>
 			{isTransferHasEnoughLiquidity &&
 				<p className="mt-[20px] text-[14px] leading-[18px] text-[#3D3F4C] whitespace-nowrap">
 					Will receive on <span style={{ color: currentToNetwork.color }}>{currentToNetwork.name}</span>:
-					<BalanceText className="ml-[4px]" id="will-receive" balance={receiveBalance} symbol={token.symbol} />
+					<BalanceText className="ml-[4px]" id="will-receive" balance={receiveBalance} symbol={token.symbol} decimals={+token.decimals} />
 				</p>
 			}
 			{!isTransferHasEnoughLiquidity &&
 				<p className="mt-[20px] text-[14px] leading-[18px] text-[#E96170]">
 					{`Insufficient liquidity on ${currentToNetwork.name}, estimate liquidity is`}
-					<BalanceText className="ml-[4px]" id="bsc-espace-insufficient-liquidity" balance={maximumLiquidity} symbol="CFX" />
+					<BalanceText className="ml-[4px]" id="bsc-espace-insufficient-liquidity" balance={maximumLiquidity} symbol="CFX" decimals={+token.decimals} />
 				</p>
 			}
 

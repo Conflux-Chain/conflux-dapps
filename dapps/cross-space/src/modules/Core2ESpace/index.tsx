@@ -236,7 +236,7 @@ const Transfer2ESpace: React.FC<{
 
 			<p className="text-[14px] leading-[18px] text-[#3D3F4C]">
 				<span className="text-[#2959B4]" id="core-balance">Core</span> Balance:
-				<BalanceText className="ml-[4px]" balance={currentTokenBalance} id="core2eSpace-currentTokenBalance" symbol={currentToken.core_space_symbol} status={fluentStatus}/>
+				<BalanceText className="ml-[4px]" balance={currentTokenBalance} id="core2eSpace-currentTokenBalance" symbol={currentToken.core_space_symbol} decimals={+currentToken.decimals} status={fluentStatus}/>
 			</p>
 			<p className="mt-[20px] text-[14px] leading-[18px] text-[#3D3F4C]">
 				Will receive on <span className="text-[#15C184]">eSpace</span>:
