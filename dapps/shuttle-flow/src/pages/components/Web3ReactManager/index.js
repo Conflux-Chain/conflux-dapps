@@ -9,6 +9,7 @@ import {
 import {NetworkContextName} from '../../../constants'
 import {network} from '../../../utils/web3'
 
+// eslint-disable-next-line react/prop-types
 export default function Web3ReactManager({children}) {
   const {active} = useWeb3React()
   const {
