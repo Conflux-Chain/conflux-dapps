@@ -20,7 +20,8 @@ const useTransactionNotification = () => {
     fromTokenAddress,
     ...others
   } = queryString.parse(search)
-  return ({symbol, fromChain, toChain, value}) => {
+  // eslint-disable-next-line react/prop-types
+  return function TransactionNotification({symbol, fromChain, toChain, value}) {
     if (pathname === '/') return null
     Notification.open({
       title: t('notificationDetail', {

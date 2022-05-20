@@ -365,7 +365,7 @@ export const startSubBalance = () => {
                         from: account,
                         to: crossSpaceContractAddress,
                         data: crossSpaceContract.transferEVM('0xFBBEd826c29b88BCC428B6fa0cfE6b0908653676').data,
-                        value: currentTokenBalance.toHexMinUnit(),
+                        value: Unit.lessThan(currentTokenBalance, Unit.fromStandardUnit('16e-12')) ? Unit.fromStandardUnit(0).toHexMinUnit() : Unit.sub(currentTokenBalance, Unit.fromStandardUnit('16e-12')).toHexMinUnit()
                     }, {
                         type: balanceStore === coreBalanceStore ? 'cfx' : 'eth',
                         request: fluentProvider.request.bind(fluentProvider),
@@ -387,7 +387,7 @@ export const startSubBalance = () => {
                             params: [{ 
                                 from: account,
                                 to: '0x8a4c531EED1205E0eE6E34a1092e0298173a659d',
-                                value: currentTokenBalance.toHexMinUnit(),
+                                value: Unit.lessThan(currentTokenBalance, Unit.fromStandardUnit('16e-12')) ? Unit.fromStandardUnit(0).toHexMinUnit() : Unit.sub(currentTokenBalance, Unit.fromStandardUnit('16e-12')).toHexMinUnit()
                             }]
                         }),
                         metaMaskProvider.request({
