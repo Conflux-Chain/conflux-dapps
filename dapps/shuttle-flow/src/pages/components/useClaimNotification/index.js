@@ -12,7 +12,8 @@ const useClaimNotification = () => {
   const isMobile = useIsMobile()
   const {fromTokenAddress} = queryString.parse(search)
 
-  return function ({symbol, fromChain, toChain, value, key}) {
+  // eslint-disable-next-line react/prop-types
+  return function ClaimNotification ({symbol, fromChain, toChain, value, key}) {
     if (pathname === '/') return null
     Notification.open({
       key: 'claimNotification' + key,

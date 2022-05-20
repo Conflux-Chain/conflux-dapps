@@ -1,4 +1,5 @@
 import MSNIcon from 'airdrop/src/assets/MSN.png';
+import PPIIcon from 'airdrop/src/assets/PPI.png';
 
 const config = {
     '1029': [
@@ -9,6 +10,13 @@ const config = {
             decimals: '4',
             icon: MSNIcon,
         },
+        {
+            eSpace_address: '0x22f41abf77905f50df398f21213290597e7414dd',
+            name: 'Swappi Token',
+            symbol: 'PPI',
+            decimals: '18',
+            icon: PPIIcon,
+        }
     ],
     '1': [
         {

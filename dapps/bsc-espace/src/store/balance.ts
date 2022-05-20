@@ -414,15 +414,16 @@ export const startSubBalance = () => {
             if (currentFrom === 'eSpace' && token.isNative) {
                 // estimate MetaMask max available balance
                 if (!provider) return;
+                const minUnitBalance = Unit.lessThan(balance, Unit.fromStandardUnit('16e-12')) ? Unit.fromStandardUnit(0).toHexMinUnit() : Unit.sub(balance, Unit.fromStandardUnit('16e-12')).toHexMinUnit();
                 Promise.all([
                     provider.request({
                         method: 'eth_estimateGas',
                         params: [
                             {
                                 from: account,
-                                data: bridgeContract.deposit(token.address, balance.toHexMinUnit(), crossChain.networkId, account, `${parseInt(Date.now() / 1000 + '')}`).data,
+                                data: bridgeContract.deposit(token.address, minUnitBalance, crossChain.networkId, account, `${parseInt(Date.now() / 1000 + '')}`).data,
                                 to: eSpaceBridgeContractAddress,
-                                value: balance.toHexMinUnit(),
+                                value: minUnitBalance
                             },
                         ],
                     }),
