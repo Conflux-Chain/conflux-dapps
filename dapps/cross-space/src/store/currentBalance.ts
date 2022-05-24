@@ -1,7 +1,7 @@
 import create from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { store as fluentStore, Unit, provider as fluentProvider } from '@cfxjs/use-wallet';
-import { store as metaMaskStore, provider as metaMaskProvider } from '@cfxjs/use-wallet/dist/ethereum';
+import { store as metaMaskStore } from '@cfxjs/use-wallet/dist/ethereum';
 import { confluxStore } from './conflux';
 import { format } from 'js-conflux-sdk';
 import { estimate } from '@fluent-wallet/estimate-tx';
@@ -53,11 +53,10 @@ export const startSubBalance = () => {
     // track currentToken balance and approvedBalance
     (['core', 'eSpace'] as const).forEach(space => {
         const walletStore = space === 'core' ? fluentStore : metaMaskStore;
-        const provider = space === 'core' ? fluentProvider : metaMaskProvider;
+        const network = space === 'core' ? currentNetworkStore.getState().core! : currentNetworkStore.getState().eSpace!;
         const rpcPrefix = space === 'core' ? 'cfx' : 'eth';
         const balanceStore = space === 'core' ? coreBalanceStore as typeof eSpaceBalanceStore : eSpaceBalanceStore;
         let balanceTick = 0;
-        if (!provider) return;
 
         const getAccount = () => walletStore.getState().accounts?.[0]; 
 
@@ -80,7 +79,6 @@ export const startSubBalance = () => {
                 }
             }
         };
-
         const getBalance = (callback?: () => void) => {
             const account = getAccount();
             if (!account) {
@@ -95,21 +93,39 @@ export const startSubBalance = () => {
 
             // if CFX, directly get balance from @cfxjs/use-wallet
             if (currentToken.isNative) {
-                handleBalanceChanged(walletStore.getState().balance!, 'currentTokenBalance', currentBalanceTick);
-                callback?.();
+                fetch(network.url, {
+                    body: JSON.stringify({
+                        jsonrpc: '2.0',
+                        method: `${rpcPrefix as 'cfx'}_getBalance`,
+                        params: [account, space === 'core' ? 'latest_state' : 'latest'],
+                        id: 1,
+                    }),
+                    headers: {'content-type': 'application/json'},
+                    method: 'POST',
+                })
+                    .then(response => response.json()).then(res => res?.result)
+                    .then(minUnitBalance => handleBalanceChanged(Unit.fromMinUnit(minUnitBalance), 'currentTokenBalance', currentBalanceTick))
+                    .catch(err => {})
+                    .finally(callback);
                 return;
             }
 
             // if CRC20 token, get balance from call method
             const usedTokenAddress = currentToken.nativeSpace === space ? currentToken.native_address : currentToken.mapped_address;
-            provider!.request({
-                method: `${rpcPrefix as 'cfx'}_call`,
-                params: [{
-                    data:  '0x70a08231000000000000000000000000' + format.hexAddress(account).slice(2),
-                    to: usedTokenAddress
-                }, 
-                space === 'core' ? 'latest_state' : 'latest']
+            fetch(network.url, {
+                body: JSON.stringify({
+                    jsonrpc: '2.0',
+                    method: `${rpcPrefix as 'cfx'}_call`,
+                    params: [{
+                        data:  '0x70a08231000000000000000000000000' + format.hexAddress(account).slice(2),
+                        to: usedTokenAddress
+                    }, space === 'core' ? 'latest_state' : 'latest'],
+                    id: 1,
+                }),
+                headers: {'content-type': 'application/json'},
+                method: 'POST',
             })
+                .then(response => response.json()).then(res => res?.result)
                 .then(minUnitBalance => handleBalanceChanged(Unit.fromMinUnit(minUnitBalance), 'currentTokenBalance', currentBalanceTick))
                 .catch(err => {})
                 .finally(callback);
@@ -117,30 +133,43 @@ export const startSubBalance = () => {
 
             // and at same time get approval value;
             if (currentTokenContract && eachSideContractAddress) {
-                provider!.request({
-                    method: `${rpcPrefix as 'cfx'}_call`,
-                    params: [{
-                        data: currentTokenContract.allowance(account, eachSideContractAddress).data,
-                        to: usedTokenAddress
-                    }, 
-                    space === 'core' ? 'latest_state' : 'latest']
+                fetch(network.url, {
+                    body: JSON.stringify({
+                        jsonrpc: '2.0',
+                        method: `${rpcPrefix as 'cfx'}_call`,
+                        params: [{
+                            data: currentTokenContract.allowance(account, eachSideContractAddress).data,
+                            to: usedTokenAddress
+                        }, space === 'core' ? 'latest_state' : 'latest'],
+                        id: 1,
+                    }),
+                    headers: {'content-type': 'application/json'},
+                    method: 'POST',
                 })
+                    .then(response => response.json()).then(res => res?.result)
                     .then(approvalMinUnitBalance => handleBalanceChanged(Unit.fromMinUnit(approvalMinUnitBalance), 'approvedBalance', currentBalanceTick))
-                    .catch(err => {});
+                    .catch(err => {})
             }
 
             // and at same time get maximumLiquidity value if current token is core native token;
             if (space === 'core' && currentToken.nativeSpace === 'core' && confluxSideContractAddress) {
-                fluentProvider!.request({
-                    method: 'cfx_call',
-                    params: [{
-                        data:  '0x70a08231000000000000000000000000' + format.hexAddress(confluxSideContractAddress).slice(2),
-                        to: currentToken.native_address
-                    }, 
-                    'latest_state']
-                })
-                    .then(maximumLiquidityMinUnitBalance => handleBalanceChanged(Unit.fromMinUnit(maximumLiquidityMinUnitBalance), 'maximumLiquidity', currentBalanceTick))
-                    .catch(err => {});
+                const coreNetwork = currentNetworkStore.getState().core!;
+                fetch(coreNetwork.url, {
+                        body: JSON.stringify({
+                            jsonrpc: '2.0',
+                            method: 'cfx_call',
+                            params: [{
+                                data:  '0x70a08231000000000000000000000000' + format.hexAddress(confluxSideContractAddress).slice(2),
+                                to: currentToken.native_address
+                            }, 'latest_state'],
+                            id: 1,
+                        }),
+                        headers: {'content-type': 'application/json'},
+                        method: 'POST',
+                    })
+                        .then(response => response.json()).then(res => res?.result)
+                        .then(maximumLiquidityMinUnitBalance => handleBalanceChanged(Unit.fromMinUnit(maximumLiquidityMinUnitBalance), 'maximumLiquidity', currentBalanceTick))
+                        .catch(err => {})
             }
         }
 
@@ -252,18 +281,24 @@ export const startSubBalance = () => {
                 return;
             }
 
-            if (!evmSideContract || !eSpaceMirrorAddress || !fluentAccount || !metaMaskAccount || !metaMaskProvider) return;
+            if (!evmSideContract || !eSpaceMirrorAddress || !fluentAccount || !metaMaskAccount) return;
             const usedTokenAddress = currentToken.nativeSpace === 'eSpace' ? currentToken.native_address : currentToken.mapped_address;
             const lockedTokenKey = currentToken.nativeSpace === 'eSpace' ? 'lockedToken' : 'lockedMappedToken';
 
-            metaMaskProvider!.request({
-                method: 'eth_call',
-                params: [{
-                    data: evmSideContract[lockedTokenKey](usedTokenAddress, metaMaskAccount, format.hexAddress(fluentAccount)).data,
-                    to: evmSideContractAddress,
-                }, 
-                'latest']
+            fetch(eSpaceNetwork.url, {
+                body: JSON.stringify({
+                    jsonrpc: '2.0',
+                    method: 'eth_call',
+                    params: [{
+                        data: evmSideContract[lockedTokenKey](usedTokenAddress, metaMaskAccount, format.hexAddress(fluentAccount)).data,
+                        to: evmSideContractAddress,
+                    }, 'latest'],
+                    id: 1,
+                }),
+                headers: {'content-type': 'application/json'},
+                method: 'POST',
             })
+                .then(response => response.json()).then(res => res?.result)
                 .then(minUnitBalance => handleBalanceChanged(Unit.fromMinUnit(minUnitBalance), currentBalanceTick))
                 .catch(err => {})
                 .finally(callback);
@@ -379,21 +414,34 @@ export const startSubBalance = () => {
                     }).finally(clearUndefinedTimer);
                 } else {
                     // estimate MetaMask max available balance
-                    if (!metaMaskProvider) return;
+                    const eSpaceNetwork = currentNetworkStore.getState().eSpace!;
 
                     Promise.all([
-                        metaMaskProvider.request({
-                            method: 'eth_estimateGas',
-                            params: [{ 
-                                from: account,
-                                to: '0x8a4c531EED1205E0eE6E34a1092e0298173a659d',
-                                value: Unit.lessThan(currentTokenBalance, Unit.fromStandardUnit('16e-12')) ? Unit.fromStandardUnit(0).toHexMinUnit() : Unit.sub(currentTokenBalance, Unit.fromStandardUnit('16e-12')).toHexMinUnit()
-                            }]
-                        }),
-                        metaMaskProvider.request({
-                            method: 'eth_gasPrice',
-                            params: []
-                        }),
+                        fetch(eSpaceNetwork.url, {
+                            body: JSON.stringify({
+                                jsonrpc: '2.0',
+                                method: 'eth_estimateGas',
+                                params: [{ 
+                                    from: account,
+                                    to: '0x8a4c531EED1205E0eE6E34a1092e0298173a659d',
+                                    value: Unit.lessThan(currentTokenBalance, Unit.fromStandardUnit('16e-12')) ? Unit.fromStandardUnit(0).toHexMinUnit() : Unit.sub(currentTokenBalance, Unit.fromStandardUnit('16e-12')).toHexMinUnit()
+                                }, 'latest'],
+                                id: 1,
+                            }),
+                            headers: {'content-type': 'application/json'},
+                            method: 'POST',
+                        })
+                            .then(response => response.json()).then(res => res?.result),
+                        fetch(eSpaceNetwork.url, {
+                                body: JSON.stringify({
+                                    jsonrpc: '2.0',
+                                    method: 'eth_gasPrice',
+                                    id: 1
+                                }),
+                                headers: {'content-type': 'application/json'},
+                                method: 'POST',
+                            })
+                                .then(response => response.json()).then(res => res?.result),
                     ]).then(([estimateGas, gasPrice]) => {
                         const gasFee = Unit.mul(Unit.mul(Unit.fromMinUnit(estimateGas), Unit.fromMinUnit(gasPrice)), Unit.fromMinUnit('1.5'));
                         balanceStore.setState({ maxAvailableBalance: Unit.greaterThan(currentTokenBalance, gasFee) ? Unit.sub(currentTokenBalance, gasFee) : Unit.fromMinUnit(0) });

@@ -22,6 +22,7 @@ import Switch from 'cross-space/src/assets/turn-page.svg';
 import Open from 'cross-space/src/assets/open.svg';
 import { useTokenList, tokenListStore, deleteSearchToken } from './tokenListStore';
 import judgeAddressValid from './judgeAddressValid';
+import { useIsMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFluent';
 
 const transitions = {
     en: {
@@ -39,6 +40,7 @@ const transitions = {
 } as const;
 
 const TokenListDropdown: React.FC<{ children: (triggerDropdown: () => void, visible: boolean) => JSX.Element; space: 'core' | 'eSpace'; }> = ({ children, space }) => {
+    const isMetaMaskHostedByFluent = useIsMetaMaskHostedByFluent();
     const [visible, setVisible] = useState(false);
 
     const { currentToken, setCurrentToken } = useToken();
@@ -76,14 +78,14 @@ const TokenListDropdown: React.FC<{ children: (triggerDropdown: () => void, visi
                 ...(currentToken.isNative ? {} : { onClickCancel: () => setCurrentToken(nativeToken), cancelButtonText: 'Switch Token to CFX' })
             }
         }
-        else if (!pre && coreNetwork?.networkId !== fluentChainId) {
+        else if (!pre && coreNetwork?.networkId !== fluentChainId && !isMetaMaskHostedByFluent) {
             disabled = {
                 text: `Please switch Fluent to ${coreNetwork?.name} first.`,
                 onClickOk: () => switchToChain('Fluent', coreNetwork!),
                 okButtonText: 'Switch'
             }
         }
-        else if (!pre && eSpaceNetwork?.networkId !== metaMaskChainId) {
+        else if (!pre && eSpaceNetwork?.networkId !== metaMaskChainId && !isMetaMaskHostedByFluent) {
             disabled = {
                 text: `To cross space CRC20 token, please switch MetaMask to ${eSpaceNetwork?.name} first.`,
                 onClickOk: () => switchToChain('MetaMask', eSpaceNetwork!),
@@ -99,7 +101,7 @@ const TokenListDropdown: React.FC<{ children: (triggerDropdown: () => void, visi
         }
 
         setVisible(!pre);
-    }, [visible, currentToken, metaMaskChainId, metaMaskStatus, fluentStatus, fluentChainId, coreNetwork, eSpaceNetwork]);
+    }, [visible, currentToken, metaMaskChainId, metaMaskStatus, fluentStatus, fluentChainId, coreNetwork, eSpaceNetwork, isMetaMaskHostedByFluent]);
 
     const hideDropdown = useCallback(() => setVisible(false), []);
     useEffect(() => {

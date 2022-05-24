@@ -110,3 +110,5 @@ export const showToast = (content: string | Content, config?: Partial<PopupProps
 
 export const hideToast = Toast.hide;
 export const hideAllToast = Toast.hideAll;
+export const hideSpecialToast = SpecialToast.hide;
+export const hideAllSpecialToast = SpecialToast.hideAll;

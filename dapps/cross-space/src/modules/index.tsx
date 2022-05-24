@@ -5,6 +5,9 @@ import LocalStorage from 'common/utils/LocalStorage';
 import Core2ESpace from './Core2ESpace';
 import ESpace2Core from './ESpace2Core';
 import { startSub } from 'cross-space/src/store';
+import { completeDetect as completeDetectConflux } from '@cfxjs/use-wallet';
+import { completeDetect as completeDetectEthereum } from '@cfxjs/use-wallet/dist/ethereum';
+import { useMetaMaskHostedByFluentRqPermissions } from 'common/hooks/useMetaMaskHostedByFluent';
 import './index.css';
 
 const transitions = {
@@ -22,9 +25,17 @@ const Apps: React.FC = () => {
     const i18n = useI18n(transitions);
 
     useEffect(() => {
-        const unsub = startSub();
-        return unsub;
+        let unsub: undefined | (() => void);
+        Promise.all([completeDetectConflux(), completeDetectEthereum()])
+            .then(() => unsub = startSub());
+            
+        return () => {
+            if (typeof unsub === 'function') {
+                unsub();
+            }
+        }
     }, []);
+    useMetaMaskHostedByFluentRqPermissions();
 
     const [flipped, setFlipped] = useState(() => {
         if (window.location.hash.slice(1).indexOf('source=fluent-wallet') !== -1) {

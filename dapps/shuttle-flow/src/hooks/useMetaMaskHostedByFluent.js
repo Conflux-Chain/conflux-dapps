@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { provider as metaMaskProvider } from '@cfxjs/use-wallet/dist/ethereum';
 import Notification from '../components/Notification'
 
-export const useFluentTip = () => {
+export const useMetaMaskHostedByFluent = () => {
     useEffect(() => {
         if (window.__POWERED_BY_QIANKUN__ || !metaMaskProvider) return;
         metaMaskProvider.request({ method: `cfx_chainId` })

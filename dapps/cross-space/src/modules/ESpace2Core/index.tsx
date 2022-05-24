@@ -26,6 +26,7 @@ import { showToast } from 'common/components/tools/Toast';
 import { tokenListStore } from 'cross-space/src/components/TokenList/tokenListStore';
 import { handleWithdraw } from './handleWithdraw';
 import { handleTransferSubmit } from './handleTransfer';
+import { useIsMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFluent';
 
 const transitions = {
 	en: {
@@ -49,7 +50,8 @@ const ESpace2Core: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 	const { currentToken } = useToken();
 
 	const [inTransfer, setInTransfer] = useState(false);
-
+	const isMetaMaskHostedByFluent = useIsMetaMaskHostedByFluent();
+	
 	return (
 		<a.div className="cross-space-module" style={style}>
 			<div className="p-[16px] rounded-[8px] border border-[#EAECEF] mb-[16px]">
@@ -67,7 +69,7 @@ const ESpace2Core: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 					</button>
 				</p>
 
-				<FluentConnected id="eSpace2Core-auth-fluent-connectedAddress" tabIndex={isShow ? 2 : -1} />
+				<FluentConnected id="eSpace2Core-auth-fluent-connectedAddress" tabIndex={isShow ? 2 : -1}  />
 			</div>
 
 			<TokenList space="eSpace" />
@@ -83,7 +85,7 @@ const ESpace2Core: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 				className='mt-[14px]'
 				buttonType='contained'
 				buttonSize='normal'
-				wallet={currentToken.isNative ? 'Fluent' : 'Both-FluentFirst'}
+				wallet={currentToken.isNative ? 'Fluent' : isMetaMaskHostedByFluent ? 'Fluent' : 'Both-FluentFirst'}
 				fullWidth
 				authContent={() => <Withdraw2Core isShow={isShow} inTransfer={inTransfer} setInTransfer={setInTransfer} />}
 			/>
@@ -94,6 +96,7 @@ const ESpace2Core: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 const FluentConnected: React.FC<{ id?: string; tabIndex?: number; }> = ({ id, tabIndex }) => {
 	const i18n = useI18n(transitions);
 	const fluentAccount = useFluentAccount();
+	const isMetaMaskHostedByFluent = useIsMetaMaskHostedByFluent();
 
 	return (
 		<AuthConnectButton
@@ -104,6 +107,7 @@ const FluentConnected: React.FC<{ id?: string; tabIndex?: number; }> = ({ id, ta
 			buttonReverse
 			showLogo
 			tabIndex={tabIndex}
+			checkChainMatch={!isMetaMaskHostedByFluent}
 			authContent={() => 
 				<div className='relative flex items-center'>
 					<img src={Fluent} alt='fluent icon' className='mr-[4px] w-[14px] h-[14px]' />
@@ -117,6 +121,7 @@ const FluentConnected: React.FC<{ id?: string; tabIndex?: number; }> = ({ id, ta
 
 const Transfer2Bridge: React.FC<{ isShow: boolean; inTransfer: boolean; setInTransfer: React.Dispatch<React.SetStateAction<boolean>>; }> = memo(({ isShow, inTransfer, setInTransfer }) => {
 	const i18n = useI18n(transitions);
+	const isMetaMaskHostedByFluent = useIsMetaMaskHostedByFluent();
 
 	const { currentToken } = useToken();
 
@@ -174,7 +179,7 @@ const Transfer2Bridge: React.FC<{ isShow: boolean; inTransfer: boolean; setInTra
 				<AuthConnectButton
 					id="eSpace2Core-auth-both-transfer"
 					className='mt-[14px] w-full'
-					wallet="Both-MetaMaskFirst"
+					wallet={isMetaMaskHostedByFluent ? 'MetaMask' : 'Both-MetaMaskFirst'}
 					buttonType="contained"
 					buttonSize="normal"
 					tabIndex={isShow ? 7 : -1}

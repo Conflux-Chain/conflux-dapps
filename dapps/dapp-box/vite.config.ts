@@ -33,8 +33,8 @@ export default defineConfig({
     resolve: {
         alias: {
             buffer: 'rollup-plugin-node-polyfills/polyfills/buffer-es6',
-            '@cfxjs/use-wallet/dist/ethereum': path.resolve(__dirname, '../../node_modules/@cfxjs/use-wallet/dist/ethereum'),
-            '@cfxjs/use-wallet': path.resolve(__dirname, 'src/hooks/use-wallet')
+            '@cfxjs/use-wallet/dist/ethereum': path.resolve(__dirname, '../../node_modules/@cfxjs/use-wallet-react/ethereum'),
+            '@cfxjs/use-wallet': path.resolve(__dirname, '../../node_modules/@cfxjs/use-wallet-react/conflux/Fluent'),
         },
     },
     server: {

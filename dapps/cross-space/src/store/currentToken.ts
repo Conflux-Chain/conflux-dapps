@@ -71,10 +71,6 @@ export const startSubToken = () => {
     
     
     const unsub2 = currentTokenStore.subscribe(state => state.currentToken, (currentToken) => {
-        if (currentToken) {
-            Unit.setDecimals(currentToken.decimals ? Number(currentToken.decimals) : 18);
-        }
-    
         const conflux = confluxStore.getState().conflux!;
         if (!conflux || !currentToken || currentToken.isNative) return;
         currentTokenStore.setState({

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import cx from 'clsx';
 import useI18n from 'common/hooks/useI18n';
+import { completeDetect as completeDetectEthereum } from '@cfxjs/use-wallet/dist/ethereum';
 import { startSub, useHasPeggedCFX } from 'bsc-espace/src/store';
 import Send from 'bsc-espace/src/modules/Send';
 import Claim from 'bsc-espace/src/modules/Claim';
@@ -40,8 +41,14 @@ const App: React.FC = () => {
     const hasPeggedCFX = useHasPeggedCFX();
 
     useEffect(() => {
-        const unsub = startSub();
-        return unsub;
+        let unsub: undefined | (() => void);
+        completeDetectEthereum().then(() => unsub = startSub());
+        
+        return () => {
+            if (typeof unsub === 'function') {
+                unsub();
+            }
+        }
     }, []);
 
     const [currentStep, setCurrentStep] = useState<0 | 1 | 2>(() => {
