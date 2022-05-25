@@ -4,6 +4,7 @@ import ConnectTip from './ConnectTip';
 import ClaimableList from './ClaimableList/index';
 import AuthConnectButton from 'common/modules/AuthConnectButton';
 import { startTrack } from 'airdrop/src/store';
+import useMetaMaskHostedByFluent from 'common/hooks/useMetaMaskHostedByFluent';
 
 const transitions = {
     en: {
@@ -22,6 +23,7 @@ const transitions = {
 const App: React.FC = () => {
     const i18n = useI18n(transitions);
     useEffect(startTrack, []);
+    useMetaMaskHostedByFluent('Airdrop')
 
     return (
         <div className="relative max-w-[1000px] mx-auto pt-[16px] mb-24px">

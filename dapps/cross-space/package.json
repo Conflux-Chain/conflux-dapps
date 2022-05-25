@@ -8,6 +8,7 @@
     },
     "dependencies": {
         "@cfxjs/use-wallet": "^0.0.26",
+        "@cfxjs/use-wallet-react": "^0.0.1-14",
         "@fluent-wallet/account": "^0.1.0",
         "@fluent-wallet/base32-address": "^0.1.1",
         "@fluent-wallet/estimate-tx": "^0.1.1",

@@ -59,7 +59,6 @@ export const startSubToken = () => {
 
 export const useToken = () => tokenStore(selectors.token);
 export const setToken = (token: Token) => {
-    Unit.setDecimals(token.decimals ? Number(token.decimals) : 18);
     LocalStorage.set(`token`, token, 0, 'bsc-espace');
     tokenStore.setState({ token });
 }

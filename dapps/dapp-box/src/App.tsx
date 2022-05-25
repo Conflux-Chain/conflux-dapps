@@ -15,7 +15,6 @@ import ShuttleFlowIcon from 'dapp-box/src/assets/shuttle-flow.svg';
 import CrossSpaceIcon from 'dapp-box/src/assets/cross-space.svg';
 import AirdropIcon from 'dapp-box/src/assets/Airdrop.svg';
 import { hideAllToast } from 'common/components/tools/Toast';
-import useFluentTip from 'common/hooks/useFluentTip';
 import './App.css';
 import 'common/index.css';
 
@@ -45,7 +44,6 @@ export const dapps = [
 ];
 
 const App = () => {
-    useFluentTip('Conflux hub');
     const [mode, setMode] = useState<'light' | 'dark'>(() => {
         const last = (localStorage.getItem('mode') as 'light') || 'light';
         if (last === 'light' || last === 'dark') return last;
