@@ -1,8 +1,9 @@
-import { sendTransaction as sendTransactionWithFluent, Unit } from '@cfxjs/use-wallet';
-import { store as metaMaskStore } from '@cfxjs/use-wallet/dist/ethereum';
-import { currentTokenStore, eSpaceBalanceStore, confluxStore, trackBalanceChangeOnce } from 'cross-space/src/store/index';
-import { showWaitWallet, showActionSubmitted, hideWaitWallet, hideActionSubmitted } from 'common/components/tools/Modal';
-import { showToast } from 'common/components/tools/Toast';
+import { sendTransaction as sendTransactionWithFluent, Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { store as metaMaskStore } from '@cfxjs/use-wallet-react/ethereum';
+import { currentTokenStore, eSpaceBalanceStore, Contracts, trackBalanceChangeOnce, mirrorAddressStore } from 'cross-space/src/store/index';
+import { showWaitWallet, showActionSubmitted, hideWaitWallet, hideActionSubmitted } from 'common/components/showPopup/Modal';
+import { showToast } from 'common/components/showPopup/Toast';
+import { convertCfxToHex } from 'common/utils/addressUtils';
 
 export const handleWithdraw = async ({ setInWithdraw }: { setInWithdraw: (disabled: boolean) => void; }) => {
     const currentToken = currentTokenStore.getState().currentToken;
@@ -17,7 +18,8 @@ export const handleWithdraw = async ({ setInWithdraw }: { setInWithdraw: (disabl
 };
 
 const handleWithdrawCFX = async ({ withdrawableBalance, setInWithdraw }: { withdrawableBalance: Unit; setInWithdraw: (disabled: boolean) => void; }) => {
-    const { crossSpaceContract, crossSpaceContractAddress, eSpaceMirrorAddress } = confluxStore.getState();
+    const { crossSpaceContract, crossSpaceContractAddress } = Contracts;
+    const eSpaceMirrorAddress= mirrorAddressStore.getState().eSpaceMirrorAddress;
     if (!crossSpaceContract || !crossSpaceContractAddress || !eSpaceMirrorAddress) return;
 
     let waitFluentKey: string | number = null!;
@@ -27,7 +29,7 @@ const handleWithdrawCFX = async ({ withdrawableBalance, setInWithdraw }: { withd
         waitFluentKey = showWaitWallet('Fluent');
         const TxnHash = await sendTransactionWithFluent({
             to: crossSpaceContractAddress,
-            data: crossSpaceContract.withdrawFromMapped(withdrawableBalance.toHexMinUnit()).data,
+            data: crossSpaceContract.withdrawFromMapped(withdrawableBalance.toHexMinUnit()).encodeABI(),
         });
         setInWithdraw(true);
         transactionSubmittedKey = showActionSubmitted(TxnHash);
@@ -56,8 +58,8 @@ const handleWithdrawCFX = async ({ withdrawableBalance, setInWithdraw }: { withd
 
 const handleWithdrawCRC20 = async ({ withdrawableBalance, setInWithdraw, methodType }: { withdrawableBalance: Unit; setInWithdraw: (disabled: boolean) => void, methodType: 'withdrawFromEvm' | 'crossFromEvm'; }) => {
     const metaMaskAccount = metaMaskStore.getState().accounts?.[0];
-    const { confluxSideContract, confluxSideContractAddress } = confluxStore.getState();
-    if (!metaMaskAccount || !confluxSideContract || !confluxSideContractAddress) return;
+    const { confluxSideContract, confluxSideContractAddressBase32 } = Contracts;
+    if (!metaMaskAccount) return;
 
     const currentToken = currentTokenStore.getState().currentToken;
 
@@ -67,8 +69,8 @@ const handleWithdrawCRC20 = async ({ withdrawableBalance, setInWithdraw, methodT
     try {
         waitFluentKey = showWaitWallet('Fluent');
         const TxnHash = await sendTransactionWithFluent({
-            to: confluxSideContractAddress,
-            data: confluxSideContract[methodType](currentToken.native_address, metaMaskAccount, withdrawableBalance.toHexMinUnit()).data,
+            to: confluxSideContractAddressBase32,
+            data: confluxSideContract[methodType](currentToken.native_address, metaMaskAccount, withdrawableBalance.toHexMinUnit()).encodeABI(),
         });
         setInWithdraw(true);
         transactionSubmittedKey = showActionSubmitted(TxnHash);

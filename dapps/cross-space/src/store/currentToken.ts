@@ -1,20 +1,17 @@
 import { useCallback } from 'react';
 import create from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
-import LocalStorage from 'common/utils/LocalStorage';
+import LocalStorage from 'localstorage-enhance';
 import Cache from 'common/utils/LRUCache';
 import CFX from 'cross-space/src/assets/CFX.svg';
-import { confluxStore } from './conflux';
-import CRC20TokenABI from 'cross-space/src/contracts/abi/ERC20.json'
-import { Unit } from '@cfxjs/use-wallet';
-import { store as metaMaskStore } from '@cfxjs/use-wallet/dist/ethereum';
+import { store as metaMaskStore } from '@cfxjs/use-wallet-react/ethereum';
 
 export const nativeToken = {
     core_space_name: "Conflux Network",
     core_space_symbol: "CFX",
     evm_space_name: "Conflux Network",
     evm_space_symbol: "CFX",
-    decimals: '18',
+    decimals: 18,
     icon: CFX,
     isNative: true
 } as Token;
@@ -26,21 +23,15 @@ export interface Token {
     core_space_symbol: string;
     evm_space_name: string;
     evm_space_symbol: string;
-    decimals: string;
+    decimals: number;
     icon: string;
     nativeSpace?: 'core' | 'eSpace';
     isNative?: true;
     isInner?: true;
 }
 
-interface TokenContract {
-    approve(spenderAddress: string, amount: string): Record<string, string>;
-    allowance(ownerAddress: string, spenderAddress: string): Record<string, string>;
-}
-
 interface TokenStore {
     currentToken: Token;
-    currentTokenContract?: TokenContract;
     commonTokens: Array<Token>;
 }
 
@@ -48,58 +39,29 @@ const CommonTokenCount = 10;
 const commonTokensCache = new Cache<Token>(CommonTokenCount - 1, 'cross-space-common-tokens');
 
 export const currentTokenStore = create(subscribeWithSelector(() => ({
-    currentToken: (LocalStorage.get('currentToken', 'cross-space') as Token) ?? nativeToken,
-    currentTokenContract: undefined,
+    currentToken: (LocalStorage.getItem('currentToken', 'cross-space') as Token) ?? nativeToken,
     commonTokens: [nativeToken, ...commonTokensCache.toArr()],
 }) as TokenStore));
 
 const selectors = {
     token: (state: TokenStore) => state.currentToken,
-    tokenContract: (state: TokenStore) => state.currentTokenContract,
     commonTokens: (state: TokenStore) => state.commonTokens,
 };
 
 export const startSubToken = () => {
-    const unSubExec: Function[] = [];
-
-    const unsub1 = metaMaskStore.subscribe(state => state.status, (status) => {
+    const unsub = metaMaskStore.subscribe(state => state.status, (status) => {
         if (status === 'not-installed') {
             currentTokenStore.setState({ currentToken: nativeToken });
-            LocalStorage.set(`currentToken`, nativeToken, 0, 'cross-space');
+            LocalStorage.setItem({ key: 'currentToken', data: nativeToken, namespace: 'cross-space' });
         }
     }, { fireImmediately: true });
     
-    
-    const unsub2 = currentTokenStore.subscribe(state => state.currentToken, (currentToken) => {
-        const conflux = confluxStore.getState().conflux!;
-        if (!conflux || !currentToken || currentToken.isNative) return;
-        currentTokenStore.setState({
-            currentTokenContract: conflux.Contract({ abi: CRC20TokenABI, address: currentToken.native_address }) as unknown as TokenContract
-        });
-    }, { fireImmediately: true });
-    
-    
-    const unsub3 = confluxStore.subscribe(state => state.conflux, (conflux) => {
-        const currentToken = currentTokenStore.getState().currentToken;
-        if (!conflux) return;
-        if (!currentToken.isNative) {
-            currentTokenStore.setState({
-                currentTokenContract: conflux.Contract({ abi: CRC20TokenABI, address: currentToken.native_address }) as unknown as TokenContract,
-            });
-        }
-    }, { fireImmediately: true });
-
-    unSubExec.push(unsub1, unsub2, unsub3);
-
-    return () => {
-        unSubExec.forEach(unsub => unsub());
-    }
+    return unsub;
 }
 
 
 export const useToken = () => {
     const currentToken = currentTokenStore(selectors.token);
-    const currentTokenContract = currentTokenStore(selectors.tokenContract);
     const commonTokens = currentTokenStore(selectors.commonTokens);
 
     const deleteFromCommonTokens = useCallback((deleteToken: Token) => {
@@ -109,7 +71,7 @@ export const useToken = () => {
 
     const setCurrentToken = useCallback((currentToken: Token) => {
         currentTokenStore.setState({ currentToken });
-        LocalStorage.set(`currentToken`, currentToken, 0, 'cross-space');
+        LocalStorage.setItem({ key: 'currentToken', data: currentToken, namespace: 'cross-space' });
 
         if (!currentToken.isNative) {
             commonTokensCache.set(currentToken.native_address, currentToken);
@@ -117,5 +79,5 @@ export const useToken = () => {
         }
     }, []);
 
-    return { currentToken, currentTokenContract, setCurrentToken, commonTokens, deleteFromCommonTokens };
+    return { currentToken, setCurrentToken, commonTokens, deleteFromCommonTokens };
 }

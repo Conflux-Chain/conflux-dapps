@@ -1,7 +1,7 @@
-import { store as walletStore, sendTransaction, Unit } from '@cfxjs/use-wallet/dist/ethereum';
-import { tokenStore, recheckApproval, contractStore, trackBalanceChangeOnce, checkNeedApprove, networkStore } from 'bsc-espace/src/store/index';
-import { showWaitWallet, showActionSubmitted, hideWaitWallet, hideActionSubmitted } from 'common/components/tools/Modal';
-import { showToast } from 'common/components/tools/Toast';
+import { store as walletStore, sendTransaction, Unit } from '@cfxjs/use-wallet-react/ethereum';
+import { tokenStore, recheckApproval, Contracts, trackBalanceChangeOnce, checkNeedApprove, networkStore } from 'bsc-espace/src/store/index';
+import { showWaitWallet, showActionSubmitted, hideWaitWallet, hideActionSubmitted } from 'common/components/showPopup/Modal';
+import { showToast } from 'common/components/showPopup/Toast';
 import { addTempDepositToList } from 'bsc-espace/src/modules/Claim/depositStore';
 
 
@@ -27,14 +27,14 @@ const handleSubmit = async (amount: string) => {
 };
 
 const handleDeposit = async (amount: string) => {
-    const { eSpaceBridgeContractAddress, crossChainBridgeContractAddress, bridgeContract } = contractStore.getState();
+    const { eSpaceBridgeContractAddress, crossChainBridgeContractAddress, bridgeContract } = Contracts;
     const { currentFrom, eSpace, crossChain } = networkStore.getState();
     const { accounts } = walletStore.getState();
     const { token } = tokenStore.getState();
 
     const bridgeContractAddress = currentFrom === 'eSpace' ? eSpaceBridgeContractAddress : crossChainBridgeContractAddress;
-    const currentFromNetwork = currentFrom === 'eSpace' ? eSpace : crossChain;
-    const currentToNetwork = currentFrom === 'eSpace' ? crossChain : eSpace;
+    const currentFromNetwork = (currentFrom === 'eSpace' ? eSpace : crossChain).network;
+    const currentToNetwork = (currentFrom === 'eSpace' ? crossChain : eSpace).network;
     const account = accounts?.[0];
     if (!bridgeContractAddress || !bridgeContract || !currentFromNetwork || !account || !token) return;
 
@@ -46,7 +46,7 @@ const handleDeposit = async (amount: string) => {
         const timestamp = parseInt(Date.now() / 1000 + '');
         const TxnHash = await sendTransaction({
             to: bridgeContractAddress,
-            data: bridgeContract.deposit(token.address, Unit.fromStandardUnit(amount).toHexMinUnit(), currentToNetwork.networkId, account, timestamp.toString()).data,
+            data: bridgeContract.deposit(token.address, Unit.fromStandardUnit(amount).toHexMinUnit(), currentToNetwork.chainId, account, timestamp.toString()).encodeABI(),
             value: token.isNative ? Unit.fromStandardUnit(amount).toHexMinUnit() : '0x0'
         });
 
@@ -55,21 +55,21 @@ const handleDeposit = async (amount: string) => {
             timestamp,
             amount: Unit.fromStandardUnit(amount).toDecimalMinUnit(),
             token_abbr: 'CFX',
-            src_chain_id: currentFromNetwork.networkId,
-            dest_chain_id: currentToNetwork.networkId
+            src_chain_id: currentFromNetwork.chainId,
+            dest_chain_id: currentToNetwork.chainId
         });
         
         transactionSubmittedKey = showActionSubmitted(TxnHash);
         trackBalanceChangeOnce.balance(() => hideActionSubmitted(transactionSubmittedKey));
     } catch (err) {
-        console.error(`Deposit ${token.symbol} to ${currentToNetwork.name} failed: `, err);
+        console.error(`Deposit ${token.symbol} to ${currentToNetwork.chainName} failed: `, err);
         hideWaitWallet(waitFluentKey);
         if ((err as { code: number })?.code === 4001 && (err as any)?.message?.indexOf('User') !== -1) {
             showToast('You canceled the Deposit.', { type: 'failed' });
         } else {
             showToast(
                 {
-                    title: `Deposit ${token.symbol} to ${currentToNetwork.name} failed`,
+                    title: `Deposit ${token.symbol} to ${currentToNetwork.chainName} failed`,
                     text: (err as any)?.message ?? '',
                 },
                 { type: 'failed', duration: 30000 }
@@ -79,7 +79,7 @@ const handleDeposit = async (amount: string) => {
 };
 
 const handleApproveCRC20 = async () => {
-    const { eSpaceBridgeContractAddress, crossChainBridgeContractAddress, tokenContract } = contractStore.getState();
+    const { eSpaceBridgeContractAddress, crossChainBridgeContractAddress, tokenContract } = Contracts;
     const { currentFrom } = networkStore.getState();
     const { token } = tokenStore.getState();
 
@@ -93,7 +93,7 @@ const handleApproveCRC20 = async () => {
         waitFluentKey = showWaitWallet('MetaMask', { key: 'approve', tip: 'Approve takes a while to take effect.' });
         const TxnHash = await sendTransaction({
             to: token.address,
-            data: tokenContract.approve(bridgeContractAddress, '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff').data,
+            data: tokenContract.approve(bridgeContractAddress, '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff').encodeABI(),
         });
         recheckApproval();
         transactionSubmittedKey = showActionSubmitted(TxnHash, 'Approve', { duration: 15000 });

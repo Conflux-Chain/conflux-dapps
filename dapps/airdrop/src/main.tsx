@@ -1,16 +1,10 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { completeDetect as completeDetectConflux } from '@cfxjs/use-wallet';
-import { completeDetect as completeDetectEthereum } from '@cfxjs/use-wallet/dist/ethereum';
+import ReactDOM from 'react-dom/client';
+import { completeDetect as completeDetectConflux } from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { completeDetect as completeDetectEthereum } from '@cfxjs/use-wallet-react/ethereum';
 import 'custom-react-scrollbar/dist/style.css';
-import 'common/index.css';
+import 'common/styles/index.css';
 import App from './App';
 
 Promise.all([completeDetectConflux(), completeDetectEthereum()]).then(() => {
-    ReactDOM.render(
-        <React.StrictMode>
-            <App />
-        </React.StrictMode>,
-        document.getElementById('root'),
-    );
+    ReactDOM.createRoot(document.getElementById('root')!).render(<App />)
 });

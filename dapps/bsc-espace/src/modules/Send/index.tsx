@@ -1,12 +1,13 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import cx from 'clsx';
 import { useForm } from 'react-hook-form';
-import { useAccount, useStatus, useChainId, Unit } from '@cfxjs/use-wallet/dist/ethereum';
+import { useAccount, useStatus, useChainId, Unit } from '@cfxjs/use-wallet-react/ethereum';
 import { useBalance, useMaxAvailableBalance, useNeedApprove, useToken, useCurrentFromNetwork, useCurrentToNetwork, setTransferBalance, useIsTransferHasEnoughLiquidity } from 'bsc-espace/src/store';
 import useI18n from 'common/hooks/useI18n';
 import Input from 'common/components/Input';
 import Spin from 'common/components/Spin';
-import AuthConnectButton from 'common/modules/AuthConnectButton';
+import Button from 'common/components/Button';
+import { AuthEthereum } from 'common/modules/AuthConnectButton';
 import BalanceText from 'common/modules/BalanceText';
 import TokenList from 'bsc-espace/src/components/TokenList';
 import ChainSelect from './ChainSelect';
@@ -114,39 +115,39 @@ const Form: React.FC = () => {
 			/>
             
 			<p className="text-[14px] leading-[18px] text-[#3D3F4C] whitespace-nowrap">
-				<span style={{ color: currentFromNetwork.color }}>{currentFromNetwork.name}</span> Balance:
+				<span style={{ color: currentFromNetwork.color }}>{currentFromNetwork.network.chainName}</span> Balance:
 				<BalanceText className="ml-[4px]" balance={balance} id="wallet-balance" symbol={token.symbol} decimals={+token.decimals} status={metaMaskStatus} />
 			</p>
 			{isTransferHasEnoughLiquidity &&
 				<p className="mt-[20px] text-[14px] leading-[18px] text-[#3D3F4C] whitespace-nowrap">
-					Will receive on <span style={{ color: currentToNetwork.color }}>{currentToNetwork.name}</span>:
+					Will receive on <span style={{ color: currentToNetwork.color }}>{currentToNetwork.network.chainName}</span>:
 					<BalanceText className="ml-[4px]" id="will-receive" balance={receiveBalance} symbol={token.symbol} decimals={+token.decimals} />
 				</p>
 			}
 			{!isTransferHasEnoughLiquidity &&
 				<p className="mt-[20px] text-[14px] leading-[18px] text-[#E96170]">
-					{`Insufficient liquidity on ${currentToNetwork.name}, estimate liquidity is`}
+					{`Insufficient liquidity on ${currentToNetwork.network.chainName}, estimate liquidity is`}
 					<BalanceText className="ml-[4px]" id="bsc-espace-insufficient-liquidity" balance={maximumLiquidity} symbol="CFX" decimals={+token.decimals} />
 				</p>
 			}
 
-            <AuthConnectButton
+            <AuthEthereum
                 id="eSpaceBridge-Send-Auth"
                 className="mt-[24px]"
-				wallet="MetaMask"
-				buttonType="contained"
-				buttonSize="normal"
+				size="large"
 				fullWidth
 				type="button"
-                useMetaMaskNetwork={useCurrentFromNetwork}
+                network={currentFromNetwork.network}
 				authContent={() => 
-					<button
+					<Button
 						id="eSpaceBridge-Send"
-						className='mt-[24px] button-contained button-normal w-full'
+						size='large'
+						fullWidth
+						className='mt-[24px]'
 						disabled={!canClickButton || !isTransferHasEnoughLiquidity}
 					>
 						{needApprove ? 'Approve' : needApprove === false ? 'Send' : <Spin className='text-[28px] text-white' />}
-					</button>					
+					</Button>					
 				}
 			/>
         </form>

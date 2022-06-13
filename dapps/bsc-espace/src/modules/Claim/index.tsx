@@ -1,25 +1,24 @@
 import React, { useEffect } from 'react';
-import { Unit } from '@cfxjs/use-wallet/dist/ethereum';
+import { Unit } from '@cfxjs/use-wallet-react/ethereum';
 import numFormat from 'common/utils/numFormat';
 import NoClaimBg from 'bsc-espace/src/assets/no-claim-bg.png';
 import { useDepositList, useDepositInFetching, useClaimingList } from './depositStore';
 import CFXIcon from 'cross-space/src/assets/CFX.svg';
 import { useESpaceNetwork, useCrossNetwork } from 'bsc-espace/src/store';
 import useLoading from 'common/hooks/useLoading';
-import AuthConnectButton from 'common/modules/AuthConnectButton';
+import { AuthESpace, AuthEthereum } from 'common/modules/AuthConnectButton';
 import Spin from 'common/components/Spin';
 import List from 'common/components/List';
 import handleClaim from './handleClaim';
+import Button from 'common/components/Button';
 import './index.css';
 
 const Auth: React.FC = () => {
     return (
-        <AuthConnectButton
-            className="mt-[8px] button-inline"
+        <AuthESpace
+            className="mt-[8px]"
             id="claim-authConnect"
-            wallet="MetaMask"
-            buttonType="contained"
-            buttonSize="normal"
+            size="large"
             fullWidth
             connectTextType="concise"
             checkChainMatch={false}
@@ -46,7 +45,7 @@ const Claim: React.FC = () => {
             </div>
         );
     }
-
+    
     return (
         <div ref={ref}>
             <List
@@ -72,40 +71,49 @@ const Claim: React.FC = () => {
                         </div>
 
                         <div className="mt-[8px] leading-[18px] text-[14px] text-[#A9ABB2]">
-                            {`From ${deposit.src_chain_id === eSpaceNetwork.networkId ? eSpaceNetwork.name : crossNetwork.name} to ${
-                                deposit.dest_chain_id === eSpaceNetwork.networkId ? eSpaceNetwork.name : crossNetwork.name
+                            {`From ${deposit.src_chain_id === eSpaceNetwork.network.chainId ? eSpaceNetwork.network.chainName : crossNetwork.network.chainName} to ${
+                                deposit.dest_chain_id === eSpaceNetwork.network.chainId ? eSpaceNetwork.network.chainName : crossNetwork.network.chainName
                             }`}
                         </div>
 
                         {(deposit.status !== 'WAIT_FOR_CLAIM' || claimingList?.includes(deposit.deposit_tx_hash)) && (
-                            <button className="button button-outlined button-small absolute right-[16px] top-[50%] -translate-y-[50%] min-w-[60px]" disabled>
-                                {deposit.status === 'CLAIMED' ? 'Claimed' : <Spin className="text-[#808BE7] text-[22px]" />}
-                            </button>
+                            <Button
+                                variant='outlined'
+                                size='small'
+                                className="absolute right-[16px] top-[50%] -translate-y-[50%] min-w-[60px]"
+                                loading={deposit.status !== 'CLAIMED'}
+                                disabled={deposit.status === 'CLAIMED'}
+                            >
+                                Claimed
+                            </Button>
                         )}
                         {deposit.status === 'WAIT_FOR_CLAIM' && !claimingList?.includes(deposit.deposit_tx_hash) && (
-                            <AuthConnectButton
+                            <AuthEthereum
                                 className="absolute right-[16px] top-[50%] -translate-y-[50%] min-w-[60px]"
                                 id={`${deposit.deposit_tx_hash}-claim-auth`}
-                                wallet="MetaMask"
-                                buttonType="outlined"
-                                buttonSize="small"
+                                variant="outlined"
+                                size="small"
                                 type="button"
-                                useMetaMaskNetwork={deposit.dest_chain_id === eSpaceNetwork.networkId ? useESpaceNetwork : useCrossNetwork}
                                 connectTextType="concise"
+                                network={deposit.dest_chain_id === eSpaceNetwork.network.chainId ? eSpaceNetwork.network : crossNetwork.network}
                                 showLogo
-                                logo={deposit.dest_chain_id === crossNetwork.networkId ? crossNetwork.logo : eSpaceNetwork.logo}
+                                logo={deposit.dest_chain_id === crossNetwork.network.chainId ? crossNetwork.logo : eSpaceNetwork.logo}
                                 authContent={() => (
-                                    <button
-                                        className="absolute right-[16px] top-[50%] -translate-y-[50%] min-w-[60px] button-outlined button-small"
+                                    <Button
+                                        variant="outlined"
+                                        size="small"
+                                        className="absolute right-[16px] top-[50%] -translate-y-[50%] min-w-[60px]"
+                                        startIcon={
+                                            <img
+                                                className="mr-[4px] w-[14px] h-[14px]"
+                                                src={deposit.dest_chain_id === crossNetwork.network.chainId ? crossNetwork.logo : eSpaceNetwork.logo}
+                                                alt="chain logo"
+                                            />
+                                        }
                                         onClick={() => handleClaim(deposit)}
                                     >
-                                        <img
-                                            className="mr-[4px] w-[14px] h-[14px]"
-                                            src={deposit.dest_chain_id === crossNetwork.networkId ? crossNetwork.logo : eSpaceNetwork.logo}
-                                            alt="chain logo"
-                                        />
                                         Claim
-                                    </button>
+                                    </Button>
                                 )}
                             />
                         )}

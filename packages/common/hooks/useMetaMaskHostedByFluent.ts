@@ -1,20 +1,20 @@
 import { useEffect, useState } from 'react';
-import { completeDetect as completeDetectConflux, store as fluentStore, requestCrossNetworkPermission, setCrossNetworkChain } from '@cfxjs/use-wallet/';
-import { provider as metaMaskProvider, completeDetect as completeDetectEthereum } from '@cfxjs/use-wallet/dist/ethereum';
-import { showToast, hideSpecialToast } from 'common/components/tools/Toast';
-import { validateBase32Address } from '@fluent-wallet/base32-address';
-import { showWaitWallet, hideWaitWallet } from './../components/tools/Modal/index';
+import { completeDetect as completeDetectConflux, store as fluentStore, requestCrossNetworkPermission, setCrossNetworkChain } from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { provider as metaMaskProvider, store as metaMaskStore, completeDetect as completeDetectEthereum } from '@cfxjs/use-wallet-react/ethereum';
+import { isProduction } from 'common/conf/Networks';
+import { showToast, hideSpecialToast } from 'common/components/showPopup/Toast';
+import { showWaitWallet, hideWaitWallet } from 'common/components/showPopup/Modal';
+import { validateCfxAddress, validateHexAddress } from 'common/utils/addressUtils';
 
-let _isMetaMaskHostedByFluent = false;
+export let isMetaMaskHostedByFluent = false;
 completeDetectEthereum().then(() => {
     if (metaMaskProvider?.isFluent) {
-        _isMetaMaskHostedByFluent = true;
-        const isProduction = !location.host.startsWith('test') && !location.host.startsWith('localhost');
-        setCrossNetworkChain('0x' + Number(isProduction ? '1029' : '1').toString(16));
+        isMetaMaskHostedByFluent = true;
     }
 });
+
 export const useIsMetaMaskHostedByFluent = () => {
-    const [isMetaMaskHostedByFluent, setIsMetaMaskHostedByFluent] = useState(_isMetaMaskHostedByFluent);
+    const [_isMetaMaskHostedByFluent, setIsMetaMaskHostedByFluent] = useState(isMetaMaskHostedByFluent);
 
     useEffect(() => {
         if (isMetaMaskHostedByFluent) return;
@@ -25,17 +25,17 @@ export const useIsMetaMaskHostedByFluent = () => {
         });
     }, []);
 
-    return isMetaMaskHostedByFluent;
+    return _isMetaMaskHostedByFluent;
 }
 
 
 export const useMetaMaskHostedByFluentRqPermissions = () => {
     useEffect(() => {
         const ruquestCrossNetworkPermission = () => {
-            const unsub = fluentStore.subscribe(state => state.accounts, async (accounts) => {
+            const unsub1 = fluentStore.subscribe(state => state.accounts, async (accounts) => {
                 const account = accounts?.[0];
                 if (!account) return;
-                if (!validateBase32Address(account)) {
+                if (!validateCfxAddress(account)) {
                     let hasGetPermission = false;
                     const waitWallet = showWaitWallet('Fluent', { tip: 'In order for CrossSpace to support Fluent wallet hosting MetaMask, you must agree to the permission request.'})
                     while (!hasGetPermission) {
@@ -48,8 +48,31 @@ export const useMetaMaskHostedByFluentRqPermissions = () => {
                     }
                 }
             }, { fireImmediately: true });
-        
-            return unsub;
+
+            const unsub2 = metaMaskStore.subscribe(state => state.accounts, async (accounts) => {
+                const account = accounts?.[0];
+                if (!account) return;
+                if (!validateHexAddress(account)) {
+                    let hasGetPermission = false;
+                    const waitWallet = showWaitWallet('Fluent', { tip: 'In order for CrossSpace to support Fluent wallet hosting MetaMask, you must agree to the permission request.'})
+                    while (!hasGetPermission) {
+                        try {
+                            await requestCrossNetworkPermission();
+                            hasGetPermission = true;
+                            hideWaitWallet(waitWallet);
+                        } catch (_) {
+                        }
+                    }
+                }
+            }, { fireImmediately: true });
+            
+            setCrossNetworkChain('0x' + Number(isProduction ? '1029' : '1').toString(16));
+
+            return () => {
+                unsub1();
+                unsub2();
+                setCrossNetworkChain(undefined);
+            };
         }
 
         let unsub: VoidFunction | undefined;
@@ -69,8 +92,9 @@ export const useMetaMaskHostedByFluentRqPermissions = () => {
 
 
 
-const useMetaMaskHostedByFluent = (dappName: string) => {
+export const useNotSupportMetaMaskHostedByFluent = (dappName?: string) => {
     useEffect(() => {
+        if (typeof dappName !== 'string') return;
         let toastKey: string | number;
         const show = () => {
             toastKey = showToast(
@@ -78,7 +102,7 @@ const useMetaMaskHostedByFluent = (dappName: string) => {
                 { key: 'fluent-tip', type: 'failed', showClose: false, duration: 0, special: true }
             );
         }
-        if (_isMetaMaskHostedByFluent) {
+        if (isMetaMaskHostedByFluent) {
             show();
         } else {
             completeDetectEthereum().then(() => {
@@ -91,7 +115,5 @@ const useMetaMaskHostedByFluent = (dappName: string) => {
         return () => {
             hideSpecialToast(toastKey);
         }
-    }, []);
+    }, [dappName]);
 };
-
-export default useMetaMaskHostedByFluent;

@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import cx from 'clsx';
 import useI18n from 'common/hooks/useI18n';
-import { completeDetect as completeDetectEthereum } from '@cfxjs/use-wallet/dist/ethereum';
+import { completeDetect as completeDetectEthereum } from '@cfxjs/use-wallet-react/ethereum';
 import { startSub, useHasPeggedCFX } from 'bsc-espace/src/store';
 import Send from 'bsc-espace/src/modules/Send';
 import Claim from 'bsc-espace/src/modules/Claim';
 import Redeem from 'bsc-espace/src/modules/Redeem';
-import LocalStorage from 'common/utils/LocalStorage';
+import LocalStorage from 'localstorage-enhance';
 import './index.css';
 
 const transitions = {
@@ -52,7 +52,7 @@ const App: React.FC = () => {
     }, []);
 
     const [currentStep, setCurrentStep] = useState<0 | 1 | 2>(() => {
-        const last = LocalStorage.get('step', 'bsc-espace');
+        const last = LocalStorage.getItem('step', 'bsc-espace');
         if (last === 0 || last === 1 || last === 2) {
             return last as 0 | 1 | 2;
         }
@@ -60,7 +60,7 @@ const App: React.FC = () => {
     });
 
     const changeCurrentStep = useCallback((step: typeof currentStep) => {
-        LocalStorage.set('step', step, 0, 'bsc-espace');
+        LocalStorage.setItem({ key: 'step', data: step, namespace: 'bsc-espace' });
         setCurrentStep(step);
     }, []);
 

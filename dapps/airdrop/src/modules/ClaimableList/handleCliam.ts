@@ -1,8 +1,8 @@
-import { sendTransaction, Unit } from '@cfxjs/use-wallet';
-import { store as MetaMaskStore } from '@cfxjs/use-wallet/dist/ethereum';
-import { shortenAddress } from '@fluent-wallet/shorten-address';
-import { showWaitWallet, showActionSubmitted, hideWaitWallet, hideActionSubmitted } from 'common/components/tools/Modal';
-import { showToast } from 'common/components/tools/Toast';
+import { sendTransaction, Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { store as MetaMaskStore } from '@cfxjs/use-wallet-react/ethereum';
+import { shortenAddress } from 'common/utils/addressUtils';
+import { showWaitWallet, showActionSubmitted, hideWaitWallet, hideActionSubmitted } from 'common/components/showPopup/Modal';
+import { showToast } from 'common/components/showPopup/Toast';
 import { tokenContract, crossSpaceContractAddress, crossSpaceContract, type Token } from 'airdrop/src/store/index';
 
 export const handleClaim = async (token: Token & { balance?: Unit; trackChangeOnce: (cb: () => void) => void; }, setInClaiming: Function) => {
@@ -17,7 +17,7 @@ export const handleClaim = async (token: Token & { balance?: Unit; trackChangeOn
         waitFluentKey = showWaitWallet('Fluent');
         const TxnHash = await sendTransaction({
             to: crossSpaceContractAddress,
-            data: crossSpaceContract.callEVM(token.eSpace_address, tokenContract.transfer(eSpaceAccount, token.balance.toHexMinUnit()).data).data,
+            data: crossSpaceContract.callEVM(token.eSpace_address, tokenContract.transfer(eSpaceAccount, token.balance.toHexMinUnit()).encodeABI()).encodeABI(),
         });
         setInClaiming(true);
         transactionSubmittedKey = showActionSubmitted(TxnHash);

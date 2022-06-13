@@ -8,7 +8,7 @@ import Mask from '../Mask';
 type PartialOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 export interface PopupProps extends ItemProps {
-    Content: React.ReactNode;
+    Content: React.ReactNode | Function;
     duration?: number;
     preventDuplicate?: boolean,
     maximum?: number;
@@ -35,7 +35,7 @@ export interface PopupMethods {
 const PopupItem = forwardRef<HTMLDivElement, PopupProps & { handleClose: () => void; }>(({ handleClose, Content, duration }, ref) => {
     useEffect(() => {
         let timer: number;
-        if (duration !== 0) timer = setTimeout(handleClose, duration);
+        if (duration !== 0) timer = setTimeout(handleClose, duration) as unknown as number;
         return () => clearTimeout(timer);
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 

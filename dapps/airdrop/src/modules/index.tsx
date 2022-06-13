@@ -2,9 +2,8 @@ import React, { useEffect } from 'react';
 import useI18n from 'common/hooks/useI18n';
 import ConnectTip from './ConnectTip';
 import ClaimableList from './ClaimableList/index';
-import AuthConnectButton from 'common/modules/AuthConnectButton';
+import { AuthESpaceAndCore } from 'common/modules/AuthConnectButton';
 import { startTrack } from 'airdrop/src/store';
-import useMetaMaskHostedByFluent from 'common/hooks/useMetaMaskHostedByFluent';
 
 const transitions = {
     en: {
@@ -23,7 +22,6 @@ const transitions = {
 const App: React.FC = () => {
     const i18n = useI18n(transitions);
     useEffect(startTrack, []);
-    useMetaMaskHostedByFluent('Airdrop')
 
     return (
         <div className="relative max-w-[1000px] mx-auto pt-[16px] mb-24px">
@@ -39,10 +37,8 @@ const App: React.FC = () => {
             <p className="mt-[40px] mb-[16px] flex items-center h-[24px] text-[16px] text-[#3D3F4C] font-medium">
                 Claimable Tokens
             </p>
-            <AuthConnectButton
-                wallet="Both-MetaMaskFirst"
-                buttonType="contained"
-                buttonSize="normal"
+            <AuthESpaceAndCore
+                size="large"
                 type="button"
                 authContent={() => <ClaimableList />}
             />

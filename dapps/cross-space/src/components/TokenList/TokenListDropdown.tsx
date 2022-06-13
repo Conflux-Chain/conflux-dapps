@@ -1,9 +1,9 @@
 import React, { useState, useCallback, useEffect, useRef, memo, useMemo } from 'react';
 import cx from 'clsx';
 import useI18n from 'common/hooks/useI18n';
-import { useStatus as useFluentStatus, useChainId as useFluentChainId, watchAsset as watchAssetFluent } from '@cfxjs/use-wallet';
-import { useStatus as useMetaMaskStatus, useChainId as useMetaMaskChainId, watchAsset as watchAssetMetaMask } from '@cfxjs/use-wallet/dist/ethereum';
-import { shortenAddress } from '@fluent-wallet/shorten-address';
+import { useStatus as useFluentStatus, useChainId as useFluentChainId, watchAsset as watchAssetFluent } from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { useStatus as useMetaMaskStatus, useChainId as useMetaMaskChainId, watchAsset as watchAssetMetaMask } from '@cfxjs/use-wallet-react/ethereum';
+import { shortenAddress } from 'common/utils/addressUtils';
 import { debounce, escapeRegExp } from 'lodash-es';
 import { useSingleton } from '@tippyjs/react';
 import CustomScrollbar from 'custom-react-scrollbar';
@@ -11,15 +11,16 @@ import Dropdown from 'common/components/Dropdown';
 import Tooltip from 'common/components/Tooltip';
 import Input from 'common/components/Input';
 import Spin from 'common/components/Spin';
-import { connectToWallet, switchToChain } from 'common/modules/AuthConnectButton';
-import { showToast, type Content } from 'common/components/tools/Toast';
-import { useToken, nativeToken, type Token, useCurrentNetwork , type Network } from 'cross-space/src/store/index';
-import Close from 'common/assets/close.svg';
-import Add from 'common/assets/add-to-wallet.svg';
-import Search from 'common/assets/search.svg';
+import { connectToConflux, connectToEthereum, switchToCore, switchToESpace } from 'common/modules/AuthConnectButton';
+import { showToast, type Content } from 'common/components/showPopup/Toast';
+import Networks, { type Network } from 'common/conf/Networks';
+import Close from 'common/assets/icons/close.svg';
+import Add from 'common/assets/icons/add-to-wallet.svg';
+import Search from 'common/assets/icons/search.svg';
 import Suggest from 'cross-space/src/assets/suggest.svg';
 import Switch from 'cross-space/src/assets/turn-page.svg';
 import Open from 'cross-space/src/assets/open.svg';
+import { useToken, nativeToken, type Token } from 'cross-space/src/store/index';
 import { useTokenList, tokenListStore, deleteSearchToken } from './tokenListStore';
 import judgeAddressValid from './judgeAddressValid';
 import { useIsMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFluent';
@@ -44,8 +45,6 @@ const TokenListDropdown: React.FC<{ children: (triggerDropdown: () => void, visi
     const [visible, setVisible] = useState(false);
 
     const { currentToken, setCurrentToken } = useToken();
-    const coreNetwork = useCurrentNetwork('core');
-    const eSpaceNetwork = useCurrentNetwork('eSpace');
     const metaMaskChainId = useMetaMaskChainId();
     const metaMaskStatus = useMetaMaskStatus();
     const fluentStatus = useFluentStatus();
@@ -66,29 +65,29 @@ const TokenListDropdown: React.FC<{ children: (triggerDropdown: () => void, visi
         else if (!pre && fluentStatus === 'not-active') {
             disabled = {
                 text: `Please connect to Fluent first.`,
-                onClickOk: () => connectToWallet('Fluent'),
+                onClickOk: connectToConflux,
                 okButtonText: 'Connect'
             }
         }
         else if (!pre && metaMaskStatus === 'not-active') {
             disabled = {
-                text: `To cross space CRC20 token, please connect to MetaMask first.`,
-                onClickOk: () => connectToWallet('MetaMask'),
+                text: `To cross space CRC20 token, please connect to ${isMetaMaskHostedByFluent ? 'Fluent' : 'MetaMask'} first.`,
+                onClickOk: isMetaMaskHostedByFluent ? connectToConflux : connectToEthereum,
                 okButtonText: 'Connect',
                 ...(currentToken.isNative ? {} : { onClickCancel: () => setCurrentToken(nativeToken), cancelButtonText: 'Switch Token to CFX' })
             }
         }
-        else if (!pre && coreNetwork?.networkId !== fluentChainId && !isMetaMaskHostedByFluent) {
+        else if (!pre && Networks.core?.chainId !== fluentChainId && !isMetaMaskHostedByFluent) {
             disabled = {
-                text: `Please switch Fluent to ${coreNetwork?.name} first.`,
-                onClickOk: () => switchToChain('Fluent', coreNetwork!),
+                text: `Please switch Fluent to ${Networks.core.chainName} first.`,
+                onClickOk: switchToCore,
                 okButtonText: 'Switch'
             }
         }
-        else if (!pre && eSpaceNetwork?.networkId !== metaMaskChainId && !isMetaMaskHostedByFluent) {
+        else if (!pre && Networks.eSpace?.chainId !== metaMaskChainId && !isMetaMaskHostedByFluent) {
             disabled = {
-                text: `To cross space CRC20 token, please switch MetaMask to ${eSpaceNetwork?.name} first.`,
-                onClickOk: () => switchToChain('MetaMask', eSpaceNetwork!),
+                text: `To cross space CRC20 token, please switch ${isMetaMaskHostedByFluent ? 'Fluent' : 'MetaMask'} to ${Networks.eSpace.chainName} first.`,
+                onClickOk: switchToESpace,
                 okButtonText: 'Switch',
                 ...(currentToken.isNative ? {} : { onClickCancel: () => setCurrentToken(nativeToken), cancelButtonText: 'Switch Token to CFX' })
             }
@@ -101,15 +100,15 @@ const TokenListDropdown: React.FC<{ children: (triggerDropdown: () => void, visi
         }
 
         setVisible(!pre);
-    }, [visible, currentToken, metaMaskChainId, metaMaskStatus, fluentStatus, fluentChainId, coreNetwork, eSpaceNetwork, isMetaMaskHostedByFluent]);
+    }, [visible, currentToken, metaMaskChainId, metaMaskStatus, fluentStatus, fluentChainId, Networks.core, Networks.eSpace, isMetaMaskHostedByFluent]);
 
     const hideDropdown = useCallback(() => setVisible(false), []);
     useEffect(() => {
         setVisible(pre => {
-            if (fluentStatus === 'not-active' || metaMaskStatus === 'not-active' || coreNetwork?.networkId !== fluentChainId || eSpaceNetwork?.networkId !== metaMaskChainId) return false;
+            if (fluentStatus === 'not-active' || metaMaskStatus === 'not-active' || Networks.core?.chainId !== fluentChainId || Networks.eSpace?.chainId !== metaMaskChainId) return false;
             return pre;
         });
-    }, [fluentStatus, metaMaskStatus, fluentChainId, metaMaskChainId, coreNetwork, eSpaceNetwork]);
+    }, [fluentStatus, metaMaskStatus, fluentChainId, metaMaskChainId, Networks.core, Networks.eSpace]);
 
 
     useEffect(() => {
@@ -212,8 +211,8 @@ const DropdownContent: React.FC<{ fromSpace: 'core' | 'eSpace'; visible: boolean
     const [deleteFromListSource, deleteFromListSingleton] = useSingleton();
     const walletStatus = (space === 'core' ? useFluentStatus : useMetaMaskStatus)();
     const walletChainId = (space === 'core' ? useFluentChainId : useMetaMaskChainId)();
-    const currentNetwork = useCurrentNetwork(space);
-    const chainMatched = walletChainId === currentNetwork?.networkId;
+    const currentNetwork = Networks[space];
+    const chainMatched = walletChainId === currentNetwork.chainId;
 
     return (
         <>
@@ -328,7 +327,7 @@ const TokenItem = memo<TokenItemProps>(({
     deleteFromListSingleton,
     ...token
 }) => {
-    const { core_space_symbol, core_space_name, evm_space_symbol, evm_space_name, native_address, mapped_address, nativeSpace, icon } = token;
+    const { core_space_symbol, core_space_name, evm_space_symbol, evm_space_name, native_address, mapped_address, nativeSpace, icon, decimals } = token;
     const usedTokenAddress = nativeSpace ? (nativeSpace === space ? native_address : mapped_address) : native_address;
     const symbol = space === 'core' ? core_space_symbol : evm_space_symbol;
     const name = space === 'core' ? core_space_name : evm_space_name;
@@ -341,7 +340,7 @@ const TokenItem = memo<TokenItemProps>(({
                 options: {
                     address: usedTokenAddress,
                     symbol: symbol,
-                    decimals: 18,
+                    decimals: Number(decimals),
                     image: icon
                 },
             });
@@ -389,7 +388,7 @@ const TokenItem = memo<TokenItemProps>(({
                         </Tooltip>
                     }
                     <Tooltip singleton={viewInScanSingleton}>
-                        <a href={`${currentNetwork?.scan}/token/${usedTokenAddress}`} target="_blank" rel="noopener">
+                        <a href={`${currentNetwork?.blockExplorerUrls?.[0]}/token/${usedTokenAddress}`} target="_blank" rel="noopener">
                             <img src={Open} alt="open image" className='ml-[8px] w-[18px] h-[18px] cursor-pointer' />
                         </a>
                     </Tooltip>
