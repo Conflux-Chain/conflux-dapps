@@ -30,7 +30,7 @@ export const networkStore = create(
                 },
                 crossChain: {
                     network: Config.chains[0].network,
-                    color: Config.color,
+                    color: Config.chains[0].color,
                     logo: BSCIcon,
                 },
             } as unknown) as NetworkStore)
