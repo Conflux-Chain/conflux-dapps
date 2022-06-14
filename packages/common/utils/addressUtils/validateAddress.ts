@@ -1,4 +1,4 @@
-import JSBI from 'JSBI';
+import JSBI from 'jsbi';
 import { Buffer } from 'buffer';
 const ALPHABET = 'ABCDEFGHJKMNPRSTUVWXYZ0123456789';
 const VERSION_BYTE = 0;
