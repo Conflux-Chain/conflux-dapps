@@ -3,7 +3,7 @@ import Networks, { type Network } from '../../conf/Networks';
 import AuthConnectButton, { type Props } from "./AuthConnectButton";
 import { connect as connectToConfluxBase, addChain as addConfluxChain, switchChain as switchConfluxChain, useStatus as useConfluxStatus, useChainId as useConfluxChainId } from '@cfxjs/use-wallet-react/conflux/Fluent';
 import { connect as connectToEthereumBase, addChain as addEthereumChain, switchChain as switchEthereumChain, useStatus as useEthereumStatus, useChainId as useEthereumChainId } from '@cfxjs/use-wallet-react/ethereum';
-import FluentLogo from '../../assets/wallets/fluent.svg';
+import FluentLogo from '../../assets/wallets/Fluent.svg';
 import MetaMaskLogo from '../../assets/wallets/MetaMask.svg';
 import { useIsMetaMaskHostedByFluent, isMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFluent';
 import { connectToWallet, switchToChain } from './connectUtils';
