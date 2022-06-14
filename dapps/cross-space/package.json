@@ -24,12 +24,10 @@
         "react-spring": "^9.4.5",
         "react-use-clipboard": "^1.0.8",
         "tippy.js": "^6.3.7",
-        "web3-eth-contract": "^1.7.3",
+        "web3": "^1.7.3",
         "zustand": "^4.0.0-rc.1"
     },
     "devDependencies": {
-        "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
-        "@esbuild-plugins/node-modules-polyfill": "^0.1.4",
         "@types/lodash-es": "^4.17.6",
         "@types/react": "^18.0.12",
         "@types/react-dom": "^18.0.5",

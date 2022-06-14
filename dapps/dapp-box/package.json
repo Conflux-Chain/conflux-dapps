@@ -23,7 +23,7 @@
     "react-router-dom": "^6.3.0",
     "react-spring": "^9.4.5",
     "tippy.js": "^6.3.7",
-    "web3-eth-contract": "^1.7.3",
+    "web3": "^1.7.3",
     "zustand": "^4.0.0-rc.1"
   },
   "devDependencies": {
