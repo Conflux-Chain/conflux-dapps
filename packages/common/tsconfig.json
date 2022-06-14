@@ -1,5 +1,5 @@
 {
-    "extends": "tsconfig/base.json",
-    "include": ["types", "modules", "components", "utils"],
-    "exclude": ["dist", "build", "node_modules"]
+    "extends": "tsconfig/website.json",
+    "include": ["**/*.ts", "**/*.tsx"],
+    "exclude": ["node_modules", "vite.config.ts"]
 }

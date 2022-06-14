@@ -1,12 +1,14 @@
 import create from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
-import { store as fluentStore, Unit, provider as fluentProvider } from '@cfxjs/use-wallet';
-import { store as metaMaskStore } from '@cfxjs/use-wallet/dist/ethereum';
-import { confluxStore } from './conflux';
-import { format } from 'js-conflux-sdk';
+import { store as fluentStore, Unit, provider as fluentProvider } from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { store as metaMaskStore } from '@cfxjs/use-wallet-react/ethereum';
+import Contracts from './contracts';
+import { convertCfxToHex } from 'common/utils/addressUtils';
+import { mirrorAddressStore } from './mirrorAddress';
 import { estimate } from '@fluent-wallet/estimate-tx';
 import { currentTokenStore, type Token } from './currentToken';
-import { currentNetworkStore } from './index';
+import Networks from 'common/conf/Networks';
+import type { ValueOf } from 'tsconfig/types/enhance';
 
 
 interface BalanceStore {
@@ -53,7 +55,7 @@ export const startSubBalance = () => {
     // track currentToken balance and approvedBalance
     (['core', 'eSpace'] as const).forEach(space => {
         const walletStore = space === 'core' ? fluentStore : metaMaskStore;
-        const network = space === 'core' ? currentNetworkStore.getState().core! : currentNetworkStore.getState().eSpace!;
+        const network = Networks[space];
         const rpcPrefix = space === 'core' ? 'cfx' : 'eth';
         const balanceStore = space === 'core' ? coreBalanceStore as typeof eSpaceBalanceStore : eSpaceBalanceStore;
         let balanceTick = 0;
@@ -87,13 +89,13 @@ export const startSubBalance = () => {
             const currentBalanceTick = balanceTick;
             balanceTick += 1;
 
-            const { currentToken, currentTokenContract } = currentTokenStore.getState();
-            const { confluxSideContractAddress, evmSideContractAddress } = confluxStore.getState();
+            const { currentToken } = currentTokenStore.getState();
+            const { confluxSideContractAddress, evmSideContractAddress, tokenContract } = Contracts;
             const eachSideContractAddress = space === 'core' ? confluxSideContractAddress : evmSideContractAddress;
 
             // if CFX, directly get balance from @cfxjs/use-wallet
             if (currentToken.isNative) {
-                fetch(network.url, {
+                fetch(network.rpcUrls[0], {
                     body: JSON.stringify({
                         jsonrpc: '2.0',
                         method: `${rpcPrefix as 'cfx'}_getBalance`,
@@ -112,12 +114,12 @@ export const startSubBalance = () => {
 
             // if CRC20 token, get balance from call method
             const usedTokenAddress = currentToken.nativeSpace === space ? currentToken.native_address : currentToken.mapped_address;
-            fetch(network.url, {
+            fetch(network.rpcUrls[0], {
                 body: JSON.stringify({
                     jsonrpc: '2.0',
                     method: `${rpcPrefix as 'cfx'}_call`,
                     params: [{
-                        data:  '0x70a08231000000000000000000000000' + format.hexAddress(account).slice(2),
+                        data:  '0x70a08231000000000000000000000000' + (space === 'core' ? convertCfxToHex(account) : account).slice(2),
                         to: usedTokenAddress
                     }, space === 'core' ? 'latest_state' : 'latest'],
                     id: 1,
@@ -132,13 +134,13 @@ export const startSubBalance = () => {
 
 
             // and at same time get approval value;
-            if (currentTokenContract && eachSideContractAddress) {
-                fetch(network.url, {
+            if (tokenContract && eachSideContractAddress) {
+                fetch(network.rpcUrls[0], {
                     body: JSON.stringify({
                         jsonrpc: '2.0',
                         method: `${rpcPrefix as 'cfx'}_call`,
                         params: [{
-                            data: currentTokenContract.allowance(account, eachSideContractAddress).data,
+                            data: tokenContract.allowance(space === 'core' ? convertCfxToHex(account) : account, eachSideContractAddress).encodeABI(),
                             to: usedTokenAddress
                         }, space === 'core' ? 'latest_state' : 'latest'],
                         id: 1,
@@ -147,19 +149,21 @@ export const startSubBalance = () => {
                     method: 'POST',
                 })
                     .then(response => response.json()).then(res => res?.result)
-                    .then(approvalMinUnitBalance => handleBalanceChanged(Unit.fromMinUnit(approvalMinUnitBalance), 'approvedBalance', currentBalanceTick))
+                    .then(approvalMinUnitBalance => {
+                        handleBalanceChanged(Unit.fromMinUnit(approvalMinUnitBalance), 'approvedBalance', currentBalanceTick);
+                    })
                     .catch(err => {})
             }
 
             // and at same time get maximumLiquidity value if current token is core native token;
             if (space === 'core' && currentToken.nativeSpace === 'core' && confluxSideContractAddress) {
-                const coreNetwork = currentNetworkStore.getState().core!;
-                fetch(coreNetwork.url, {
+                const coreNetwork = Networks.core;
+                fetch(coreNetwork.rpcUrls[0], {
                         body: JSON.stringify({
                             jsonrpc: '2.0',
                             method: 'cfx_call',
                             params: [{
-                                data:  '0x70a08231000000000000000000000000' + format.hexAddress(confluxSideContractAddress).slice(2),
+                                data:  '0x70a08231000000000000000000000000' + confluxSideContractAddress.slice(2),
                                 to: currentToken.native_address
                             }, 'latest_state'],
                             id: 1,
@@ -248,8 +252,9 @@ export const startSubBalance = () => {
             const currentToken = currentTokenStore.getState().currentToken;
             const fluentAccount = fluentStore.getState().accounts?.[0];
             const metaMaskAccount = metaMaskStore.getState().accounts?.[0];
-            const { evmSideContract, evmSideContractAddress, eSpaceMirrorAddress } = confluxStore.getState();
-            const eSpaceNetwork = currentNetworkStore.getState().eSpace;
+            const { evmSideContract, evmSideContractAddress } = Contracts;
+            const { eSpaceMirrorAddress } = mirrorAddressStore.getState();
+            const eSpaceNetwork = Networks.eSpace;
 
             if (!eSpaceMirrorAddress || !eSpaceNetwork) return;
 
@@ -258,7 +263,7 @@ export const startSubBalance = () => {
 
             if (currentToken.isNative) {
                 // CFX cross space does not require MetaMask to be installed, so we cannot use MetaMask's provider here.
-                fetch(eSpaceNetwork.url, {
+                fetch(eSpaceNetwork.rpcUrls[0], {
                     body: JSON.stringify({
                         jsonrpc: '2.0',
                         method: 'eth_getBalance',
@@ -281,16 +286,16 @@ export const startSubBalance = () => {
                 return;
             }
 
-            if (!evmSideContract || !eSpaceMirrorAddress || !fluentAccount || !metaMaskAccount) return;
+            if (!eSpaceMirrorAddress || !fluentAccount || !metaMaskAccount) return;
             const usedTokenAddress = currentToken.nativeSpace === 'eSpace' ? currentToken.native_address : currentToken.mapped_address;
             const lockedTokenKey = currentToken.nativeSpace === 'eSpace' ? 'lockedToken' : 'lockedMappedToken';
 
-            fetch(eSpaceNetwork.url, {
+            fetch(eSpaceNetwork.rpcUrls[0], {
                 body: JSON.stringify({
                     jsonrpc: '2.0',
                     method: 'eth_call',
                     params: [{
-                        data: evmSideContract[lockedTokenKey](usedTokenAddress, metaMaskAccount, format.hexAddress(fluentAccount)).data,
+                        data: evmSideContract[lockedTokenKey](usedTokenAddress, metaMaskAccount, convertCfxToHex(fluentAccount)).encodeABI(),
                         to: evmSideContractAddress,
                     }, 'latest'],
                     id: 1,
@@ -393,13 +398,12 @@ export const startSubBalance = () => {
 
                 if (balanceStore === coreBalanceStore) {
                     // estimate Fluent max available balance
-                    const { crossSpaceContract, crossSpaceContractAddress } = confluxStore.getState();
+                    const { crossSpaceContract, crossSpaceContractAddress } = Contracts;
                     if (!fluentProvider || !crossSpaceContract || !crossSpaceContractAddress) return;
-
                     estimate({
                         from: account,
                         to: crossSpaceContractAddress,
-                        data: crossSpaceContract.transferEVM('0xFBBEd826c29b88BCC428B6fa0cfE6b0908653676').data,
+                        data: crossSpaceContract.transferEVM('0xFBBEd826c29b88BCC428B6fa0cfE6b0908653676').encodeABI(),
                         value: Unit.lessThan(currentTokenBalance, Unit.fromStandardUnit('16e-12')) ? Unit.fromStandardUnit(0).toHexMinUnit() : Unit.sub(currentTokenBalance, Unit.fromStandardUnit('16e-12')).toHexMinUnit()
                     }, {
                         type: balanceStore === coreBalanceStore ? 'cfx' : 'eth',
@@ -414,10 +418,10 @@ export const startSubBalance = () => {
                     }).finally(clearUndefinedTimer);
                 } else {
                     // estimate MetaMask max available balance
-                    const eSpaceNetwork = currentNetworkStore.getState().eSpace!;
+                    const eSpaceNetwork = Networks.eSpace;
 
                     Promise.all([
-                        fetch(eSpaceNetwork.url, {
+                        fetch(eSpaceNetwork.rpcUrls[0], {
                             body: JSON.stringify({
                                 jsonrpc: '2.0',
                                 method: 'eth_estimateGas',
@@ -432,7 +436,7 @@ export const startSubBalance = () => {
                             method: 'POST',
                         })
                             .then(response => response.json()).then(res => res?.result),
-                        fetch(eSpaceNetwork.url, {
+                        fetch(eSpaceNetwork.rpcUrls[0], {
                                 body: JSON.stringify({
                                     jsonrpc: '2.0',
                                     method: 'eth_gasPrice',
@@ -569,7 +573,7 @@ export const useNeedApprove = (currentToken: Token, space: 'core' | 'eSpace') =>
     const approvedBalance = balanceStore(selectors.approvedBalance);
     const transferBalance = balanceStore(selectors.transferBalance);
     const reCheckApproveCount = balanceStore(selectors.reCheckApproveCount);
-
+    
     if (currentToken.isNative || !transferBalance) return false;
     if (reCheckApproveCount! > 0 || !approvedBalance) return undefined;
     return Unit.lessThan(approvedBalance, transferBalance);

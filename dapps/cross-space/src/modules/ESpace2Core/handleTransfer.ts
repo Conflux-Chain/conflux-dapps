@@ -1,8 +1,9 @@
-import { store as fluentStore } from '@cfxjs/use-wallet';
-import { sendTransaction as sendTransactionWithMetaMask, Unit } from '@cfxjs/use-wallet/dist/ethereum';
-import { currentTokenStore, recheckApproval, confluxStore, trackBalanceChangeOnce, checkNeedApprove } from 'cross-space/src/store/index';
-import { showWaitWallet, showActionSubmitted, hideWaitWallet, hideActionSubmitted } from 'common/components/tools/Modal';
-import { showToast } from 'common/components/tools/Toast';
+import { store as fluentStore } from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { sendTransaction as sendTransactionWithMetaMask, Unit } from '@cfxjs/use-wallet-react/ethereum';
+import { currentTokenStore, recheckApproval, Contracts, trackBalanceChangeOnce, checkNeedApprove, mirrorAddressStore } from 'cross-space/src/store/index';
+import { showWaitWallet, showActionSubmitted, hideWaitWallet, hideActionSubmitted } from 'common/components/showPopup/Modal';
+import { showToast } from 'common/components/showPopup/Toast';
+import { convertCfxToHex } from 'common/utils/addressUtils';
 
 // return value === true means need clear input transfer amount;
 export const handleTransferSubmit = async ({ amount, setInTransfer }: { amount: string; setInTransfer: React.Dispatch<React.SetStateAction<boolean>>; }) => {
@@ -25,7 +26,7 @@ export const handleTransferSubmit = async ({ amount, setInTransfer }: { amount: 
 };
 
 const handleTransferCFX = async (amount: string) => {
-    const eSpaceMirrorAddress= confluxStore.getState().eSpaceMirrorAddress;
+    const eSpaceMirrorAddress= mirrorAddressStore.getState().eSpaceMirrorAddress;
     if (!eSpaceMirrorAddress) return;
 
     let waitFluentKey: string | number = null!;
@@ -60,9 +61,9 @@ const handleTransferCFX = async (amount: string) => {
 };
 
 const handleApproveCRC20 = async () => {
-    const { evmSideContractAddress } = confluxStore.getState();
-    const { currentToken, currentTokenContract } = currentTokenStore.getState();
-    if (!evmSideContractAddress || !currentToken || !currentTokenContract) return;
+    const { evmSideContractAddress, tokenContract } = Contracts;
+    const { currentToken } = currentTokenStore.getState();
+    if (!currentToken) return;
     const usedTokenAddress = currentToken.nativeSpace === 'eSpace' ? currentToken.native_address : currentToken.mapped_address;
 
     let waitFluentKey: string | number = null!;
@@ -72,7 +73,7 @@ const handleApproveCRC20 = async () => {
         waitFluentKey = showWaitWallet('MetaMask', { key: 'approve', tip: 'Approve takes a while to take effect.' });
         const TxnHash = await sendTransactionWithMetaMask({
             to: usedTokenAddress,
-            data: currentTokenContract.approve(evmSideContractAddress, '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff').data,
+            data: tokenContract.approve(evmSideContractAddress, '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff').encodeABI(),
         });
         recheckApproval('eSpace');
         transactionSubmittedKey = showActionSubmitted(TxnHash, 'Approve', { duration: 15000 });
@@ -103,7 +104,7 @@ const handleApproveCRC20 = async () => {
                     });
                     const TxnHash = await sendTransactionWithMetaMask({
                         to: usedTokenAddress,
-                        data: currentTokenContract!.approve(evmSideContractAddress!, '0x0').data,
+                        data: tokenContract.approve(evmSideContractAddress!, '0x0').encodeABI(),
                     });
                     recheckApproval('eSpace');
                     transactionSubmittedKey = showActionSubmitted(TxnHash, 'Approve', { duration: 9000 });
@@ -131,9 +132,10 @@ const handleApproveCRC20 = async () => {
 };
 
 const handleTransferCRC20 = async (amount: string, methodType: 'lockMappedToken' | 'lockToken', setInTransfer: React.Dispatch<React.SetStateAction<boolean>>) => {
-    const fluentAccount = fluentStore.getState().accounts?.[0];
-    const { evmSideContract, evmSideContractAddress } = confluxStore.getState();
-    if (!fluentAccount || !evmSideContract || !evmSideContractAddress) return;
+    const _fluentAccount = fluentStore.getState().accounts?.[0];
+    const { evmSideContract, evmSideContractAddress } = Contracts;
+    if (!_fluentAccount) return;
+    const fluentAccount = convertCfxToHex(_fluentAccount);
 
     const currentToken = currentTokenStore.getState().currentToken;
     const usedTokenAddress = currentToken.nativeSpace === 'eSpace' ? currentToken.native_address : currentToken.mapped_address;
@@ -145,7 +147,7 @@ const handleTransferCRC20 = async (amount: string, methodType: 'lockMappedToken'
         waitFluentKey = showWaitWallet('MetaMask');
         const TxnHash = await sendTransactionWithMetaMask({
             to: evmSideContractAddress,
-            data: evmSideContract[methodType](usedTokenAddress, fluentAccount, Unit.fromStandardUnit(amount).toHexMinUnit()).data,
+            data: evmSideContract[methodType](usedTokenAddress, fluentAccount, Unit.fromStandardUnit(amount).toHexMinUnit()).encodeABI(),
         });
         setInTransfer(true);
         transactionSubmittedKey = showActionSubmitted(TxnHash);

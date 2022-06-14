@@ -1,9 +1,12 @@
+
 import React, { createRef, RefObject } from 'react';
-import { createPortal, render } from 'react-dom';
+import { createPortal } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import isDOMElement from '../../utils/isDOMElement';
 import PopupComponent, { type PopupMethods } from './Popup';
 import { uniqueId } from 'lodash-es';
 export { type PopupProps } from './Popup';
+
 
 export class PopupClass implements PopupMethods {
     popupRef: RefObject<PopupMethods>;
@@ -18,6 +21,10 @@ export class PopupClass implements PopupMethods {
     setItemWrapperStyle: PopupMethods['setItemWrapperStyle'];
     setItemWrapperClassName: PopupMethods['setItemWrapperClassName'];
     setAnimatedSize: PopupMethods['setAnimatedSize'];
+    isInInit: boolean = false;
+    isEndInit: boolean = false;
+    completeInit!: (value: PromiseLike<void> | void) => void;
+    initPromise: Promise<void>;
 
     constructor() {
         this.popupRef = createRef<PopupMethods>();
@@ -32,15 +39,22 @@ export class PopupClass implements PopupMethods {
         this.setItemWrapperStyle = (args) => this.judgeInit('setItemWrapperStyle', args);
         this.setItemWrapperClassName = (args) => this.judgeInit('setItemWrapperClassName', args);
         this.setAnimatedSize = (args) => this.judgeInit('setAnimatedSize', args);
+        this.initPromise = new Promise((resolve) =>  this.completeInit = resolve);
     }
 
     judgeInit(method: keyof PopupMethods, args?: any): any {
-        if (typeof window === 'undefined') return undefined;
-
-        if (!this.popupRef.current) {
-            this.init();
+        const _method = this[method] as Function;
+        if (!this.isEndInit) {
+            if (!this.isInInit) {
+                this.isInInit = true;
+                this.init();
+            }
+            this.initPromise.then(() => { 
+                _method(args);
+            });
+            return;
         }
-        return this[method](args);
+        return _method(args);
     }
 
     resetMethod = () => {
@@ -57,17 +71,29 @@ export class PopupClass implements PopupMethods {
         this.setAnimatedSize = this.popupRef.current!.setAnimatedSize;
     };
 
-    init = (container?: HTMLElement) => {
-        if (typeof window === 'undefined') return;
+    waitRefReady = () => {
+        const judgeIsReady = () => {
+            if (this.popupRef.current) {
+                this.completeInit();
+            } else {
+                setTimeout(judgeIsReady, 16);
+            }
+        }
+        judgeIsReady();
+        return this.initPromise;
+    }
 
+    init = async (container?: HTMLElement) => {
         if (!container || !isDOMElement(container)) {
             container = document.createElement('div');
             container.setAttribute('id', 'popup-container-' + uniqueId());
             container.style.position = 'absolute';
             document.body.appendChild(container);
         }
-        render(<PopupComponent ref={this.popupRef} />, container);
+        createRoot(container).render(<PopupComponent ref={this.popupRef} />);
+        await this.waitRefReady();
         this.resetMethod();
+        this.isEndInit = true;
     };
 
     Provider = ({ container }: { container?: HTMLElement; [otherProps: string]: any }) => {
@@ -78,16 +104,10 @@ export class PopupClass implements PopupMethods {
             document.body.appendChild(container);
         }
         const component = createPortal(React.createElement(PopupComponent, { ref: this.popupRef }), container);
-        const resetMethod = () => {
-            if (!this.popupRef.current) {
-                setTimeout(resetMethod, 16);
-                return;
-            }
-            this.resetMethod();
-        };
-        resetMethod();
+        this.waitRefReady().then(this.resetMethod);
         return component;
     };
 }
+
 
 export default new PopupClass();

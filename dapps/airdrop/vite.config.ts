@@ -1,6 +1,5 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { visualizer } from 'rollup-plugin-visualizer';
 import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
 import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill';
 
@@ -19,13 +18,6 @@ export default defineConfig({
                 NodeModulesPolyfillPlugin()
             ]
         }
-    },
-    build: {
-        minify: false,
-        target: 'esnext',
-        rollupOptions: {
-            plugins: [visualizer()],
-        },
     },
     resolve: {
         alias: {

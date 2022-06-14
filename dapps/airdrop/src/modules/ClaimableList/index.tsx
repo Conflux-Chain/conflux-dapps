@@ -1,14 +1,16 @@
 import React, { useCallback, useState, memo } from 'react';
-import { watchAsset, Unit } from '@cfxjs/use-wallet/dist/ethereum'
-import { shortenAddress } from '@fluent-wallet/shorten-address';
+import { watchAsset, Unit } from '@cfxjs/use-wallet-react/ethereum'
+import { shortenAddress } from 'common/utils/addressUtils';
 import List from 'common/components/List';
 import Tooltip from 'common/components/Tooltip';
-import { useTokenList, currentNetwork, type Token } from 'airdrop/src/store';
-import Add from 'common/assets/add-to-wallet.svg';
+import { useTokenList, type Token } from 'airdrop/src/store';
+import Networks from 'common/conf/Networks';
+import Add from 'common/assets/icons/add-to-wallet.svg';
 import Open from 'cross-space/src/assets/open.svg';
 import BalanceText from 'common/modules/BalanceText';
-import { handleClaim } from './handleCliam';
 import Spin from 'common/components/Spin';
+import Button from 'common/components/Button';
+import { handleClaim } from './handleCliam';
 import './index.css';
 
 const ClaimableList: React.FC = () => {
@@ -69,14 +71,16 @@ const TokenItem = memo<Token & { balance?: Unit; trackChangeOnce: (cb: () => voi
                 <BalanceText className="text-[12px] text-[#A9ABB2]" balance={balance} symbol={symbol} decimals={+decimals} />
             </div>
             
-            <button
-                className="button button-outlined button-small min-w-[60px]"
-                disabled={inClaiming || !balance || balance?.toDecimalMinUnit() === '0'}
+            <Button
+                className="min-w-[60px]"
+                variant='outlined'
+                size="small"
+                loading={inClaiming}
+                disabled={!balance || balance?.toDecimalMinUnit() === '0'}
                 onClick={() => handleClaim(token, setInClaiming)}
             >
-                {!inClaiming && 'Claim'}
-                {inClaiming && <Spin className='text-[20px] text-[#808BE7]' /> }
-            </button>
+                Claim
+            </Button>
 
             <div className='flex items-center'>
                 <span className='text-[12px] text-[#808BE7]'>{shortenAddress(eSpace_address)}</span>
@@ -84,7 +88,7 @@ const TokenItem = memo<Token & { balance?: Unit; trackChangeOnce: (cb: () => voi
                     <img src={Add} alt="add image" className='ml-[8px] w-[16px] h-[16px] cursor-pointer' onClick={handleClickAddToWallet}/>
                 </Tooltip>
                 <Tooltip text="View in Scan">
-                    <a href={`${currentNetwork.eSpace.scan}/token/${eSpace_address}`} target="_blank" rel="noopener">
+                    <a href={`${Networks.eSpace.blockExplorerUrls[0]}/token/${eSpace_address}`} target="_blank" rel="noopener">
                         <img src={Open} alt="open image" className='ml-[8px] w-[18px] h-[18px] cursor-pointer' />
                     </a>
                 </Tooltip>

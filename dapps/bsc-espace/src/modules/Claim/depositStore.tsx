@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 import create from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
-import { store as walletStore, provider } from '@cfxjs/use-wallet/dist/ethereum';
-import { currentESpaceConfig } from 'bsc-espace/src/store';
+import { store as walletStore, provider } from '@cfxjs/use-wallet-react/ethereum';
+import Config from 'bsc-espace/config';
 import { isEqual } from 'lodash-es';
-import LocalStorage from 'common/utils/LocalStorage';
-import { showToast } from 'common';
+import LocalStorage from 'localstorage-enhance';
+import { showToast } from 'common/components/showPopup/Toast';
 
 export interface Deposit {
     deposit_id: string;
@@ -38,7 +38,7 @@ export const depositListStore = create(subscribeWithSelector(() => ({
     inFetching: false,
     depositList: null,
     tempDepositList: null,
-    claimingList: LocalStorage.get('claimingList', 'bsc-espace') as Array<string> ?? []
+    claimingList: LocalStorage.getItem('claimingList', 'bsc-espace') as Array<string> ?? []
 }) as DepositListStore));
 
 const selector = {
@@ -58,7 +58,7 @@ export const useClaimingList = () => depositListStore(selector.claimingList);
 export const setDepositClaiming = (deposit: Deposit) => {
     const preClaimingList = depositListStore.getState().claimingList ?? [];
     const newClaimingList = [...preClaimingList, deposit.deposit_tx_hash];
-    LocalStorage.set(`claimingList`, newClaimingList, 0, 'bsc-espace');
+    LocalStorage.setItem({ key: 'claimingList', data: newClaimingList, namespace: 'bsc-espace' });
     depositListStore.setState({ claimingList: newClaimingList });
 }
 
@@ -72,7 +72,7 @@ const mergeFetchedToLocal = (fetchedList: Array<Deposit>, account: string) => {
         showToast(`${claimableList.length === 1 ? 'a' : claimableList.length} deposit can be claimable now.`, { type: 'success' });
     }
     if (!isEqual(mergeRes, localDepositList)) {
-        LocalStorage.set(`depositList-${account}`, mergeRes, 0, 'bsc-espace');
+        LocalStorage.setItem({ key: `depositList-${account}`, data: mergeRes, namespace: 'bsc-espace' });
         depositListStore.setState({ depositList: mergeRes });
     }
 
@@ -83,7 +83,7 @@ const mergeFetchedToLocal = (fetchedList: Array<Deposit>, account: string) => {
     });
     
     if (!isEqual(preClaimingList, newClaimingList)) {
-        LocalStorage.set(`claimingList`, newClaimingList, 0, 'bsc-espace');
+        LocalStorage.setItem({ key: 'claimingList', data: newClaimingList, namespace: 'bsc-espace' });
         depositListStore.setState({ claimingList: newClaimingList });
         const successClaimedLength = ((preClaimingList?.length ?? 0) - (newClaimingList?.length ?? 0))
         showToast(`${successClaimedLength === 1 ? 'a' : successClaimedLength} deposit claimed success.`, { type: 'success' });
@@ -94,7 +94,7 @@ const fetchDepositList = (account: string, isFirstFetch = false) => {
     if (isFirstFetch) {
         depositListStore.setState({ inFetching: true });
     }
-    fetch(currentESpaceConfig.serverUrl, {
+    fetch(Config.serverUrl, {
         body: JSON.stringify({
             jsonrpc: '2.0',
             method: 'getDepositList',
@@ -106,7 +106,9 @@ const fetchDepositList = (account: string, isFirstFetch = false) => {
             }],
             id: 1,
         }),
-        headers: {'content-type': 'application/json'},
+        headers: {
+            'content-type': 'application/json'
+        },
         method: 'POST',
     })
         .then(response => response.json())
@@ -160,8 +162,8 @@ export const startSubDepositList = () => {
         }
 
         depositListStore.setState({
-            depositList: LocalStorage.get(`depositList-${account}`, 'bsc-espace') as Array<Deposit>,
-            tempDepositList: LocalStorage.get(`tempDepositList-${account}`, 'bsc-espace') as Array<Deposit>,
+            depositList: LocalStorage.getItem(`depositList-${account}`, 'bsc-espace') as Array<Deposit>,
+            tempDepositList: LocalStorage.getItem(`tempDepositList-${account}`, 'bsc-espace') as Array<Deposit>,
         });        
         pollingFetch(account);
     }, { fireImmediately: true }) 
@@ -203,7 +205,7 @@ export const addTempDepositToList = (deposit: Partial<Deposit>) => {
     const account = walletStore.getState().accounts?.[0];
     const preTempDepositList = depositListStore.getState().tempDepositList ?? [];
     const newTempDepositList = [{ ...deposit, status: 'WAIT_FOR_CONFIRM' } as Deposit, ...preTempDepositList].sort((a, b) => +b.timestamp - +a.timestamp);
-    LocalStorage.set(`tempDepositList-${account}`, newTempDepositList, 0, 'bsc-espace');
+    LocalStorage.setItem({ key: `tempDepositList-${account}`, data: newTempDepositList, namespace: 'bsc-espace' });
     depositListStore.setState({ tempDepositList: newTempDepositList });
 }
 
@@ -222,13 +224,13 @@ const mergeTempDepositToLocal = (checkReceiptRes: Array<{ status: 'fulfilled'; v
         const account = walletStore.getState().accounts?.[0];
         const preDepositList = depositListStore.getState().depositList ?? [];
         const newDepositList = [...successTempDepositList, ...preDepositList];
-        LocalStorage.set(`depositList-${account}`, newDepositList, 0, 'bsc-espace');
+        LocalStorage.setItem({ key: `depositList-${account}`, data: newDepositList, namespace: 'bsc-espace' });
         depositListStore.setState({ depositList: newDepositList });
         showToast(`${successTempDepositList.length === 1 ? 'a' : successTempDepositList.length} deposit is waiting for claimable now.`, { type: 'success' });
     }
     if (newTempDepositList?.length !== preTempDepositList?.length) {
         const account = walletStore.getState().accounts?.[0];
-        LocalStorage.set(`tempDepositList-${account}`, newTempDepositList, 0, 'bsc-espace');
+        LocalStorage.setItem({ key: `tempDepositList-${account}`, data: newTempDepositList, namespace: 'bsc-espace' });
         depositListStore.setState({ tempDepositList: newTempDepositList });
         if (!successTempDepositList?.length) {
             showToast(`your deposit is failed, see detail in MetaMask.`, { type: 'failed', duration: 10000 });
