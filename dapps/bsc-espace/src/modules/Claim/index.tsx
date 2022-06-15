@@ -7,7 +7,6 @@ import CFXIcon from 'cross-space/src/assets/CFX.svg';
 import { useESpaceNetwork, useCrossNetwork } from 'bsc-espace/src/store';
 import useLoading from 'common/hooks/useLoading';
 import { AuthESpace, AuthEthereum } from 'common/modules/AuthConnectButton';
-import Spin from 'common/components/Spin';
 import List from 'common/components/List';
 import handleClaim from './handleClaim';
 import Button from 'common/components/Button';

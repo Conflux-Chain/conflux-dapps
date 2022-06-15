@@ -150,7 +150,7 @@ const TokenItem = memo<TokenItemProps>(({
     addToWalletSingleton,
     ...token
 }) => {
-    const { address, symbol, name, icon } = token;
+    const { address, symbol, name } = token;
     const isMetaMaskHostedByFluent = useIsMetaMaskHostedByFluent();
 
     const handleClickAddToWallet = useCallback<React.MouseEventHandler<HTMLImageElement>>(async (evt) => {
@@ -161,8 +161,7 @@ const TokenItem = memo<TokenItemProps>(({
                 options: {
                     address: address!,
                     symbol: symbol,
-                    decimals: 18,
-                    image: icon
+                    decimals: 18
                 },
             });
         } catch (err) {

@@ -8,7 +8,6 @@ import Networks from 'common/conf/Networks';
 import Add from 'common/assets/icons/add-to-wallet.svg';
 import Open from 'cross-space/src/assets/open.svg';
 import BalanceText from 'common/modules/BalanceText';
-import Spin from 'common/components/Spin';
 import Button from 'common/components/Button';
 import { handleClaim } from './handleCliam';
 import './index.css';
@@ -44,8 +43,7 @@ const TokenItem = memo<Token & { balance?: Unit; trackChangeOnce: (cb: () => voi
                 options: {
                     address: eSpace_address,
                     symbol: symbol,
-                    decimals: +token.decimals,
-                    image: icon
+                    decimals: token.decimals
                 },
             });
         } catch (err) {

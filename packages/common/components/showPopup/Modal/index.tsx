@@ -3,6 +3,7 @@ import { PopupClass } from 'common/components/Popup';
 import Success from 'common/assets/icons/success.svg';
 import Close from 'common/assets/icons//close.svg';
 import Spin from 'common/components/Spin';
+import { isMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFluent';
 
 const WaitWalletModal = new PopupClass();
 WaitWalletModal.setListStyle({
@@ -49,7 +50,7 @@ const TransactionSubmittedContent: React.FC<{ TxnHash: string; action: string; }
 
 export const showWaitWallet = (wallet: 'Fluent' | 'MetaMask', config?: any) =>
     WaitWalletModal.show({
-        Content: <WaitWalletContent wallet={wallet} tip={config?.tip} />,
+        Content: <WaitWalletContent wallet={isMetaMaskHostedByFluent && wallet === 'MetaMask' ? 'Fluent' : wallet} tip={config?.tip} />,
         duration: 0,
         showMask: true,
         animationType: 'door',
