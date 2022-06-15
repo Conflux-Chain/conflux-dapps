@@ -1,4 +1,5 @@
-import Contract from 'web3-eth-contract';
+import Web3 from 'web3';
+const web3 = new Web3();
 
 interface AbiInput {
     name: string;
@@ -28,7 +29,7 @@ interface AbiItem {
 }
 
 const  createContract = <T>(abi: Array<AbiItem>): T => {
-    const contract = new (Contract as any)(abi as any);
+    const contract = new web3.eth.Contract(abi as any);
     return contract.methods;
 }
 
