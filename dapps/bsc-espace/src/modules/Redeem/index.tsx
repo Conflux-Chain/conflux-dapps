@@ -14,7 +14,6 @@ import RedeemableIcon from 'bsc-espace/src/assets/redeemable.svg';
 import { AuthEthereum } from 'common/modules/AuthConnectButton';
 import Button from 'common/components/Button';
 import numFormat from 'common/utils/numFormat';
-import Spin from 'common/components/Spin';
 import handleRedeem from './handleRedeem';
 
 const Redeem: React.FC = () => {
@@ -94,16 +93,12 @@ const Pool: React.FC<{
                         className="w-[344px] mx-auto"
                         variant="outlined"
                         size="medium"
-                        disabled={inRedeem || redeemBalance.equalsWith(Unit.fromStandardUnit(0))}
+                        startIcon={<img className="mr-[8px] w-[14px] h-[14px]" src={logo} alt="chain logo" />}
+                        loading={inRedeem}
+                        disabled={redeemBalance.equalsWith(Unit.fromStandardUnit(0))}
                         onClick={() => handleRedeem(type, setInRedeem)}
                     >
-                        {!inRedeem && (
-                            <>
-                                <img className="mr-[8px] w-[14px] h-[14px]" src={logo} alt="chain logo" />
-                                Redeem
-                            </>
-                        )}
-                        {inRedeem && <Spin className='text-[24px] text-[#808BE7]' /> }
+                        Redeem
                     </Button>
                 )}
             />

@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import { PopupClass } from 'common/components/Popup';
 import Button from 'common/components/Button';
 import Close from 'common/assets/icons/close.svg';
@@ -11,6 +11,8 @@ PeggedModal.setItemWrapperClassName('toast-item-wrapper');
 PeggedModal.setAnimatedSize(false);
 
 const PeggedModalContent: React.FC<{ toChain: string; amount: string; callback: () => void; }> = memo(({ toChain, amount, callback }) => {
+    const [hasClickedContinue, setHasClickedContinue] = useState(false);
+
     return (
         <div className="w-[440px] p-[24px] rounded-[4px] bg-white">
             <img
@@ -45,7 +47,9 @@ const PeggedModalContent: React.FC<{ toChain: string; amount: string; callback: 
                     variant='outlined'
                     size="small"
                     className='min-w-[128px]'
+                    disabled={hasClickedContinue}
                     onClick={async () => {
+                        setHasClickedContinue(true);
                         await callback();
                         PeggedModal.hideAll();
                     }}

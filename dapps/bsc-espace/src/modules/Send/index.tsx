@@ -5,7 +5,6 @@ import { useAccount, useStatus, useChainId, Unit } from '@cfxjs/use-wallet-react
 import { useBalance, useMaxAvailableBalance, useNeedApprove, useToken, useCurrentFromNetwork, useCurrentToNetwork, setTransferBalance, useIsTransferHasEnoughLiquidity } from 'bsc-espace/src/store';
 import useI18n from 'common/hooks/useI18n';
 import Input from 'common/components/Input';
-import Spin from 'common/components/Spin';
 import Button from 'common/components/Button';
 import { AuthEthereum } from 'common/modules/AuthConnectButton';
 import BalanceText from 'common/modules/BalanceText';
@@ -145,8 +144,9 @@ const Form: React.FC = () => {
 						fullWidth
 						className='mt-[24px]'
 						disabled={!canClickButton || !isTransferHasEnoughLiquidity}
+						loading={typeof needApprove !== 'boolean'}
 					>
-						{needApprove ? 'Approve' : needApprove === false ? 'Send' : <Spin className='text-[28px] text-white' />}
+						{needApprove ? 'Approve' : 'Send'}
 					</Button>					
 				}
 			/>
