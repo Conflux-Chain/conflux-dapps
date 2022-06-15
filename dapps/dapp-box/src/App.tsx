@@ -8,10 +8,16 @@ import Sidebar from 'hub/src/modules/Sidebar';
 import CrossSpace from 'cross-space/src/modules';
 import BscEspace from 'bsc-espace/src/modules';
 import Airdrop from 'airdrop/src/modules';
+import GovernanceDashboard from 'governance/src/modules/Dashboard';
+import Vote from 'governance/src/modules/Vote';
+import Proposals from 'governance/src/modules/Vote/Proposals';
+import RewardInterestRate from 'governance/src/modules/Vote/RewardInterestRate';
 import ESpaceBridgeEnter from 'hub/src/modules/ESpaceBridgeEnter';
 import ShuttleFlowNavbarEnhance from 'hub/src/modules/NavbarEnhance/ShuttleFlow';
+import GovernanceNavbarEnhance from 'hub/src/modules/NavbarEnhance/Governance';
 import useCurrentDapp from 'hub/src/hooks/useCurrentDapp';
 import ShuttleFlowIcon from 'hub/src/assets/shuttle-flow.svg';
+import GovernanceIcon from 'hub/src/assets/governance.svg';
 import CrossSpaceIcon from 'hub/src/assets/cross-space.svg';
 import AirdropIcon from 'hub/src/assets/Airdrop.svg';
 import { hideAllToast } from 'common/components/showPopup/Toast';
@@ -40,6 +46,17 @@ export const dapps = [
         icon: AirdropIcon,
         path: 'espace-airdrop',
         element: <Airdrop />,
+    },
+    {
+        name: 'Governance',
+        icon: GovernanceIcon,
+        path: 'governance',
+        link: 'governance/dashboard',
+        element: <GovernanceDashboard />,
+        NavbarEnhance: {
+            type: 'childRoutes' as 'childRoutes',
+            Content: <GovernanceNavbarEnhance />,
+        }
     },
 ];
 
@@ -114,11 +131,21 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                     <Route key='bsc-esapce-cfx' path='bsc-esapce-cfx' element={<BscEspace />} />
                 </Route>
                 <Route key='espace-airdrop' path='espace-airdrop' element={<Airdrop />} />
+                <Route key='governance' path='governance' element={<Outlet />}>
+                    <Route key='governance-dashboard' path='dashboard' element={<GovernanceDashboard />} />
+                    <Route key='governance-vote' path='vote' element={<Vote />}>
+                        <Route index element={<RewardInterestRate />}  />
+                        <Route key='governance-vote-proposals' path='proposals' element={<Proposals />} />
+                        <Route key='governance-vote-reward-interest-rate' path='reward-interest-rate' element={<RewardInterestRate />} />
+                    </Route>
+                </Route>
                 {dapps
                     .filter((dapp) => !dapp.element)
                     .map(({ path }) => (
                         <Route key={path} path={path + '/*'} element={<div id={path} />} />
                     ))}
+                <Route path="governance/" element={<Navigate to="/governance/dashboard"/>} />
+                <Route path="governance/*" element={<Navigate to="/governance/dashboard"/>} />
                 <Route path="*" element={<Navigate to="espace-bridge"/>} />
             </Routes>
         </CustomScrollbar>

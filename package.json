@@ -19,6 +19,8 @@
         "build:bsc-espace": "turbo run build --scope=bsc-espace",
         "dev:airdrop": "turbo run dev --scope=airdrop",
         "build:airdrop": "turbo run build --scope=airdrop",
+        "dev:governance": "turbo run dev --scope=governance",
+        "build:governance": "turbo run build --scope=governance",
         "dev:shuttle-flow": "turbo run dev --scope=shuttle-flow",
         "build:shuttle-flow": "turbo run build --scope=shuttle-flow"
     },

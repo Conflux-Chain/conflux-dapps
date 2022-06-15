@@ -53,3 +53,7 @@ button:not(:hover):not(.button-contained):not(.button-outlined) {
 button > img {
     @apply pointer-events-none;
 }
+
+.text-indent {
+    text-indent: 1em;
+}

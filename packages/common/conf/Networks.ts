@@ -10,14 +10,14 @@ export interface Network {
     },
 }
 
-export const isProduction = !location.host.startsWith('test') && !location.host.startsWith('localhost');
+export const isProduction = !location.host.startsWith('test') && !location.host.startsWith('localhost') && !location.host.startsWith('172.16');
 
 const AllNetworks: Record<string, Network> = {
     "1029": {
         chainId: "1029",
         chainName: "Conflux Hydra",
-        rpcUrls: ["https://evm.confluxrpc.com"],
-        blockExplorerUrls: ["https://evm.confluxscan.net"],
+        rpcUrls: ["https://main.confluxrpc.com"],
+        blockExplorerUrls: ["https://confluxscan.net"],
         nativeCurrency: {
             name: 'Conflux',
             symbol: 'CFX',

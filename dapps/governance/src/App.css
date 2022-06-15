@@ -1,0 +1,8 @@
+html {
+    font-family: 'SF Pro Display';
+}
+
+.main-scroll {
+    @apply  px-[60px];
+    height: calc(100vh - 64px);
+}
