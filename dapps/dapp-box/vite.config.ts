@@ -10,10 +10,6 @@ const ProxyConfig = {
 
 export default defineConfig({
     plugins: [react()],
-    base: './',
-    build: {
-        minify: false,
-    },
     resolve: {
         alias: { web3: path.resolve(__dirname, '../../node_modules/web3/dist/web3.min.js') },
     },
