@@ -1,14 +1,33 @@
 import { useMemo } from 'react';
 import Networks, { type Network } from '../../conf/Networks';
 import AuthConnectButton, { type Props } from "./AuthConnectButton";
-import { connect as connectToConfluxBase, addChain as addConfluxChain, switchChain as switchConfluxChain, useStatus as useConfluxStatus, useChainId as useConfluxChainId } from '@cfxjs/use-wallet-react/conflux/Fluent';
-import { connect as connectToEthereumBase, addChain as addEthereumChain, switchChain as switchEthereumChain, useStatus as useEthereumStatus, useChainId as useEthereumChainId } from '@cfxjs/use-wallet-react/ethereum';
+import { connect as _connectToConfluxBase, addChain as addConfluxChain, switchChain as switchConfluxChain, useStatus as useConfluxStatus, useChainId as useConfluxChainId, requestCrossNetworkPermission } from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { connect as _connectToEthereumBase, addChain as addEthereumChain, switchChain as switchEthereumChain, useStatus as useEthereumStatus, useChainId as useEthereumChainId } from '@cfxjs/use-wallet-react/ethereum';
 import FluentLogo from '../../assets/wallets/Fluent.svg';
 import MetaMaskLogo from '../../assets/wallets/MetaMask.svg';
 import { useIsMetaMaskHostedByFluent, isMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFluent';
 import { connectToWallet, switchToChain } from './connectUtils';
 
 type PropsEnhance = Omit<Props, 'authInfo'> & { showLogo?: boolean; checkChainMatch?: boolean; }
+
+const isNeedRequestCrossNetworkPermission = () => {
+    return isMetaMaskHostedByFluent && location.pathname.indexOf('cross-space') !== - 1;
+}
+
+const connectToConfluxBase = () => {
+    if (isNeedRequestCrossNetworkPermission()) {
+        return (requestCrossNetworkPermission as unknown as typeof _connectToConfluxBase)();
+    }
+    return _connectToConfluxBase();
+}
+
+const connectToEthereumBase = () => {
+    if (isNeedRequestCrossNetworkPermission()) {
+        return (requestCrossNetworkPermission as unknown as typeof _connectToEthereumBase)();
+    }
+    return _connectToEthereumBase();
+}
+
 
 export const AuthCoreSpace: React.FC<PropsEnhance> = ({ showLogo = false, checkChainMatch = true, ...props }) => {
     const status = useConfluxStatus();

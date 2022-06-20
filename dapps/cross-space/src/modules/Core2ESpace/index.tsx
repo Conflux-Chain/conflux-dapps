@@ -3,11 +3,11 @@ import { a } from '@react-spring/web';
 import cx from 'clsx';
 import { useForm, type UseFormRegister, type FieldValues } from 'react-hook-form';
 import { useAccount as useFluentAccount, useStatus as useFluentStatus, Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
-import { useStatus as useMetaMaskStatus, useAccount as useMetaMaskAccount, connect as connectToEthereum } from '@cfxjs/use-wallet-react/ethereum';
+import { useStatus as useMetaMaskStatus, useAccount as useMetaMaskAccount, provider } from '@cfxjs/use-wallet-react/ethereum';
 import { useMaxAvailableBalance, useCurrentTokenBalance, useNeedApprove, useToken, setTransferBalance } from 'cross-space/src/store/index';
 import { useIsMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFluent';
 import { AuthCoreSpace } from 'common/modules/AuthConnectButton';
-import { connectToWallet } from 'common/modules/AuthConnectButton/connectUtils';
+import { connectToEthereum } from 'common/modules/AuthConnectButton';
 import numFormat from 'common/utils/numFormat';
 import Input from 'common/components/Input';
 import Tooltip from 'common/components/Tooltip';
@@ -70,11 +70,13 @@ const Core2ESpace: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 			setValue('eSpaceAccount', metaMaskAccount!);
 			setIsLockMetaMaskAccount(true);
 		} else if (metaMaskStatus === 'not-active') {
-			connectToWallet({ walletName: 'MetaMask', connect: connectToEthereum }).then((account) => {
-				if (account) {
-					setValue('eSpaceAccount', account);
-					setIsLockMetaMaskAccount(true);
-				}
+			connectToEthereum().then(() => {
+				provider!.request({ method: 'eth_accounts' }).then((accounts) => {
+					if (accounts?.[0]) {
+						setValue('eSpaceAccount', accounts[0]);
+						setIsLockMetaMaskAccount(true);
+					}
+				});
 			});
 		}
 	}, [metaMaskAccount, metaMaskStatus]);
