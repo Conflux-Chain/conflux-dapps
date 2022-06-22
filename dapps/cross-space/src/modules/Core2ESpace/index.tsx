@@ -2,17 +2,20 @@ import React, { useCallback, useEffect, memo, useState, useRef } from 'react';
 import { a } from '@react-spring/web';
 import cx from 'clsx';
 import { useForm, type UseFormRegister, type FieldValues } from 'react-hook-form';
-import { useAccount as useFluentAccount, useStatus as useFluentStatus, Unit } from '@cfxjs/use-wallet';
-import { useStatus as useMetaMaskStatus, useAccount as useMetaMaskAccount } from '@cfxjs/use-wallet/dist/ethereum';
+import { useAccount as useFluentAccount, useStatus as useFluentStatus, Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { useStatus as useMetaMaskStatus, useAccount as useMetaMaskAccount, provider } from '@cfxjs/use-wallet-react/ethereum';
 import { useMaxAvailableBalance, useCurrentTokenBalance, useNeedApprove, useToken, setTransferBalance } from 'cross-space/src/store/index';
-import AuthConnectButton, { connectToWallet } from 'common/modules/AuthConnectButton';
+import { useIsMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFluent';
+import { AuthCoreSpace } from 'common/modules/AuthConnectButton';
+import { connectToEthereum } from 'common/modules/AuthConnectButton';
 import numFormat from 'common/utils/numFormat';
 import Input from 'common/components/Input';
 import Tooltip from 'common/components/Tooltip';
-import Spin from 'common/components/Spin';
+import Button from 'common/components/Button';
 import BalanceText from 'common/modules/BalanceText';
 import useI18n from 'common/hooks/useI18n';
-import MetaMask from 'common/assets/MetaMask.svg';
+import MetaMask from 'common/assets/wallets/MetaMask.svg';
+import Fluent from 'common/assets/wallets/Fluent.svg';
 import TokenList from 'cross-space/src/components/TokenList';
 import TurnPage from 'cross-space/src/assets/turn-page.svg';
 import ArrowLeft from 'cross-space/src/assets/arrow-left.svg';
@@ -25,13 +28,13 @@ const transitions = {
 	en: {
 		not_connect: 'Fluent Not Connected',
 		between_space: 'Between Conflux Core and Conflux eSpace.',
-		use_metamask: 'Use current address',
+		use_eSpace: 'Use current eSpace address',
 		transfer: 'Transfer',
 	},
 	zh: {
 		not_connect: 'Fluent 未连接',
 		between_space: '在 Conflux Core 和 Conflux eSpace 之间。',
-		use_metamask: '使用当前地址',
+		use_eSpace: '使用当前地址',
 		transfer: '转账',
 	}
 } as const;
@@ -40,6 +43,7 @@ const transitions = {
 const Core2ESpace: React.FC<{ style: any; isShow: boolean; handleClickFlipped: () => void; }> = ({ style, isShow, handleClickFlipped }) => {
 	const i18n = useI18n(transitions);
 	const { register, handleSubmit: withForm, setValue, watch } = useForm();
+	const isMetaMaskHostedByFluent = useIsMetaMaskHostedByFluent();
 	const { currentToken } = useToken();
 	const needApprove = useNeedApprove(currentToken, 'core');
 	const eSpaceReceivedRef = useRef<HTMLSpanElement>(null);
@@ -66,11 +70,13 @@ const Core2ESpace: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 			setValue('eSpaceAccount', metaMaskAccount!);
 			setIsLockMetaMaskAccount(true);
 		} else if (metaMaskStatus === 'not-active') {
-			connectToWallet('MetaMask').then((account) => {
-				if (account) {
-					setValue('eSpaceAccount', account);
-					setIsLockMetaMaskAccount(true);
-				}
+			connectToEthereum().then(() => {
+				provider!.request({ method: 'eth_accounts' }).then((accounts) => {
+					if (accounts?.[0]) {
+						setValue('eSpaceAccount', accounts[0]);
+						setIsLockMetaMaskAccount(true);
+					}
+				});
 			});
 		}
 	}, [metaMaskAccount, metaMaskStatus]);
@@ -139,7 +145,7 @@ const Core2ESpace: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 						/>
 	
 
-						<Tooltip text={i18n.use_metamask} delay={333} disabled={isUsedCurrentMetaMaskAccount}>
+						<Tooltip text={i18n.use_eSpace} delay={333} disabled={isUsedCurrentMetaMaskAccount}>
 							<button
 								id="core2eSpace-eSpaceAccount-useMetaMaskAccount"
 								className={cx('relative flex justify-center items-center w-[36px] h-[36px] ml-[12px] rounded-full border border-[#EAECEF] cursor-pointer', { 'pointer-events-none': isUsedCurrentMetaMaskAccount })}
@@ -147,7 +153,7 @@ const Core2ESpace: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 								tabIndex={isShow ? 3 : -1}
 								type="button"
 							>
-								<img src={MetaMask} alt="use MetaMask account" className='w-[24px] h-[24px]'/>
+								<img src={isMetaMaskHostedByFluent ? Fluent: MetaMask} alt="use MetaMask account" className='w-[24px] h-[24px]'/>
 								{isUsedCurrentMetaMaskAccount ?
 									<img src={Success} alt="use metamask account success" className='absolute -bottom-[4px] w-[10px] h-[10px]'/> 
 									: <span className='absolute flex justify-center items-center w-[12px] h-[12px] -bottom-[5px] rounded-full border border-[#EAECEF] bg-white'>
@@ -205,7 +211,7 @@ const Transfer2ESpace: React.FC<{
 
 	const isBalanceGreaterThan0 = maxAvailableBalance && Unit.greaterThan(maxAvailableBalance, Unit.fromStandardUnit(0));
 	const canClickButton = needApprove === true || (needApprove === false && isBalanceGreaterThan0);
-	
+
 	return (
 		<>
 			<Input
@@ -243,24 +249,25 @@ const Transfer2ESpace: React.FC<{
 				<span className="ml-[4px]" id="core2eSpace-willReceive" ref={eSpaceReceivedRef} />
 			</p>
 
-			<AuthConnectButton
+			<AuthCoreSpace
 				id="core2eSpace-auth-both-transfer"
 				className="mt-[24px]"
-				wallet="Fluent"
-				buttonType="contained"
-				buttonSize="normal"
+				size="large"
 				fullWidth
 				tabIndex={isShow ? 6 : -1}
 				type="button"
 				authContent={() => 
-					<button
+					<Button
 						id="core2eSpace-transfer"
-						className='mt-[24px] button-contained button-normal w-full'
+						className='mt-[24px]'
+						size="large"
+						fullWidth
 						disabled={!canClickButton}
+						loading={typeof needApprove !== 'boolean'}
 						tabIndex={isShow ? 6 : -1}
 					>
-						{needApprove ? 'Approve' : needApprove === false ? i18n.transfer : <Spin className='text-[28px] text-white' />}
-					</button>					
+						{needApprove ? 'Approve' :  i18n.transfer}
+					</Button>					
 				}
 			/>
 		</>

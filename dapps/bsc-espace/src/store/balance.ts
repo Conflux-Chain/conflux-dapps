@@ -1,9 +1,10 @@
 import create from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
-import { store as walletStore, provider, Unit } from '@cfxjs/use-wallet/dist/ethereum';
-import { networkStore, currentESpaceConfig, useCurrentFromChain } from './index';
+import { store as walletStore, provider, Unit } from '@cfxjs/use-wallet-react/ethereum';
+import { networkStore, useCurrentFromChain, Contracts } from './index';
+import Config from 'bsc-espace/config';
 import { tokenStore, type Token } from './token';
-import { contractStore } from './contract';
+import { type ValueOf } from 'tsconfig/types/enhance';
 
 interface BalanceStore {
     balance?: Unit;
@@ -67,11 +68,11 @@ export const startSubPeggedAndLiquidity = () => {
 
         const currentBalanceTick = balanceTick;
         balanceTick += 1;
-        const { tokenContract, eSpaceBridgeContractAddress, crossChainBridgeContractAddress } = contractStore.getState();
+        const { eSpaceBridgeContractAddress, crossChainBridgeContractAddress } = Contracts;
         const { eSpace: eSpaceNetwork, crossChain: crossChianNetwork } = networkStore.getState();
         if (!eSpaceBridgeContractAddress || !crossChainBridgeContractAddress || !eSpaceNetwork || !crossChianNetwork) return;
         // get eSpace maximumLiquidity value.
-        fetch(eSpaceNetwork.url, {
+        fetch(eSpaceNetwork.network.rpcUrls[0], {
             body: JSON.stringify({
                 jsonrpc: '2.0',
                 method: 'eth_getBalance',
@@ -93,13 +94,13 @@ export const startSubPeggedAndLiquidity = () => {
             .finally(callback);
 
         // get crossChain maximumLiquidity value.
-        fetch(crossChianNetwork.url, {
+        fetch(crossChianNetwork.network.rpcUrls[0], {
             body: JSON.stringify({
                 jsonrpc: '2.0',
                 method: 'eth_call',
                 params: [{
                     data: '0x70a08231000000000000000000000000' + crossChainBridgeContractAddress.slice(2),
-                    to: currentESpaceConfig.chains[0].tokens[0].address,
+                    to: Config.chains[0].tokens[0].address,
                 }, 'latest'],
                 id: 1,
             }),
@@ -119,13 +120,13 @@ export const startSubPeggedAndLiquidity = () => {
 
         // get PeggedToken Balance
         (['eSpace', 'crossChain'] as const).forEach((type) => {
-            fetch((type === 'eSpace' ? eSpaceNetwork : crossChianNetwork).url, {
+            fetch((type === 'eSpace' ? eSpaceNetwork : crossChianNetwork).network.rpcUrls[0], {
                 body: JSON.stringify({
                     jsonrpc: '2.0',
                     method: 'eth_call',
                     params: [{
                         data: '0x70a08231000000000000000000000000' + account.slice(2),
-                        to: type === 'eSpace' ? currentESpaceConfig.tokens[0].PeggedToken.address : currentESpaceConfig.chains[0].tokens[0].PeggedToken.address,
+                        to: type === 'eSpace' ? Config.tokens[0].PeggedToken.address : Config.chains[0].tokens[0].PeggedToken.address,
                     }, 'latest'],
                     id: 1,
                 }),
@@ -229,7 +230,7 @@ export const startSubBalance = () => {
         const handleBalanceChanged = (newBalance: Unit, type: 'balance' | 'approvedBalance', currentBalanceTick: number) => {
             const { chainId } = walletStore.getState();
             const { eSpace, crossChain, currentFrom } = networkStore.getState();
-            if (!currentFrom || chainId !== (currentFrom === 'eSpace' ? eSpace.networkId : crossChain.networkId)) return;
+            if (!currentFrom || chainId !== (currentFrom === 'eSpace' ? eSpace.network.chainId : crossChain.network.chainId)) return;
             if (!newBalance || currentBalanceTick !== balanceTick - 1) return;
             const preBalance = balanceStore.getState()[type];
             if (preBalance === undefined || !preBalance.equalsWith(newBalance)) {
@@ -266,7 +267,7 @@ export const startSubBalance = () => {
             }
 
             // if token is CRC20, getBalance from eth_call
-            const { tokenContract, eSpaceBridgeContractAddress, crossChainBridgeContractAddress } = contractStore.getState();
+            const { tokenContract, eSpaceBridgeContractAddress, crossChainBridgeContractAddress } = Contracts;
             const currentFromBridgeContractAddress = currentFrom === 'eSpace' ? eSpaceBridgeContractAddress : crossChainBridgeContractAddress;
             if (!currentFromBridgeContractAddress) return;
             provider!
@@ -291,7 +292,7 @@ export const startSubBalance = () => {
                     method: 'eth_call',
                     params: [
                         {
-                            data: tokenContract.allowance(account, currentFromBridgeContractAddress).data,
+                            data: tokenContract.allowance(account, currentFromBridgeContractAddress).encodeABI(),
                             to: token.address,
                         },
                         'latest',
@@ -321,7 +322,7 @@ export const startSubBalance = () => {
             const { eSpace, crossChain, currentFrom } = networkStore.getState();
             const account = getAccount();
 
-            if (!account || !currentFrom || chainId !== (currentFrom === 'eSpace' ? eSpace.networkId : crossChain.networkId)) {
+            if (!account || !currentFrom || chainId !== (currentFrom === 'eSpace' ? eSpace.network.chainId : crossChain.network.chainId)) {
                 clearBalanceTimer();
                 clearUndefinedTimer();
                 balanceStore.setState({ balance: undefined, approvedBalance: undefined, transferBalance: undefined });
@@ -400,12 +401,12 @@ export const startSubBalance = () => {
         const trackBalance = () => {
             const account = walletStore.getState().accounts?.[0];
             const balance = balanceStore.getState().balance;
-            const { bridgeContract, eSpaceBridgeContractAddress } = contractStore.getState();
+            const { bridgeContract, eSpaceBridgeContractAddress } = Contracts;
             const { chainId } = walletStore.getState();
             const { eSpace, crossChain, currentFrom } = networkStore.getState();
             const { token } = tokenStore.getState();
 
-            if (!bridgeContract || !currentFrom || !balance || !account || chainId !== (currentFrom === 'eSpace' ? eSpace.networkId : crossChain.networkId)) {
+            if (!bridgeContract || !currentFrom || !balance || !account || chainId !== (currentFrom === 'eSpace' ? eSpace.network.chainId : crossChain.network.chainId)) {
                 clearUndefinedTimer();
                 balanceStore.setState({ maxAvailableBalance: undefined });
                 return;
@@ -421,7 +422,7 @@ export const startSubBalance = () => {
                         params: [
                             {
                                 from: account,
-                                data: bridgeContract.deposit(token.address, minUnitBalance, crossChain.networkId, account, `${parseInt(Date.now() / 1000 + '')}`).data,
+                                data: bridgeContract.deposit(token.address, minUnitBalance, crossChain.network.chainId, account, `${parseInt(Date.now() / 1000 + '')}`).encodeABI(),
                                 to: eSpaceBridgeContractAddress,
                                 value: minUnitBalance
                             },

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Unit } from '@cfxjs/use-wallet/dist/ethereum';
+import { Unit } from '@cfxjs/use-wallet-react/ethereum';
 import {
     useESpaceNetwork,
     useCrossNetwork,
@@ -11,9 +11,9 @@ import {
 import PoolIcon from 'bsc-espace/src/assets/pool.svg';
 import YouSHareIcon from 'bsc-espace/src/assets/you-share.svg';
 import RedeemableIcon from 'bsc-espace/src/assets/redeemable.svg';
-import AuthConnectButton from 'common/modules/AuthConnectButton';
+import { AuthEthereum } from 'common/modules/AuthConnectButton';
+import Button from 'common/components/Button';
 import numFormat from 'common/utils/numFormat';
-import Spin from 'common/components/Spin';
 import handleRedeem from './handleRedeem';
 
 const Redeem: React.FC = () => {
@@ -47,7 +47,7 @@ const Pool: React.FC<{
     useMaximumLiquidity: typeof useESpaceMaximumLiquidity;
 }> = ({ type, useNetwork, usePeggedBalance, useMaximumLiquidity }) => {
     const [inRedeem, setInRedeem] = useState(false);
-    const network = useNetwork();
+    const { network, logo } = useNetwork();
     const peggedBalance = usePeggedBalance();
     const maximumLiquidity = useMaximumLiquidity();
 
@@ -56,8 +56,8 @@ const Pool: React.FC<{
     const redeemBalance = Unit.lessThan(maximumLiquidity, peggedBalance) ? maximumLiquidity : peggedBalance;
 
     return (
-        <div className="w-full px-[12px] pt-[16px] pb-[24px] rounded-[4px] bg-[#FAFBFD]" id={`bsc-espace-${network.name}-pool`}>
-            <p className="mb-[16px] leading-[28px] text-center text-[20px] text-[#3D3F4C] ">{`${network.name} Pool`}</p>
+        <div className="w-full px-[12px] pt-[16px] pb-[24px] rounded-[4px] bg-[#FAFBFD]" id={`bsc-espace-${network.chainName}-pool`}>
+            <p className="mb-[16px] leading-[28px] text-center text-[20px] text-[#3D3F4C] ">{`${network.chainName} Pool`}</p>
             <div className="mb-[24px] flex justify-between">
                 {maximumLiquidity &&
                     peggedBalance &&
@@ -78,32 +78,28 @@ const Pool: React.FC<{
                         </div>
                     ))}
             </div>
-            <AuthConnectButton
-                id={`bsc-espace-${network.name}-pool-auth`}
+            <AuthEthereum
+                id={`bsc-espace-${network.chainName}-pool-auth`}
                 className="w-[344px] mx-auto"
-                wallet="MetaMask"
-                buttonType="outlined"
-                buttonSize="light"
+                variant="outlined"
+                size="medium"
                 fullWidth
                 type="button"
-                useMetaMaskNetwork={useNetwork}
-                showLogo="mr-[8px] w-[14px] h-[14px]"
-                logo={network.logo}
+                network={network}
+                logo={logo}
                 authContent={() => (
-                    <button
-                        id={`bsc-espace-${network.name}-pool-redeem`}
-                        className="button-outlined button-light w-[344px] mx-auto"
-                        disabled={inRedeem || redeemBalance.equalsWith(Unit.fromStandardUnit(0))}
+                    <Button
+                        id={`bsc-espace-${network.chainName}-pool-redeem`}
+                        className="w-[344px] mx-auto"
+                        variant="outlined"
+                        size="medium"
+                        startIcon={<img className="mr-[8px] w-[14px] h-[14px]" src={logo} alt="chain logo" />}
+                        loading={inRedeem}
+                        disabled={redeemBalance.equalsWith(Unit.fromStandardUnit(0))}
                         onClick={() => handleRedeem(type, setInRedeem)}
                     >
-                        {!inRedeem && (
-                            <>
-                                <img className="mr-[8px] w-[14px] h-[14px]" src={network.logo} alt="chain logo" />
-                                Redeem
-                            </>
-                        )}
-                        {inRedeem && <Spin className='text-[24px] text-[#808BE7]' /> }
-                    </button>
+                        Redeem
+                    </Button>
                 )}
             />
         </div>

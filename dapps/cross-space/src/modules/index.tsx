@@ -1,10 +1,13 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useSpring } from '@react-spring/web';
 import useI18n from 'common/hooks/useI18n';
-import LocalStorage from 'common/utils/LocalStorage';
+import LocalStorage from 'localstorage-enhance';
 import Core2ESpace from './Core2ESpace';
 import ESpace2Core from './ESpace2Core';
 import { startSub } from 'cross-space/src/store';
+import { completeDetect as completeDetectConflux } from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { completeDetect as completeDetectEthereum } from '@cfxjs/use-wallet-react/ethereum';
+import { useMetaMaskHostedByFluentRqPermissions } from 'common/hooks/useMetaMaskHostedByFluent';
 import './index.css';
 
 const transitions = {
@@ -22,17 +25,25 @@ const Apps: React.FC = () => {
     const i18n = useI18n(transitions);
 
     useEffect(() => {
-        const unsub = startSub();
-        return unsub;
+        let unsub: undefined | (() => void);
+        Promise.all([completeDetectConflux(), completeDetectEthereum()])
+            .then(() => unsub = startSub());
+            
+        return () => {
+            if (typeof unsub === 'function') {
+                unsub();
+            }
+        }
     }, []);
+    useMetaMaskHostedByFluentRqPermissions();
 
     const [flipped, setFlipped] = useState(() => {
         if (window.location.hash.slice(1).indexOf('source=fluent-wallet') !== -1) {
-            LocalStorage.set('flipped', false, 0, 'cross-space');
+            LocalStorage.setItem({ key: 'flipped', data: false, namespace: 'cross-space'});
             history.pushState('', document.title, window.location.pathname + window.location.search);
             return false;
         }
-        return LocalStorage.get('flipped', 'cross-space') === true;
+        return LocalStorage.getItem('flipped', 'cross-space') === true;
     });
 
     const { transform, opacity } = useSpring({
@@ -43,7 +54,7 @@ const Apps: React.FC = () => {
 
     const handleClickFlipped = useCallback(() => {
         setFlipped((pre) => {
-            LocalStorage.set('flipped', !pre, 0, 'cross-space');
+            LocalStorage.setItem({ key: 'flipped', data: !pre, namespace: 'cross-space'});
             return !pre;
         });
     }, []);

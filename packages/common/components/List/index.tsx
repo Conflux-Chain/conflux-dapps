@@ -45,7 +45,7 @@ const List = <T extends ItemProps>({
     
     const render = useTransition(list, {
         keys: (item: T) => item.key ?? ((item as any)[itemKey as string]) as string,
-        initial: (item: T) => ({
+        initial: () => ({
             [mainSizeType]: undefined,
         }),
         from: (item: T) => ({

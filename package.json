@@ -1,5 +1,5 @@
 {
-    "name": "conflux-dapps",
+    "name": "conflux-hub",
     "version": "0.0.0",
     "private": true,
     "workspaces": [
@@ -7,12 +7,12 @@
         "packages/*"
     ],
     "scripts": {
-        "build": "turbo run build --scope=cross-space --scope=dapp-box --scope=shuttle-flow",
+        "build": "turbo run build --scope=cross-space --scope=hub --scope=shuttle-flow",
         "lint": "turbo run lint",
         "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-        "dev": "turbo run dev --scope=dapp-box --scope=shuttle-flow",
-        "dev:dapp-box": "turbo run dev --scope=dapp-box",
-        "build:dapp-box": "turbo run build --scope=dapp-box",
+        "dev": "turbo run dev --scope=hub --scope=shuttle-flow",
+        "dev:dapp-box": "turbo run dev --scope=hub",
+        "build:dapp-box": "turbo run build --scope=hub",
         "dev:cross-space": "turbo run dev --scope=cross-space",
         "build:cross-space": "turbo run build --scope=cross-space",
         "dev:bsc-espace": "turbo run dev --scope=bsc-espace",
@@ -23,12 +23,15 @@
         "build:shuttle-flow": "turbo run build --scope=shuttle-flow"
     },
     "devDependencies": {
-        "@types/node": "^10.17.60",
-        "turbo": "latest"
+        "prettier": "latest",
+        "turbo": "latest",
+        "typescript": "latest",
+        "@types/node": "latest"
     },
     "engines": {
         "npm": ">=7.0.0",
         "node": ">=14.0.0"
     },
-    "packageManager": "yarn@1.22.17"
+    "dependencies": {},
+    "packageManager": "yarn@1.22.18"
 }

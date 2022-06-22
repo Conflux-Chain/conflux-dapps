@@ -1,5 +1,5 @@
 import React from 'react';
-import { Unit, type useStatus } from '@cfxjs/use-wallet';
+import { Unit, type useStatus } from '@cfxjs/use-wallet-react/conflux/Fluent';
 import Tooltip from '../../components/Tooltip';
 import numFormat from '../../utils/numFormat';
 

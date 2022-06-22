@@ -6,7 +6,7 @@ import Tippy, { type TippyProps } from '@tippyjs/react/headless';
 import './index.css';
 
 interface PropsEnhance {
-    Content: React.ReactNode;
+    Content: React.ReactNode | Function;
     children?: React.ReactElement<any>;
     className?: string;
     style?: CSSProperties;
@@ -34,7 +34,7 @@ const Popper: React.FC<Props> = ({
         api.start({ ...transitionAnimation[animationType].enter, config: { mass: 1, tension: 400, friction: 22, clamp: false, duration: typeof animationDuration === 'number' ? animationDuration : animationDuration?.enter }, onRest: () => {} });
     }, [animationType, animationDuration]);
 
-    const onHide = useCallback(({ unmount }) => {
+    const onHide = useCallback(({ unmount }: { unmount: VoidFunction}) => {
         api.start({ ...transitionAnimation[animationType].leave, onRest: unmount, config: { mass: 1, tension: 400, friction: 24, clamp: true, duration: typeof animationDuration === 'number' ? animationDuration : animationDuration?.leave } });
     }, [animationType, animationDuration]);
 

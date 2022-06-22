@@ -1,14 +1,14 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import cx from 'clsx';
-import { useAccount as useFluentAccount } from '@cfxjs/use-wallet';
-import { useAccount as useMetaMaskAccount } from '@cfxjs/use-wallet/dist/ethereum';
-import { shortenAddress } from '@fluent-wallet/shorten-address';
-import AuthConnectButton from '../../AuthConnectButton';
-import Dropdown from '../../../components/Dropdown';
-import useI18n from '../../../hooks/useI18n';
-import FluentLogo from '../../../assets/Fluent.svg';
-import MetaMaskLogo from '../../../assets/MetaMask.svg';
-import Close from '../../../assets/close.svg';
+import { useAccount as useConfluxAccount } from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { useAccount as useEthereumAccount } from '@cfxjs/use-wallet-react/ethereum';
+import { shortenAddress } from 'common/utils/addressUtils';
+import Dropdown from 'common/components/Dropdown';
+import { AuthCoreSpace, AuthESpace } from 'common/modules/AuthConnectButton';
+import { useIsMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFluent';
+import useI18n from 'common/hooks/useI18n';
+import FluentLogo from 'common/assets/wallets/Fluent.svg';
+import MetaMaskLogo from 'common/assets/wallets/MetaMask.svg';
+import Close from 'common/assets/icons/close.svg';
 
 const transitions = {
     en: {
@@ -50,6 +50,10 @@ const ConnectorDropdown: React.FC<{ children: (triggerDropdown: () => void, visi
 
 const DropdownContent: React.FC<{ hideDropdown: () => void; }>= ({ hideDropdown }) => {
     const i18n = useI18n(transitions);
+    const confluxAccount = useConfluxAccount();
+    const ethereumAccount = useEthereumAccount();
+    const isMetaMaskHostedByFluent = useIsMetaMaskHostedByFluent();
+    const isInCrossSpace = location.origin === 'http://localhost:3001' || location.pathname.indexOf('cross-space') !== - 1;
 
     return (
         <>
@@ -62,36 +66,59 @@ const DropdownContent: React.FC<{ hideDropdown: () => void; }>= ({ hideDropdown 
             />
             <p className='mb-[8px] leading-[16px] text-[12px] text-[#A9ABB2] font-medium'>{i18n.accounts}</p>
 
-            <WalletOperate wallet='Fluent' />
-            <WalletOperate wallet='MetaMask' className='mt-[12px]' />
+            <AuthCoreSpace
+                connectTextType="concise"
+                variant='outlined'
+                size="small"
+                color="green"
+                fullWidth
+                showLogo
+                checkChainMatch={false}
+                authContent={() =>
+                    <>
+                        {!isMetaMaskHostedByFluent &&
+                            <div className='flex items-center h-[20px] text-[14px] text-[#3d3f4c]'>
+                                <img src={FluentLogo} alt="Fluent Logo" className="mr-[4px] w-[20px] h-[20px]" />
+                                {shortenAddress(confluxAccount)}
+                            </div>
+                        }
+                        {isMetaMaskHostedByFluent &&
+                            <div className='flex items-center h-[20px] text-[14px] text-[#3d3f4c]'>
+                                <span className='text-[#2959B4] mr-[6px]'>Core Chain: </span>
+                                {shortenAddress(confluxAccount)}
+                            </div>
+                        }
+                        {isMetaMaskHostedByFluent &&
+                            <div className='mt-[12px] flex items-center h-[20px] text-[14px] text-[#3d3f4c]'>
+                                <span className='text-[#15C184] mr-[6px]'>{isInCrossSpace ? 'eSpace' : 'Ethereum'} Chain: </span>
+                                {shortenAddress(ethereumAccount)}
+                            </div>
+                        }
+                    </>
+   
+                }
+            />
+
+            {!isMetaMaskHostedByFluent &&
+                <AuthESpace
+                    className='mt-[12px]'
+                    connectTextType="concise"
+                    variant='outlined'
+                    size="small"
+                    color="green"
+                    fullWidth
+                    showLogo
+                    checkChainMatch={false}
+                    authContent={() =>
+                        <div className='flex items-center h-[20px] text-[14px] text-[#3d3f4c] mt-[12px]'>
+                            <img src={MetaMaskLogo} alt="Fluent Logo" className="mr-[4px] w-[20px] h-[20px]" />
+                            {shortenAddress(ethereumAccount!)}
+                        </div>
+                    }
+                />
+            }
         </>
     );
 };
-
-
-const WalletOperate: React.FC<{ wallet: 'Fluent' | 'MetaMask'; className?: string; }> = ({ wallet, className }) => {
-    const account = wallet === 'Fluent' ? useFluentAccount() : useMetaMaskAccount();
-    const Logo = wallet == 'Fluent' ? FluentLogo : MetaMaskLogo;
-
-    return (
-        <AuthConnectButton
-            className={className}
-            wallet={wallet}
-            buttonType="outlined"
-            buttonSize="small"
-            buttonColor="green"
-            connectTextType="concise"
-            fullWidth
-            showLogo
-            checkChainMatch={false}
-            authContent={() =>
-                <div className={cx('flex items-center h-[20px] text-[14px] text-[#3d3f4c]', className)}>
-                    <img src={Logo} alt={`${wallet} logo`} className="mr-[4px] w-[20px] h-[20px]" />
-                    {shortenAddress(account!)}
-                </div>
-            }
-        />
-    );
-}
 
 export default ConnectorDropdown;

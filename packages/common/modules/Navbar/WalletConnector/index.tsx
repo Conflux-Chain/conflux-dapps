@@ -1,12 +1,13 @@
 import React from 'react';
 import cx from 'clsx';
-import { useStatus as useFluentStatus, useAccount as useFluentAccount } from '@cfxjs/use-wallet';
-import { useStatus as useMetaMaskStatus, useAccount as useMetaMaskAccount } from '@cfxjs/use-wallet/dist/ethereum';
-import { shortenAddress } from '@fluent-wallet/shorten-address';
-import useI18n from '../../../hooks/useI18n';
-import FluentLogo from '../../../assets/Fluent.svg';
-import MetaMaskLogo from '../../../assets/MetaMask.svg';
-import ArrowDown from '../../../assets/arrow-down.svg';
+import { useStatus as useFluentStatus, useAccount as useCoreAccount } from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { useStatus as useMetaMaskStatus, useAccount as useESpaceAccount } from '@cfxjs/use-wallet-react/ethereum';
+import { shortenAddress } from 'common/utils/addressUtils';
+import { useIsMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFluent';
+import useI18n from 'common/hooks/useI18n';
+import FluentLogo from 'common/assets/wallets/Fluent.svg';
+import MetaMaskLogo from 'common/assets/wallets/MetaMask.svg';
+import ArrowDown from 'common/assets/icons/arrow-down.svg';
 import ConnectorDropdown from './ConnectorDropdown';
 import './index.css';
 
@@ -25,15 +26,16 @@ const transitions = {
 
 const WalletConnector: React.FC = () => {
     const i18n = useI18n(transitions);
+    const isMetaMaskHostedByFluent = useIsMetaMaskHostedByFluent();
 
     const fluentStatus = useFluentStatus();
-    const fluentAccount = useFluentAccount();
+    const fluentAccount = useCoreAccount();
     const metaMaskStatus = useMetaMaskStatus();
-    const metaMaskAccount = useMetaMaskAccount();
+    const metaMaskAccount = useESpaceAccount();
 
     const singleConnected = fluentStatus === 'active' && metaMaskStatus !== 'active' ? 'Fluent'
         : (metaMaskStatus === 'active' && fluentStatus !== 'active' ? 'MetaMask' : undefined);
-
+        
     return (
         <ConnectorDropdown>
             {(triggerDropdown, visible) => 
@@ -81,12 +83,14 @@ const WalletConnector: React.FC = () => {
                                 className="w-[16px] h-[16px]"
                                 draggable="false"
                             />
-                            <img
-                                src={MetaMaskLogo}
-                                alt="Fluent Logo"
-                                className="w-[16px] h-[16px] ml-[2px]"
-                                draggable="false"
-                            />
+                            {!isMetaMaskHostedByFluent &&
+                                <img
+                                    src={MetaMaskLogo}
+                                    alt="Fluent Logo"
+                                    className="w-[16px] h-[16px] ml-[2px]"
+                                    draggable="false"
+                                />
+                            }
                             <img src={ArrowDown} alt="arrow down" className="arrow-down ml-[4px] w-[16px] h-[16px] transition-transform" draggable="false" />
                         </div>
                     }

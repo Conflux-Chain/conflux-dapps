@@ -1,7 +1,8 @@
-import { sendTransaction as sendTransactionWithFluent, Unit } from '@cfxjs/use-wallet';
-import { currentTokenStore, recheckApproval, confluxStore, trackBalanceChangeOnce, checkNeedApprove } from 'cross-space/src/store/index';
-import { showWaitWallet, showActionSubmitted, hideWaitWallet, hideActionSubmitted } from 'common/components/tools/Modal';
-import { showToast } from 'common/components/tools/Toast';
+import { sendTransaction as sendTransactionWithFluent, Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { currentTokenStore, recheckApproval, Contracts, trackBalanceChangeOnce, checkNeedApprove } from 'cross-space/src/store/index';
+import { showWaitWallet, showActionSubmitted, hideWaitWallet, hideActionSubmitted } from 'common/components/showPopup/Modal';
+import { showToast } from 'common/components/showPopup/Toast';
+import { convertCfxToHex, validateCfxAddress } from 'common/utils/addressUtils';
 
 interface Data {
     eSpaceAccount: string;
@@ -30,7 +31,7 @@ const handleSubmit = async (data: Data) => {
 };
 
 const handleTransferCFX = async ({ eSpaceAccount, amount }: Data) => {
-    const { crossSpaceContract, crossSpaceContractAddress } = confluxStore.getState();
+    const { crossSpaceContract, crossSpaceContractAddress } = Contracts;
     if (!crossSpaceContract || !crossSpaceContractAddress) return;
 
     let waitFluentKey: string | number = null!;
@@ -40,7 +41,7 @@ const handleTransferCFX = async ({ eSpaceAccount, amount }: Data) => {
         waitFluentKey = showWaitWallet('Fluent');
         const TxnHash = await sendTransactionWithFluent({
             to: crossSpaceContractAddress,
-            data: crossSpaceContract.transferEVM(eSpaceAccount).data,
+            data: crossSpaceContract.transferEVM(eSpaceAccount).encodeABI(),
             value: Unit.fromStandardUnit(amount).toHexMinUnit(),
         });
         transactionSubmittedKey = showActionSubmitted(TxnHash);
@@ -66,9 +67,9 @@ const handleTransferCFX = async ({ eSpaceAccount, amount }: Data) => {
 };
 
 const handleApproveCRC20 = async () => {
-    const { confluxSideContractAddress } = confluxStore.getState();
-    const { currentToken, currentTokenContract } = currentTokenStore.getState();
-    if (!confluxSideContractAddress || !currentToken || !currentTokenContract) return;
+    const { confluxSideContractAddress, tokenContract } = Contracts;
+    const { currentToken } = currentTokenStore.getState();
+    if (!confluxSideContractAddress || !currentToken || !tokenContract) return;
     const usedTokenAddress = currentToken.nativeSpace === 'core' ? currentToken.native_address : currentToken.mapped_address;
 
     let waitFluentKey: string | number = null!;
@@ -78,7 +79,7 @@ const handleApproveCRC20 = async () => {
         waitFluentKey = showWaitWallet('Fluent', { key: 'approve', tip: 'Approve takes a while to take effect.' });
         const TxnHash = await sendTransactionWithFluent({
             to: usedTokenAddress,
-            data: currentTokenContract.approve(confluxSideContractAddress, '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff').data,
+            data: tokenContract.approve(confluxSideContractAddress, '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff').encodeABI(),
         });
         recheckApproval('core');
         transactionSubmittedKey = showActionSubmitted(TxnHash, 'Approve', { duration: 15000 });
@@ -109,7 +110,7 @@ const handleApproveCRC20 = async () => {
                     });
                     const TxnHash = await sendTransactionWithFluent({
                         to: usedTokenAddress,
-                        data: currentTokenContract!.approve(confluxSideContractAddress!, '0x0').data,
+                        data: tokenContract!.approve(confluxSideContractAddress!, '0x0').encodeABI(),
                     });
                     recheckApproval('core');
                     transactionSubmittedKey = showActionSubmitted(TxnHash, 'Approve', { duration: 15000 });
@@ -137,19 +138,20 @@ const handleApproveCRC20 = async () => {
 };
 
 const handleTransferCRC20 = async ({ eSpaceAccount, amount, methodType }: Data & { methodType: 'crossToEvm' | 'withdrawToEvm' }) => {
-    const { confluxSideContract, confluxSideContractAddress } = confluxStore.getState();
-    if (!confluxSideContract || !confluxSideContractAddress) return;
+    const { confluxSideContract, confluxSideContractAddressBase32 } = Contracts;
 
     const currentToken = currentTokenStore.getState().currentToken;
+    const currentTokenAddress = validateCfxAddress(currentToken.native_address) ? convertCfxToHex(currentToken.native_address) : currentToken.native_address;
 
     let waitFluentKey: string | number = null!;
     let transactionSubmittedKey: string | number = null!;
 
     try {
         waitFluentKey = showWaitWallet('Fluent');
+
         const TxnHash = await sendTransactionWithFluent({
-            to: confluxSideContractAddress,
-            data: confluxSideContract[methodType](currentToken.native_address, eSpaceAccount, Unit.fromStandardUnit(amount).toHexMinUnit()).data,
+            to: confluxSideContractAddressBase32,
+            data: confluxSideContract[methodType](currentTokenAddress, eSpaceAccount, Unit.fromStandardUnit(amount).toHexMinUnit()).encodeABI(),
         });
         transactionSubmittedKey = showActionSubmitted(TxnHash);
         trackBalanceChangeOnce.coreCurrentTokenBalance(() => {

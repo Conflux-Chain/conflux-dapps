@@ -1,55 +1,37 @@
 import create from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import Config from 'bsc-espace/config';
-import LocalStorage from 'common/utils/LocalStorage';
-import ConfluxIcon from 'common/assets/Conflux.svg';
+import LocalStorage from 'localstorage-enhance';
+import ConfluxIcon from 'common/assets/chains/Conflux.svg';
 import BSCIcon from 'bsc-espace/src/assets/BSC.png';
+import { type Network as NetworkBase } from 'common/conf/Networks';
 
 export interface Network {
-    name: string;
-    url: string;
-    networkId: string;
-    scan: string;
-    color: string;
+    network: NetworkBase;
+    color: "#15C184";
     logo: string;
-    nativeCurrency: {
-        name: string,
-        symbol: string,
-        decimals: number,
-    }
 }
 
 interface NetworkStore {
     currentFrom?: 'eSpace' | 'crossChain';
-    eSpace: Network;
-    crossChain: Network;
+    eSpace: Network & { color: string; logo: string;};
+    crossChain: Network & { color: string; logo: string;};
 }
-
-const isProduction = !location.host.startsWith('test') && !location.host.startsWith('localhost');
-export const currentESpaceConfig = Config[isProduction ? '1030' : '71'];
 
 export const networkStore = create(
     subscribeWithSelector(
         () =>
             (({
-                currentFrom: LocalStorage.get('flipped', 'bsc-espace') === true ? 'crossChain' : 'eSpace',
+                currentFrom: LocalStorage.getItem('flipped', 'bsc-espace') === true ? 'crossChain' : 'eSpace',
                 eSpace: {
-                    name: currentESpaceConfig.name,
-                    networkId: currentESpaceConfig.networkId,
-                    url: currentESpaceConfig.url,
-                    scan: currentESpaceConfig.scan,
-                    color: currentESpaceConfig.color,
-                    logo: ConfluxIcon,
-                    nativeCurrency: currentESpaceConfig.nativeCurrency
+                    network: Config.network,
+                    color: Config.color,
+                    logo: ConfluxIcon
                 },
                 crossChain: {
-                    name: currentESpaceConfig.chains[0].name,
-                    networkId: currentESpaceConfig.chains[0].networkId,
-                    url: currentESpaceConfig.chains[0].url,
-                    scan: currentESpaceConfig.chains[0].scan,
-                    color: currentESpaceConfig.chains[0].color,
+                    network: Config.chains[0].network,
+                    color: Config.chains[0].color,
                     logo: BSCIcon,
-                    nativeCurrency: currentESpaceConfig.chains[0].nativeCurrency
                 },
             } as unknown) as NetworkStore)
     )

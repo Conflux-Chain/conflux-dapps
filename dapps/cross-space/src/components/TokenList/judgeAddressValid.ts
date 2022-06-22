@@ -1,12 +1,8 @@
-import { format } from 'js-conflux-sdk';
-import { store as fluentStore, provider as fluentProvider } from '@cfxjs/use-wallet';
-import { provider as metaMaskProvider } from '@cfxjs/use-wallet/dist/ethereum';
-import { validateBase32Address } from '@fluent-wallet/base32-address';
-import { isHexAddress } from '@fluent-wallet/account';
-import { confluxStore, type Token } from 'cross-space/src/store/index';
+import { store as fluentStore } from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { validateCfxAddress, validateHexAddress, convertHexToCfx, convertCfxToHex } from 'common/utils/addressUtils';
+import { Contracts, type Token } from 'cross-space/src/store/index';
 import { mergeSearchToken } from './tokenListStore';
-import TokenDefaultIcon from 'cross-space/src/assets/TokenDefaultIcon.png';
-import CRC20TokenABI from 'cross-space/src/contracts/abi/ERC20.json';
+import Networks from 'common/conf/Networks';
 
 function hexToAscii(hex: string) {
     let hexString = hex;
@@ -18,23 +14,18 @@ function hexToAscii(hex: string) {
 }
 
 function hexToAddress(hex: string, isBase32: boolean) {
+    console.log(hex, isBase32)
     const hexAddress = '0x' + hex.slice(26);
     if (isBase32) return hexAddress;
     const chainId = fluentStore.getState().chainId!;
-    return format.address(hexAddress, +chainId) as string;
-}
-
-interface TokenContract {
-    name(): Record<string, string>;
-    symbol(): Record<string, string>;
-    decimals(): Record<string, string>;
+    return convertHexToCfx(hexAddress, chainId);
 }
 
 const tokenInfo = ['name', 'symbol', 'decimals'] as const;    
 
 const judgeAddressValid = async (tokenAddress: string) => {
-    const isHex = isHexAddress(tokenAddress);
-    const isBase32 = validateBase32Address(tokenAddress);
+    const isHex = validateHexAddress(tokenAddress);
+    const isBase32 = validateCfxAddress(tokenAddress);
     if (!isHex && !isBase32) return false;
 
     try {
@@ -50,7 +41,7 @@ const judgeAddressValid = async (tokenAddress: string) => {
                 evm_space_name: isCRC20Token.name,
                 evm_space_symbol: isCRC20Token.symbol,
                 decimals: isCRC20Token.decimals,
-                icon: TokenDefaultIcon,
+                icon: "https://conflux-static.oss-cn-beijing.aliyuncs.com/icons/default.png",
                 native_address: tokenAddress
             } as unknown as Token;
         }
@@ -67,7 +58,7 @@ const judgeAddressValid = async (tokenAddress: string) => {
             evm_space_symbol: isBase32 ? anotherSpaceInfo.symbol : isCRC20Token.symbol,
             decimals: isCRC20Token.decimals,
             ...canCrossSpace,
-            icon: TokenDefaultIcon
+            icon: "https://conflux-static.oss-cn-beijing.aliyuncs.com/icons/default.png"
         } as unknown as Token;
         mergeSearchToken(token);
         return token
@@ -77,23 +68,25 @@ const judgeAddressValid = async (tokenAddress: string) => {
 }
 
 const judgeIsCRC20Token = async ({ tokenAddress, isBase32 } : { tokenAddress: string; isBase32: boolean; }) => {
-    const conflux = confluxStore.getState().conflux!;
-    const tokenContract = conflux.Contract({ abi: CRC20TokenABI, address: tokenAddress }) as unknown as TokenContract;
-    const provider = isBase32 ? fluentProvider : metaMaskProvider;
-    if (!conflux || !provider) return;
+    const tokenContract = Contracts.tokenContract!;
+    const network = isBase32 ? Networks.core : Networks.eSpace;
     
     try {
         const res = await Promise.all(tokenInfo.map(info => 
-            provider!.request({
-                method: `${isBase32 ? 'cfx' : 'eth'}_call`,
-                params: [
-                    {
-                        data: tokenContract[info]().data,
+            fetch(network.rpcUrls[0], {
+                body: JSON.stringify({
+                    jsonrpc: '2.0',
+                    method: `${isBase32 ? 'cfx' : 'eth'}_call`,
+                    params: [{
+                        data: tokenContract[info]().encodeABI(),
                         to: tokenAddress
-                    }, 
-                    isBase32 ? 'latest_state' : 'latest'
-                ]
-            }),
+                    }, isBase32 ? 'latest_state' : 'latest'],
+                    id: 1,
+                }),
+                headers: {'content-type': 'application/json'},
+                method: 'POST',
+            })
+                .then(response => response.json()).then(res => res?.result)
         ));
         const [name, symbol] = res?.slice(0, 2).map(info => hexToAscii(info));
         const decimals = Number(res?.[2]);
@@ -106,47 +99,56 @@ const judgeIsCRC20Token = async ({ tokenAddress, isBase32 } : { tokenAddress: st
 }
 
 const zeroAddress = '0x0000000000000000000000000000000000000000000000000000000000000000';
-const judgeCanCrossSpace = async ({ tokenAddress, isBase32 } : { tokenAddress: string; isBase32: boolean; }) => {
-    const providerCurrentSide = isBase32 ? fluentProvider : metaMaskProvider;
-    const contractCurrentSide = isBase32 ? confluxStore.getState().confluxSideContract : confluxStore.getState().evmSideContract!;
-    const contractAddressCurrentSide = isBase32 ? confluxStore.getState().confluxSideContractAddress : confluxStore.getState().evmSideContractAddress;
-    const providerAcrossSide = isBase32 ? metaMaskProvider : fluentProvider;
-    const contractAcrossSide = isBase32 ? confluxStore.getState().evmSideContract : confluxStore.getState().confluxSideContract;
-    const contractAddressAcrossSide = isBase32 ? confluxStore.getState().evmSideContractAddress : confluxStore.getState().confluxSideContractAddress;
-    if (!contractCurrentSide || !contractAcrossSide || !providerAcrossSide || !providerCurrentSide) return;
-
+const judgeCanCrossSpace = async ({ tokenAddress: _tokenAddress, isBase32 } : { tokenAddress: string; isBase32: boolean; }) => {
+    const tokenAddress = isBase32 ? convertCfxToHex(_tokenAddress) : _tokenAddress
+    const networkCurrentSide = isBase32 ? Networks.core : Networks.eSpace;
+    const contractCurrentSide = isBase32 ? Contracts.confluxSideContract : Contracts.evmSideContract!;
+    const contractAddressCurrentSide = isBase32 ? Contracts.confluxSideContractAddressBase32 : Contracts.evmSideContractAddress;
+    const networkAcrossSide = isBase32 ? Networks.eSpace : Networks.core;
+    const contractAcrossSide = isBase32 ? Contracts.evmSideContract : Contracts.confluxSideContract;
+    const contractAddressAcrossSide = isBase32 ? Contracts.evmSideContractAddress : Contracts.confluxSideContractAddressBase32;
+    
     try {
         const [acrossSideRes, currentSideRes] = await Promise.all([
-            providerAcrossSide.request({
-                method: `${isBase32 ? 'eth' : 'cfx'}_call`,
-                params: [
-                    {
-                        data: contractAcrossSide.mappedTokens(tokenAddress).data,
+            fetch(networkAcrossSide.rpcUrls[0], {
+                body: JSON.stringify({
+                    jsonrpc: '2.0',
+                    method: `${isBase32 ? 'eth' : 'cfx'}_call`,
+                    params: [{
+                        data: contractAcrossSide.mappedTokens(tokenAddress).encodeABI(),
                         to: contractAddressAcrossSide
-                    }, 
-                    isBase32 ? 'latest' : 'latest_state'
-                ]
-            }),
-            providerCurrentSide.request({
-                method: `${isBase32 ? 'cfx' : 'eth'}_call`,
-                params: [
-                    {
-                        data: contractCurrentSide.sourceTokens(tokenAddress).data,
-                        to: contractAddressCurrentSide
-                    }, 
-                    isBase32 ? 'latest_state' : 'latest'
-                ]
+                    }, isBase32 ? 'latest' : 'latest_state'],
+                    id: 1,
+                }),
+                headers: {'content-type': 'application/json'},
+                method: 'POST',
             })
-        ])
+                .then(response => response.json()).then(res => res?.result),
+            fetch(networkCurrentSide.rpcUrls[0], {
+                    body: JSON.stringify({
+                        jsonrpc: '2.0',
+                        method: `${isBase32 ? 'cfx' : 'eth'}_call`,
+                        params: [{
+                            data: contractCurrentSide.sourceTokens(tokenAddress).encodeABI(),
+                            to: contractAddressCurrentSide
+                        }, isBase32 ? 'latest_state' : 'latest'],
+                        id: 1,
+                    }),
+                    headers: {'content-type': 'application/json'},
+                    method: 'POST',
+                })
+                    .then(response => response.json()).then(res => res?.result),
+        ]);
+        
         if (acrossSideRes === zeroAddress && currentSideRes === zeroAddress) return false;
         const acrossAddress = hexToAddress(acrossSideRes === zeroAddress ? currentSideRes : acrossSideRes, isBase32);
         return {
-            mapped_address: currentSideRes === zeroAddress ? acrossAddress : tokenAddress,
-            native_address: currentSideRes === zeroAddress ? tokenAddress : acrossAddress,
+            mapped_address: currentSideRes === zeroAddress ? acrossAddress : _tokenAddress,
+            native_address: currentSideRes === zeroAddress ? _tokenAddress : acrossAddress,
             nativeSpace: (isBase32 ? (currentSideRes === zeroAddress ? 'core' : 'eSpace') : (currentSideRes === zeroAddress ? 'eSpace' : 'core')) as 'core' | 'eSpace'
         }
     } catch (err) {
-        console.error(`address: ${tokenAddress} can't cross space`, err);
+        console.error(`address: ${_tokenAddress} can't cross space`, err);
         return false;
     }
 
