@@ -1,55 +1,301 @@
-button.button-contained, button.button-outlined, a.button-contained, a.button-outlined {
-    @apply flex justify-center items-center rounded-[4px];
+/** common **/
+.fui-button {
+  @apply relative inline-flex justify-center items-center rounded-[4px] font-normal whitespace-nowrap outline-none;
 }
 
-button.button-contained.button-inline, button.button-outlined.button-inline, a.button-contained.button-inline, a.button-outlined.button-inline {
-    @apply inline-flex;
+button.absolute {
+  position: absolute;
 }
 
-button.button-mini, a.button-mini {
-    @apply px-[12px] h-[24px] text-[12px];
+.fui-button--fullWidth {
+  @apply flex w-full;
 }
 
-button.button-small, a.button-small {
-    @apply px-[12px] h-[32px] text-[12px];
+/* size & shape */
+.fui-button--mini {
+  @apply text-[10px] h-[24px] px-[10px];
 }
 
-button.button-light, a.button-light {
-    @apply px-[14px] h-[40px] text-[14px];
+.fui-button--small {
+  @apply text-[12px] h-[32px] px-[14px];
 }
 
-button.button-normal, a.button-normal {
-    @apply px-[16px] h-[48px] text-[16px];
+.fui-button--medium {
+  @apply text-[14px] h-[40px] px-[18px];
 }
 
-button.button-outlined, a.button-outlined {
-    @apply border border-[#808BE7] bg-white hover:bg-opacity-90 text-[#808BE7] transition-colors;
+.fui-button--large {
+  @apply text-[16px] h-[48px] px-[22px];
 }
 
-button.button-outlined.button-green, a.button-outlined.button-green {
-    @apply border-[#44D7B6] text-[#44D7B6]
+.fui-button.fui-button--round {
+  @apply rounded-[1.4em];
 }
 
-button.button-outlined.button-error, a.button-outlined.button-error {
-    @apply border-[#E96170] text-[#E96170];
+.fui-button.fui-button--circle {
+  @apply rounded-full;
 }
 
-button.button-contained, a.button-contained {
-    @apply bg-[#808BE7] hover:bg-opacity-90 text-white transition-colors;
+.fui-button--mini.fui-button--circle,
+.fui-button--small.fui-button--circle {
+  @apply w-[32px] h-[32px];
 }
 
-button.button-contained.button-reverse, a.button-contained.button-reverse {
-    @apply bg-[#F0F3FF] text-[#808BE7];
+.fui-button--medium.fui-button--circle {
+  @apply w-[40px] h-[40px];
 }
 
-button.button-contained.button-error.button-reverse, a.button-contained.button-error.button-reverse {
-    @apply text-white;
+.fui-button--large.fui-button--circle {
+  @apply w-[48px] h-[48px];
 }
 
-button.button-contained.button-error, a.button-contained.button-error {
-    @apply bg-[#E96170]
+/** disabled & loading **/
+.fui-button.is-disabled,
+.fui-button.is-loading {
+  @apply pointer-events-none;
 }
 
-button:disabled {
-    @apply opacity-50 cursor-not-allowed;
+.is-loading {
+  @apply hover:opacity-90;
+}
+
+button.fui-button.is-disabled:not(.is-loading),
+a.fui-button.is-disabled:not(.is-loading) {
+  @apply bg-[#F0F1F1] text-[#A9ABB2] border-transparent;
+}
+
+a.fui-button--link.is-disabled,
+a.fui-button--text.is-disabled,
+button.fui-button--link.is-disabled,
+button.fui-button--text.is-disabled {
+  @apply bg-transparent text-[#A9ABB2];
+}
+
+/* contained button */
+.fui-button--contained.fui-button--primary {
+  @apply bg-[#808BE7] text-white;
+}
+
+.fui-button--contained.fui-button--primary:hover,
+.fui-button--contained.fui-button--primary:focus-visible {
+  @apply bg-[#5D67CF] text-white;
+}
+
+.fui-button--contained.fui-button--primary.fui-button--reverse {
+  @apply bg-[#F0F3FF] text-[#808BE7];
+}
+
+.fui-button--contained.fui-button--primary.fui-button--reverse:hover,
+.fui-button--contained.fui-button--primary.fui-button--reverse:focus-visible {
+  @apply bg-[#e7ebfa] text-[#808BE7];
+}
+
+.fui-button--contained.fui-button--secondary {
+  @apply bg-[#F7F8FA] text-[#1B1B1C];
+}
+
+.fui-button--contained.fui-button--secondary:hover,
+.fui-button--contained.fui-button--secondary:focus-visible {
+  @apply bg-[#F0F3FF] text-[#808BE7];
+}
+
+.fui-button--contained.fui-button--danger {
+  @apply bg-[#E96170] text-white;
+}
+
+.fui-button--contained.fui-button--danger:hover,
+.fui-button--contained.fui-button--danger:focus-visible {
+  @apply bg-[#CD4957] text-white;
+}
+
+.fui-button--contained.fui-button--green {
+  @apply bg-[#44D7B6] text-white;
+}
+
+.fui-button--contained.fui-button--green:hover,
+.fui-button--contained.fui-button--green:focus-visible {
+  @apply bg-[#44D7B6] text-white;
+}
+
+/* outlined dash button */
+.fui-button--outlined,
+.fui-button--dash {
+  @apply border-[1px];
+}
+
+.fui-button--outlined.fui-button--primary,
+.fui-button--dash.fui-button--primary {
+  @apply border-[#808BE7] text-[#808BE7] bg-white;
+}
+
+.fui-button--outlined.fui-button--primary:hover,
+.fui-button--outlined.fui-button--primary:focus-visible,
+.fui-button--dash.fui-button--primary:hover,
+.fui-button--dash.fui-button--primary:focus-visible {
+  @apply border-[#5D67CF] text-[#5D67CF] bg-white;
+}
+
+.fui-button--outlined.fui-button--secondary,
+.fui-button--dash.fui-button--secondary {
+  @apply border-[#3D3F4C] text-[#3D3F4C] bg-white;
+}
+
+.fui-button--outlined.fui-button--secondary:hover,
+.fui-button--outlined.fui-button--secondary:focus-visible,
+.fui-button--dash.fui-button--secondary:hover,
+.fui-button--dash.fui-button--secondary:focus-visible {
+  @apply border-[#808BE7] text-[#808BE7] bg-white;
+}
+
+.fui-button--outlined.fui-button--danger,
+.fui-button--dash.fui-button--danger {
+  @apply border-[#E96170] text-[#E96170] bg-white;
+}
+
+.fui-button--outlined.fui-button--danger:hover,
+.fui-button--outlined.fui-button--danger:focus-visible,
+.fui-button--dash.fui-button--danger:hover,
+.fui-button--dash.fui-button--danger:focus-visible {
+  @apply border-[#CD4957] text-[#CD4957] bg-white;
+}
+
+.fui-button--outlined.fui-button--green,
+.fui-button--dash.fui-button--green {
+  @apply border-[#44D7B6] text-[#44D7B6] bg-white;
+}
+
+.fui-button--outlined.fui-button--green:hover,
+.fui-button--outlined.fui-button--green:focus-visible,
+.fui-button--dash.fui-button--green:hover,
+.fui-button--dash.fui-button--green:focus-visible {
+  @apply border-[#44D7B6] text-[#44D7B6] bg-white;
+}
+
+.fui-button--dash {
+  @apply border-dashed;
+}
+
+/* text button */
+.fui-button--text.fui-button--primary {
+  @apply bg-transparent text-[#808BE7];
+}
+
+.fui-button--text.fui-button--primary,
+.fui-button--text.fui-button--secondary {
+  @apply bg-transparent text-[#3D3F4C];
+}
+
+.fui-button--text.fui-button--primary:hover,
+.fui-button--text.fui-button--primary:focus-visible,
+.fui-button--text.fui-button--secondary:hover,
+.fui-button--text.fui-button--secondary:focus-visible {
+  @apply bg-[#F7F8FA] text-[#3D3F4C];
+}
+
+.fui-button--text.fui-button--danger {
+  @apply bg-transparent text-[#E96170];
+}
+
+.fui-button--text.fui-button--danger:hover,
+.fui-button--text.fui-button--danger:focus-visible {
+  @apply bg-[#FFF2F4] text-[#E96170];
+}
+
+.fui-button--text.fui-button--green {
+  @apply bg-transparent text-[#44D7B6];
+}
+
+.fui-button--text.fui-button--green:hover,
+.fui-button--text.fui-button--green:focus-visible {
+  @apply bg-[#FFF2F4] text-[#44D7B6];
+}
+
+/* link button */
+.fui-button--link:hover,
+.fui-button--link:focus-visible {
+  @apply underline underline-offset-[2px];
+}
+
+.fui-button--link.fui-button--primary,
+.fui-button--link.fui-button--secondary {
+  @apply bg-transparent text-[#808BE7];
+}
+
+.fui-button--link.fui-button--danger {
+  @apply bg-transparent text-[#E96170];
+}
+
+.fui-button--link.fui-button--green {
+  @apply bg-transparent text-[#44D7B6];
+}
+
+/** circle button overwrite */
+.fui-button--circle {
+  box-shadow: 0px 4px 8px -2px rgba(0, 0, 0, 0.1);
+}
+.fui-button.fui-button--circle.fui-button--secondary,
+.fui-button.fui-button--circle.fui-button--outlined,
+.fui-button.fui-button--circle.fui-button--dash,
+.fui-button.fui-button--circle.fui-button--text,
+.fui-button.fui-button--circle.fui-button--link {
+  @apply border-[1px] bg-white text-[#A9ABB2] border-transparent hover:bg-white hover:text-[#808BE7] hover:border-[#808BE7];
+}
+
+
+/** loading **/
+.is-loading > .fui-button__content,
+.is-loading > .fui-button__icon {
+  @apply opacity-0;
+}
+
+.fui-button__loading {
+  @apply absolute left-[50%] top-[50%] -translate-x-[50%] -translate-y-[50%] text-[1.6em];
+}
+
+
+/** start end icon **/
+.fui-button__icon + .fui-button__content {
+  @apply ml-[.25em];
+}
+
+.fui-button__content + .fui-button__icon {
+  @apply ml-[.25em];
+}
+
+.fui-button__icon {
+  @apply w-fit h-fit;
+}
+
+.fui-button__icon > svg {
+  @apply w-[1.6em] h-[1.6em];
+}
+
+
+/** click effect **/
+.fui-button::after {
+  @apply absolute inset-0 rounded-[inherit] opacity-0;
+  box-shadow: 0 0 0 6px currentColor;
+  transition: 0.4s;
+  content: '';
+}
+
+.fui-button.fui-button:active:not(.fui-button--text):not(.fui-button--link)::after {
+  @apply opacity-60;
+  box-shadow: none;
+  transition: 0s;
+}
+
+.fui-button--contained.fui-button--primary::after {
+  box-shadow: 0 0 0 6px #808be7;
+}
+.fui-button--contained.fui-button--secondary:not(.fui-button--circle):after {
+  box-shadow: 0 0 0 6px transparent;
+}
+
+.fui-button--contained.fui-button--danger::after {
+  box-shadow: 0 0 0 6px #cd4957;
+}
+
+.fui-button--contained.fui-button--green::after {
+  box-shadow: 0 0 0 6px #44D7B6;
 }

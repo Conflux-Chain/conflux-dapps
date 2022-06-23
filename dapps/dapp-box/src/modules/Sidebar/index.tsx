@@ -3,20 +3,22 @@ import { a, useSpring, useTrail, config } from '@react-spring/web';
 import { useNavigate } from 'react-router-dom';
 import cx from 'clsx';
 import Popper from 'common/components/Popper';
-import useCurrentDapp from 'dapp-box/src/hooks/useCurrentDapp';
-import ConfluxHub from 'dapp-box/src/assets/ConfluxHub.svg';
-import ConfluxHubText from 'dapp-box/src/assets/ConfluxHub-text.svg';
-import Expand from 'dapp-box/src/assets/expand.svg';
-import { dapps } from 'dapp-box/src/App';
-import AdvertBg from 'dapp-box/src/assets/advert.png';
-import ArrowRight from 'dapp-box/src/assets/arrow-right.svg';
-import Explore from 'dapp-box/src/assets/explore.svg';
-import Close from 'common/assets/close.svg';
+import useCurrentDapp from 'hub/src/hooks/useCurrentDapp';
+import ConfluxHub from 'hub/src/assets/ConfluxHub.svg';
+import ConfluxHubText from 'hub/src/assets/ConfluxHub-text.svg';
+import Expand from 'hub/src/assets/expand.svg';
+import { dapps } from 'hub/src/App';
+import AdvertBg from 'hub/src/assets/advert.png';
+import ArrowRight from 'hub/src/assets/arrow-right.svg';
+import Explore from 'hub/src/assets/explore.svg';
+import Close from 'common/assets/icons/close.svg';
+import { useNotSupportMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFluent';
 import './index.css';
 
 const Sidebar: React.FC = () => {
     const navigate = useNavigate();
     const currentDapp = useCurrentDapp();
+    useNotSupportMetaMaskHostedByFluent(currentDapp.name === 'eSpace Bridge' ? undefined : currentDapp.name);
 
     const [expand, setExpand] = useState(() => {
         const last = (localStorage.getItem('ConfluxHub-drawer-expand') as 'true') || 'false';

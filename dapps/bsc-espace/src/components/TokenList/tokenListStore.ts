@@ -1,7 +1,8 @@
 import create from 'zustand';
 import { type Token } from 'bsc-espace/src/store/index';
-import LocalStorage from 'common/utils/LocalStorage';
-import { networkStore, currentESpaceConfig, setToken, tokenStore } from 'bsc-espace/src/store/index'
+import LocalStorage from 'localstorage-enhance';
+import { networkStore, setToken, tokenStore } from 'bsc-espace/src/store/index';
+import Config from 'bsc-espace/config';
 
 
 interface TokenListStore {
@@ -11,7 +12,7 @@ interface TokenListStore {
 
 export const tokenListStore = create<TokenListStore>(() => ({
     disabled: false,
-    tokenList: getCurrentFromTokenList(LocalStorage.get('flipped', 'bsc-espace') === true ? 'crossChain' : 'eSpace'),
+    tokenList: getCurrentFromTokenList(LocalStorage.getItem('flipped', 'bsc-espace') === true ? 'crossChain' : 'eSpace'),
 }));
 
 
@@ -22,9 +23,9 @@ export const useTokenList = () => tokenListStore(tokenListSelector);
 function getCurrentFromTokenList (currentFrom: 'crossChain' | 'eSpace' = 'eSpace') {
     let _tokens: Array<Token> = [];
     if (currentFrom === 'eSpace') {
-        _tokens = currentESpaceConfig.tokens;
+        _tokens = Config.tokens;
     } else {
-        _tokens = currentESpaceConfig.chains[0].tokens;
+        _tokens = Config.chains[0].tokens;
     }
     const tokens: Array<Token> = [];
     _tokens?.forEach(token => {

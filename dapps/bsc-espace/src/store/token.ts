@@ -1,7 +1,7 @@
 import create from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
-import LocalStorage from 'common/utils/LocalStorage';
-import { store as metaMaskStore, Unit } from '@cfxjs/use-wallet/dist/ethereum';
+import LocalStorage from 'localstorage-enhance';
+import { store as metaMaskStore } from '@cfxjs/use-wallet-react/ethereum';
 import Config from 'bsc-espace/config';
 
 interface TokenInfo {
@@ -31,8 +31,7 @@ interface TokenStore {
 
 
 export const tokenStore = create(subscribeWithSelector(() => ({
-    token: (LocalStorage.get('token', 'bsc-espace') as Token) ?? Config[1030].tokens[0],
-    tokenContract: undefined
+    token: (LocalStorage.getItem('token', 'bsc-espace') as Token) ?? Config.tokens[0],
 }) as TokenStore));
 
 const selectors = {
@@ -44,8 +43,8 @@ export const startSubToken = () => {
 
     const unsub1 = metaMaskStore.subscribe(state => state.status, (status) => {
         if (status === 'not-installed') {
-            tokenStore.setState({ token: Config[1030].tokens[0] });
-            LocalStorage.set(`token`, Config[1030].tokens[0], 0, 'bsc-espace');
+            tokenStore.setState({ token: Config.tokens[0] });
+            LocalStorage.setItem({ key: `token`, data: Config.tokens[0], namespace: 'bsc-espace' });
         }
     }, { fireImmediately: true });
 
@@ -59,7 +58,6 @@ export const startSubToken = () => {
 
 export const useToken = () => tokenStore(selectors.token);
 export const setToken = (token: Token) => {
-    Unit.setDecimals(token.decimals ? Number(token.decimals) : 18);
-    LocalStorage.set(`token`, token, 0, 'bsc-espace');
+    LocalStorage.setItem({ key: `token`, data: token, namespace: 'bsc-espace' });
     tokenStore.setState({ token });
 }

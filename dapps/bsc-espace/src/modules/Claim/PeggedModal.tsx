@@ -1,6 +1,7 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import { PopupClass } from 'common/components/Popup';
-import Close from 'common/assets/close.svg';
+import Button from 'common/components/Button';
+import Close from 'common/assets/icons/close.svg';
 
 const PeggedModal = new PopupClass();
 PeggedModal.setListStyle({
@@ -10,6 +11,8 @@ PeggedModal.setItemWrapperClassName('toast-item-wrapper');
 PeggedModal.setAnimatedSize(false);
 
 const PeggedModalContent: React.FC<{ toChain: string; amount: string; callback: () => void; }> = memo(({ toChain, amount, callback }) => {
+    const [hasClickedContinue, setHasClickedContinue] = useState(false);
+
     return (
         <div className="w-[440px] p-[24px] rounded-[4px] bg-white">
             <img
@@ -32,21 +35,27 @@ const PeggedModalContent: React.FC<{ toChain: string; amount: string; callback: 
 				</ul>
             </div>
             <div className='flex justify-center items-center gap-[12px]'>
-                <button
-                    className='button button-outlined button-light min-w-[128px]'
+                <Button
+                    variant='outlined'
+                    size="small"
+                    className='min-w-[128px]'
                     onClick={PeggedModal.hideAll}
                 >
                     Cancel
-                </button>
-                <button
-                    className='button button-contained button-light min-w-[128px]'
+                </Button>
+                <Button
+                    variant='outlined'
+                    size="small"
+                    className='min-w-[128px]'
+                    disabled={hasClickedContinue}
                     onClick={async () => {
+                        setHasClickedContinue(true);
                         await callback();
                         PeggedModal.hideAll();
                     }}
                 >
                     Continue
-                </button>
+                </Button>
             </div>
         </div>
     );

@@ -1,18 +1,19 @@
 import React, { useState, useCallback, useEffect, memo } from 'react';
 import cx from 'clsx';
 import useI18n from 'common/hooks/useI18n';
-import { useStatus, useChainId, watchAsset } from '@cfxjs/use-wallet/dist/ethereum';
-import { shortenAddress } from '@fluent-wallet/shorten-address';
+import { useStatus, useChainId, watchAsset } from '@cfxjs/use-wallet-react/ethereum';
+import { shortenAddress } from 'common/utils/addressUtils';
 import { useSingleton } from '@tippyjs/react';
 import CustomScrollbar from 'custom-react-scrollbar';
 import Dropdown from 'common/components/Dropdown';
 import Tooltip from 'common/components/Tooltip';
-import { connectToWallet, switchToChain } from 'common/modules/AuthConnectButton';
-import { showToast, type Content } from 'common/components/tools/Toast';
+import { connectToEthereum, switchToEthereum } from 'common/modules/AuthConnectButton';
+import { showToast, type Content } from 'common/components/showPopup/Toast';
 import { useToken, setToken, type Token, useCurrentFromNetwork, type Network } from 'bsc-espace/src/store/index';
-import Add from 'common/assets/add-to-wallet.svg';
+import Add from 'common/assets/icons/add-to-wallet.svg';
 import Open from 'cross-space/src/assets/open.svg';
 import { useTokenList, tokenListStore } from './tokenListStore';
+import { useIsMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFluent';
 
 const transitions = {
     en: {
@@ -26,24 +27,25 @@ const TokenListDropdown: React.FC<{ children: (triggerDropdown: () => void, visi
     const [visible, setVisible] = useState(false);
     const token = useToken();
     const currentFromNetwork = useCurrentFromNetwork();
-    const metaMaskChainId = useChainId();
-    const metaMaskStatus = useStatus();
+    const ethereumChainId = useChainId();
+    const ethereumStatus = useStatus();
+    const isMetaMaskHostedByFluent = useIsMetaMaskHostedByFluent();
 
     const triggerDropdown = useCallback(() => {
         const pre = visible;
         let disabled: boolean | string | Content = false;
-        if (!pre && metaMaskStatus === 'not-installed') disabled = 'Please install MetaMask first.';
-        else if (!pre && metaMaskStatus === 'not-active') {
+        if (!pre && ethereumStatus === 'not-installed') disabled = 'Please install MetaMask first.';
+        else if (!pre && ethereumStatus === 'not-active') {
             disabled = {
-                text: `Please connect to MetaMask first.`,
-                onClickOk: () => connectToWallet('MetaMask'),
+                text: `Please connect to ${isMetaMaskHostedByFluent ? 'Fluent' : 'MetaMask'} first.`,
+                onClickOk: connectToEthereum,
                 okButtonText: 'Connect',
             }
         }
-        else if (!pre && currentFromNetwork?.networkId !== metaMaskChainId) {
+        else if (!pre && currentFromNetwork.network.chainId !== ethereumChainId) {
             disabled = {
-                text: `Please switch MetaMask to ${currentFromNetwork?.name} first.`,
-                onClickOk: () => switchToChain('MetaMask', currentFromNetwork!),
+                text: `Please switch ${isMetaMaskHostedByFluent ? 'Fluent' : 'MetaMask'} to ${currentFromNetwork.network.chainName} first.`,
+                onClickOk: () => switchToEthereum(currentFromNetwork.network),
                 okButtonText: 'Switch'
             }
         }
@@ -55,15 +57,15 @@ const TokenListDropdown: React.FC<{ children: (triggerDropdown: () => void, visi
         }
 
         setVisible(!pre);
-    }, [visible, token, metaMaskChainId, metaMaskStatus, currentFromNetwork]);
+    }, [visible, token, ethereumChainId, ethereumStatus, currentFromNetwork, isMetaMaskHostedByFluent]);
 
     const hideDropdown = useCallback(() => setVisible(false), []);
     useEffect(() => {
         setVisible(pre => {
-            if (metaMaskStatus === 'not-active' || currentFromNetwork?.networkId !== metaMaskChainId) return false;
+            if (ethereumStatus === 'not-active' || currentFromNetwork.network.chainId !== ethereumChainId) return false;
             return pre;
         });
-    }, [metaMaskStatus, metaMaskChainId, currentFromNetwork]);
+    }, [ethereumStatus, ethereumChainId, currentFromNetwork]);
 
 
     useEffect(() => {
@@ -90,17 +92,19 @@ const TokenListDropdown: React.FC<{ children: (triggerDropdown: () => void, visi
     )
 }
 
-const DropdownContent: React.FC<{ visible: boolean; hideDropdown: () => void; }>= ({ visible, hideDropdown }) => {
+const DropdownContent: React.FC<{ visible: boolean; hideDropdown: () => void; }>= ({ hideDropdown }) => {
     const i18n = useI18n(transitions);
+    const isMetaMaskHostedByFluent = useIsMetaMaskHostedByFluent();
+
     const token = useToken();
     const tokenList = useTokenList();
 
     const [viewInScanSource, viewInScanSingleton] = useSingleton();
     const [addToWalletSource, addToWalletSingleton] = useSingleton();
-    const metaMaskStatus = useStatus();
-    const metaMaskChainId = useChainId();
+    const ethereumStatus = useStatus();
+    const ethereumChainId = useChainId();
     const currentFromNetwork = useCurrentFromNetwork();
-    const chainMatched = metaMaskChainId === currentFromNetwork?.networkId;
+    const chainMatched = ethereumChainId === currentFromNetwork.network.chainId;
     
     return (
         <>
@@ -111,7 +115,7 @@ const DropdownContent: React.FC<{ visible: boolean; hideDropdown: () => void; }>
                         isCurrent={token.address ? _token.address === token.address : !!_token.isNative }
                         viewInScanSingleton={viewInScanSingleton}
                         addToWalletSingleton={addToWalletSingleton}
-                        metaMaskStatus={metaMaskStatus}
+                        ethereumStatus={ethereumStatus}
                         chainMatched={chainMatched}
                         hideDropdown={hideDropdown}
                         currentFromNetwork={currentFromNetwork}
@@ -120,7 +124,7 @@ const DropdownContent: React.FC<{ visible: boolean; hideDropdown: () => void; }>
                 )}
             </CustomScrollbar>
             <Tooltip text="View in Scan" singleton={viewInScanSource} />
-            <Tooltip text={`Add To MetaMask`} singleton={addToWalletSource} />
+            <Tooltip text={`Add To ${isMetaMaskHostedByFluent ? 'Fluent' : 'MetaMask'}`} singleton={addToWalletSource} />
         </>
     );
 };
@@ -129,24 +133,25 @@ const DropdownContent: React.FC<{ visible: boolean; hideDropdown: () => void; }>
 interface TokenItemProps extends Token {
     hideDropdown: () => void;
     isCurrent: boolean;
-    metaMaskStatus: ReturnType<typeof useStatus>;
+    ethereumStatus: ReturnType<typeof useStatus>;
     chainMatched: boolean;
     viewInScanSingleton: ReturnType<typeof useSingleton>[1];
     addToWalletSingleton: ReturnType<typeof useSingleton>[1];
-    currentFromNetwork?: Network;
+    currentFromNetwork: Network;
 }
 
 const TokenItem = memo<TokenItemProps>(({
     isCurrent,
     currentFromNetwork,
     hideDropdown,
-    metaMaskStatus,
+    ethereumStatus,
     chainMatched,
     viewInScanSingleton,
     addToWalletSingleton,
     ...token
 }) => {
-    const { address, symbol, name, icon } = token;
+    const { address, symbol, name } = token;
+    const isMetaMaskHostedByFluent = useIsMetaMaskHostedByFluent();
 
     const handleClickAddToWallet = useCallback<React.MouseEventHandler<HTMLImageElement>>(async (evt) => {
         evt.stopPropagation();
@@ -156,12 +161,11 @@ const TokenItem = memo<TokenItemProps>(({
                 options: {
                     address: address!,
                     symbol: symbol,
-                    decimals: 18,
-                    image: icon
+                    decimals: 18
                 },
             });
         } catch (err) {
-            console.error((`Add ${symbol} to MetaMask failed!`));
+            console.error((`Add ${symbol} to ${isMetaMaskHostedByFluent ? 'Fluent' : 'MetaMask'} failed!`));
         }
     }, []);
 
@@ -188,13 +192,13 @@ const TokenItem = memo<TokenItemProps>(({
             {!token.isNative && token.address &&
                 <div className='flex items-center'>
                     <span className='text-[12px] text-[#808BE7]'>{shortenAddress(address!)}</span>
-                    {metaMaskStatus === 'active' && chainMatched &&
+                    {ethereumStatus === 'active' && chainMatched &&
                         <Tooltip singleton={addToWalletSingleton}>
                             <img src={Add} alt="add image" className='ml-[8px] w-[16px] h-[16px] cursor-pointer' onClick={handleClickAddToWallet}/>
                         </Tooltip>
                     }
                     <Tooltip singleton={viewInScanSingleton}>
-                        <a href={`${currentFromNetwork?.scan}/token/${address}`} target="_blank" rel="noopener">
+                        <a href={`${currentFromNetwork?.network?.blockExplorerUrls?.[0]}/token/${address}`} target="_blank" rel="noopener">
                             <img src={Open} alt="open image" className='ml-[8px] w-[18px] h-[18px] cursor-pointer' />
                         </a>
                     </Tooltip>

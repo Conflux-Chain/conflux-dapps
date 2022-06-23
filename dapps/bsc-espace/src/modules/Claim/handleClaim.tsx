@@ -1,21 +1,21 @@
-import { store as walletStore, Unit, sendTransaction } from '@cfxjs/use-wallet/dist/ethereum';
+import { store as walletStore, Unit, sendTransaction } from '@cfxjs/use-wallet-react/ethereum';
 import { peggedAndLiquidityStore, networkStore } from 'bsc-espace/src/store/index';
 import { setDepositClaiming, type Deposit } from './depositStore';
-import { showWaitWallet, showActionSubmitted, hideWaitWallet } from 'common/components/tools/Modal';
-import { showToast } from 'common/components/tools/Toast';
+import { showWaitWallet, showActionSubmitted, hideWaitWallet } from 'common/components/showPopup/Modal';
+import { showToast } from 'common/components/showPopup/Toast';
 import { showPeggedModal } from './PeggedModal';
 
 const handleClaim = async (deposit: Deposit) => {
     const { eSpace, crossChain } = networkStore.getState();
     const { chainId } = walletStore.getState();
-    const claimNetwork = deposit.dest_chain_id === eSpace.networkId ? eSpace : crossChain;
+    const claimNetwork = deposit.dest_chain_id === eSpace.network.chainId ? eSpace : crossChain;
 
     if (!deposit.claim_tx_to || !deposit.claim_tx_input) {
         showToast('Please wait for deposit ready to claim.', { type: 'warning' });
         return;
     }
 
-    if (chainId !== claimNetwork.networkId) {
+    if (chainId !== claimNetwork.network.chainId) {
         showToast('Please check your wallet network.', { type: 'warning' });
         return;
     }
@@ -39,7 +39,7 @@ const handleClaim = async (deposit: Deposit) => {
             } else {
                 showToast(
                     {
-                        title: `Claim ${deposit.token_abbr} in ${claimNetwork.name} failed`,
+                        title: `Claim ${deposit.token_abbr} in ${claimNetwork.network.chainName} failed`,
                         text: (err as any)?.message ?? '',
                     },
                     { type: 'failed', duration: 30000 }
@@ -50,7 +50,7 @@ const handleClaim = async (deposit: Deposit) => {
 
     const hasEnoughLiquidity = checkDepositHasEnoughLiquidity(deposit);
     if (!hasEnoughLiquidity) {
-        showPeggedModal({ toChain: claimNetwork.name, amount: Unit.fromMinUnit(deposit.amount).toDecimalStandardUnit(), callback: execClaim });
+        showPeggedModal({ toChain: claimNetwork.network.chainName, amount: Unit.fromMinUnit(deposit.amount).toDecimalStandardUnit(), callback: execClaim });
     } else {
         execClaim();
     }
@@ -60,7 +60,7 @@ const handleClaim = async (deposit: Deposit) => {
 
 function checkDepositHasEnoughLiquidity(deposit: Deposit): boolean {
     const { crossChain } = networkStore.getState();
-    const maximumLiquidity = peggedAndLiquidityStore.getState()[deposit.dest_chain_id === crossChain.networkId ? 'crossChainMaximumLiquidity' : 'eSpaceMaximumLiquidity'];
+    const maximumLiquidity = peggedAndLiquidityStore.getState()[deposit.dest_chain_id === crossChain.network.chainId ? 'crossChainMaximumLiquidity' : 'eSpaceMaximumLiquidity'];
     const claimBalance = Unit.fromMinUnit(deposit.amount);
     if (!claimBalance || !maximumLiquidity) {
         showToast(`Can't detect Liquidity.`, { type: 'failed' });

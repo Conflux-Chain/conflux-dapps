@@ -1,19 +1,18 @@
-export * from './conflux';
 export * from './currentBalance';
 export * from './currentToken';
-export * from './currentNetwork';
-
-import { startSubConflux } from './conflux';
+export * from './mirrorAddress'
+export { default as Contracts } from './contracts'
 import { startSubBalance } from './currentBalance';
 import { startSubToken } from './currentToken';
+import { startSubMappedAddress } from './mirrorAddress';
 
 export const startSub = () => {
-    const unsubConflux = startSubConflux();
+    const unsubMappedAddress = startSubMappedAddress();
     const unsubBalance = startSubBalance();
     const unsubToken = startSubToken();
     
     return () => {
-        unsubConflux();
+        unsubMappedAddress();
         unsubBalance();
         unsubToken();
     }

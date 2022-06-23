@@ -1,12 +1,14 @@
 import React, { useState, useCallback } from 'react';
 import cx from 'clsx';
 import { useSpring, a } from '@react-spring/web';
-import { useAccount } from '@cfxjs/use-wallet/dist/ethereum';
+import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
 import { useCrossNetwork, useESpaceNetwork, setCurrentFromChain } from 'bsc-espace/src/store';
-import { shortenAddress } from '@fluent-wallet/shorten-address';
-import LocalStorage from 'common/utils/LocalStorage';
-import AuthConnectButton from 'common/modules/AuthConnectButton';
-import MetaMask from 'common/assets/MetaMask.svg';
+import { shortenAddress } from 'common/utils/addressUtils';
+import LocalStorage from 'localstorage-enhance';
+import { AuthEthereum } from 'common/modules/AuthConnectButton';
+import MetaMask from 'common/assets/wallets/MetaMask.svg';
+import Fluent from 'common/assets/wallets/Fluent.svg';
+import { useIsMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFluent';
 import TurnPage from 'cross-space/src/assets/turn-page.svg';
 
 const transitions = {
@@ -19,31 +21,30 @@ const Chain: React.FC<{ useNetwork: typeof useCrossNetwork; account?: string; fl
     account,
     flipped,
 }) => {
-    const network = useNetwork();
+    const isMetaMaskHostedByFluent = useIsMetaMaskHostedByFluent();
+    const { network, logo, color } = useNetwork();
 
     return (
         <div className={cx('flex flex-col justify-between w-[50%] h-[78px] px-[10px] py-[12px] rounded-[8px] border-[1px] border-[#EAECEF] transition-transform duration-300', flipped && 'rotateY-180')}>
-            <AuthConnectButton
-                id={`bsc-espace-network-${network.name}-auth-connect-button`}
+            <AuthEthereum
+                id={`bsc-espace-network-${network.chainName}-auth-connect-button`}
                 className='w-fit'
-                wallet="MetaMask"
-                buttonType="contained"
-                buttonReverse
-                buttonSize="mini"
+                reverse
+                size="mini"
                 connectTextType="concise"
                 showLogo
                 checkChainMatch={false}
-                useMetaMaskNetwork={useNetwork}
+                network={network}
                 authContent={() => (
                     <div className="relative flex items-center">
-                        <img src={MetaMask} alt="fluent icon" className="mr-[4px] w-[16px] h-[16px]" />
+                        <img src={isMetaMaskHostedByFluent ? Fluent : MetaMask} alt="fluent icon" className="mr-[4px] w-[16px] h-[16px]" />
                         <span className="mr-[8px] text-[12px] text-[#3D3F4C]">{account ? shortenAddress(account!) : ''}</span>
                     </div>
                 )}
             />
             <div className="flex items-center text-[14px] font-medium whitespace-nowrap">
-                <img className="mr-[4px] w-[16px] h-[16px]" src={network.logo} />
-                <span style={{ color: network.color }}>{network.name}</span>
+                <img className="mr-[4px] w-[16px] h-[16px]" src={logo} />
+                <span style={{ color }}>{network.chainName}</span>
             </div>
         </div>
     );
@@ -52,7 +53,7 @@ const Chain: React.FC<{ useNetwork: typeof useCrossNetwork; account?: string; fl
 const ChainSelect: React.FC = () => {
     const account = useAccount();
     const [flipped, setFlipped] = useState(() => {
-        const res = LocalStorage.get('flipped', 'bsc-espace') === true;
+        const res = LocalStorage.getItem('flipped', 'bsc-espace') === true;
         setCurrentFromChain(res ? 'crossChain' : 'eSpace');
         return res;
     });
@@ -64,7 +65,7 @@ const ChainSelect: React.FC = () => {
 
     const handleClickFlipped = useCallback(() => {
         setFlipped((pre) => {
-            LocalStorage.set('flipped', !pre, 0, 'bsc-espace');
+            LocalStorage.setItem({ key: 'flipped', data: !pre, namespace: 'bsc-espace' });
             setCurrentFromChain(!pre ? 'crossChain' : 'eSpace');
             return !pre;
         });

@@ -1,6 +1,6 @@
 import React from 'react';
-import BscESpaceBg from 'dapp-box/src/assets/bsc-espace.png';
-import CrossSpaceBg from 'dapp-box/src/assets/cross-space.png';
+import BscESpaceBg from 'hub/src/assets/bsc-espace.png';
+import CrossSpaceBg from 'hub/src/assets/cross-space.png';
 import { Link, useNavigate } from 'react-router-dom';
 
 const dapps = [{
@@ -34,7 +34,7 @@ export const ESpaceBridgeEnter: React.FC = () => {
                     <p className='mt-[12px] text-[16px] leading-[22px] text-[#808BE7] translate-x-0'>{dapp.tip}</p>
 
                     <Link
-                        className='mt-[48px] button-contained button-light button-inline w-[164px] translate-x-0'
+                        className='mt-[48px] fui-button fui-button--contained fui-button--primary fui-button--medium w-[164px] translate-x-0'
                         to={dapp.to}
                         id={`espace-bridge-toCard-goButton-${dapp.to}`}
                     >
