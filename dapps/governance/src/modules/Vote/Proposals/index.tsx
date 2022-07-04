@@ -187,21 +187,21 @@ const OpenedProposalDetail: React.FC = () => {
                 <div className="absolute bottom-[24px] right-[24px] flex justify-center gap-[12px] select-none">
                     <div
                         className={cx(
-                            'pagination-item flex justify-center items-center w-[32px] h-[32px] rounded-[2px] text-[14px] font-medium text-center cursor-pointer transition-colors hover:bg-[#f0f3ff]',
-                            adjoinProposal.pre === null ? 'bg-[#F0F1F1] pointer-events-none' : 'bg-white',
+                            'pagination-item flex justify-center items-center w-[32px] h-[32px] border-[1px] rounded-[2px] text-[14px] font-medium text-center cursor-pointer transition-colors bg-white hover:bg-[#f0f3ff] !shadow-none',
+                            adjoinProposal.pre === null ? 'pointer-events-none border-[#EAECEF]' : 'border-[#808BE7]',
                         )}
                         onClick={() => setOpenedProposalId(adjoinProposal.pre!)}
                     >
-                        <img src={Arrow} alt="pre Proposal" className={cx('w-[16px] h-[16px] rotate-90 transition-opacity', adjoinProposal.pre === null && 'opacity-30')} />
+                        <span className={cx('pagination-arrow w-[16px] h-[16px] rotate-90 transition-opacity', adjoinProposal.pre === null && 'disabled')} />
                     </div>
                     <div
                         className={cx(
-                            'pagination-item flex justify-center items-center w-[32px] h-[32px] rounded-[2px] text-[14px] font-medium text-center cursor-pointer transition-colors hover:bg-[#f0f3ff]',
-                            adjoinProposal.next === null ? 'bg-[#F0F1F1] pointer-events-none' : 'bg-white'
+                            'pagination-item flex justify-center items-center w-[32px] h-[32px] border-[1px] rounded-[2px] text-[14px] font-medium text-center cursor-pointer transition-colors bg-white hover:bg-[#f0f3ff] !shadow-none',
+                            adjoinProposal.next === null ? 'pointer-events-none border-[#EAECEF]' : 'border-[#808BE7]',
                         )}
                         onClick={() => setOpenedProposalId(adjoinProposal.next!)}
                     >
-                        <img src={Arrow} alt="next Proposal" className={cx("w-[16px] h-[16px] -rotate-90 transition-opacity", adjoinProposal.next === null && 'opacity-30')} />
+                        <span className={cx('pagination-arrow w-[16px] h-[16px] -rotate-90 transition-opacity', adjoinProposal.next === null && 'disabled')} />
                     </div>
                 </div>
             </div>
@@ -211,11 +211,11 @@ const OpenedProposalDetail: React.FC = () => {
 
 const VoteOption: React.FC<Option & { isSelect: boolean; onClick: () => void }> = ({ content, ratio, amount, isSelect, onClick }) => {
     return (
-        <div className={cx('flex items-center group cursor-pointer')} onClick={onClick}>
+        <div className={cx('flex items-center group cursor-pointer select-none')} onClick={onClick}>
             <div
                 className={cx(
-                    'w-[486px] p-[12px] rounded-[4px] text-[14px] leading-[18px] text-[#3D3F4C] border-[1px]',
-                    isSelect ? 'bg-[#F0F3FF] border-[#808BE7]' : 'bg-[#F8F9FE] border-transparent'
+                    'w-[486px] p-[12px] rounded-[4px] text-[14px] leading-[18px] border-[1px] transition-colors',
+                    isSelect ? 'bg-[#F0F3FF] border-[#808BE7] text-[#808BE7]' : 'bg-[#F8F9FE] border-transparent text-[#3D3F4C] '
                 )}
             >
                 {content}
