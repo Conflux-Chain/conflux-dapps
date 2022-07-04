@@ -16,6 +16,7 @@ export interface PopupProps extends ItemProps {
     queue?: boolean;
     showMask?: boolean;
     onClose?: Function;
+    pressEscToClose?: boolean;
 }
 
 export interface PopupMethods {
@@ -67,6 +68,10 @@ const PopupContainer = forwardRef<PopupMethods>((_, ref) => {
     const [itemWrapperStyle, setItemWrapperStyle] = useState<CSSProperties | undefined>(undefined);
     const [itemWrapperClassName, setItemWrapperClassName] = useState<string | undefined>(undefined);
     const [animatedSize, setAnimatedSize] = useState(true);
+    const popupListRef = useRef<PopupProps[]>([]);
+    useEffect(() => {
+        popupListRef.current = popupList
+    }, [popupList]);
 
     const pushPopup = useCallback(({ Content, duration = 3000, showMask = false, key, preventDuplicate, maximum, unique, queue, ...props }: PartialOptional<PopupProps, 'key'>) => {
         const usedKey = key ?? uniqueId('popup');
@@ -107,6 +112,21 @@ const PopupContainer = forwardRef<PopupMethods>((_, ref) => {
 
     const setMaskClick = useCallback((func: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void): void => {
         setMaskClickHandler(() => func);
+    }, []);
+
+    useEffect(() => {
+        const handleKeypress = (evt: KeyboardEvent) => {
+            if (evt?.key !== 'Escape') return;
+            popupListRef.current.forEach((popup) => {
+                if (popup.pressEscToClose) {
+                    popPopup(popup.key);
+                    popup?.onClose?.();
+                }
+            });
+        }
+        document.addEventListener('keydown', handleKeypress);
+
+        return () => document.removeEventListener('keydown', handleKeypress);
     }, []);
 
     useImperativeHandle(ref, () => ({ show: pushPopup, hide: popPopup, hideAll: popAllPopup, setMaskStyle, setMaskClassName, setListStyle, setListClassName, setItemWrapperStyle, setItemWrapperClassName, setMaskClickHandler: setMaskClick, setAnimatedSize }));

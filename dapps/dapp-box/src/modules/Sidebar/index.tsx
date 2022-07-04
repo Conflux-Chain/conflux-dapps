@@ -15,10 +15,12 @@ import Close from 'common/assets/icons/close.svg';
 import { useNotSupportMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFluent';
 import './index.css';
 
+const dappsSupportMetaMaskHostedByFluent = ['eSpace Bridge', 'Governance'];
+
 const Sidebar: React.FC = () => {
     const navigate = useNavigate();
     const currentDapp = useCurrentDapp();
-    useNotSupportMetaMaskHostedByFluent(currentDapp.name === 'eSpace Bridge' ? undefined : currentDapp.name);
+    useNotSupportMetaMaskHostedByFluent(dappsSupportMetaMaskHostedByFluent.includes(currentDapp?.name) ? undefined : currentDapp?.name);
 
     const [expand, setExpand] = useState(() => {
         const last = (localStorage.getItem('ConfluxHub-drawer-expand') as 'true') || 'false';
@@ -122,7 +124,7 @@ const Sidebar: React.FC = () => {
                                     currentDapp.path === dapp.path && 'bg-[#F8F9FE]',
                                     expand && currentDapp.path !== dapp.path && 'hover:bg-[#F8F9FE] cursor-pointer'
                                 )}
-                                onClick={() => navigate(dapp.path)}
+                                onClick={() => navigate(dapp?.link ?? dapp.path)}
                             >
                                 <div
                                     className={cx(

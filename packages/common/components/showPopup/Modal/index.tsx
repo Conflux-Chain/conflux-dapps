@@ -1,4 +1,5 @@
 import React, { memo } from 'react';
+import { useSpring, a } from '@react-spring/web';
 import { PopupClass } from 'common/components/Popup';
 import Success from 'common/assets/icons/success.svg';
 import Close from 'common/assets/icons//close.svg';
@@ -30,7 +31,13 @@ const WaitWalletContent: React.FC<{ wallet: 'Fluent' | 'MetaMask'; tip?: string;
     );
 });
 
-const TransactionSubmittedContent: React.FC<{ TxnHash: string; action: string; }> = memo(({ TxnHash, action = 'Transaction' }) => {
+const TransactionSubmittedContent: React.FC<{ TxnHash: string; action: string; blockExplorerUrl?: string; duration?: number; }> = memo(({ TxnHash, action = 'Transaction', blockExplorerUrl, duration }) => {
+    const props = useSpring({
+        from: { transform: 'translateX(-100%)' },
+        to: { transform: 'translateX(0%)' },
+        config: { duration },
+    });
+
     return (
         <div className="relative w-[340px] min-h-[192px] p-[24px] text-center bg-gray-200 rounded-lg ">
             <img
@@ -43,7 +50,13 @@ const TransactionSubmittedContent: React.FC<{ TxnHash: string; action: string; }
             <img className="w-[48px] h-[48px] mt-[28px] mx-auto" src={Success} alt="success icon" />
             <p className="mt-[12px] font-medium text-[16px] leading-[22px] text-[#3D3F4C] text-center">{action} Submitted</p>
             <p className="mt-[12px] mb-[4px] text-[14px] leading-[18px] text-[#3D3F4C] text-left">Txn Hash:</p>
-            <p className="text-[14px] leading-[18px] text-[#3D3F4C] text-left break-words">{TxnHash}</p>
+
+            {!blockExplorerUrl && <p className="text-[14px] leading-[18px] text-[#3D3F4C] text-left break-words">{TxnHash}</p>}
+            {blockExplorerUrl && <a className="block text-[14px] leading-[18px] text-[#808BE7] text-left break-words hover:underline" href={`${blockExplorerUrl}/transaction/${TxnHash}`} target="_blank" rel="noopener">{TxnHash}</a>}
+
+            {duration ? (
+                <a.div className="absolute left-0 bottom-0 w-full h-[4px] bg-gradient-to-l from-[#15C184] to-[#808BE7]" style={props} />
+            ) : null}
         </div>
     );
 });
@@ -60,10 +73,11 @@ export const showWaitWallet = (wallet: 'Fluent' | 'MetaMask', config?: any) =>
 export const showActionSubmitted = (TxnHash: string, action: string = 'Transaction', config?: any) => {
     WaitWalletModal.hideAll();
     return TransactionSubmittedModal.show({
-        Content: <TransactionSubmittedContent TxnHash={TxnHash} action={action} />,
+        Content: <TransactionSubmittedContent TxnHash={TxnHash} action={action} blockExplorerUrl={config?.blockExplorerUrl} duration={config?.duration}/>,
         duration: config?.duration ?? 0,
         showMask: true,
         animationType: 'door',
+        pressEscToClose: true
     });
 };
 

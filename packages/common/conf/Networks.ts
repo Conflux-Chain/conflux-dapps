@@ -10,7 +10,7 @@ export interface Network {
     },
 }
 
-export const isProduction = !location.host.startsWith('test') && !location.host.startsWith('localhost');
+export const isProduction = !location.host.startsWith('test') && !location.host.startsWith('localhost') && !location.host.startsWith('172.16');
 
 const AllNetworks: Record<string, Network> = {
     "1029": {
