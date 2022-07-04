@@ -46,9 +46,8 @@ const Header: React.FC = () => {
                 TipContent={CurrentVotingRightsTipContent}
             />
 
-
             <Link
-                className='ml-[auto] flex-0 !w-[164px] block fui-button fui-button--fullWidth fui-button--large fui-button--contained fui-button--primary'
+                className="ml-[auto] flex-0 !w-[164px] block fui-button fui-button--fullWidth fui-button--large fui-button--contained fui-button--primary"
                 to="/governance/dashboard"
             >
                 Add locking amount
@@ -57,27 +56,31 @@ const Header: React.FC = () => {
     );
 };
 
-
-// const tabs = [{ name: 'Proposals', path: 'proposals' }, { name: 'Reward interest rate', path: 'reward-interest-rate' }] as const;
-const tabs = [{ name: 'Reward interest rate', path: 'reward-interest-rate' }] as const;
+// const tabs = [
+//     { name: 'Proposals', path: 'proposals' },
+//     { name: 'Reward interest rate', path: 'reward-interest-rate' },
+// ] as const;
+const tabs = [{ name: 'Proposals', path: 'proposals' }] as const;
 const Tabs: React.FC = () => {
     const { pathname } = useLocation();
     const currentTab = pathname.split('/').filter(Boolean).at(-1);
 
     return (
-        <div className='flex gap-[8px]'>
-            {tabs.map(tab => 
+        <div className="flex gap-[8px]">
+            {tabs.map((tab) => (
                 <Link
                     key={tab.path}
-                    className={cx("relative h-[48px] px-[24px] leading-[48px] text-[16px] rounded-t-[8px] text-center transition-colors", currentTab === tab.path ? 'text-white bg-[#808BE7]' : 'text-[#808BE7] bg-white')}
-                    to={`/governance/governance/${tab.path}`}
+                    className={cx(
+                        'relative h-[48px] px-[24px] leading-[48px] text-[16px] rounded-t-[8px] text-center transition-colors',
+                        currentTab === tab.path ? 'text-white bg-[#808BE7] pointer-events-none' : 'text-[#808BE7] bg-white'
+                    )}
+                    to={`/governance/vote/${tab.path}`}
                 >
-                    <div className={cx('absolute left-0 top-[50%] -translate-y-[50%] w-[2px] h-[16px] bg-[#808BE7] pointer-events-none opacity-0 transition-opacity', currentTab !== tab.path && 'opacity-100')}/>
                     {tab.name}
-                </Link>)
-            }
+                </Link>
+            ))}
         </div>
-    )
-}
+    );
+};
 
 export default Main;

@@ -16,7 +16,7 @@ const handleVote = async ({ proposalId, optionId }: { proposalId: number; option
             to: governanceContractAddress,
             data: governanceContract.vote(proposalId, optionId).encodeABI(),
         });
-        transactionSubmittedKey = showActionSubmitted(TxnHash, 'Vote', { duration: 15000, blockExplorerUrl: Networks.core.blockExplorerUrls[0] });
+        transactionSubmittedKey = showActionSubmitted(TxnHash, 'Vote', { duration: 10000, blockExplorerUrl: Networks.core.blockExplorerUrls[0] });
         return true;
     } catch (err) {
         console.error(`Vote failed: `, err);
