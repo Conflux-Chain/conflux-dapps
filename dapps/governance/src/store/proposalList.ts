@@ -144,6 +144,9 @@ export const startTrackOpenedProposal = () => {
                 ],
             }).then((res) => {
                 if (typeof res !== 'string') return;
+                const currentOpenedProposalId = proposalListStore.getState().openedProposalId;
+                if (currentOpenedProposalId !== openedProposalId) return;
+                
                 const proposalOrigin = decodeHexResult(governanceContract.getProposalById(openedProposalId)._method.outputs, res)?.[0];
                 const proposal = formatProposal(proposalOrigin);
                 LocalStorage.setItem({ key: 'openedProposal', data: proposal, namespace: 'governance' });
