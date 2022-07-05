@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, Outlet } from 'react-router-dom';
 import CustomScrollbar from 'custom-react-scrollbar';
+import ErrorBoundary from './modules/ErrorBoundary';
 import Navbar from 'common/modules/Navbar';
 import { LocaleContext } from 'common/hooks/useI18n';
 import { ModeContext } from 'common/hooks/useMode';
@@ -117,37 +118,39 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
 
     return (
         <CustomScrollbar contentClassName="main-scroll">
-            <Navbar
-                handleSwitchLocale={handleSwitchLocale}
-                handleSwitchMode={handleSwitchMode}
-                dappName={currentDapp.name}
-                dappIcon={currentDapp.icon}
-                Enhance={currentDapp.NavbarEnhance}
-            />
-            <Routes>
-                <Route key='espace-bridge' path='espace-bridge' element={<Outlet />}>
-                    <Route index element={<ESpaceBridgeEnter />}  />
-                    <Route key='cross-space' path='cross-space' element={<CrossSpace />} />
-                    <Route key='bsc-esapce-cfx' path='bsc-esapce-cfx' element={<BscEspace />} />
-                </Route>
-                <Route key='espace-airdrop' path='espace-airdrop' element={<Airdrop />} />
-                <Route key='governance' path='governance' element={<Outlet />}>
-                    <Route key='governance-dashboard' path='dashboard' element={<GovernanceDashboard />} />
-                    <Route key='governance-vote' path='vote' element={<Vote />}>
-                        <Route index element={<Proposals />}  />
-                        <Route key='governance-vote-proposals' path='proposals' element={<Proposals />} />
-                        <Route key='governance-vote-reward-interest-rate' path='reward-interest-rate' element={<RewardInterestRate />} />
+            <ErrorBoundary>
+                <Navbar
+                    handleSwitchLocale={handleSwitchLocale}
+                    handleSwitchMode={handleSwitchMode}
+                    dappName={currentDapp.name}
+                    dappIcon={currentDapp.icon}
+                    Enhance={currentDapp.NavbarEnhance}
+                />
+                <Routes>
+                    <Route key='espace-bridge' path='espace-bridge' element={<Outlet />}>
+                        <Route index element={<ESpaceBridgeEnter />}  />
+                        <Route key='cross-space' path='cross-space' element={<CrossSpace />} />
+                        <Route key='bsc-esapce-cfx' path='bsc-esapce-cfx' element={<BscEspace />} />
                     </Route>
-                </Route>
-                {dapps
-                    .filter((dapp) => !dapp.element)
-                    .map(({ path }) => (
-                        <Route key={path} path={path + '/*'} element={<div id={path} />} />
-                    ))}
-                <Route path="governance/" element={<Navigate to="/governance/dashboard"/>} />
-                <Route path="governance/*" element={<Navigate to="/governance/dashboard"/>} />
-                <Route path="*" element={<Navigate to="espace-bridge"/>} />
-            </Routes>
+                    <Route key='espace-airdrop' path='espace-airdrop' element={<Airdrop />} />
+                    <Route key='governance' path='governance' element={<Outlet />}>
+                        <Route key='governance-dashboard' path='dashboard' element={<GovernanceDashboard />} />
+                        <Route key='governance-vote' path='vote' element={<Vote />}>
+                            <Route index element={<Proposals />}  />
+                            <Route key='governance-vote-proposals' path='proposals' element={<Proposals />} />
+                            <Route key='governance-vote-reward-interest-rate' path='reward-interest-rate' element={<RewardInterestRate />} />
+                        </Route>
+                    </Route>
+                    {dapps
+                        .filter((dapp) => !dapp.element)
+                        .map(({ path }) => (
+                            <Route key={path} path={path + '/*'} element={<div id={path} />} />
+                        ))}
+                    <Route path="governance/" element={<Navigate to="/governance/dashboard"/>} />
+                    <Route path="governance/*" element={<Navigate to="/governance/dashboard"/>} />
+                    <Route path="*" element={<Navigate to="espace-bridge"/>} />
+                </Routes>
+            </ErrorBoundary>
         </CustomScrollbar>
     );
 };
