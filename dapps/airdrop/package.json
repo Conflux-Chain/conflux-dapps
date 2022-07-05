@@ -7,7 +7,7 @@
         "build": "vite build"
     },
     "dependencies": {
-        "@cfxjs/use-wallet-enhance-react": "0.0.1-10",
+        "@cfxjs/use-wallet-enhance-react": "0.0.1-12",
         "@cfxjs/use-wallet-react": "latest",
         "@fluent-wallet/estimate-tx": "^0.2.0",
         "@react-spring/web": "^9.4.5",

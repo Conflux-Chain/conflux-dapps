@@ -25,8 +25,8 @@ const InputSuffixMAX: React.FC<Props> = ({ className, onClick, ...props } = {}) 
     return (
         <button
             className={cx(
-                'absolute right-[16px] top-[50%] -translate-y-[50%] text-[14px] text-[#808BE7] cursor-pointer',
-                !disabled && 'hover:underline',
+                'absolute right-[16px] top-[50%] -translate-y-[50%] text-[14px] text-[#808BE7]',
+                !disabled && 'hover:underline cursor-pointer',
                 className
             )}
             disabled={typeof disabled === 'boolean' ? disabled : Number(max) <= 0}

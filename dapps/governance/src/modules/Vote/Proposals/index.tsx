@@ -6,6 +6,7 @@ import Button from 'common/components/Button';
 import BalanceText from 'common/modules/BalanceText';
 import { AuthCoreSpace } from 'common/modules/AuthConnectButton';
 import { showTipModal } from 'governance/src/components/TipModal';
+import Networks from 'common/conf/Networks';
 import Pagination from './Pagination';
 import {
     useProposalList,
@@ -127,9 +128,14 @@ const OpenedProposalDetail: React.FC = () => {
             <div className={cx('pl-[24px] pr-[34px] pt-[4px]', proposer ? 'opacity-100' : 'opacity-0', status === 'Closed' ? 'pb-[60px]' : 'pb-[24px]')}>
                 <p className="relative h-[24px] leading-[24px]">
                     <span className="text-[14px] text-[#898D9A]">Proposer:</span>
-                    <span className="absolute left-[140px] top-1/2 -translate-y-1/2 text-[16px] text-[#808BE7] font-medium">
+                    <a
+                        className="absolute left-[140px] top-1/2 -translate-y-1/2 text-[16px] text-[#808BE7] font-medium hover:underline"
+                        href={`${Networks.core.blockExplorerUrls[0]}/address/${proposer}`}
+                        target="_blank"
+                        rel="noopener"
+                    >
                         {proposer ? shortenAddress(proposer) : '--'}
-                    </span>
+                    </a>
                 </p>
                 <p className="mt-[8px] relative h-[24px] leading-[24px]">
                     <span className="text-[14px] text-[#898D9A]">Proposer discussion:</span>

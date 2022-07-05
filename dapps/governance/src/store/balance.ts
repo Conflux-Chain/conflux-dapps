@@ -9,9 +9,10 @@ import { getCurrentBlockNumber, setUnlockBlockNumber } from './vote&blockNumber'
 import { posStore } from './pos';
 
 const [{ use: useMaxAvailableBalance }, startTrackMaxAvailableBalance] = createConfluxMaxAvailableBalanceTracker({
-    crateTransaction: (currentBalance) => ({
+    createTransaction: ({ balance, account, chainId }) => chainId === Networks.core.chainId && ({
+        from: account,
         to: stakingContractAddress,
-        data: stakingContract.deposit(currentBalance.toHexMinUnit()).encodeABI(),
+        data: stakingContract.deposit(balance.toHexMinUnit()).encodeABI(),
     }),
     store: confluxStore,
     rpcUrl: Networks.core.rpcUrls[0],
@@ -27,18 +28,20 @@ const [
 ] = createBalanceTracker({
     subObjects: [
         {
-            fetcher: ({ wallet: { account } }) => {
+            fetcher: ({ wallet: { account, chainId } }) => {
                 return (
                     account &&
+                    chainId === Networks.core.chainId &&
                     validateCfxAddress(account) &&
                     fetchChain({ rpcUrl: Networks.core.rpcUrls[0], method: 'cfx_getStakingBalance', params: [account, 'latest_state'] })
                 );
             },
         },
         {
-            fetcher: ({ wallet: { account } }) => {
+            fetcher: ({ wallet: { account, chainId } }) => {
                 return (
                     account &&
+                    chainId === Networks.core.chainId &&
                     validateCfxAddress(account) &&
                     fetchChain({ rpcUrl: Networks.core.rpcUrls[0], method: 'cfx_getVoteList', params: [account, 'latest_state'] }).then((res) => {
                         if (res?.length === 0) {
@@ -51,16 +54,19 @@ const [
                         setUnlockBlockNumber(unlockBlockNumber);
                         if (unlockBlockNumber.greaterThan(currentBlockNumber)) {
                             return res[0]?.amount;
+                        } else {
+                            return '0x0';
                         }
                     })
                 );
             },
         },
         {
-            fetcher: ({ wallet: { account } }) => {
+            fetcher: ({ wallet: { account, chainId } }) => {
                 const currentBlockNumber = getCurrentBlockNumber();
                 return (
                     account &&
+                    chainId === Networks.core.chainId &&
                     validateCfxAddress(account) &&
                     currentBlockNumber &&
                     fetchChain({
@@ -102,7 +108,8 @@ export const startTrackBalance = () => {
             const stakedBalance = stakedBalanceStore.getState().balance;
             const lockedBalance = lockedBalanceStore.getState().balance;
             const posTotalBalance = posStore.getState().posTotalBalance;
-            if (!stakedBalance || !lockedBalance) {
+            
+            if (!stakedBalance || !lockedBalance || !posTotalBalance) {
                 otherBalacneStore.setState({ availableStakedBalance: undefined });
                 return;
             }
