@@ -14,11 +14,12 @@ import { useMaxAvailableBalance } from 'governance/src/store';
 import handleStake from './handleStake';
 
 const Stake: React.FC = () => {
-    const { register, handleSubmit: withForm, setValue } = useForm();
+    const { register, handleSubmit: withForm, setValue, watch } = useForm();
     const account = useAccount();
     const balance = useBalance();
     const maxAvailableBalance = useMaxAvailableBalance();
     const isBalanceGreaterThan0 = maxAvailableBalance && Unit.greaterThan(maxAvailableBalance, Unit.fromStandardUnit(0));
+    const isInputAmountLessThanOne = watch('amount') ? Unit.fromStandardUnit(watch('amount')).lessThan(Unit.fromStandardUnit('1')) : false;
 
     const onSubmit = useCallback(
         withForm(async (data) => {
@@ -42,17 +43,18 @@ const Stake: React.FC = () => {
                     id="governance-stake-input"
                     {...register('amount', {
                         required: true,
-                        min: Unit.fromMinUnit(1).toDecimalStandardUnit(),
+                        min: Unit.fromStandardUnit(1).toDecimalStandardUnit(),
                         max: maxAvailableBalance?.toDecimalStandardUnit(),
                     })}
                     placeholder="Amount you want to stake"
                     type="number"
                     step={1e-18}
-                    min={Unit.fromMinUnit(1).toDecimalStandardUnit()}
+                    min={Unit.fromStandardUnit(1).toDecimalStandardUnit()}
                     max={maxAvailableBalance?.toDecimalStandardUnit()}
                     bindAccout={account}
                     disabled={!isBalanceGreaterThan0}
                     suffix={[<InputMAXSuffix id="governance-stake-max" />, <InputCFXPrefixSuffix />]}
+                    error={isInputAmountLessThanOne ? 'Stake amount must be ≥ 1' : undefined}
                 />
 
                 <AuthCoreSpace
