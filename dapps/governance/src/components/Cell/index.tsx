@@ -1,8 +1,10 @@
 import React, { useCallback } from 'react';
+import { useChainId } from '@cfxjs/use-wallet-react/conflux/Fluent';
 import cx from 'clsx';
 import renderReactNode from 'common/utils/renderReactNode';
 import QuestionMark from 'common/assets/icons/QuestionMark.svg';
 import { showTipModal } from 'governance/src/components/TipModal';
+import Network from 'common/conf/Networks';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
     title: string;
@@ -12,6 +14,7 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const Cell: React.FC<Props> = ({ className, title, icon, TipContent, Content, children, ...props }) => {
+    const chainId = useChainId();
     const handleClickQuestionMark = useCallback(() => {
         if (!TipContent) return;
         showTipModal(TipContent);
@@ -31,7 +34,7 @@ const Cell: React.FC<Props> = ({ className, title, icon, TipContent, Content, ch
                     />
                 )}
             </p>
-            <p className="text-[16px] h-[20px] leading-[20px] text-[#1B1B1C]">{Content ? renderReactNode(Content) : '--'}</p>
+            <p className="text-[16px] h-[20px] leading-[20px] text-[#1B1B1C]">{chainId === Network.core.chainId && Content ? renderReactNode(Content) : '--'}</p>
         </div>
     );
 };

@@ -2,6 +2,7 @@ import create from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
 import LocalStorage from 'localstorage-enhance';
+import { validateHexAddress, convertHexToCfx } from 'common/utils/addressUtils';
 import { intervalFetchChain, fetchChain } from 'common/utils/fetchChain';
 import Networks from 'common/conf/Networks';
 import { decodeHexResult } from 'common/utils/Contract';
@@ -196,7 +197,7 @@ const formatProposal = (proposal: any, currentBlockNumber = getCurrentBlockNumbe
             amount: Unit.fromMinUnit(proposal[4]?.[index] ?? 0).toDecimalStandardUnit(),
         })),
         status: proposal[5],
-        proposer: proposal[6],
+        proposer: validateHexAddress(proposal[6]) ? convertHexToCfx(proposal[6], Networks.core.chainId) : proposal[6],
         id: Number(proposal[7]),
     } as Proposal;
     const allVotes = res.options?.reduce?.((acc, cur) => acc.add(Unit.fromMinUnit(cur.amount)), Unit.fromMinUnit(0));

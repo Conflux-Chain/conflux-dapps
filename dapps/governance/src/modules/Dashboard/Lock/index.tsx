@@ -126,7 +126,7 @@ const ExtendLockingPeriod: React.FC<{ unlockBlockNumber?: Unit }> = ({ unlockBlo
         <>
             <div className="flex flex-row justify-between items-center my-[24px] pl-[12px] pr-[16px] py-[16px] rounded-[4px] border-[1px] border-[#EAECEF] bg-[#FAFBFD]">
                 <div>
-                    <p className="text-[14px] leading-[18px] text-[#898D9A]">{`About ${timeToUnlock} to unlock`}</p>
+                    <p className="text-[14px] leading-[18px] text-[#898D9A]">{`About ${timeToUnlock ?? '--'} to unlock`}</p>
                     <p className="mt-[16px] text-[16px] leading-[20px] text-[#3D3F4C]">{`${votingRightsPerCfx ?? '--'} voting rights/CFX`}</p>
                 </div>
                 {unlockBlockNumber && (

@@ -78,7 +78,9 @@ export const startTrackPosAccount = () => {
                                 }
 
                                 posStore.setState({ posInfo, posLockedBalance: lockingTotal, posUnlockedBalance: unlockingTotal, posTotalBalance: lockingTotal.add(unlockingTotal) });
-                            });
+                            }).catch(() => {
+                                posStore.setState({ posInfo: undefined, posLockedBalance: Unit.fromMinUnit(0), posUnlockedBalance: Unit.fromMinUnit(0), posTotalBalance: Unit.fromMinUnit(0) });
+                            })
                     } else {
                         posStore.setState({ posInfo: undefined, posLockedBalance: Unit.fromMinUnit(0), posUnlockedBalance: Unit.fromMinUnit(0), posTotalBalance: Unit.fromMinUnit(0) });
                     }
