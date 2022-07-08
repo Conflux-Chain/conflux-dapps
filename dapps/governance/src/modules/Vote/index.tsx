@@ -5,16 +5,18 @@ import cx from 'clsx';
 import Spin from 'common/components/Spin';
 import Cell from 'governance/src/components/Cell';
 import BalanceText from 'common/modules/BalanceText';
-import { useLockedBalance, useVotingRights, startTrackProposalList, startTrackOpenedProposal } from 'governance/src/store';
+import { useLockedBalance, useVotingRights, startTrackProposalList, startTrackOpenedProposal, startTrackRewardInterestRate } from 'governance/src/store';
 import { startTrack } from 'governance/src/store';
 import { CurrentVotingRightsTipContent } from 'governance/src/modules/Dashboard/Lock';
 import CurrentVotingRights from 'governance/src/assets/goverfnance-CurrentVotingRights.svg';
 import Lock from 'governance/src/assets/governance-Lock.svg';
+import './index.css';
 
 const Main: React.FC = () => {
     useEffect(startTrack, []);
     useEffect(startTrackProposalList, []);
     useEffect(startTrackOpenedProposal, []);
+    useEffect(startTrackRewardInterestRate, []);
 
     return (
         <div className="mx-auto w-[1140px] pt-[16px]">
@@ -56,11 +58,11 @@ const Header: React.FC = () => {
     );
 };
 
-// const tabs = [
-//     { name: 'Proposals', path: 'proposals' },
-//     { name: 'Reward interest rate', path: 'reward-interest-rate' },
-// ] as const;
-const tabs = [{ name: 'Proposals', path: 'proposals' }] as const;
+const tabs = [
+    { name: 'Proposals', path: 'proposals' },
+    { name: 'Reward interest rate', path: 'reward-interest-rate' },
+] as const;
+
 const Tabs: React.FC = () => {
     const { pathname } = useLocation();
     const currentTab = pathname.split('/').filter(Boolean).at(-1);

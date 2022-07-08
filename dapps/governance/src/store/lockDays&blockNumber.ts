@@ -4,7 +4,6 @@ import { subscribeWithSelector } from 'zustand/middleware';
 import { intervalFetchChain } from 'common/utils/fetchChain';
 import Networks from 'common/conf/Networks';
 import { calRemainTime } from 'common/utils/time';
-import { governanceContract, governanceContractAddress } from './contracts';
 
 export const BLOCK_AMOUNT_YEAR = Unit.fromMinUnit(63072000);
 export const BLOCK_AMOUNT_HALF_YEAR = Unit.fromMinUnit(31536000);
@@ -23,7 +22,7 @@ export const calVotingRightsPerCfx = (gapBlockNumber: Unit) => {
     return power;
 }
 
-interface VoteAndBlockNumberStore {
+interface LockDaysAndBlockNumberStore {
     currentBlockNumber?: Unit;
     unlockBlockNumber?: Unit;
     gapBlockNumber?: Unit;
@@ -32,7 +31,7 @@ interface VoteAndBlockNumberStore {
     votingRightsPerCfx?: number;
 }
 
-export const voteAndBlockNumberStore = create(
+export const lockDaysAndBlockNumberStore = create(
     subscribeWithSelector(
         () =>
             ({
@@ -42,27 +41,20 @@ export const voteAndBlockNumberStore = create(
                 timestampToUnlock: undefined,
                 timeToUnlock: undefined,
                 votingRightsPerCfx: undefined
-            } as VoteAndBlockNumberStore)
+            } as LockDaysAndBlockNumberStore)
     )
 );
 
 export const startTrackBlockNumber = intervalFetchChain(
     {
         rpcUrl: Networks.core.rpcUrls[0],
-        method: 'cfx_call',
-        params: [
-            {
-                to: governanceContractAddress,
-                data: governanceContract.getBlockNumber().encodeABI(),
-            },
-            'latest_state',
-        ],
+        method: 'cfx_getStatus',
     },
     {
         intervalTime: 1500,
-        callback: (res) => {
-            if (typeof res === 'string') {
-                voteAndBlockNumberStore.setState({ currentBlockNumber: Unit.fromMinUnit(res) });
+        callback: (res: { blockNumber: string; }) => {
+            if (typeof res?.blockNumber === 'string') {
+                lockDaysAndBlockNumberStore.setState({ currentBlockNumber: Unit.fromMinUnit(res.blockNumber) });
             }
         },
     }
@@ -72,7 +64,7 @@ export const startTrackBlockNumber = intervalFetchChain(
 export const startTrackUnlockBlockNumber = () => {
     return confluxStore.subscribe(state => state.accounts, (accounts) => {
         if (!accounts?.[0]) {
-            voteAndBlockNumberStore.setState({ unlockBlockNumber: undefined });
+            lockDaysAndBlockNumberStore.setState({ unlockBlockNumber: undefined });
         }
     }, { fireImmediately: true });
 }
@@ -80,9 +72,9 @@ export const startTrackUnlockBlockNumber = () => {
 export const startTrackDaysToUnlock = () => {
     const calTimeToUnlock = () =>
         setTimeout(() => {
-            const { unlockBlockNumber, currentBlockNumber } = voteAndBlockNumberStore.getState();
+            const { unlockBlockNumber, currentBlockNumber } = lockDaysAndBlockNumberStore.getState();
             if (!unlockBlockNumber || !currentBlockNumber) {
-                voteAndBlockNumberStore.setState({ gapBlockNumber: undefined, timestampToUnlock: undefined, timeToUnlock: undefined, votingRightsPerCfx: undefined });
+                lockDaysAndBlockNumberStore.setState({ gapBlockNumber: undefined, timestampToUnlock: undefined, timeToUnlock: undefined, votingRightsPerCfx: undefined });
                 return;
             }
             const gapBlockNumber = unlockBlockNumber.greaterThanOrEqualTo(currentBlockNumber) ? unlockBlockNumber.sub(currentBlockNumber) : Unit.fromMinUnit(0);
@@ -90,14 +82,14 @@ export const startTrackDaysToUnlock = () => {
                 const timestampToUnlock = gapBlockNumber.div(BLOCK_SPEED).mul(Unit.fromMinUnit(1000)).toDecimalMinUnit();
                 const timeToUnlock = calRemainTime(timestampToUnlock);
                 const votingRightsPerCfx = calVotingRightsPerCfx(gapBlockNumber);
-                voteAndBlockNumberStore.setState({ gapBlockNumber, timestampToUnlock, timeToUnlock, votingRightsPerCfx });
+                lockDaysAndBlockNumberStore.setState({ gapBlockNumber, timestampToUnlock, timeToUnlock, votingRightsPerCfx });
             } else {
-                voteAndBlockNumberStore.setState({ gapBlockNumber, timestampToUnlock: '0', timeToUnlock: '0', votingRightsPerCfx: calVotingRightsPerCfx(Unit.fromMinUnit(0)) });
+                lockDaysAndBlockNumberStore.setState({ gapBlockNumber, timestampToUnlock: '0', timeToUnlock: '0', votingRightsPerCfx: calVotingRightsPerCfx(Unit.fromMinUnit(0)) });
             }
         });
 
-    const unsub1 = voteAndBlockNumberStore.subscribe((state) => state.currentBlockNumber, calTimeToUnlock, { fireImmediately: true });
-    const unsub2 = voteAndBlockNumberStore.subscribe((state) => state.unlockBlockNumber, calTimeToUnlock, { fireImmediately: true });
+    const unsub1 = lockDaysAndBlockNumberStore.subscribe((state) => state.currentBlockNumber, calTimeToUnlock, { fireImmediately: true });
+    const unsub2 = lockDaysAndBlockNumberStore.subscribe((state) => state.unlockBlockNumber, calTimeToUnlock, { fireImmediately: true });
     return () => {
         unsub1();
         unsub2();
@@ -105,23 +97,23 @@ export const startTrackDaysToUnlock = () => {
 };
 
 const selectors = {
-    currentBlockNumber: (state: VoteAndBlockNumberStore) => state.currentBlockNumber,
-    unlockBlockNumber: (state: VoteAndBlockNumberStore) => state.unlockBlockNumber,
-    timeToUnlock: (state: VoteAndBlockNumberStore) => state.timeToUnlock,
-    votingRightsPerCfx: (state: VoteAndBlockNumberStore) => state.votingRightsPerCfx,
-    gapBlockNumber: (state: VoteAndBlockNumberStore) => state.gapBlockNumber,
+    currentBlockNumber: (state: LockDaysAndBlockNumberStore) => state.currentBlockNumber,
+    unlockBlockNumber: (state: LockDaysAndBlockNumberStore) => state.unlockBlockNumber,
+    timeToUnlock: (state: LockDaysAndBlockNumberStore) => state.timeToUnlock,
+    votingRightsPerCfx: (state: LockDaysAndBlockNumberStore) => state.votingRightsPerCfx,
+    gapBlockNumber: (state: LockDaysAndBlockNumberStore) => state.gapBlockNumber,
 };
 
-export const getCurrentBlockNumber = () => voteAndBlockNumberStore.getState().currentBlockNumber;
-export const getUnlockBlockNumber = () => voteAndBlockNumberStore.getState().unlockBlockNumber;
+export const getCurrentBlockNumber = () => lockDaysAndBlockNumberStore.getState().currentBlockNumber;
+export const getUnlockBlockNumber = () => lockDaysAndBlockNumberStore.getState().unlockBlockNumber;
 export const setUnlockBlockNumber = (unlockBlockNumber?: Unit) => {
-    const pre = voteAndBlockNumberStore.getState().unlockBlockNumber;
+    const pre = lockDaysAndBlockNumberStore.getState().unlockBlockNumber;
     if ((pre && unlockBlockNumber && !unlockBlockNumber.equalsWith(pre)) || (!pre && unlockBlockNumber) || (pre && !unlockBlockNumber)) {
-        voteAndBlockNumberStore.setState({ unlockBlockNumber });
+        lockDaysAndBlockNumberStore.setState({ unlockBlockNumber });
     }
 }
-export const useCurrentBlockNumber = () => voteAndBlockNumberStore(selectors.currentBlockNumber);
-export const useUnlockBlockNumber = () => voteAndBlockNumberStore(selectors.unlockBlockNumber);
-export const useTimeToUnlock = () => voteAndBlockNumberStore(selectors.timeToUnlock);
-export const useVotingRightsPerCfx = () => voteAndBlockNumberStore(selectors.votingRightsPerCfx);
-export const useGapBlockNumber = () => voteAndBlockNumberStore(selectors.gapBlockNumber);
+export const useCurrentBlockNumber = () => lockDaysAndBlockNumberStore(selectors.currentBlockNumber);
+export const useUnlockBlockNumber = () => lockDaysAndBlockNumberStore(selectors.unlockBlockNumber);
+export const useTimeToUnlock = () => lockDaysAndBlockNumberStore(selectors.timeToUnlock);
+export const useVotingRightsPerCfx = () => lockDaysAndBlockNumberStore(selectors.votingRightsPerCfx);
+export const useGapBlockNumber = () => lockDaysAndBlockNumberStore(selectors.gapBlockNumber);

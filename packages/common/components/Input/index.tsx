@@ -1,31 +1,34 @@
-import { forwardRef, useRef, useEffect, type InputHTMLAttributes, type ReactElement, type ReactNode } from 'react';
+import { forwardRef, useRef, useEffect, type ReactElement, type ReactNode } from 'react';
 import cx from 'clsx';
 import composeRef from 'common/utils/composeRef';
 import renderReactNode from 'common/utils/renderReactNode';
 import getInjectClassNames from './suffixes';
 import { InputContext } from './context';
+import { type OverWrite } from 'tsconfig/types/enhance';
 import './index.css';
 
-interface Props {
+
+export type Props = OverWrite<React.InputHTMLAttributes<HTMLInputElement>, {
     error?: string;
     wrapperClassName?: string;
     outerPlaceholder?: ReactElement;
     prefixIcon?: string;
     suffix?: ReactNode | Array<ReactNode>;
     bindAccout?: string;
-}
+    size?: 'normal' | 'small';
+}>
 
-const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement> & Props>(
-    ({ wrapperClassName, className, outerPlaceholder, placeholder, error, prefixIcon, suffix, id, max, disabled, bindAccout, ...props }, ref) => {
+const Input = forwardRef<HTMLInputElement, Props>(
+    ({ wrapperClassName, className, outerPlaceholder, placeholder, error, prefixIcon, suffix, id, max, disabled, bindAccout, size = 'normal', defaultValue, ...props }, ref) => {
         const domRef = useRef<HTMLInputElement>(null!);
         useEffect(() => {
             if (!domRef.current) return;
-            domRef.current.value = '';
-        }, [bindAccout]);
+            domRef.current.value = String(defaultValue) ?? '';
+        }, [bindAccout, defaultValue]);
 
         return (
             <InputContext.Provider value={{ domRef, max, disabled }}>
-                <div className={cx('input-wrapper', wrapperClassName)}>
+                <div className={cx('input-wrapper', `input--${size}`, wrapperClassName)}>
                     {prefixIcon && (
                         <img
                             id={id ? `${id}-prefixIcon` : undefined}
@@ -43,6 +46,7 @@ const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>
                         max={max}
                         disabled={disabled}
                         autoComplete="off"
+                        defaultValue={defaultValue}
                         {...props}
                     />
                     {outerPlaceholder}

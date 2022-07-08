@@ -1,10 +1,11 @@
 import { startTrackBalance } from './balance';
 import { startTrackPosAccount } from './pos';
-import { startTrackBlockNumber, startTrackDaysToUnlock, startTrackUnlockBlockNumber } from './vote&blockNumber';
+import { startTrackBlockNumber, startTrackDaysToUnlock, startTrackUnlockBlockNumber } from './lockDays&blockNumber';
 export * from './balance';
-export * from './vote&blockNumber';
+export * from './lockDays&blockNumber';
 export * from './proposalList';
 export * from './pos';
+export * from './rewardInterestRate';
 
 
 export const startTrack = () => {

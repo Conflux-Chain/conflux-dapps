@@ -5,7 +5,7 @@ import Networks from 'common/conf/Networks';
 import { validateCfxAddress, convertCfxToHex } from 'common/utils/addressUtils';
 import { fetchChain } from 'common/utils/fetchChain';
 import { stakingContract, stakingContractAddress } from './contracts';
-import { getCurrentBlockNumber, setUnlockBlockNumber } from './vote&blockNumber';
+import { getCurrentBlockNumber, setUnlockBlockNumber } from './lockDays&blockNumber';
 import { posStore } from './pos';
 
 const [{ use: useMaxAvailableBalance }, startTrackMaxAvailableBalance] = createConfluxMaxAvailableBalanceTracker({

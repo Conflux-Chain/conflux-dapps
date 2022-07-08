@@ -1,3 +1,5 @@
+import LocalStorae from 'localstorage-enhance';
+
 export interface Network {
     chainId: string;
     chainName: string;
@@ -78,12 +80,23 @@ const AllNetworks: Record<string, Network> = {
             symbol: 'BNB',
             decimals: 18,
         }
+    },
+    "8888": {
+        chainId: "8888",
+        chainName: "Conflux 8888",
+        rpcUrls: ["http://net8888cfx.confluxrpc.com"],
+        blockExplorerUrls: ["https://net8888cfx.confluxscan.net"],
+        nativeCurrency: {
+            name: 'Conflux',
+            symbol: 'CFX',
+            decimals: 18,
+        }
     }
 };
-
+;
 
 const Networks = {
-    core: AllNetworks[isProduction ? '1029' : '1'],
+    core: AllNetworks[isProduction ? '1029' : (LocalStorae.getItem('dev-core-network') === '8888' ? '8888' : '1')],
     eSpace: AllNetworks[isProduction ? '1030' : '71'],
     bsc: AllNetworks[isProduction ? '56' : '97'],
 } as const;

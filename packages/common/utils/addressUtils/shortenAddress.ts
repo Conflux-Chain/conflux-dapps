@@ -39,6 +39,6 @@ const shortenEthAddress = (address: string) => {
 export const shortenAddress = (address?: string) => {
     if (typeof address !== 'string' || !address) return '';
     if (address.startsWith('0x')) return shortenEthAddress(address);
-    else if (address.startsWith('cfx')) return shortenCfxAddress(address);
+    else if (address.startsWith('cfx') || address.startsWith('net8888')) return shortenCfxAddress(address);
     return '';
 };

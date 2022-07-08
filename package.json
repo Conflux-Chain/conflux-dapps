@@ -10,6 +10,7 @@
         "build": "turbo run build --scope=cross-space --scope=hub --scope=shuttle-flow",
         "lint": "turbo run lint",
         "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+        "preinstall": "npx only-allow yarn",
         "dev": "turbo run dev --scope=hub --scope=shuttle-flow",
         "dev:dapp-box": "turbo run dev --scope=hub",
         "build:dapp-box": "turbo run build --scope=hub",

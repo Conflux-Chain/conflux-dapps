@@ -1,17 +1,9 @@
-.proposal-list {
-    box-shadow: 0px 8px 16px rgba(164, 170, 216, 0.08);
-}
-
 .proposal-itemWrapper {
     contain: content style layout;
 }
 .proposal-itemWrapper + .proposal-itemWrapper::before {
     @apply absolute top-0 left-[24px] translate-x-0 w-[1094px] h-[1px] bg-[#EAECEF] z-10 pointer-events-none;
     content: '';
-}
-
-.pagination-item {
-    box-shadow: 0px 4px 8px rgba(164, 170, 216, 0.08);
 }
 
 .pagination-arrow {
