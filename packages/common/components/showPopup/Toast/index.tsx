@@ -54,10 +54,10 @@ const ToastComponent: React.FC<{ content: string | Content; duration: number; hi
                 {typeof content === 'object' && (typeof content.onClickOk === 'function' || typeof content.onClickCancel === 'function') &&
                     <div className='mt-[20px] flex justify-end items-center gap-[16px]'>
                         {typeof content.onClickCancel === 'function' &&
-                            <Button className='min-w-[72px]' onClick={content.onClickCancel}>{content?.cancelButtonText ?? 'Cancel'}</Button>
+                            <Button className='min-w-[72px]' size="small" onClick={content.onClickCancel}>{content?.cancelButtonText ?? 'Cancel'}</Button>
                         }
                         {typeof content.onClickOk === 'function' &&
-                            <Button className='min-w-[72px]' onClick={content.onClickOk}>{content?.okButtonText ?? 'OK'}</Button>
+                            <Button className='min-w-[72px]' size="small" onClick={content.onClickOk}>{content?.okButtonText ?? 'OK'}</Button>
                         }
                     </div>
                 }

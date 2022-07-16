@@ -8,7 +8,7 @@ const setValue = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototy
 
 const InputSuffixMAX: React.FC<Props> = ({ className, onClick, ...props } = {}) => {
     const { disabled, max, domRef } = useInputContext();
-
+    
     const handleClickMax = useCallback<React.MouseEventHandler<HTMLButtonElement>>(
         (evt) => {
             if (onClick) {
@@ -25,7 +25,7 @@ const InputSuffixMAX: React.FC<Props> = ({ className, onClick, ...props } = {}) 
     return (
         <button
             className={cx(
-                'absolute right-[16px] top-[50%] -translate-y-[50%] text-[14px] text-[#808BE7]',
+                'absolute right-[16px] top-[50%] -translate-y-[50%] text-[#808BE7]',
                 !disabled && 'hover:underline cursor-pointer',
                 className
             )}

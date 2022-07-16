@@ -42,7 +42,7 @@ const Proposals: React.FC = () => {
             <div
                 id="governance-reward-interest-rate-list"
                 className={cx(
-                    'proposal-list flex flex-col h-[560px] rounded-[8px] rounded-tl-none bg-white overflow-hidden',
+                    'governance-shadow flex flex-col h-[560px] rounded-[8px] rounded-tl-none bg-white overflow-hidden',
                     typeof openedProposalId === 'number' ? 'opacity-0 pointer-events-none' : 'opacity-100'
                 )}
             >
@@ -193,7 +193,7 @@ const OpenedProposalDetail: React.FC = () => {
                 <div className="absolute bottom-[24px] right-[24px] flex justify-center gap-[12px] select-none">
                     <div
                         className={cx(
-                            'pagination-item flex justify-center items-center w-[32px] h-[32px] border-[1px] rounded-[2px] text-[14px] font-medium text-center cursor-pointer transition-colors bg-white hover:bg-[#f0f3ff] !shadow-none',
+                            'governance-shadow flex justify-center items-center w-[32px] h-[32px] border-[1px] rounded-[2px] text-[14px] font-medium text-center cursor-pointer transition-colors bg-white hover:bg-[#f0f3ff] !shadow-none',
                             adjoinProposal.pre === null ? 'pointer-events-none border-[#EAECEF]' : 'border-[#808BE7]',
                         )}
                         onClick={() => setOpenedProposalId(adjoinProposal.pre!)}
@@ -202,7 +202,7 @@ const OpenedProposalDetail: React.FC = () => {
                     </div>
                     <div
                         className={cx(
-                            'pagination-item flex justify-center items-center w-[32px] h-[32px] border-[1px] rounded-[2px] text-[14px] font-medium text-center cursor-pointer transition-colors bg-white hover:bg-[#f0f3ff] !shadow-none',
+                            'governance-shadow flex justify-center items-center w-[32px] h-[32px] border-[1px] rounded-[2px] text-[14px] font-medium text-center cursor-pointer transition-colors bg-white hover:bg-[#f0f3ff] !shadow-none',
                             adjoinProposal.next === null ? 'pointer-events-none border-[#EAECEF]' : 'border-[#808BE7]',
                         )}
                         onClick={() => setOpenedProposalId(adjoinProposal.next!)}

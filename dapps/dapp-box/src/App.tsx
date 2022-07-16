@@ -141,11 +141,7 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                             <Route key='governance-vote-reward-interest-rate' path='reward-interest-rate' element={<RewardInterestRate />} />
                         </Route>
                     </Route>
-                    {dapps
-                        .filter((dapp) => !dapp.element)
-                        .map(({ path }) => (
-                            <Route key={path} path={path + '/*'} element={<div id={path} />} />
-                        ))}
+                    <Route key='shuttle-flow' path="shuttle-flow/*" element={<div id="shuttle-flow" />} />
                     <Route path="governance/" element={<Navigate to="/governance/dashboard"/>} />
                     <Route path="governance/*" element={<Navigate to="/governance/dashboard"/>} />
                     <Route path="*" element={<Navigate to="espace-bridge"/>} />

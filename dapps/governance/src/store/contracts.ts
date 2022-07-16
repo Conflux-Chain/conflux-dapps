@@ -3,6 +3,7 @@ import Networks from 'common/conf/Networks';
 import StakingContract from 'governance/src/contracts/staking.json';
 import GovernanceContract from 'governance/src/contracts/governance.json';
 import PosContract from 'governance/src/contracts/pos.json';
+import ParamsControlContract from 'governance/src/contracts/paramsControl.json';
 import { isProduction } from 'common/conf/Networks';
 import createContract from 'common/utils/Contract';
 
@@ -26,6 +27,12 @@ interface Contracts {
     posContract: {
         addressToIdentifier(account: string): { encodeABI: () => string; };
     }
+
+    paramsControlContract: {
+        currentRound(): { encodeABI: () => string; };
+        totalVotes(round: string): { encodeABI: () => string; _method: { outputs: Array<any> }; };
+        castVote(round: string, vote_data: [[string, [string, string, string]], [string, [string, string, string]]]): { encodeABI: () => string; };
+    }
 }
 
 export const stakingContract = createContract<Contracts['stakingContract']>(StakingContract.abi);
@@ -34,5 +41,7 @@ export const governanceContract = createContract<Contracts['governanceContract']
 export const governanceContractAddress = isProduction ? 'cfx:acev1c6tz2gu832fwdj45vxm71sffpat4yewvpteau' : 'cfxtest:acfwmpvz4f2wwhsmbja5n3vbr5ma568fg652szuugc';
 export const posContract = createContract<Contracts['posContract']>(PosContract.abi);
 export const posContractAddress = convertHexToCfx('0x0888000000000000000000000000000000000005', +Networks.core.chainId);
+export const paramsControlContract = createContract<Contracts['paramsControlContract']>(ParamsControlContract.abi);
+export const paramsControlContractAdress = convertHexToCfx('0x0888000000000000000000000000000000000007', +Networks.core.chainId);
 
 export default Contracts;

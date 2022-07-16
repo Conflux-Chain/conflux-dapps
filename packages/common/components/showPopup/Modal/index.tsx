@@ -39,7 +39,7 @@ const TransactionSubmittedContent: React.FC<{ TxnHash: string; action: string; b
     });
 
     return (
-        <div className="relative w-[340px] min-h-[192px] p-[24px] text-center bg-gray-200 rounded-lg ">
+        <div className="relative w-[340px] min-h-[192px] p-[24px] text-center bg-gray-200 rounded-lg overflow-hidden">
             <img
                 className="absolute right-[12px] top-[12px] w-[16px] h-[16px] cursor-pointer hover:scale-110 transition-transform select-none"
                 onClick={TransactionSubmittedModal.hideAll}
