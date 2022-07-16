@@ -8,3 +8,4 @@ import App from './App';
 Promise.all([completeDetectConflux(), completeDetectEthereum()]).then(() => {
     ReactDOM.createRoot(document.getElementById('root')!).render(<App />)
 });
+
