@@ -7,11 +7,11 @@ import Networks from 'common/conf/Networks';
 import { decodeHexResult } from 'common/utils/Contract';
 import { paramsControlContract, paramsControlContractAdress } from './contracts';
 import { isEqual } from 'lodash-es';
-import { lockDaysAndBlockNumberStore } from './lockDays&blockNumber';
+import { lockDaysAndBlockNumberStore, BLOCK_SPEED } from './lockDays&blockNumber';
 
 const dateConfigs = {
     '8888': {
-        start: Unit.fromMinUnit('32000'),
+        start: Unit.fromMinUnit('32020'),
         duration: Unit.fromMinUnit('3600'),
     },
     '1': {
@@ -115,8 +115,8 @@ rewardRateStore.subscribe(
                     if (!r) return;
                     const res = decodeHexResult(paramsControlContract.totalVotes(currentRoundHex)._method.outputs, r)?.[0];
                     const currentVotingOrigin = {
-                        powBaseReward: [res[0][1][0], res[0][1][2], res[0][1][1]] as [string, string, string],
-                        interestRate: [res[1][1][0], res[1][1][2], res[1][1][1]] as [string, string, string],
+                        powBaseReward: [res[0][1][1], res[0][1][0], res[0][1][2]] as [string, string, string],
+                        interestRate: [res[1][1][1], res[1][1][0], res[1][1][2]] as [string, string, string],
                     };
                     const lastCurrentVotingOrigin = rewardRateStore.getState().currentVotingOrigin;
 
@@ -138,7 +138,7 @@ rewardRateStore.subscribe(
                 method: 'cfx_getParamsFromVote',
             },
             {
-                intervalTime: 4444,
+                intervalTime: 20000,
                 callback: (currentExecValueOringin: { powBaseReward: string; interestRate: string }) => {
                     if (typeof currentExecValueOringin !== 'object') return;
                     const lastCurrentExecValueOringin = rewardRateStore.getState().currentExecValueOringin;
@@ -161,15 +161,15 @@ rewardRateStore.subscribe(
                 ],
             },
             {
-                intervalTime: 4444,
+                intervalTime: 20000,
                 callback: (r: string) => {
                     const preVotingR = decodeHexResult(
                         paramsControlContract.totalVotes('0x' + Number(currentVotingRound - 1).toString(16))._method.outputs,
                         r
                     )?.[0];
                     const preVotingOrigin = {
-                        powBaseReward: [preVotingR[0][1][0], preVotingR[0][1][2], preVotingR[0][1][1]] as [string, string, string],
-                        interestRate: [preVotingR[1][1][0], preVotingR[1][1][2], preVotingR[1][1][1]] as [string, string, string],
+                        powBaseReward: [preVotingR[0][1][1], preVotingR[0][1][0], preVotingR[0][1][2]] as [string, string, string],
+                        interestRate: [preVotingR[1][1][1], preVotingR[1][1][0], preVotingR[1][1][2]] as [string, string, string],
                     };
                     const lastPreVotingOrigin = rewardRateStore.getState().preVotingOrigin;
 
@@ -189,7 +189,7 @@ rewardRateStore.subscribe(
                 if (!currentBlockNumber) return;
                 unsubCalCurrentVotingRoundEndTiming?.();
                 const endBlockNumber = currentDataConfig.start.add(Unit.fromMinUnit(currentVotingRound).mul(currentDataConfig.duration));
-                rewardRateStore.setState({ currentVotingRoundEndTiming: +endBlockNumber.sub(currentBlockNumber).toDecimalMinUnit() });
+                rewardRateStore.setState({ currentVotingRoundEndTiming: +endBlockNumber.sub(currentBlockNumber).div(BLOCK_SPEED).toDecimalMinUnit() });
             },
             { fireImmediately: true }
         );

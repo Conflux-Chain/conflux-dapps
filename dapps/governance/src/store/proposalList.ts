@@ -42,13 +42,14 @@ interface ProposalListStore {
     }
 }
 
+
 export const proposalListStore = create(
     subscribeWithSelector(
         () =>
             ({
                 proposalList: LocalStorage.getItem('proposalList', 'governance') ?? [],
                 proposalCount: LocalStorage.getItem('proposalCount', 'governance') ?? 0,
-                currentPage: LocalStorage.getItem('currentPage', 'governance') ?? 1,
+                currentPage: 1,
                 pageSize: LocalStorage.getItem('pageSize', 'governance') ?? 7,
                 pageCount: LocalStorage.getItem('pageCount', 'governance') ?? 1,
                 openedProposalId: LocalStorage.getItem('openedProposalId', 'governance') ?? undefined,
@@ -245,3 +246,4 @@ export const setOpenedProposalId = (id?: number) => {
 export const useOpenedProposal = () => proposalListStore(selectors.openedProposal);
 export const useExtendDelay = () => proposalListStore(selectors.extendDelay);
 
+setCurrentPage(Number(LocalStorage.getItem('currentPage', 'governance') ?? 1))
