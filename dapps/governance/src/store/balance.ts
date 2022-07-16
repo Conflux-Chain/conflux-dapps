@@ -102,7 +102,6 @@ export const startTrackBalance = () => {
     const unstakes: Array<() => void> = [];
     unstakes.push(startTrackMaxAvailableBalance(), startTrackBalances());
 
-
     const calcAvailableBalance = () =>
         setTimeout(() => {
             const stakedBalance = stakedBalanceStore.getState().balance;

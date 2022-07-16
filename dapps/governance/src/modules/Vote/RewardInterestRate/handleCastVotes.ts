@@ -34,17 +34,17 @@ const handleCastVotes = async (data: Data, setInVoting: React.Dispatch<React.Set
                     [
                         '0',
                         [
+                            Unit.fromStandardUnit(data['PoW block rewards-Unchange'] || 0).toHexMinUnit(),
                             Unit.fromStandardUnit(data['PoW block rewards-Increase'] || 0).toHexMinUnit(),
                             Unit.fromStandardUnit(data['PoW block rewards-Decrease'] || 0).toHexMinUnit(),
-                            Unit.fromStandardUnit(data['PoW block rewards-Unchange'] || 0).toHexMinUnit(),
                         ],
                     ],
                     [
                         '1',
                         [
+                            Unit.fromStandardUnit(data['PoS APY-Unchange'] || 0).toHexMinUnit(),
                             Unit.fromStandardUnit(data['PoS APY-Increase'] || 0).toHexMinUnit(),
                             Unit.fromStandardUnit(data['PoS APY-Decrease'] || 0).toHexMinUnit(),
-                            Unit.fromStandardUnit(data['PoS APY-Unchange'] || 0).toHexMinUnit(),
                         ],
                     ],
                 ])

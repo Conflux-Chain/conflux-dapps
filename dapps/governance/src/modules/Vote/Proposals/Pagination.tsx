@@ -1,7 +1,6 @@
 import React from 'react';
 import cx from 'clsx';
 import { useCurrentPage, setCurrentPage, usePageCount } from 'governance/src/store';
-import Arrow from 'governance/src/assets/Arrow.svg';
 
 const Pagination: React.FC<{ className?: string }> = ({ className }) => {
     const pageCount = usePageCount();

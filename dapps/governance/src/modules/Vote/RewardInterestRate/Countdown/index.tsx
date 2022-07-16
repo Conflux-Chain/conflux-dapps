@@ -24,7 +24,7 @@ const Countdown: React.FC = () => {
                     }
                 });
             },
-            timing: currentVotingRoundEndTiming * 1000 - 1000,
+            timing: currentVotingRoundEndTiming * 1000,
             onEnd: fetchCurrentRound
         }
         timerNotifier.addUnit(timerUnit);
