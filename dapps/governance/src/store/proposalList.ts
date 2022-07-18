@@ -89,7 +89,7 @@ export const startTrackProposalList = intervalFetchChain(
             const proposalCount = Number(res);
             LocalStorage.setItem({ key: `proposalCount-${Networks.core.chainId}`, data: proposalCount, namespace: 'governance' });
             proposalListStore.setState({ proposalCount });
-
+            
             fetchChain({
                 rpcUrl: Networks.core.rpcUrls[0],
                 method: 'cfx_call',
