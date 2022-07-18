@@ -12,7 +12,7 @@ export interface Network {
     },
 }
 
-export const isProduction = !location.host.startsWith('test') && !location.host.startsWith('localhost') && !location.host.startsWith('172.16') && !location.host.startsWith('127.0') && !location.host.startsWith('192.168');
+export const isProduction = !location.host.startsWith('inner') && !location.host.startsWith('test') && !location.host.startsWith('localhost') && !location.host.startsWith('172.16') && !location.host.startsWith('127.0') && !location.host.startsWith('192.168');
 
 const AllNetworks: Record<string, Network> = {
     "1029": {
@@ -96,7 +96,7 @@ const AllNetworks: Record<string, Network> = {
 ;
 
 const Networks = {
-    core: AllNetworks[isProduction ? '1029' : (LocalStorae.getItem('dev-core-network') === '1' ? '1' : '8888')],
+    core: AllNetworks[isProduction ? '1029' : (location.host.startsWith('inner') ? '8888' : '1')],
     eSpace: AllNetworks[isProduction ? '1030' : '71'],
     bsc: AllNetworks[isProduction ? '56' : '97'],
 } as const;

@@ -73,8 +73,8 @@ const Tabs: React.FC = () => {
                 <Link
                     key={tab.path}
                     className={cx(
-                        'relative h-[48px] px-[24px] leading-[48px] text-[16px] rounded-t-[8px] text-center transition-colors',
-                        currentTab === tab.path ? 'text-white bg-[#808BE7] pointer-events-none' : 'text-[#808BE7] bg-white'
+                        'relative h-[48px] px-[24px] leading-[48px] text-[16px] rounded-t-[8px] text-center font-medium transition-colors',
+                        currentTab === tab.path ? 'text-[#808BE7] bg-white pointer-events-none' : 'text-[#898D9A] bg-transparent',
                     )}
                     to={`/governance/vote/${tab.path}`}
                 >

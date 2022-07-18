@@ -47,14 +47,14 @@ export const proposalListStore = create(
     subscribeWithSelector(
         () =>
             ({
-                proposalList: LocalStorage.getItem('proposalList', 'governance') ?? [],
-                proposalCount: LocalStorage.getItem('proposalCount', 'governance') ?? 0,
+                proposalList: LocalStorage.getItem(`proposalList-${Networks.core.chainId}`, 'governance') ?? [],
+                proposalCount: LocalStorage.getItem(`proposalCount-${Networks.core.chainId}`, 'governance') ?? 0,
                 currentPage: 1,
-                pageSize: LocalStorage.getItem('pageSize', 'governance') ?? 7,
-                pageCount: LocalStorage.getItem('pageCount', 'governance') ?? 1,
-                openedProposalId: LocalStorage.getItem('openedProposalId', 'governance') ?? undefined,
-                openedProposal: LocalStorage.getItem('openedProposal', 'governance') ?? undefined,
-                extendDelay: LocalStorage.getItem('extendDelay', 'governance') ?? undefined,
+                pageSize: LocalStorage.getItem(`pageSize-${Networks.core.chainId}`, 'governance') ?? 7,
+                pageCount: LocalStorage.getItem(`pageCount-${Networks.core.chainId}`, 'governance') ?? 1,
+                openedProposalId: LocalStorage.getItem(`openedProposalId-${Networks.core.chainId}`, 'governance') ?? undefined,
+                openedProposal: LocalStorage.getItem(`openedProposal-${Networks.core.chainId}`, 'governance') ?? undefined,
+                extendDelay: LocalStorage.getItem(`extendDelay-${Networks.core.chainId}`, 'governance') ?? undefined,
             } as ProposalListStore)
     )
 );
@@ -63,7 +63,7 @@ const calcPageCount = () =>
     setTimeout(() => {
         const { pageSize, proposalCount } = proposalListStore.getState();
         const pageCount = !pageSize ? 1 : Math.ceil((proposalCount ?? 0) / pageSize);
-        LocalStorage.setItem({ key: 'pageCount', data: pageCount, namespace: 'governance' });
+        LocalStorage.setItem({ key: `pageCount-${Networks.core.chainId}`, data: pageCount, namespace: 'governance' });
         proposalListStore.setState({ pageCount });
     });
 
@@ -85,29 +85,29 @@ export const startTrackProposalList = intervalFetchChain(
     {
         intervalTime: 30000,
         callback: (res) => {
-            if (typeof res === 'string') {
-                const proposalCount = Number(res);
-                LocalStorage.setItem({ key: 'proposalCount', data: proposalCount, namespace: 'governance' });
-                proposalListStore.setState({ proposalCount });
+            if (typeof res !== 'string' || res === '0x') return;
+            const proposalCount = Number(res);
+            LocalStorage.setItem({ key: `proposalCount-${Networks.core.chainId}`, data: proposalCount, namespace: 'governance' });
+            proposalListStore.setState({ proposalCount });
 
-                fetchChain({
-                    rpcUrl: Networks.core.rpcUrls[0],
-                    method: 'cfx_call',
-                    params: [
-                        {
-                            to: governanceContractAddress,
-                            data: governanceContract.getProposalList(0, proposalCount).encodeABI(),
-                        },
-                        'latest_state',
-                    ],
-                }).then((res) => {
-                    if (typeof res !== 'string') return;
-                    const proposalListOrigin = decodeHexResult(governanceContract.getProposalList(0, proposalCount)._method.outputs, res)?.[0];
-                    const proposalList = formatProposalList(proposalListOrigin);
-                    LocalStorage.setItem({ key: 'proposalList', data: proposalList, namespace: 'governance' });
-                    proposalListStore.setState({ proposalList });
-                });
-            }
+            fetchChain({
+                rpcUrl: Networks.core.rpcUrls[0],
+                method: 'cfx_call',
+                params: [
+                    {
+                        to: governanceContractAddress,
+                        data: governanceContract.getProposalList(0, proposalCount).encodeABI(),
+                    },
+                    'latest_state',
+                ],
+            }).then((res) => {
+                if (typeof res !== 'string') return;
+                const proposalListOrigin = decodeHexResult(governanceContract.getProposalList(0, proposalCount)._method.outputs, res)?.[0];
+                const proposalList = formatProposalList(proposalListOrigin);
+                LocalStorage.setItem({ key: `proposalList-${Networks.core.chainId}`, data: proposalList, namespace: 'governance' });
+                proposalListStore.setState({ proposalList });
+            });
+            
         },
     }
 );
@@ -123,13 +123,13 @@ export const startTrackOpenedProposal = () => {
     const unsub = proposalListStore.subscribe((state) => state.openedProposalId, (openedProposalId) => {
         clearTimer();
         if (typeof openedProposalId !== 'number') {
-            LocalStorage.setItem({ key: 'openedProposal', data: undefined, namespace: 'governance' });
+            LocalStorage.setItem({ key: `openedProposal-${Networks.core.chainId}`, data: undefined, namespace: 'governance' });
             proposalListStore.setState({ openedProposal: undefined });
             return;
         }
         const tempDataFromList = proposalListStore.getState().proposalList?.find((proposal) => proposal.id === openedProposalId);
         if (tempDataFromList) {
-            LocalStorage.setItem({ key: 'openedProposal', data: tempDataFromList, namespace: 'governance' });
+            LocalStorage.setItem({ key: `openedProposal-${Networks.core.chainId}`, data: tempDataFromList, namespace: 'governance' });
             proposalListStore.setState({ openedProposal: tempDataFromList });
         }
         const fetchOpenedProposal = () => {
@@ -150,7 +150,7 @@ export const startTrackOpenedProposal = () => {
                 
                 const proposalOrigin = decodeHexResult(governanceContract.getProposalById(openedProposalId)._method.outputs, res)?.[0];
                 const proposal = formatProposal(proposalOrigin);
-                LocalStorage.setItem({ key: 'openedProposal', data: proposal, namespace: 'governance' });
+                LocalStorage.setItem({ key: `openedProposal-${Networks.core.chainId}`, data: proposal, namespace: 'governance' });
                 proposalListStore.setState({ openedProposal: proposal });
             });
         }
@@ -176,12 +176,12 @@ export const startTrackOpenedProposal = () => {
             'latest_state',
         ],
     }).then((res) => {
-        if (typeof res !== 'string') return;
+        if (typeof res !== 'string' || res === '0x') return;
         const extendDelay: ProposalListStore['extendDelay'] = {
             blockNumber: Unit.fromMinUnit(res).toDecimalMinUnit(),
             intervalMinutes: Unit.fromMinUnit(res).div(BLOCK_SPEED).div(Unit.fromMinUnit(60)).toDecimalMinUnit(),
         }
-        LocalStorage.setItem({ key: 'extendDelay', data: extendDelay, namespace: 'governance' });
+        LocalStorage.setItem({ key: `extendDelay-${Networks.core.chainId}`, data: extendDelay, namespace: 'governance' });
         proposalListStore.setState({ extendDelay });
     });
 }());
@@ -233,17 +233,17 @@ export const useCurrentPage = () => proposalListStore(selectors.currentPage);
 export const setCurrentPage = (currentPage: number) => {
     const { pageCount } = proposalListStore.getState();
     const clampedCurrentPage = clamp(currentPage, 1, pageCount);
-    LocalStorage.setItem({ key: 'currentPage', data: clampedCurrentPage, namespace: 'governance' });
+    LocalStorage.setItem({ key: `currentPage-${Networks.core.chainId}`, data: clampedCurrentPage, namespace: 'governance' });
     proposalListStore.setState({ currentPage: clampedCurrentPage });
 };
 export const useOpenedProposalId = () => proposalListStore(selectors.openedProposalId);
 export const setOpenedProposalId = (id?: number) => {
     const preId = proposalListStore.getState().openedProposalId;
     if (preId === id) return;
-    LocalStorage.setItem({ key: 'openedProposalId', data: id, namespace: 'governance' });
+    LocalStorage.setItem({ key: `openedProposalId-${Networks.core.chainId}`, data: id, namespace: 'governance' });
     proposalListStore.setState({ openedProposalId: id });
 };
 export const useOpenedProposal = () => proposalListStore(selectors.openedProposal);
 export const useExtendDelay = () => proposalListStore(selectors.extendDelay);
 
-setCurrentPage(Number(LocalStorage.getItem('currentPage', 'governance') ?? 1))
+setCurrentPage(Number(LocalStorage.getItem(`currentPage-${Networks.core.chainId}`, 'governance') ?? 1))

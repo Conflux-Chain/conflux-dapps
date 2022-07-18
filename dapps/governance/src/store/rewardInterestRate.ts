@@ -11,7 +11,7 @@ import { lockDaysAndBlockNumberStore, BLOCK_SPEED } from './lockDays&blockNumber
 
 const dateConfigs = {
     '8888': {
-        start: Unit.fromMinUnit('32020'),
+        start: Unit.fromMinUnit('32000'),
         duration: Unit.fromMinUnit('3600'),
     },
     '1': {
