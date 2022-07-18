@@ -93,10 +93,9 @@ const AllNetworks: Record<string, Network> = {
         }
     }
 };
-;
 
 const Networks = {
-    core: AllNetworks[isProduction ? '1029' : (!location.host.startsWith('inner') ? '8888' : '1')],
+    core: AllNetworks[isProduction ? '1029' : (location.host.startsWith('inner') ? '8888' : (import.meta.env.VITE_CORE_NETWORK || '1'))],
     eSpace: AllNetworks[isProduction ? '1030' : '71'],
     bsc: AllNetworks[isProduction ? '56' : '97'],
 } as const;
