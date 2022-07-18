@@ -1,5 +1,3 @@
-import LocalStorae from 'localstorage-enhance';
-
 export interface Network {
     chainId: string;
     chainName: string;
@@ -12,7 +10,7 @@ export interface Network {
     },
 }
 
-export const isProduction = !location.host.startsWith('inner') && !location.host.startsWith('test') && !location.host.startsWith('localhost') && !location.host.startsWith('172.16') && !location.host.startsWith('127.0') && !location.host.startsWith('192.168');
+export const isProduction = !location.host.startsWith('net8888') && !location.host.startsWith('test') && !location.host.startsWith('localhost') && !location.host.startsWith('172.16') && !location.host.startsWith('127.0') && !location.host.startsWith('192.168');
 
 const AllNetworks: Record<string, Network> = {
     "1029": {
@@ -95,7 +93,7 @@ const AllNetworks: Record<string, Network> = {
 };
 
 const Networks = {
-    core: AllNetworks[isProduction ? '1029' : (location.host.startsWith('inner') ? '8888' : (import.meta.env.VITE_CORE_NETWORK || '1'))],
+    core: AllNetworks[isProduction ? '1029' : (location.host.startsWith('net8888') ? '8888' : (import.meta.env.VITE_CORE_NETWORK || '1'))],
     eSpace: AllNetworks[isProduction ? '1030' : '71'],
     bsc: AllNetworks[isProduction ? '56' : '97'],
 } as const;
