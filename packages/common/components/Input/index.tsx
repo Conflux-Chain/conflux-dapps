@@ -23,7 +23,7 @@ const Input = forwardRef<HTMLInputElement, Props>(
         const domRef = useRef<HTMLInputElement>(null!);
         useEffect(() => {
             if (!domRef.current) return;
-            domRef.current.value = String(defaultValue) ?? '';
+            domRef.current.value = String(defaultValue ?? '');
         }, [bindAccout, defaultValue]);
 
         return (
