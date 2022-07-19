@@ -1,10 +1,11 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, memo } from 'react';
 import cx from 'clsx';
 import { Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
 import { useCurrentVote, usePreVote } from 'governance/src/store';
 import QuestionMark from 'common/assets/icons/QuestionMark.svg';
 import VoteUp from 'governance/src/assets/VoteUp.svg';
 import VoteDown from 'governance/src/assets/VoteDown.svg';
+import { showTipModal } from 'governance/src/components/TipModal';
 
 const options = [
     {
@@ -124,10 +125,48 @@ const Index: React.FC = () => {
 
     return (
         <>
-            <Result type="Reward of block" voteDetail={currentVote?.powBaseReward} preVoteDetail={preVote?.powBaseReward} />
-            <Result type="Interest rate" voteDetail={currentVote?.interestRate} preVoteDetail={preVote?.interestRate} />
+            <Result
+                type="Reward of block"
+                voteDetail={currentVote?.powBaseReward} preVoteDetail={preVote?.powBaseReward}
+                onClickPreValTip={() => showTipModal(PowPreviousVotingRewardTipContent)}
+                onClickVotingValTip={() => showTipModal(PowPreviousVotingRewardTipContent)}
+            />
+            <Result
+                type="Interest rate"
+                voteDetail={currentVote?.interestRate} preVoteDetail={preVote?.interestRate}
+                onClickPreValTip={() => showTipModal(PosPreviousVotingAPYTipContent)}
+                onClickVotingValTip={() => showTipModal(PowPreviousVotingRewardTipContent)}
+            />
         </>
     );
 };
+
+const PowPreviousVotingRewardTipContent: React.FC = memo(() => {
+    return (
+        <>
+            <p className="text-[16px] leading-[22px] font-medium text-[#3D3F4C]">Previous voting reward (PoW):</p>
+            <p className="mt-[8px] text-[14px] leading-[21px] text-[#898D9A]">
+                The PoW block rewards of the most recent voting,
+            </p>
+            <p className="text-[14px] leading-[21px] text-[#898D9A]">
+                calculated from the previous round of voting.
+            </p>
+        </>
+    );
+});
+
+const PosPreviousVotingAPYTipContent: React.FC = memo(() => {
+    return (
+        <>
+            <p className="text-[16px] leading-[22px] font-medium text-[#3D3F4C]">Previous voting APY (PoS):</p>
+            <p className="mt-[8px] text-[14px] leading-[21px] text-[#898D9A]">
+                The PoS rewards rate of the most recent voting, 
+            </p>
+            <p className="text-[14px] leading-[21px] text-[#898D9A]">
+                calculated from the previous round of voting.
+            </p>
+        </>
+    );
+});
 
 export default Index;
