@@ -1,0 +1,25 @@
+.cast-votes-modal-wrapper {
+    top: 108px;
+}
+
+@media screen and (max-height: 1024px) {
+    .cast-votes-modal-wrapper {
+        top: 50%;
+        transform: translate(-50%, -50%);
+    }
+}
+
+
+@media screen and (max-height: 900px) {
+    .cast-votes-modal {
+        @apply w-[856px];
+    }
+
+    .cast-votes-modal-vote-area {
+        @apply flex-row justify-between items-stretch;
+    }
+
+    .cast-votes-modal-vote-area > div {
+        @apply flex-1;
+    }
+}
