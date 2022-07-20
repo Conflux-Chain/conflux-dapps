@@ -6,12 +6,13 @@ import { useVotingRights, useCurrentVotingRound } from 'governance/src/store';
 import VotingResult from './VotingResult';
 import Countdown from './Countdown';
 import { showCastVotesModal } from './CastVotesModal';
+import MathTex from './MathTex';
 
 const RewardInterestRate: React.FC = () => {
     const currentVotingRound = useCurrentVotingRound();
     const votingRights = useVotingRights();
     const isVotingRightsGreaterThan0 = votingRights && Unit.greaterThan(votingRights, Unit.fromStandardUnit(0));
-    
+
     return (
         <div className="governance-shadow p-[24px] bg-white ">
             <div className="flex items-center gap-[12px]">
@@ -28,8 +29,8 @@ const RewardInterestRate: React.FC = () => {
             <div className="px-[16px] py-[12px] rounded-[4px] text-[14px] leading-[18px] text-[#3D3F4C] bg-[#FCF1E8]">
                 <p>1.The rewards rate voting is to use on-chain DAO voting to decide and update reward parameters without hardfork.</p>
                 <p>
-                    2.The distribution of votes will affect the final APY. So during the voting period, the new rewards rate (APY) is according to: previous
-                    rate*2 ** ((increase votes - decrease votes) / (increase votes + decrease votes + unchange votes)).
+                    2.The distribution of votes will affect the final APY. So during the voting period, the new rewards rate (APY) is according to:
+                    <MathTex className='ml-[4px]'/>
                 </p>
             </div>
 
