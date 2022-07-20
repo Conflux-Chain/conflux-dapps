@@ -107,5 +107,4 @@ const AvailableToUnstakeTipContent: React.FC = memo(() => {
     );
 });
 
-
 export default UnStake;
