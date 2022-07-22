@@ -14,7 +14,7 @@ export const calRemainTime = (_milliseconds: string | number, unit: 'day' | 'hou
     day = Math.floor(hour / 24);
     hour = hour % 24;
 
-    const agoOrLatest = milliseconds >= 0 ? 'ago' : 'later';
+    const agoOrLater = milliseconds >= 0 ? 'later' : 'ago';
 
     const remainTime = {
         day: Math.abs(day),
@@ -23,20 +23,19 @@ export const calRemainTime = (_milliseconds: string | number, unit: 'day' | 'hou
         second: Math.abs(second),
     } as const;
 
-    
     if (unit === 'all-without-seconds') {
-        return unitsWithoutSeconds.map((_unit) => `${remainTime[_unit]} ${_unit}s`).join(', ') + ` ${agoOrLatest}`;
+        return unitsWithoutSeconds.map((_unit) => `${remainTime[_unit]} ${_unit}s`).join(', ') + ` ${agoOrLater}`;
     }
 
     if (unit === 'all') {
-        return units.map((_unit) => `${remainTime[_unit]} ${_unit}s`).join(', ') + ` ${agoOrLatest}`;
+        return units.map((_unit) => `${remainTime[_unit]} ${_unit}s`).join(', ') + ` ${agoOrLater}`;
     }
 
     if (unit !== 'largest') {
-        return `${remainTime[unit]} ${unit}s` + ` ${agoOrLatest}`;
+        return `${remainTime[unit]} ${unit}s` + ` ${agoOrLater}`;
     }
 
     const validLargest = units.find(unit => remainTime[unit] > 0);
-    if (!validLargest) return `0 seconds ${agoOrLatest}`;
-    return `${remainTime[validLargest]} ${validLargest}s ${agoOrLatest}`;
+    if (!validLargest) return `0 seconds ${agoOrLater}`;
+    return `${remainTime[validLargest]} ${validLargest}s ${agoOrLater}`;
 };

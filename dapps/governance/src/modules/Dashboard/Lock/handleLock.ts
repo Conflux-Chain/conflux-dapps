@@ -7,7 +7,7 @@ import { getLockedBalance, getUnlockBlockNumber, getCurrentBlockNumber, trackVot
 import { stakingContract, stakingContractAddress } from 'governance/src/store/contracts';
 import Networks from 'common/conf/Networks';
 
-const deltaBlockNumber = Unit.fromMinUnit(24 * 60 * 60 * 2);
+const deltaBlockNumber = Networks.core.chainId === '8888' ? Unit.fromMinUnit(79) : Unit.fromMinUnit(24 * 60 * 60 * 2);
 
 const handleLock = async (
     { increasedLockBalance, gapBlockNumber }: { increasedLockBalance?: Unit; gapBlockNumber?: Unit },
