@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback, forwardRef, useMemo, useEffect } from 'react';
+import Networks from 'common/conf/Networks';
 import composeRef from 'common/utils/composeRef';
 import { Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
 import cx from 'clsx';
@@ -11,18 +12,18 @@ interface Props extends React.InputHTMLAttributes<HTMLInputElement> {
     currentGapBlockNumber?: Unit;
 }
 
-const periods = ['One season', 'Half a year', 'One year'] as const;
+const periods = Networks.core.chainId === '8888' ? (['One hour', 'Two hour', 'Four hour'] as const) : (['One season', 'Half a year', 'One year'] as const);
 
 export const judgeCanExtendLockingPeriod = (currentGapBlockNumber?: Unit) => {
     if (!currentGapBlockNumber) return false;
     return !currentGapBlockNumber.greaterThanOrEqualTo(BLOCK_AMOUNT_YEAR);
-}
+};
 
 export const convertCurrentGapBlockNumberToPeriodValue = (currentGapBlockNumber?: Unit) => {
     if (!currentGapBlockNumber) {
         return '0';
     }
-    
+
     if (currentGapBlockNumber.lessThan(BlOCK_AMOUNT_QUARTER)) {
         return '0';
     }
@@ -32,10 +33,10 @@ export const convertCurrentGapBlockNumberToPeriodValue = (currentGapBlockNumber?
     }
 
     if (currentGapBlockNumber.lessThan(BLOCK_AMOUNT_YEAR)) {
-        return '2'
+        return '2';
     }
     return undefined;
-}
+};
 
 export const convertPeriodValueToGapBlockNumber = (value?: '0' | '1' | '2') => {
     if (value === undefined) return undefined;
@@ -49,20 +50,20 @@ export const convertPeriodValueToGapBlockNumber = (value?: '0' | '1' | '2') => {
         return BLOCK_AMOUNT_YEAR;
     }
     return BlOCK_AMOUNT_QUARTER;
-}
+};
 
-const Slider = forwardRef<HTMLInputElement, Props>(({ onChange, currentGapBlockNumber, ...props }, _forwardRef)=> {
+const Slider = forwardRef<HTMLInputElement, Props>(({ onChange, currentGapBlockNumber, ...props }, _forwardRef) => {
     const domRef = useRef<HTMLInputElement>(null!);
     const [progress, setProgress] = useState<'0' | '1' | '2'>(() => convertCurrentGapBlockNumberToPeriodValue(currentGapBlockNumber)!);
-    const minValidValue = useMemo(() => convertCurrentGapBlockNumberToPeriodValue(currentGapBlockNumber)!, [currentGapBlockNumber])
+    const minValidValue = useMemo(() => convertCurrentGapBlockNumberToPeriodValue(currentGapBlockNumber)!, [currentGapBlockNumber]);
     useEffect(() => {
         if (!domRef.current) return;
         if (domRef.current.value < minValidValue) {
-            setValue.call(domRef.current, minValidValue)
+            setValue.call(domRef.current, minValidValue);
             domRef.current.dispatchEvent(new Event('input', { bubbles: true }));
             setProgress(minValidValue);
         }
-    }, [minValidValue])
+    }, [minValidValue]);
 
     const handleRangeChange = useCallback<React.ChangeEventHandler<HTMLInputElement>>(
         (evt) => {
