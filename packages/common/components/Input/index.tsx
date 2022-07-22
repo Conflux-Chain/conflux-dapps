@@ -7,6 +7,7 @@ import { InputContext } from './context';
 import { type OverWrite } from 'tsconfig/types/enhance';
 import './index.css';
 
+const setValue = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')!?.set!;
 
 export type Props = OverWrite<React.InputHTMLAttributes<HTMLInputElement>, {
     error?: string;
@@ -23,7 +24,8 @@ const Input = forwardRef<HTMLInputElement, Props>(
         const domRef = useRef<HTMLInputElement>(null!);
         useEffect(() => {
             if (!domRef.current) return;
-            domRef.current.value = String(defaultValue ?? '');
+            setValue.call(domRef.current, String(defaultValue ?? ''));
+            domRef.current.dispatchEvent(new Event('input', { bubbles: true }));
         }, [bindAccout, defaultValue]);
 
         return (

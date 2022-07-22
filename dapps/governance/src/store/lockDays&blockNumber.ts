@@ -5,9 +5,9 @@ import { intervalFetchChain } from 'common/utils/fetchChain';
 import Networks from 'common/conf/Networks';
 import { calRemainTime } from 'common/utils/time';
 
-export const BLOCK_AMOUNT_YEAR = Unit.fromMinUnit(63072000);
-export const BLOCK_AMOUNT_HALF_YEAR = Unit.fromMinUnit(31536000);
-export const BlOCK_AMOUNT_QUARTER = Unit.fromMinUnit(15768000);
+export const BLOCK_AMOUNT_YEAR = Networks.core.chainId === '8888' ? Unit.fromMinUnit(28800) : Unit.fromMinUnit(63072000);
+export const BLOCK_AMOUNT_HALF_YEAR = Networks.core.chainId === '8888' ? Unit.fromMinUnit(14400) : Unit.fromMinUnit(31536000);
+export const BlOCK_AMOUNT_QUARTER = Networks.core.chainId === '8888' ? Unit.fromMinUnit(7200) : Unit.fromMinUnit(15768000);
 export const BLOCK_SPEED = Unit.fromMinUnit(2);
 
 export const calVotingRightsPerCfx = (gapBlockNumber: Unit) => {
