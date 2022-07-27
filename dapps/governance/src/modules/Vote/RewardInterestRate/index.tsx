@@ -26,11 +26,11 @@ const RewardInterestRate: React.FC = () => {
                 <VotingResult />
             </div>
 
-            <div className="px-[16px] py-[12px] rounded-[4px] text-[14px] leading-[18px] text-[#3D3F4C] bg-[#FCF1E8]">
+            <div className="relative px-[16px] py-[12px] rounded-[4px] text-[14px] leading-[18px] text-[#3D3F4C] bg-[#FCF1E8]">
                 <p>1.The rewards rate voting is to use on-chain DAO voting to decide and update reward parameters without hardfork.</p>
-                <p>
+                <p className='mt-[10px]'>
                     2.The distribution of votes will affect the final APY. So during the voting period, the new rewards rate (APY) is according to:
-                    <MathTex className='ml-[4px]'/>
+                    <MathTex className='absolute top-[28px] right-[6px]'/>
                 </p>
             </div>
 
