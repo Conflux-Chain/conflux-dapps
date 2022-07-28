@@ -26,7 +26,7 @@ const Input = forwardRef<HTMLInputElement, Props>(
             if (!domRef.current) return;
             setValue.call(domRef.current, String(defaultValue ?? ''));
             domRef.current.dispatchEvent(new Event('input', { bubbles: true }));
-        }, [bindAccout, defaultValue]);
+        }, [bindAccout]);
 
         return (
             <InputContext.Provider value={{ domRef, max, disabled }}>

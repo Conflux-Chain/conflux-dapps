@@ -1,8 +1,8 @@
 import type React from 'react';
 import { sendTransaction, Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
-import { rewardRateStore } from 'governance/src/store';
+import { rewardRateStore, trackCurrentAccountVotedChangeOnce } from 'governance/src/store';
 import { paramsControlContract, paramsControlContractAdress } from 'governance/src/store/contracts';
-import { showWaitWallet, showActionSubmitted, hideWaitWallet } from 'common/components/showPopup/Modal';
+import { showWaitWallet, showActionSubmitted, hideWaitWallet, hideActionSubmitted } from 'common/components/showPopup/Modal';
 import { showToast } from 'common/components/showPopup/Toast';
 import Networks from 'common/conf/Networks';
 import { hideCastVotesModal } from './CastVotesModal';
@@ -51,7 +51,11 @@ const handleCastVotes = async (data: Data, setInVoting: React.Dispatch<React.Set
                 .encodeABI(),
         });
         hideCastVotesModal();
-        transactionSubmittedKey = showActionSubmitted(TxnHash, 'Vote', { duration: 6666, blockExplorerUrl: Networks.core.blockExplorerUrls[0] });
+        transactionSubmittedKey = showActionSubmitted(TxnHash, 'Vote', { duration: 8888, blockExplorerUrl: Networks.core.blockExplorerUrls[0] });
+        trackCurrentAccountVotedChangeOnce(() => {
+            hideActionSubmitted(transactionSubmittedKey);
+            showToast(`Vote Round-${currentVotingRound} success!`, { type: 'success' });
+        });
     } catch (err) {
         setInVoting(false);
         console.error(`Vote failed: `, err);

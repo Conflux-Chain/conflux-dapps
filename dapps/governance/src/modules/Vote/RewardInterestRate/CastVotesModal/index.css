@@ -2,15 +2,18 @@
     top: 108px;
 }
 
-@media screen and (max-height: 1024px) {
+@media screen and (max-height: 1000px) {
     .cast-votes-modal-wrapper {
-        top: 50%;
-        transform: translate(-50%, -50%);
+        top: calc((100vh - 769px) / 2);
     }
 }
 
 
 @media screen and (max-height: 900px) {
+    .cast-votes-modal-wrapper {
+        top: calc((100vh - 497px) / 2);
+    }
+
     .cast-votes-modal {
         @apply w-[856px];
     }

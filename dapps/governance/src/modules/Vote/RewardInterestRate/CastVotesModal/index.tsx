@@ -8,7 +8,7 @@ import InputTextPrefix from 'common/components/Input/suffixes/TextPrefix';
 import InputMAXSuffix from 'common/components/Input/suffixes/MAX';
 import { PopupClass } from 'common/components/Popup';
 import { AuthCoreSpace } from 'common/modules/AuthConnectButton';
-import { useVotingRights } from 'governance/src/store';
+import { useVotingRights, useCurrentAccountVoted } from 'governance/src/store';
 import Close from 'common/assets/icons//close.svg';
 import MathTex from '../MathTex';
 import handleCastVotes, { type Data } from '../handleCastVotes';
@@ -29,6 +29,7 @@ const CastVotesModalContent: React.FC = memo(({}) => {
 
     const account = useAccount();
     const votingRights = useVotingRights();
+    const currentAccountVoted = useCurrentAccountVoted();
 
     const isVotingRightsGreaterThan0 = votingRights && Unit.greaterThan(votingRights, Unit.fromStandardUnit(0));
     const isBlockRewardRightsLtVotingRights =
@@ -39,9 +40,9 @@ const CastVotesModalContent: React.FC = memo(({}) => {
             .lessThanOrEqualTo(votingRights);
     const isPosAPYRightsLtVotingRights =
         votingRights &&
-        Unit.fromStandardUnit(watch('PoS APY rewards-Increase') || 0)
-            .add(Unit.fromStandardUnit(watch('PoS APY rewards-Decrease') || 0))
-            .add(Unit.fromStandardUnit(watch('PoS APY rewards-Unchange') || 0))
+        Unit.fromStandardUnit(watch('PoS APY-Increase') || 0)
+            .add(Unit.fromStandardUnit(watch('PoS APY-Decrease') || 0))
+            .add(Unit.fromStandardUnit(watch('PoS APY-Unchange') || 0))
             .lessThanOrEqualTo(votingRights);
 
     useEffect(() => {
@@ -84,7 +85,7 @@ const CastVotesModalContent: React.FC = memo(({}) => {
                         </p>
 
                         <div className="flex flex-col gap-[8px] pl-[1px]">
-                            {options.map((option) => (
+                            {options.map((option, index) => (
                                 <Input
                                     key={option}
                                     id={`${voteType}-${option}-input`}
@@ -98,7 +99,7 @@ const CastVotesModalContent: React.FC = memo(({}) => {
                                     step={1e-18}
                                     min={0}
                                     max={votingRights?.toDecimalStandardUnit()}
-                                    defaultValue={0}
+                                    defaultValue={currentAccountVoted?.[voteType === 'PoS APY' ? 'interestRate' : 'powBaseReward']?.[index]?.toDecimalStandardUnit() ?? 0}
                                     bindAccout={account}
                                     suffix={[<InputTextPrefix text={option} />, <InputMAXSuffix />]}
                                 />
@@ -120,7 +121,7 @@ const CastVotesModalContent: React.FC = memo(({}) => {
             <div className="mt-[16px] mb-[24px] px-[16px] py-[12px] rounded-[4px] text-[14px] leading-[18px] text-[#3D3F4C] bg-[#FCF1E8]">
                 <p>
                     1. The total voting rights is votes you have locked. You can freely distribute votes on the POW and POS rewards rate parameters. The new
-                    rewards is according to: <MathTex />
+                    rewards is according to: <MathTex className='ml-[4px]' type='result'/>
                 </p>
                 <p className="mt-[10px]">2. The previous rate is calculated from the previous round of voting.</p>
                 <p className="mt-[4px]">3. During the valid voting period, you can reassign your votes at any time.</p>

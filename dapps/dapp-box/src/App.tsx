@@ -140,9 +140,9 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                             <Route key='governance' path='governance' element={<Outlet />}>
                                 <Route key='governance-dashboard' path='dashboard' element={<GovernanceDashboard />} />
                                 <Route key='governance-vote' path='vote' element={<Vote />}>
-                                    <Route index element={<Proposals />}  />
+                                    <Route index element={<RewardInterestRate />}  />
                                     <Route key='governance-vote-proposals' path='proposals' element={<Proposals />} />
-                                    <Route key='governance-vote-reward-interest-rate' path='reward-interest-rate' element={<RewardInterestRate />} />
+                                    <Route key='governance-vote-onchain-dao-voting' path='onchain-dao-voting' element={<RewardInterestRate />} />
                                 </Route>
                             </Route>
                             <Route path="governance/" element={<Navigate to="/governance/dashboard"/>} />
