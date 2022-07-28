@@ -51,10 +51,11 @@ const [
                         const currentBlockNumber = getCurrentBlockNumber();
                         if (!currentBlockNumber) return;
                         const unlockBlockNumber = Unit.fromMinUnit(res[0]?.unlockBlockNumber);
-                        setUnlockBlockNumber(unlockBlockNumber);
                         if (unlockBlockNumber.greaterThan(currentBlockNumber)) {
+                            setUnlockBlockNumber(unlockBlockNumber);
                             return res[0]?.amount;
                         } else {
+                            setUnlockBlockNumber(undefined)
                             return '0x0';
                         }
                     })

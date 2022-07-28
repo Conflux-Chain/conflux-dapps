@@ -59,8 +59,8 @@ const Header: React.FC = () => {
 };
 
 const tabs = [
+    { name: 'On-chain DAO voting', path: 'onchain-dao-voting' },
     { name: 'Proposals', path: 'proposals' },
-    { name: 'Reward interest rate', path: 'reward-interest-rate' },
 ] as const;
 
 const Tabs: React.FC = () => {

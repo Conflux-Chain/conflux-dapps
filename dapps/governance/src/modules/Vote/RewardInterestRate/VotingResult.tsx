@@ -64,7 +64,7 @@ const Result: React.FC<{
             <div className="mb-[16px] flex justify-between items-center">
                 <div>
                     <p className="mb-[4px] flex items-center text-[14px] text-[#898D9A]">
-                        Previous voting APY
+                        Previous voting {type === 'Reward of block' ? 'reward' : 'APY'}
                         <img
                             src={QuestionMark}
                             alt="question mark"
@@ -80,7 +80,7 @@ const Result: React.FC<{
 
                 <div className="px-[12px] py-[8px] rounded-[4px] bg-[#F0F3FF]">
                     <p className="mb-[4px] flex items-center text-[14px] text-[#898D9A]">
-                        APY in voting
+                        {type === 'Reward of block' ? 'Reward' : 'APY'} in voting
                         <img
                             src={QuestionMark}
                             alt="question mark"
@@ -113,7 +113,7 @@ const Result: React.FC<{
             </div>
             <div className="my-[12px] flex h-[12px] rounded-[6px] overflow-hidden">
                 {options.map(({ name, color }, index) => (
-                    <div key={name} className="flex-auto h-full" style={{ width: proportions[index], backgroundColor: color }} />
+                    <div key={name} className="flex-auto h-full transition-all" style={{ width: proportions[index], backgroundColor: color }} />
                 ))}
             </div>
 
@@ -139,7 +139,7 @@ const Result: React.FC<{
 const Index: React.FC = () => {
     const currentVote = useCurrentVote();
     const preVote = usePreVote();
-
+    
     return (
         <>
             <Result
@@ -190,7 +190,7 @@ const PowVotingRewardTipContent: React.FC = memo(() => {
             <p className="mt-[6px] text-[14px] leading-[21px] text-[#898D9A]">
                 <MathTex type="reward" />
             </p>
-            <p className="mt-[16px] text-[14px] leading-[21px] text-[#898D9A]">
+            <p className="mt-[14px] text-[14px] leading-[21px] text-[#898D9A]">
                 After the voting ends, the voting result will be applied to the PoW block reward when the next voting starts.
             </p>
         </>
@@ -205,9 +205,9 @@ const PosVotingAPYTipContent: React.FC = memo(() => {
                 During the voting period, the current PoS reward interest rate is obtained according to the voting distribution statistics and calculated from:
             </p>
             <p className="mt-[6px] text-[14px] leading-[21px] text-[#898D9A]">
-                <MathTex />
+                <MathTex type="rate" />
             </p>
-            <p className="mt-[16px] text-[14px] leading-[21px] text-[#898D9A]">
+            <p className="mt-[14px] text-[14px] leading-[21px] text-[#898D9A]">
                 After the voting ends, the voting result will be applied to the PoS reward interest rate when the next voting starts.
             </p>
         </>
