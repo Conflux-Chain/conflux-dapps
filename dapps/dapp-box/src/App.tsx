@@ -26,6 +26,12 @@ import LocalStorage from 'localstorage-enhance';
 import Networks from 'common/conf/Networks';
 import './App.css';
 
+import Provider from 'payment/src/modules/Provider';
+import Consumer from 'payment/src/modules/Consumer';
+import PaymentNavbarEnhance from 'hub/src/modules/NavbarEnhance/Payment';
+// TODO use goverance icon for temporary
+import PaymentIcon from 'hub/src/assets/governance.svg';
+
 export const dapps = [
     {
         name: 'eSpace Bridge',
@@ -41,7 +47,7 @@ export const dapps = [
         NavbarEnhance: {
             type: 'childRoutes' as 'childRoutes',
             Content: <ShuttleFlowNavbarEnhance />,
-        }
+        },
     },
     {
         name: 'eSpace Airdrop',
@@ -49,23 +55,35 @@ export const dapps = [
         path: 'espace-airdrop',
         element: <Airdrop />,
     },
+    {
+        name: 'Payment',
+        icon: PaymentIcon,
+        path: 'payment',
+        link: 'payment/provider',
+        element: <Provider />,
+        NavbarEnhance: {
+            type: 'childRoutes' as 'childRoutes',
+            Content: <PaymentNavbarEnhance />,
+        },
+    } as any,
 ];
 
-Networks.core.chainId === '8888' && dapps.push({
-    name: 'Governance',
-    icon: GovernanceIcon,
-    path: 'governance',
-    link: 'governance/dashboard',
-    element: <GovernanceDashboard />,
-    NavbarEnhance: {
-        type: 'childRoutes' as 'childRoutes',
-        Content: <GovernanceNavbarEnhance />,
-    }
-} as any);
+Networks.core.chainId === '8888' &&
+    dapps.push({
+        name: 'Governance',
+        icon: GovernanceIcon,
+        path: 'governance',
+        link: 'governance/dashboard',
+        element: <GovernanceDashboard />,
+        NavbarEnhance: {
+            type: 'childRoutes' as 'childRoutes',
+            Content: <GovernanceNavbarEnhance />,
+        },
+    } as any);
 
 const App = () => {
     const [mode, setMode] = useState<'light' | 'dark'>(() => {
-        const last = LocalStorage.getItem('mode') as 'light' || 'light';
+        const last = (LocalStorage.getItem('mode') as 'light') || 'light';
         if (last === 'light' || last === 'dark') return last;
         return 'light';
     });
@@ -81,22 +99,25 @@ const App = () => {
     const handleSwitchMode = useCallback(() => {
         setMode((pre) => {
             const mode = pre === 'light' ? 'dark' : 'light';
-            LocalStorage.setItem({ key: 'mode', data: mode});
+            LocalStorage.setItem({ key: 'mode', data: mode });
             return mode;
         });
     }, []);
 
-
     const [locale, setLocal] = useState<'zh' | 'en'>(() => {
         const last = LocalStorage.getItem('locale') as 'en' | 'zh';
         if (last === 'en' || last === 'zh') return last;
-        return (navigator.language.includes('zh') ? 'en' : 'en')
+        return navigator.language.includes('zh') ? 'en' : 'en';
     });
-    const handleSwitchLocale = useCallback(() => setLocal(preLocale => {
-        const locale = preLocale === 'zh' ? 'en' : 'zh';
-        LocalStorage.setItem({ key: 'locale', data: locale});
-        return locale;
-    }), []);
+    const handleSwitchLocale = useCallback(
+        () =>
+            setLocal((preLocale) => {
+                const locale = preLocale === 'zh' ? 'en' : 'zh';
+                LocalStorage.setItem({ key: 'locale', data: locale });
+                return locale;
+            }),
+        []
+    );
 
     return (
         <ModeContext.Provider value={mode}>
@@ -129,28 +150,43 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                     Enhance={currentDapp.NavbarEnhance}
                 />
                 <Routes>
-                    <Route key='espace-bridge' path='espace-bridge' element={<Outlet />}>
-                        <Route index element={<ESpaceBridgeEnter />}  />
-                        <Route key='cross-space' path='cross-space' element={<CrossSpace />} />
-                        <Route key='bsc-esapce-cfx' path='bsc-esapce-cfx' element={<BscEspace />} />
+                    <Route key="espace-bridge" path="espace-bridge" element={<Outlet />}>
+                        <Route index element={<ESpaceBridgeEnter />} />
+                        <Route key="cross-space" path="cross-space" element={<CrossSpace />} />
+                        <Route key="bsc-esapce-cfx" path="bsc-esapce-cfx" element={<BscEspace />} />
                     </Route>
-                    <Route key='espace-airdrop' path='espace-airdrop' element={<Airdrop />} />
-                    {Networks.core.chainId === '8888' &&
+                    <Route key="espace-airdrop" path="espace-airdrop" element={<Airdrop />} />
+                    {Networks.core.chainId === '8888' && (
                         <>
-                            <Route key='governance' path='governance' element={<Outlet />}>
-                                <Route key='governance-dashboard' path='dashboard' element={<GovernanceDashboard />} />
-                                <Route key='governance-vote' path='vote' element={<Vote />}>
-                                    <Route index element={<Proposals />}  />
-                                    <Route key='governance-vote-proposals' path='proposals' element={<Proposals />} />
-                                    <Route key='governance-vote-reward-interest-rate' path='reward-interest-rate' element={<RewardInterestRate />} />
+                            <Route key="governance" path="governance" element={<Outlet />}>
+                                <Route key="governance-dashboard" path="dashboard" element={<GovernanceDashboard />} />
+                                <Route key="governance-vote" path="vote" element={<Vote />}>
+                                    <Route index element={<Proposals />} />
+                                    <Route key="governance-vote-proposals" path="proposals" element={<Proposals />} />
+                                    <Route key="governance-vote-reward-interest-rate" path="reward-interest-rate" element={<RewardInterestRate />} />
                                 </Route>
                             </Route>
-                            <Route path="governance/" element={<Navigate to="/governance/dashboard"/>} />
-                            <Route path="governance/*" element={<Navigate to="/governance/dashboard"/>} />
+                            <Route path="governance/" element={<Navigate to="/governance/dashboard" />} />
+                            <Route path="governance/*" element={<Navigate to="/governance/dashboard" />} />
                         </>
-                    }
-                    <Route key='shuttle-flow' path="shuttle-flow/*" element={<div id="shuttle-flow" />} />
-                    <Route path="*" element={<Navigate to="espace-bridge"/>} />
+                    )}
+
+                    {/* web3 payment router config */}
+                    <>
+                        <Route key="payment" path="payment" element={<Outlet />}>
+                            <Route key="payment-provider" path="provider" element={<Provider />} />
+                            <Route key="payment-consumer" path="consumer" element={<Consumer />}>
+                                {/* <Route index element={<Proposals />} />
+                                <Route key="governance-vote-proposals" path="proposals" element={<Proposals />} />
+                                <Route key="governance-vote-reward-interest-rate" path="reward-interest-rate" element={<RewardInterestRate />} /> */}
+                            </Route>
+                        </Route>
+                        <Route path="payment/" element={<Navigate to="/payment/provider" />} />
+                        <Route path="payment/*" element={<Navigate to="/payment/provider" />} />
+                    </>
+
+                    <Route key="shuttle-flow" path="shuttle-flow/*" element={<div id="shuttle-flow" />} />
+                    <Route path="*" element={<Navigate to="espace-bridge" />} />
                 </Routes>
             </ErrorBoundary>
         </CustomScrollbar>
