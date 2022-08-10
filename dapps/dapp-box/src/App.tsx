@@ -26,8 +26,7 @@ import LocalStorage from 'localstorage-enhance';
 import Networks from 'common/conf/Networks';
 import './App.css';
 
-import Provider from 'payment/src/modules/Provider';
-import Consumer from 'payment/src/modules/Consumer';
+import Payment from 'payment/src/modules';
 import PaymentNavbarEnhance from 'hub/src/modules/NavbarEnhance/Payment';
 // TODO use goverance icon for temporary
 import PaymentIcon from 'hub/src/assets/governance.svg';
@@ -59,8 +58,8 @@ export const dapps = [
         name: 'Payment',
         icon: PaymentIcon,
         path: 'payment',
-        link: 'payment/provider',
-        element: <Provider />,
+        link: 'payment',
+        element: <Payment />,
         NavbarEnhance: {
             type: 'childRoutes' as 'childRoutes',
             Content: <PaymentNavbarEnhance />,
@@ -171,19 +170,8 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                         </>
                     )}
 
-                    {/* web3 payment router config */}
-                    <>
-                        <Route key="payment" path="payment" element={<Outlet />}>
-                            <Route key="payment-provider" path="provider" element={<Provider />} />
-                            <Route key="payment-consumer" path="consumer" element={<Consumer />}>
-                                {/* <Route index element={<Proposals />} />
-                                <Route key="governance-vote-proposals" path="proposals" element={<Proposals />} />
-                                <Route key="governance-vote-reward-interest-rate" path="reward-interest-rate" element={<RewardInterestRate />} /> */}
-                            </Route>
-                        </Route>
-                        <Route path="payment/" element={<Navigate to="/payment/provider" />} />
-                        <Route path="payment/*" element={<Navigate to="/payment/provider" />} />
-                    </>
+                    <Route key="payment" path="payment" element={<Payment />} />
+                    <Route key="payment" path="payment/*" element={<Payment />} />
 
                     <Route key="shuttle-flow" path="shuttle-flow/*" element={<div id="shuttle-flow" />} />
                     <Route path="*" element={<Navigate to="espace-bridge" />} />
