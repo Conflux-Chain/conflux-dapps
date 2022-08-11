@@ -1,15 +1,13 @@
-import React, { useCallback, useMemo, useEffect } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
     children?: React.ReactNode;
-    config?:
-        | string
-        | Array<{
-              text: string;
-              link?: string;
-              active?: boolean;
-          }>;
+    config?: Array<{
+        text: string;
+        link?: string;
+        active?: boolean;
+    }>;
     backTo?: string | Function;
 }
 
@@ -26,20 +24,18 @@ export default ({ backTo, config = [], children }: Props) => {
 
     const t = useMemo(() => {
         if (children) {
-            return children;
+            return <span className="text-lg">{children}</span>;
         }
 
-        if (typeof config === 'string') {
-            return config;
-        } else if (Array.isArray(config)) {
+        if (Array.isArray(config)) {
             return (
-                <span className="ml-4">
+                <span className="text-lg">
                     {config.map((t, i) => (
                         <span key={i}>
                             {t.active ? (
                                 <span className="text-gray-900">{t.text}</span>
                             ) : (
-                                <Link className="text-gray-400 cursor-pointer" to={t.link}>
+                                <Link className="text-gray-400 cursor-pointer" to={t.link as string}>
                                     {t.text}
                                 </Link>
                             )}
@@ -54,8 +50,12 @@ export default ({ backTo, config = [], children }: Props) => {
     }, [config, children]);
 
     return (
-        <div>
-            {backTo && <a onClick={handleGoBack}>{'< Back'}</a>}
+        <div className="mb-4">
+            {backTo && (
+                <a onClick={handleGoBack} className="mr-4">
+                    {'< Back'}
+                </a>
+            )}
             {t}
         </div>
     );
