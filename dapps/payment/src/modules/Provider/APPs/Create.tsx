@@ -1,17 +1,29 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { Table, Button, Input, Row, Col, Modal, Form, InputNumber } from 'antd';
+import { postAPP } from 'payment/src/utils/request'
+import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
+import { PostAPPType } from 'payment/src/utils/types'
+import { AuthESpace } from 'common/modules/AuthConnectButton';
 
 export default () => {
+    const account = useAccount()
     const [form] = Form.useForm();
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-
     const showModal = useCallback(() => setIsModalVisible(true), []);
 
     const handleOk = useCallback(() => {
         form.validateFields().then(async function ({ name, url, weight }) {
             try {
-                console.log(name, url, weight);
-            } catch (e) {}
+                await postAPP({
+                    name,
+                    url,
+                    weight,
+                    account: account as string
+                })
+                // TODO watch tx status and notification
+            } catch (e) {
+                console.log(e)
+            }
         });
     }, []);
 
@@ -22,10 +34,21 @@ export default () => {
 
     return (
         <>
-            <Button size="small" className="mb-4" type="primary" onClick={showModal}>
-                Create APP
-            </Button>
-            <Modal title="Create New APP" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
+            <AuthESpace 
+                className="!rounded-sm"
+                id="createAPP-authConnect"
+                size="mini"
+                connectTextType="concise"
+                checkChainMatch={false}
+                color="primary"
+                shape="rect"
+                authContent={
+                    () => <Button size="small" className="mb-4" type="primary" onClick={showModal}>
+                        Create APP
+                    </Button>
+                }
+            />
+            <Modal title="Create New APP" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel} okText="Confirm" cancelText="Cancel">
                 <Form form={form} name="basic" autoComplete="off" layout="vertical">
                     <Form.Item
                         label="APP Name"
@@ -35,6 +58,11 @@ export default () => {
                             {
                                 required: true,
                                 message: 'Please input APP name',
+                            },
+                            {
+                                min: 1,
+                                max: 10,
+                                message: 'Please input APP name with 1-10 character',
                             },
                         ]}
                     >
@@ -48,6 +76,11 @@ export default () => {
                             {
                                 required: true,
                                 message: 'Please input APP base url',
+                            },
+                            {
+                                min: 1,
+                                max: 50,
+                                message: 'Please input APP name with 1-50 character',
                             },
                         ]}
                     >

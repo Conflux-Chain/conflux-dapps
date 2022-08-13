@@ -1,10 +1,10 @@
 import { getContract, web3 } from '.';
-import { DataSourceType } from 'payment/src/utils/types';
+import { DataSourceType, PostAPPType, DefinedContractNamesType } from 'payment/src/utils/types';
 import { notification } from 'antd';
 import lodash from 'lodash-es';
 
 interface RequestProps {
-    name: string;
+    name: DefinedContractNamesType;
     address?: string;
     method: string;
     args?: Array<any>;
@@ -92,3 +92,22 @@ export const getAPPs = async (creator?: string): Promise<DataSourceType[]> => {
         return [];
     }
 };
+
+
+export const postAPP = async ({
+    name,
+    url,
+    weight,
+    account
+}: PostAPPType) => {
+    try {
+        return await getContract('controller').createApp(name, url, '', weight).send({from: account});
+    } catch (error: any) {
+        console.log('postAPP error: ', error);
+        notification.error({
+            message: 'Error',
+            description: error,
+        });
+        return null;
+    }
+}

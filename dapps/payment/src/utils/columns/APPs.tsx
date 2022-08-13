@@ -3,6 +3,8 @@ import Address from 'payment/src/components/Address';
 import { Link } from 'react-router-dom';
 import { Tag } from 'antd';
 import Networks from 'common/conf/Networks';
+import BN from 'bn.js'
+import { DECIMALS } from 'payment/src/contracts/constants'
 
 export const APPName = {
     title: 'APP Name',
@@ -49,7 +51,8 @@ export const earnings = {
     key: 'earnings',
     ellipsis: true,
     render(val: DataSourceType['earnings']) {
-        return String(val);
+        // TODO why no decimal
+        return new BN(val).div(new BN(DECIMALS[18])).toNumber();
     },
 };
 
