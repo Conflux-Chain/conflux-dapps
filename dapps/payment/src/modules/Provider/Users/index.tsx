@@ -2,11 +2,11 @@ import Title from 'payment/src/components/Title';
 import { useParams } from 'react-router-dom';
 
 export default () => {
-    const { appid } = useParams();
+    const { address } = useParams();
     const config = [
         {
             text: 'Detail',
-            link: `/payment/provider/app/${appid}`,
+            link: `/payment/provider/app/${address}`,
         },
         {
             text: 'Users',

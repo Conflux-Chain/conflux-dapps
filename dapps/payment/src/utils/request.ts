@@ -1,7 +1,8 @@
 import { getContract, web3 } from '.';
-import { DataSourceType, PostAPPType, DefinedContractNamesType } from 'payment/src/utils/types';
+import { DataSourceType, PostAPPType, DefinedContractNamesType, APPDataSourceType } from 'payment/src/utils/types';
 import { notification } from 'antd';
 import lodash from 'lodash-es';
+import BN from 'bn.js'
 
 interface RequestProps {
     name: DefinedContractNamesType;
@@ -114,5 +115,59 @@ export const postAPP = async ({
             description: error,
         });
         return null;
+    }
+}
+
+export const getAPP = async (address: RequestProps['address']): Promise<APPDataSourceType> => {
+    try {
+        const methods: Array<any> = [
+            ['name'], 
+            ['symbol'], 
+            ['appOwner'], 
+            ['totalCharged'], 
+            ['totalRequests'], 
+            ['listUser', [0, 0]],
+            ['listResources', [0, 1e8]], 
+        ];
+
+        const data = await request(methods.map((m, i) => ({
+            name: 'app',
+            address: address,
+            method: m[0],
+            index: i,
+            args: m[1]
+        })))
+
+        return {
+            name: data[0],
+            baseURL: data[1],
+            owner: data[2],
+            earnings: data[3],
+            requests: new BN(data[4]).toNumber(),
+            users: new BN(data[5]['total']).toNumber(),
+            resources: {
+                list: data[6][0].map((d: any) => ({
+                    resourceId: d.resourceId,
+                    weight: d.weight,
+                    requests: d.requestTimes,
+                    submitTimestamp: d.submitSeconds,
+                })),
+                total: new BN(data[6][1]).toNumber(),
+            }
+        }
+    } catch (error: any) {
+        console.log('getAPP error: ', error);
+        return {
+            name: '',
+            baseURL: '',
+            owner: '',
+            earnings: '',
+            requests: 0,
+            users: 0,
+            resources: {
+                list: [],
+                total: 0,
+            }
+        };
     }
 }
