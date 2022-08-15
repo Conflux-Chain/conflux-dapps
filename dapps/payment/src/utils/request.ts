@@ -57,17 +57,22 @@ const request = async (params: RequestProps | RequestProps[]) => {
 };
 
 export const getAPPs = async (creator?: string): Promise<DataSourceType[]> => {
-    try {
+    try {        
+        const method = creator ? 'listAppByCreator' : 'listApp'
+        const args = creator ? [creator, 0, 1e8] : [0, 1e8]
+
         const apps = await request({
             name: 'controller',
-            method: creator ? 'listAppByCreator' : 'listApp',
-            args: creator ? [creator, 0, 1e8] : [0, 1e8],
+            method,
+            args,
         });
         const methods = ['name', 'symbol', 'appOwner', 'totalCharged'];
 
+        const appContracts = creator ? apps[0].map((a:string[]) => a[0]) : apps[0]
+        
         const appDetails = await request(
             lodash.flattenDeep([
-                apps[0].map((a: string) =>
+                appContracts.map((a: string) =>
                     methods.map((m, i) => ({
                         name: 'app',
                         address: a,
@@ -81,7 +86,7 @@ export const getAPPs = async (creator?: string): Promise<DataSourceType[]> => {
         const r: any = lodash.chunk(appDetails, methods.length).map((d, i) => ({
             name: d[0],
             baseURL: d[1],
-            address: apps[0][i],
+            address: appContracts[i],
             owner: d[2],
             earnings: d[3],
         }));

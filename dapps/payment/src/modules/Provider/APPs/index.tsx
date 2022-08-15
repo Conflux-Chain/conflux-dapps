@@ -5,10 +5,12 @@ import * as col from 'payment/src/utils/columns/APPs';
 import { DataSourceType } from 'payment/src/utils/types';
 import { getAPPs } from 'payment/src/utils/request';
 import CreateAPP from './Create';
+import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
 
 const { Search } = Input;
 
 export default () => {
+    const account = useAccount()
     const dataCacheRef = useRef<DataSourceType[]>([]);
     const [data, setData] = useState<DataSourceType[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
@@ -19,18 +21,19 @@ export default () => {
 
     useEffect(() => {
         async function main() {
-            setLoading(true);
-            const data = await getAPPs();
-            // TODO set owner address to getAPPs
-            dataCacheRef.current = data;
-            setData(data);
-            setLoading(false);
+            if (account) {
+                setLoading(true);
+                const data = await getAPPs(account);
+                dataCacheRef.current = data;
+                setData(data);
+                setLoading(false);
+            }
         }
         main().catch((e) => {
             setLoading(false);
             console.log(e);
         });
-    }, []);
+    }, [account]);
 
     const onSearch = useCallback(
         (value: string) =>
