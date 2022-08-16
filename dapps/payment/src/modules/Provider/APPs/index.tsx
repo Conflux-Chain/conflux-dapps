@@ -1,17 +1,14 @@
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import Title from 'payment/src/components/Title';
-import { Table, Button, Input, Row, Col, Form } from 'antd';
 import * as col from 'payment/src/utils/columns/APPs';
 import { DataSourceType } from 'payment/src/utils/types';
 import { getAPPs } from 'payment/src/utils/request';
 import CreateAPP from './Create';
 import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
-
-const { Search } = Input;
+import Table from 'payment/src/components/Table'
 
 export default () => {
     const account = useAccount()
-    const dataCacheRef = useRef<DataSourceType[]>([]);
     const [data, setData] = useState<DataSourceType[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const columns = useMemo(
@@ -23,9 +20,8 @@ export default () => {
         async function main() {
             if (account) {
                 setLoading(true);
-                // const data = await getAPPs(account);
                 const data = await getAPPs();
-                dataCacheRef.current = data;
+                // const data = await getAPPs(account);
                 setData(data);
                 setLoading(false);
             }
@@ -36,26 +32,21 @@ export default () => {
         });
     }, [account]);
 
-    const onSearch = useCallback(
-        (value: string) =>
-            setData(
-                dataCacheRef.current.filter((d) => d.name.includes(value) || d.baseURL.includes(value) || d.address.includes(value) || d.owner.includes(value))
-            ),
-        []
-    );
-
     return (
-        <div>
+        <>
             <Title>Your APPs</Title>
-            <Row gutter={12}>
-                <Col span="8">
-                    <Search placeholder="Search APP name, BaseURL, APP Address, Owner" allowClear enterButton="Search" size="small" onSearch={onSearch} />
-                </Col>
-                <Col span="16">
-                    <CreateAPP />
-                </Col>
-            </Row>
-            <Table dataSource={data} columns={columns} size="small" rowKey="address" scroll={{ x: 800 }} pagination={false} loading={loading} />
-        </div>
+
+            <Table 
+                dataSource={data} 
+                columns={columns} 
+                size="small" 
+                rowKey="address" 
+                scroll={{ x: 800 }} 
+                pagination={false} 
+                loading={loading} 
+                extra={<CreateAPP />}
+                search
+            />
+        </>
     );
 };

@@ -43,7 +43,7 @@ export default () => {
                 color="primary"
                 shape="rect"
                 authContent={
-                    () => <Button size="small" className="mb-4" type="primary" onClick={showModal}>
+                    () => <Button size="small" type="primary" onClick={showModal}>
                         Create APP
                     </Button>
                 }

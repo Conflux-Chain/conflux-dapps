@@ -1,11 +1,7 @@
-import { DataSourceType } from '../types';
-import Address from 'payment/src/components/Address';
-import { Link } from 'react-router-dom';
-import { Tag } from 'antd';
-import Networks from 'common/conf/Networks';
-import BN from 'bn.js'
-import { DECIMALS } from 'payment/src/contracts/constants'
 import {ColumnType} from 'antd/es/table'
+import {ResourceDataSourceType} from '../types'
+
+const PENDING_SECONDS = 604800 // 7 * 24 * 3600
 
 export const index:ColumnType<{}> = {
     title: '#',
@@ -42,4 +38,8 @@ export const effectTime = {
     dataIndex: 'submitTimestamp',
     key: 'submitTimestamp',
     ellipsis: true,
+    render(val: ResourceDataSourceType['submitTimestamp']) {
+        const date = new Date((Number(val) + PENDING_SECONDS) * 1000);
+        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString()
+    }
 };
