@@ -2,6 +2,13 @@ import { CONTRACT_ABI } from 'payment/src/contracts/constants'
 
 export type ResourceMethodsType = "name" | "symbol" | "appOwner" | "totalCharged" | "totalRequests" | "listUser" | "listResources"
 
+
+export interface UsersDataSourceType {
+    address: string;
+    airdrop: string;
+    balance: string;
+}
+
 export interface ResourceDataSourceType {
     resourceId: string;
     weight: string;

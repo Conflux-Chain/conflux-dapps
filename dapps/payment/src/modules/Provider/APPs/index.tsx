@@ -5,9 +5,12 @@ import { DataSourceType } from 'payment/src/utils/types';
 import { getAPPs } from 'payment/src/utils/request';
 import CreateAPP from './Create';
 import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
-import Table from 'payment/src/components/Table'
+import { Table, Row, Col, Input } from 'antd'
+
+const { Search } = Input;
 
 export default () => {
+    const dataCacheRef = useRef<DataSourceType[]>([]);
     const account = useAccount()
     const [data, setData] = useState<DataSourceType[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
@@ -22,6 +25,7 @@ export default () => {
                 setLoading(true);
                 const data = await getAPPs();
                 // const data = await getAPPs(account);
+                dataCacheRef.current = data;
                 setData(data);
                 setLoading(false);
             }
@@ -32,9 +36,28 @@ export default () => {
         });
     }, [account]);
 
+    const onSearch = useCallback(
+        (value: string) =>
+            setData(
+                dataCacheRef.current.filter((d) => d.name.includes(value) || d.baseURL.includes(value) || d.address.includes(value) || d.owner.includes(value))
+            ),
+        []
+    );
+
     return (
         <>
             <Title>Your APPs</Title>
+
+            <Row gutter={12}>
+                <Col span="8">
+                    <Search placeholder="Search APP name, BaseURL, APP Address, Owner" allowClear enterButton="Search" size="small" onSearch={onSearch} />
+                </Col>
+                <Col span="16">
+                    <CreateAPP />
+                </Col>
+            </Row>
+
+            <div className='mt-4'></div>
 
             <Table 
                 dataSource={data} 
@@ -44,8 +67,6 @@ export default () => {
                 scroll={{ x: 800 }} 
                 pagination={false} 
                 loading={loading} 
-                extra={<CreateAPP />}
-                search
             />
         </>
     );

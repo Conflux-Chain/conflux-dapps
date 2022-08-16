@@ -1,7 +1,7 @@
 import { getContract, web3 } from '.';
-import { DataSourceType, PostAPPType, DefinedContractNamesType, APPDataSourceType } from 'payment/src/utils/types';
+import { DataSourceType, PostAPPType, DefinedContractNamesType, APPDataSourceType, UsersDataSourceType } from 'payment/src/utils/types';
 import { notification } from 'antd';
-import lodash from 'lodash-es';
+import lodash, { add } from 'lodash-es';
 import BN from 'bn.js'
 
 interface RequestProps {
@@ -169,5 +169,57 @@ export const getAPP = async (address: RequestProps['address']): Promise<APPDataS
                 total: 0,
             }
         };
+    }
+}
+
+export const getAPPUsers = async (address: RequestProps['address']): Promise<{
+    list: UsersDataSourceType[],
+    total: 0
+}> => {
+    try {
+        const methods: Array<any> = [
+            ['listUser', [0, 1e8]],
+        ];
+
+        const data = (await request(methods.map((m, i) => ({
+            name: 'app',
+            address: address,
+            method: m[0],
+            index: i,
+            args: m[1]
+        }))))[0]
+
+        let list = []
+        const users = data[0];
+        const total = data[1];
+
+        if (users.length) {
+            const methodsOfBalance: Array<[string, [string]]> = users.map((u: {user: string}) => ['balanceOfWithAirdrop', [u.user]])
+
+            const dataOfBalance = await request(methodsOfBalance.map((m, i:number) => ({
+                name: 'app',
+                address: address,
+                method: m[0],
+                index: i,
+                args: m[1]
+            })))
+
+            list = users.map((u: any, i: number) => ({
+                address: u.user,
+                balance: dataOfBalance[i].total,
+                airdrop: dataOfBalance[i].airdrop_,
+            }))
+        }
+
+        return {
+            list,
+            total
+        }
+    } catch (error) {
+        console.log('getAPPUsers error: ', error);
+        return {
+            list: [],
+            total: 0
+        }
     }
 }
