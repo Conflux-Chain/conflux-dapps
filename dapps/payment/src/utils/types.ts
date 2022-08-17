@@ -1,7 +1,6 @@
-import { CONTRACT_ABI } from 'payment/src/contracts/constants'
+import { CONTRACT_ABI } from 'payment/src/contracts/constants';
 
-export type ResourceMethodsType = "name" | "symbol" | "appOwner" | "totalCharged" | "totalRequests" | "listUser" | "listResources"
-
+export type ResourceMethodsType = 'name' | 'symbol' | 'appOwner' | 'totalCharged' | 'totalRequests' | 'listUser' | 'listResources';
 
 export interface UsersDataSourceType {
     address: string;
@@ -29,12 +28,12 @@ export interface APPDataSourceType extends Omit<DataSourceType, 'address'> {
     requests: number;
     users: number;
     resources: {
-        list: Array<ResourceDataSourceType>,
-        total: number
+        list: Array<ResourceDataSourceType>;
+        total: number;
     };
 }
 
-export type DefinedContractNamesType = keyof typeof CONTRACT_ABI
+export type DefinedContractNamesType = keyof typeof CONTRACT_ABI;
 
 export interface PostAPPType {
     name: string;
@@ -42,3 +41,5 @@ export interface PostAPPType {
     weight: number;
     account: string;
 }
+
+export type CSVType = Array<Array<string>>;

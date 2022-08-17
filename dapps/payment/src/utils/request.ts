@@ -3,6 +3,9 @@ import { DataSourceType, PostAPPType, DefinedContractNamesType, APPDataSourceTyp
 import lodash from 'lodash-es';
 import BN from 'bn.js';
 import { showToast } from 'common/components/showPopup/Toast';
+import { CSVType } from 'payment/src/utils/types';
+import { store } from '@cfxjs/use-wallet-react/ethereum';
+import { Unit } from '@cfxjs/use-wallet-react/ethereum';
 
 interface RequestProps {
     name: DefinedContractNamesType;
@@ -217,5 +220,29 @@ export const getAPPUsers = async (
             list: [],
             total: 0,
         };
+    }
+};
+
+export const airdrop = async (list: CSVType, address: string) => {
+    try {
+        const params = list.reduce(
+            (prev, curr) => {
+                if (web3.utils.isAddress(curr[0])) {
+                    prev[0].push(curr[0]);
+                    prev[1].push(web3.utils.toBN(Unit.fromStandardUnit(curr[1]).toDecimalMinUnit()));
+                    prev[2].push(curr[2] || '');
+                }
+                return prev;
+            },
+            [[], [], []] as Array<(string | BN | number)[]>
+        );
+
+        return await getContract('app', address)
+            .airdropBatch(...params)
+            .send({ from: store.getState().accounts?.[0] });
+    } catch (error: any) {
+        console.log('postAPP error: ', error);
+        showToast(`Request failed, details: ${error.message}`, { type: 'failed' });
+        throw error;
     }
 };
