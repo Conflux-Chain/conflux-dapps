@@ -1,8 +1,7 @@
 import { UsersDataSourceType } from '../types';
 import Address from 'payment/src/components/Address';
 import Networks from 'common/conf/Networks';
-import BN from 'bn.js'
-import { DECIMALS } from 'payment/src/contracts/constants'
+import { Unit } from '@cfxjs/use-wallet-react/ethereum';
 
 export const balance = {
     title: 'Balance',
@@ -10,8 +9,7 @@ export const balance = {
     key: 'balance',
     ellipsis: true,
     render(val: UsersDataSourceType['balance']) {
-        // TODO why no decimal
-        return new BN(val).div(new BN(DECIMALS[18])).toNumber();
+        return Unit.fromMinUnit(val).toDecimalStandardUnit();
     },
 };
 
@@ -21,8 +19,7 @@ export const airdrop = {
     key: 'airdrop',
     ellipsis: true,
     render(val: UsersDataSourceType['airdrop']) {
-        // TODO why no decimal
-        return new BN(val).div(new BN(DECIMALS[18])).toNumber();
+        return Unit.fromMinUnit(val).toDecimalStandardUnit();
     },
 };
 
@@ -31,10 +28,6 @@ export const user = {
     dataIndex: 'address',
     key: 'address',
     render(addr: UsersDataSourceType['address']) {
-        return (
-            <Address link={`${Networks.eSpace.blockExplorerUrls[0]}/address/${addr}`}>
-                {addr}
-            </Address>
-        );
+        return <Address link={`${Networks.eSpace.blockExplorerUrls[0]}/address/${addr}`}>{addr}</Address>;
     },
 };

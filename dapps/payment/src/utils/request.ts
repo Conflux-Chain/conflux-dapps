@@ -1,8 +1,8 @@
 import { getContract, web3 } from '.';
 import { DataSourceType, PostAPPType, DefinedContractNamesType, APPDataSourceType, UsersDataSourceType } from 'payment/src/utils/types';
-import { notification } from 'antd';
-import lodash, { add } from 'lodash-es';
-import BN from 'bn.js'
+import lodash from 'lodash-es';
+import BN from 'bn.js';
+import { showToast } from 'common/components/showPopup/Toast';
 
 interface RequestProps {
     name: DefinedContractNamesType;
@@ -49,18 +49,15 @@ const request = async (params: RequestProps | RequestProps[]) => {
         }
     } catch (error: any) {
         console.log('request error: ', error);
-        notification.error({
-            message: 'Error',
-            description: error,
-        });
+        showToast(`Request failed, details: ${error}`, { type: 'failed' });
         throw error;
     }
 };
 
 export const getAPPs = async (creator?: string): Promise<DataSourceType[]> => {
-    try {        
-        const method = creator ? 'listAppByCreator' : 'listApp'
-        const args = creator ? [creator, 0, 1e8] : [0, 1e8]
+    try {
+        const method = creator ? 'listAppByCreator' : 'listApp';
+        const args = creator ? [creator, 0, 1e8] : [0, 1e8];
 
         const apps = await request({
             name: 'controller',
@@ -69,8 +66,8 @@ export const getAPPs = async (creator?: string): Promise<DataSourceType[]> => {
         });
         const methods = ['name', 'symbol', 'appOwner', 'totalCharged'];
 
-        const appContracts = creator ? apps[0].map((a:string[]) => a[0]) : apps[0]
-        
+        const appContracts = creator ? apps[0].map((a: string[]) => a[0]) : apps[0];
+
         const appDetails = await request(
             lodash.flattenDeep([
                 appContracts.map((a: string) =>
@@ -99,44 +96,37 @@ export const getAPPs = async (creator?: string): Promise<DataSourceType[]> => {
     }
 };
 
-
-export const postAPP = async ({
-    name,
-    url,
-    weight,
-    account
-}: PostAPPType) => {
+export const postAPP = async ({ name, url, weight, account }: PostAPPType) => {
     try {
-        return await getContract('controller').createApp(name, url, '', weight).send({from: account});
+        return await getContract('controller').createApp(name, url, '', weight).send({ from: account });
     } catch (error: any) {
         console.log('postAPP error: ', error);
-        notification.error({
-            message: 'Error',
-            description: error,
-        });
-        return null;
+        showToast(`Request failed, details: ${error.message}`, { type: 'failed' });
+        throw error;
     }
-}
+};
 
 export const getAPP = async (address: RequestProps['address']): Promise<APPDataSourceType> => {
     try {
         const methods: Array<any> = [
-            ['name'], 
-            ['symbol'], 
-            ['appOwner'], 
-            ['totalCharged'], 
-            ['totalRequests'], 
+            ['name'],
+            ['symbol'],
+            ['appOwner'],
+            ['totalCharged'],
+            ['totalRequests'],
             ['listUser', [0, 0]],
-            ['listResources', [0, 1e8]], 
+            ['listResources', [0, 1e8]],
         ];
 
-        const data = await request(methods.map((m, i) => ({
-            name: 'app',
-            address: address,
-            method: m[0],
-            index: i,
-            args: m[1]
-        })))
+        const data = await request(
+            methods.map((m, i) => ({
+                name: 'app',
+                address: address,
+                method: m[0],
+                index: i,
+                args: m[1],
+            }))
+        );
 
         return {
             name: data[0],
@@ -153,8 +143,8 @@ export const getAPP = async (address: RequestProps['address']): Promise<APPDataS
                     submitTimestamp: d.submitSeconds,
                 })),
                 total: new BN(data[6][1]).toNumber(),
-            }
-        }
+            },
+        };
     } catch (error: any) {
         console.log('getAPP error: ', error);
         return {
@@ -167,59 +157,65 @@ export const getAPP = async (address: RequestProps['address']): Promise<APPDataS
             resources: {
                 list: [],
                 total: 0,
-            }
+            },
         };
     }
-}
+};
 
-export const getAPPUsers = async (address: RequestProps['address']): Promise<{
-    list: UsersDataSourceType[],
-    total: 0
+export const getAPPUsers = async (
+    address: RequestProps['address']
+): Promise<{
+    list: UsersDataSourceType[];
+    total: 0;
 }> => {
     try {
-        const methods: Array<any> = [
-            ['listUser', [0, 1e8]],
-        ];
+        const methods: Array<any> = [['listUser', [0, 1e8]]];
 
-        const data = (await request(methods.map((m, i) => ({
-            name: 'app',
-            address: address,
-            method: m[0],
-            index: i,
-            args: m[1]
-        }))))[0]
+        const data = (
+            await request(
+                methods.map((m, i) => ({
+                    name: 'app',
+                    address: address,
+                    method: m[0],
+                    index: i,
+                    args: m[1],
+                }))
+            )
+        )[0];
 
-        let list = []
+        let list = [];
         const users = data[0];
         const total = data[1];
 
         if (users.length) {
-            const methodsOfBalance: Array<[string, [string]]> = users.map((u: {user: string}) => ['balanceOfWithAirdrop', [u.user]])
+            const methodsOfBalance: Array<[string, [string]]> = users.map((u: { user: string }) => ['balanceOfWithAirdrop', [u.user]]);
 
-            const dataOfBalance = await request(methodsOfBalance.map((m, i:number) => ({
-                name: 'app',
-                address: address,
-                method: m[0],
-                index: i,
-                args: m[1]
-            })))
+            const dataOfBalance = await request(
+                methodsOfBalance.map((m, i: number) => ({
+                    name: 'app',
+                    address: address,
+                    method: m[0],
+                    index: i,
+                    args: m[1],
+                }))
+            );
 
             list = users.map((u: any, i: number) => ({
                 address: u.user,
                 balance: dataOfBalance[i].total,
                 airdrop: dataOfBalance[i].airdrop_,
-            }))
+            }));
         }
 
         return {
             list,
-            total
-        }
+            total,
+        };
     } catch (error) {
         console.log('getAPPUsers error: ', error);
         return {
             list: [],
-            total: 0
-        }
+            total: 0,
+        };
     }
-}
+};

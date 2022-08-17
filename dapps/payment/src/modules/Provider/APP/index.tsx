@@ -3,14 +3,14 @@ import Title from 'payment/src/components/Title';
 import { useParams } from 'react-router-dom';
 import { getAPP } from 'payment/src/utils/request';
 import { APPDataSourceType } from 'payment/src/utils/types';
-import Address from 'payment/src/components/Address'
+import Address from 'payment/src/components/Address';
 import Networks from 'common/conf/Networks';
-import {APPDetailRow, APPDetailCard} from 'payment/src/components/APPDetail'
-import lodash from 'lodash'
-import BN from 'bn.js'
-import { DECIMALS } from 'payment/src/contracts/constants'
+import { APPDetailRow, APPDetailCard } from 'payment/src/components/APPDetail';
+import lodash from 'lodash';
+import BN from 'bn.js';
+import { DECIMALS } from 'payment/src/contracts/constants';
 import * as col from 'payment/src/utils/columns/resources';
-import {Table} from 'antd'
+import { Table } from 'antd';
 
 export default () => {
     const { address } = useParams();
@@ -24,7 +24,7 @@ export default () => {
         resources: {
             list: [],
             total: 0,
-        }
+        },
     });
     const [loading, setLoading] = useState<boolean>(false);
     const config = [
@@ -53,48 +53,67 @@ export default () => {
         });
     }, [address]);
 
-    const columns = useMemo(
-        () => [col.index, col.resource, col.weight, col.requests, col.effectTime].map((c, i) => ({ ...c, width: [1, 4, 4, 4, 4][i] })),
-        []
-    );
-    
+    const columns = useMemo(() => [col.index, col.resource, col.weight, col.requests, col.effectTime].map((c, i) => ({ ...c, width: [1, 4, 4, 4, 4][i] })), []);
+
     return (
         <div>
             <Title config={config} backTo="/payment/provider/apps"></Title>
 
-            <APPDetailRow details={[{
-                label: 'APP Name',
-                content: data.name || '-'
-            }, {
-                label: 'APP Address',
-                content: address ? <Address link={`${Networks.eSpace.blockExplorerUrls[0]}/address/${address}`}>{address as string}</Address> : '-',
-            }, {
-                label: 'BaseURL',
-                content: data.baseURL || '-'
-            }, {
-                label: 'Owner',
-                content: address ? <Address link={`${Networks.eSpace.blockExplorerUrls[0]}/address/${data.owner}`}>{data.owner}</Address> : '-',
-            }]} />
+            <APPDetailRow
+                details={[
+                    {
+                        label: 'APP Name',
+                        content: data.name || '-',
+                    },
+                    {
+                        label: 'APP Address',
+                        content: address ? <Address link={`${Networks.eSpace.blockExplorerUrls[0]}/address/${address}`}>{address as string}</Address> : '-',
+                    },
+                    {
+                        label: 'BaseURL',
+                        content: data.baseURL || '-',
+                    },
+                    {
+                        label: 'Owner',
+                        content: address ? <Address link={`${Networks.eSpace.blockExplorerUrls[0]}/address/${data.owner}`}>{data.owner}</Address> : '-',
+                    },
+                ]}
+            />
 
-            <div className='mt-4'></div>
+            <div className="mt-4"></div>
 
-            <APPDetailCard details={[{
-                label: 'Earning',
-                content: lodash.isNil(data.earnings) ? '-' : new BN(data.earnings).div(new BN(DECIMALS[18])).toNumber()
-            }, {
-                label: 'APIs',
-                content: data.resources.total || '-',
-            }, {
-                label: 'Requests',
-                content: lodash.isNil(data.requests) ? '-' : data.requests
-            }, {
-                label: 'Users',
-                content: lodash.isNil(data.users) ? '-' : data.users
-            }]} />
+            <APPDetailCard
+                details={[
+                    {
+                        label: 'Earning',
+                        content: lodash.isNil(data.earnings) ? '-' : new BN(data.earnings).div(new BN(DECIMALS[18])).toNumber(),
+                    },
+                    {
+                        label: 'APIs',
+                        content: data.resources.total || '-',
+                    },
+                    {
+                        label: 'Requests',
+                        content: lodash.isNil(data.requests) ? '-' : data.requests,
+                    },
+                    {
+                        label: 'Users',
+                        content: lodash.isNil(data.users) ? '-' : data.users,
+                    },
+                ]}
+            />
 
-            <div className='mt-8 mb-4 text-xl'>APIs</div>
+            <div className="mt-8 mb-4 text-xl">APIs</div>
 
-            <Table dataSource={data.resources.list} columns={columns} size="small" rowKey="address" scroll={{ x: 800 }} pagination={false} loading={loading} />
+            <Table
+                dataSource={data.resources.list}
+                columns={columns}
+                size="small"
+                rowKey="resourceId"
+                scroll={{ x: 800 }}
+                pagination={false}
+                loading={loading}
+            />
         </div>
     );
 };

@@ -1,28 +1,39 @@
-import { useEffect, useState, useMemo, useCallback } from 'react';
-import { Table, Button, Input, Row, Col, Modal, Form, InputNumber } from 'antd';
-import { postAPP } from 'payment/src/utils/request'
+import { useState, useCallback } from 'react';
+import { Button, Input, Modal, Form, InputNumber } from 'antd';
+import { postAPP } from 'payment/src/utils/request';
 import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
-import { PostAPPType } from 'payment/src/utils/types'
 import { AuthESpace } from 'common/modules/AuthConnectButton';
+import { showToast } from 'common/components/showPopup/Toast';
 
-export default () => {
-    const account = useAccount()
+interface Props extends React.HTMLAttributes<HTMLDivElement> {
+    onComplete?: (data: any) => void;
+}
+
+export default ({ onComplete }: Props) => {
+    const account = useAccount();
     const [form] = Form.useForm();
+    const [loading, setLoading] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
     const showModal = useCallback(() => setIsModalVisible(true), []);
 
     const handleOk = useCallback(() => {
         form.validateFields().then(async function ({ name, url, weight }) {
             try {
-                await postAPP({
+                setLoading(true);
+                const data = await postAPP({
                     name,
                     url,
                     weight,
-                    account: account as string
-                })
-                // TODO watch tx status and notification
+                    account: account as string,
+                });
+                console.log('data: ', data);
+                setLoading(false);
+                setIsModalVisible(false);
+                onComplete && onComplete(data);
+                showToast('Create APP success', { type: 'success' });
             } catch (e) {
-                console.log(e)
+                console.log(e);
+                setLoading(false);
             }
         });
     }, []);
@@ -34,7 +45,7 @@ export default () => {
 
     return (
         <>
-            <AuthESpace 
+            <AuthESpace
                 className="!rounded-sm"
                 id="createAPP-authConnect"
                 size="mini"
@@ -42,13 +53,21 @@ export default () => {
                 checkChainMatch={false}
                 color="primary"
                 shape="rect"
-                authContent={
-                    () => <Button size="small" type="primary" onClick={showModal}>
+                authContent={() => (
+                    <Button size="small" type="primary" onClick={showModal}>
                         Create APP
                     </Button>
-                }
+                )}
             />
-            <Modal title="Create New APP" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel} okText="Confirm" cancelText="Cancel">
+            <Modal
+                title="Create New APP"
+                visible={isModalVisible}
+                onOk={handleOk}
+                onCancel={handleCancel}
+                okText="Confirm"
+                cancelText="Cancel"
+                confirmLoading={loading}
+            >
                 <Form form={form} name="basic" autoComplete="off" layout="vertical">
                     <Form.Item
                         label="APP Name"
