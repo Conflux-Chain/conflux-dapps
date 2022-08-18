@@ -47,7 +47,7 @@ export const proposalListStore = create(
     subscribeWithSelector(
         () =>
             ({
-                proposalList: LocalStorage.getItem(`proposalList-${Networks.core.chainId}`, 'governance') ?? [],
+                proposalList: LocalStorage.getItem(`proposalList-${Networks.core.chainId}`, 'governance') ?? undefined,
                 proposalCount: LocalStorage.getItem(`proposalCount-${Networks.core.chainId}`, 'governance') ?? 0,
                 currentPage: 1,
                 pageSize: LocalStorage.getItem(`pageSize-${Networks.core.chainId}`, 'governance') ?? 7,
@@ -85,7 +85,14 @@ export const startTrackProposalList = intervalFetchChain(
     {
         intervalTime: 30000,
         callback: (res) => {
-            if (typeof res !== 'string' || res === '0x') return;
+            if (typeof res !== 'string' || res === '0x') {
+                proposalListStore.setState({ proposalCount: undefined, proposalList: [], openedProposalId: undefined, openedProposal: undefined });
+                LocalStorage.setItem({ key: `openedProposalId-${Networks.core.chainId}`, data: undefined, namespace: 'governance' });
+                LocalStorage.setItem({ key: `openedProposal-${Networks.core.chainId}`, data: undefined, namespace: 'governance' });
+                LocalStorage.setItem({ key: `proposalCount-${Networks.core.chainId}`, data: undefined, namespace: 'governance' });
+                LocalStorage.setItem({ key: `proposalList-${Networks.core.chainId}`, data: [], namespace: 'governance' });
+                return;
+            }
             const proposalCount = Number(res);
             LocalStorage.setItem({ key: `proposalCount-${Networks.core.chainId}`, data: proposalCount, namespace: 'governance' });
             proposalListStore.setState({ proposalCount });
@@ -101,7 +108,11 @@ export const startTrackProposalList = intervalFetchChain(
                     'latest_state',
                 ],
             }).then((res) => {
-                if (typeof res !== 'string') return;
+                if (typeof res !== 'string' || res === '0x') {
+                    LocalStorage.setItem({ key: `proposalList-${Networks.core.chainId}`, data: [], namespace: 'governance' });
+                    proposalListStore.setState({ proposalList: [] });
+                    return;
+                }
                 const proposalListOrigin = decodeHexResult(governanceContract.getProposalList(0, proposalCount)._method.outputs, res)?.[0];
                 const proposalList = formatProposalList(proposalListOrigin);
                 LocalStorage.setItem({ key: `proposalList-${Networks.core.chainId}`, data: proposalList, namespace: 'governance' });
@@ -144,10 +155,10 @@ export const startTrackOpenedProposal = () => {
                     'latest_state',
                 ],
             }).then((res) => {
-                if (typeof res !== 'string') return;
+                if (typeof res !== 'string' || res === '0x') return;
                 const currentOpenedProposalId = proposalListStore.getState().openedProposalId;
                 if (currentOpenedProposalId !== openedProposalId) return;
-                
+
                 const proposalOrigin = decodeHexResult(governanceContract.getProposalById(openedProposalId)._method.outputs, res)?.[0];
                 const proposal = formatProposal(proposalOrigin);
                 LocalStorage.setItem({ key: `openedProposal-${Networks.core.chainId}`, data: proposal, namespace: 'governance' });

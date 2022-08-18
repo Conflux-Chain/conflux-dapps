@@ -24,7 +24,7 @@ const GovernanceEnhance: React.FC = () => {
             <NavLink
                 id="governance-vote"
                 name="Vote"
-                path={{ pathname: 'governance/vote/proposals', search: location.search }}
+                path={{ pathname: 'governance/vote/onchain-dao-voting', search: location.search }}
                 isCurrent={location.pathname.startsWith('/governance/vote')}
             />
         </div>

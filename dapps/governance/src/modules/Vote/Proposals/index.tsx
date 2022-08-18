@@ -42,10 +42,13 @@ const Proposals: React.FC = () => {
             <div
                 id="governance-reward-interest-rate-list"
                 className={cx(
-                    'governance-shadow flex flex-col h-[560px] rounded-[8px] rounded-tl-none bg-white overflow-hidden',
+                    'relative governance-shadow flex flex-col h-[560px] rounded-[8px] rounded-tl-none bg-white overflow-hidden',
                     typeof openedProposalId === 'number' ? 'opacity-0 pointer-events-none' : 'opacity-100'
                 )}
             >
+                {Array.isArray(proposalList) && proposalList.length === 0 &&
+                    <span className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[20px] text-[#898D9A] font-medium'>No Proposals</span>
+                }
                 {filterLst.map((proposal) => (
                     <ProposalItem key={proposal.id} {...proposal} isOpen={false} />
                 ))}
@@ -113,7 +116,8 @@ const OpenedProposalDetail: React.FC = () => {
     const proposalList = useProposalList();
     const adjoinProposal = useMemo(() => {
         const currentProposalIndex = proposalList?.findIndex(proposal => proposal.id === openedProposalId);
-        if (typeof currentProposalIndex !== 'number' || !proposalList) return { pre: null, next: null };
+
+        if (typeof currentProposalIndex !== 'number' || currentProposalIndex === -1 || !proposalList) return { pre: null, next: null };
         return {
             pre: currentProposalIndex === 0 ? null: proposalList[currentProposalIndex - 1].id,
             next: currentProposalIndex === proposalList?.length - 1 ? null : proposalList[(currentProposalIndex + 1)].id
