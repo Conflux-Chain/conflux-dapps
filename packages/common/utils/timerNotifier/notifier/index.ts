@@ -15,6 +15,11 @@ const preFixZero = {
 
 const formatRemainTime = (_remainTime: duration.Duration) => {
     const remainTime = (_remainTime as any).$d;
+
+    //TODO:  dayjs will automatically carry.But the maximum time unit needed for governance is days, so here the month is temporarily converted to days.
+    // If there are more places to use the timerNotifier in the future, an API is needed to specify the maximum unit.
+    remainTime.days += remainTime.months * 30;
+    
     const formated = {} as Record<keyof typeof preFixZero, string>;
     for (const _unit in remainTime) {
         const unit = _unit as keyof typeof preFixZero;

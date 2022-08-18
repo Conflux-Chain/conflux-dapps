@@ -23,7 +23,6 @@ import CrossSpaceIcon from 'hub/src/assets/cross-space.svg';
 import AirdropIcon from 'hub/src/assets/Airdrop.svg';
 import { hideAllToast } from 'common/components/showPopup/Toast';
 import LocalStorage from 'localstorage-enhance';
-import Networks from 'common/conf/Networks';
 import './App.css';
 
 export const dapps = [
@@ -49,19 +48,18 @@ export const dapps = [
         path: 'espace-airdrop',
         element: <Airdrop />,
     },
-];
-
-Networks.core.chainId === '8888' && dapps.push({
-    name: 'Governance',
-    icon: GovernanceIcon,
-    path: 'governance',
-    link: 'governance/dashboard',
-    element: <GovernanceDashboard />,
-    NavbarEnhance: {
-        type: 'childRoutes' as 'childRoutes',
-        Content: <GovernanceNavbarEnhance />,
+    {
+        name: 'Governance',
+        icon: GovernanceIcon,
+        path: 'governance',
+        link: 'governance/dashboard',
+        element: <GovernanceDashboard />,
+        NavbarEnhance: {
+            type: 'childRoutes' as 'childRoutes',
+            Content: <GovernanceNavbarEnhance />,
+        }
     }
-} as any);
+];
 
 const App = () => {
     const [mode, setMode] = useState<'light' | 'dark'>(() => {
@@ -135,20 +133,16 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                         <Route key='bsc-esapce-cfx' path='bsc-esapce-cfx' element={<BscEspace />} />
                     </Route>
                     <Route key='espace-airdrop' path='espace-airdrop' element={<Airdrop />} />
-                    {Networks.core.chainId === '8888' &&
-                        <>
-                            <Route key='governance' path='governance' element={<Outlet />}>
-                                <Route key='governance-dashboard' path='dashboard' element={<GovernanceDashboard />} />
-                                <Route key='governance-vote' path='vote' element={<Vote />}>
-                                    <Route index element={<RewardInterestRate />}  />
-                                    <Route key='governance-vote-proposals' path='proposals' element={<Proposals />} />
-                                    <Route key='governance-vote-onchain-dao-voting' path='onchain-dao-voting' element={<RewardInterestRate />} />
-                                </Route>
-                            </Route>
-                            <Route path="governance/" element={<Navigate to="/governance/dashboard"/>} />
-                            <Route path="governance/*" element={<Navigate to="/governance/dashboard"/>} />
-                        </>
-                    }
+                    <Route key='governance' path='governance' element={<Outlet />}>
+                        <Route key='governance-dashboard' path='dashboard' element={<GovernanceDashboard />} />
+                        <Route key='governance-vote' path='vote' element={<Vote />}>
+                            <Route index element={<RewardInterestRate />}  />
+                            <Route key='governance-vote-proposals' path='proposals' element={<Proposals />} />
+                            <Route key='governance-vote-onchain-dao-voting' path='onchain-dao-voting' element={<RewardInterestRate />} />
+                        </Route>
+                    </Route>
+                    <Route path="governance/" element={<Navigate to="/governance/dashboard"/>} />
+                    <Route path="governance/*" element={<Navigate to="/governance/dashboard"/>} />
                     <Route key='shuttle-flow' path="shuttle-flow/*" element={<div id="shuttle-flow" />} />
                     <Route path="*" element={<Navigate to="espace-bridge"/>} />
                 </Routes>

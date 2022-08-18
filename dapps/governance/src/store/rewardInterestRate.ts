@@ -15,12 +15,12 @@ const dateConfigs = {
         duration: Unit.fromMinUnit('3600'),
     },
     '1': {
-        start: Unit.fromMinUnit('1790000'),
-        duration: Unit.fromMinUnit('1036800'),
+        start: Unit.fromMinUnit('112400000'),
+        duration: Unit.fromMinUnit('10368000'),
     },
     '1029': {
-        start: Unit.fromMinUnit('1790000'),
-        duration: Unit.fromMinUnit('1036800'),
+        start: Unit.fromMinUnit('112400000'),
+        duration: Unit.fromMinUnit('10368000'),
     },
 } as const;
 const currentDataConfig = dateConfigs[Networks.core.chainId as keyof typeof dateConfigs];
