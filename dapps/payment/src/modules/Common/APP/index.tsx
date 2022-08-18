@@ -1,8 +1,8 @@
 import { useEffect, useState, useMemo } from 'react';
 import Title from 'payment/src/components/Title';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { getAPP } from 'payment/src/utils/request';
-import { APPDataSourceType } from 'payment/src/utils/types';
+import { APPDataSourceType, TitleType } from 'payment/src/utils/types';
 import Address from 'payment/src/components/Address';
 import Networks from 'common/conf/Networks';
 import { APPDetailRow, APPDetailCard } from 'payment/src/components/APPDetail';
@@ -14,6 +14,8 @@ import { Table } from 'antd';
 
 export default () => {
     const { address } = useParams();
+    const { pathname } = useLocation();
+    const from = pathname.includes('/payment/consumer') ? 'consumer' : 'provider';
     const [data, setData] = useState<APPDataSourceType>({
         name: '',
         baseURL: '',
@@ -27,16 +29,19 @@ export default () => {
         },
     });
     const [loading, setLoading] = useState<boolean>(false);
-    const config = [
+    const config: TitleType[] = [
         {
             text: 'Details',
             active: true,
         },
-        {
+    ];
+
+    if (from === 'provider') {
+        config.push({
             text: 'Users',
             link: `/payment/provider/app/${address}/users`,
-        },
-    ];
+        });
+    }
 
     useEffect(() => {
         async function main() {
@@ -57,7 +62,7 @@ export default () => {
 
     return (
         <div>
-            <Title config={config} backTo="/payment/provider/apps"></Title>
+            <Title config={config} backTo={`/payment/${from}/apps`}></Title>
 
             <APPDetailRow
                 details={[
@@ -80,28 +85,32 @@ export default () => {
                 ]}
             />
 
-            <div className="mt-4"></div>
+            {from === 'provider' && (
+                <>
+                    <div className="mt-4"></div>
 
-            <APPDetailCard
-                details={[
-                    {
-                        label: 'Earning',
-                        content: lodash.isNil(data.earnings) ? '-' : new BN(data.earnings).div(new BN(DECIMALS[18])).toNumber(),
-                    },
-                    {
-                        label: 'APIs',
-                        content: data.resources.total || '-',
-                    },
-                    {
-                        label: 'Requests',
-                        content: lodash.isNil(data.requests) ? '-' : data.requests,
-                    },
-                    {
-                        label: 'Users',
-                        content: lodash.isNil(data.users) ? '-' : data.users,
-                    },
-                ]}
-            />
+                    <APPDetailCard
+                        details={[
+                            {
+                                label: 'Earning',
+                                content: lodash.isNil(data.earnings) ? '-' : new BN(data.earnings).div(new BN(DECIMALS[18])).toNumber(),
+                            },
+                            {
+                                label: 'APIs',
+                                content: data.resources.total || '-',
+                            },
+                            {
+                                label: 'Requests',
+                                content: lodash.isNil(data.requests) ? '-' : data.requests,
+                            },
+                            {
+                                label: 'Users',
+                                content: lodash.isNil(data.users) ? '-' : data.users,
+                            },
+                        ]}
+                    />
+                </>
+            )}
 
             <div className="mt-8 mb-4 text-xl">APIs</div>
 

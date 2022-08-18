@@ -43,3 +43,9 @@ export interface PostAPPType {
 }
 
 export type CSVType = Array<Array<string>>;
+
+export interface TitleType {
+    text: string;
+    link?: string;
+    active?: boolean;
+}

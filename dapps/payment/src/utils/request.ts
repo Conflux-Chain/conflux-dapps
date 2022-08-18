@@ -85,9 +85,9 @@ export const getAPPs = async (creator?: string): Promise<DataSourceType[]> => {
         );
 
         const r: any = lodash.chunk(appDetails, methods.length).map((d, i) => ({
+            address: appContracts[i],
             name: d[0],
             baseURL: d[1],
-            address: appContracts[i],
             owner: d[2],
             earnings: d[3],
         }));

@@ -2,11 +2,12 @@ import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { Card } from 'antd';
 import 'antd/dist/antd.css';
 
-import APP from './Provider/APP';
+import APP from './Common/APP';
 import APPs from './Provider/APPs';
 import Users from './Provider/Users';
 import Setting from './Provider/Setting';
-import Consumer from './Consumer';
+import ConsumerAPPs from './Consumer/APPs';
+// import ConsumerAPP from './Consumer/APP';
 
 export default () => {
     return (
@@ -19,7 +20,9 @@ export default () => {
                 <Route path="/provider/app/:address/users" element={<Users />} />
                 <Route path="/provider/app/:address" element={<APP />} />
                 <Route path="/provider/setting" element={<Setting />} />
-                <Route path="/consumer" element={<Consumer />} />
+                <Route path="/consumer" element={<Navigate to="apps" />} />
+                <Route path="/consumer/apps" element={<ConsumerAPPs />} />
+                <Route path="/consumer/app/:address" element={<APP />} />
                 <Route path="*" element={<Navigate to="provider/apps" />} />
             </Routes>
             <Outlet />
