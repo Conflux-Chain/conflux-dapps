@@ -28,8 +28,8 @@ import './App.css';
 
 import Payment from 'payment/src/modules';
 import PaymentNavbarEnhance from 'hub/src/modules/NavbarEnhance/Payment';
-// TODO use goverance icon for temporary
-import PaymentIcon from 'hub/src/assets/governance.svg';
+// TODO just for temporary, need to replace with real
+import PaymentIcon from 'payment/src/assets/Payment.png';
 
 export const dapps = [
     {
@@ -54,7 +54,10 @@ export const dapps = [
         path: 'espace-airdrop',
         element: <Airdrop />,
     },
-    {
+];
+
+if (localStorage.getItem('payment') == '1' && Networks.core.chainId !== '1030') {
+    dapps.push({
         name: 'Payment',
         icon: PaymentIcon,
         path: 'payment',
@@ -64,8 +67,8 @@ export const dapps = [
             type: 'childRoutes' as 'childRoutes',
             Content: <PaymentNavbarEnhance />,
         },
-    } as any,
-];
+    } as any);
+}
 
 Networks.core.chainId === '8888' &&
     dapps.push({
@@ -170,8 +173,12 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                         </>
                     )}
 
-                    <Route key="payment" path="payment" element={<Payment />} />
-                    <Route key="payment" path="payment/*" element={<Payment />} />
+                    {localStorage.getItem('payment') == '1' && Networks.core.chainId !== '1030' && (
+                        <>
+                            <Route key="payment" path="payment" element={<Payment />} />
+                            <Route key="payment" path="payment/*" element={<Payment />} />
+                        </>
+                    )}
 
                     <Route key="shuttle-flow" path="shuttle-flow/*" element={<div id="shuttle-flow" />} />
                     <Route path="*" element={<Navigate to="espace-bridge" />} />
