@@ -24,12 +24,28 @@ import AirdropIcon from 'hub/src/assets/Airdrop.svg';
 import { hideAllToast } from 'common/components/showPopup/Toast';
 import LocalStorage from 'localstorage-enhance';
 import './App.css';
-import Networks from 'common/conf/Networks';
+import { isProduction } from 'common/conf/Networks';
+import { showToast } from 'common/components/showPopup/Toast';
 
 import Payment from 'payment/src/modules';
 import PaymentNavbarEnhance from 'hub/src/modules/NavbarEnhance/Payment';
 // TODO just for temporary, need to replace with real
 import PaymentIcon from 'payment/src/assets/Payment.png';
+import Keyboard from 'custom-keyboard';
+
+Keyboard.mount();
+
+Keyboard.bind('p -> a -> y -> m -> e -> n -> t', () => {
+    const pre = localStorage.getItem('payment');
+    showToast({
+        text: `Page will auto refresh after 3s to ${pre === '1' ? 'unload' : 'load'} Payment Dapp.`,
+        onClickOk: () => location.reload(),
+        okButtonText: `${pre === '1' ? 'Unload' : 'Load'} Now`,
+    }, { type: 'success', duration: 3333 });
+    setTimeout(() => location.reload(), 3333);
+    localStorage.setItem('payment', pre === '1' ? '0' : '1');
+});
+
 
 export const dapps = [
     {
@@ -67,7 +83,7 @@ export const dapps = [
     },
 ];
 
-if (localStorage.getItem('payment') == '1' && Networks.core.chainId !== '1030') {
+if (localStorage.getItem('payment') == '1' && !isProduction) {
     dapps.push({
         name: 'Payment',
         icon: PaymentIcon,
@@ -167,7 +183,7 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                     <Route path="governance/" element={<Navigate to="/governance/dashboard" />} />
                     <Route path="governance/*" element={<Navigate to="/governance/dashboard" />} />
                     <Route key="shuttle-flow" path="shuttle-flow/*" element={<div id="shuttle-flow" />} />
-                    {localStorage.getItem('payment') == '1' && Networks.core.chainId !== '1030' && (
+                    {localStorage.getItem('payment') == '1' && !isProduction && (
                         <>
                             {/* <Route key="payment" path="payment" element={<Payment />} /> */}
                             <Route key="payment" path="payment/*" element={<Payment />} />
