@@ -3,7 +3,6 @@ import Title from 'payment/src/components/Title';
 import * as col from 'payment/src/utils/columns/APPs';
 import { DataSourceType } from 'payment/src/utils/types';
 import { getAPPs } from 'payment/src/utils/request';
-import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
 import { Table, Row, Col, Input, Tag } from 'antd';
 import { Link } from 'react-router-dom';
 
@@ -11,7 +10,6 @@ const { Search } = Input;
 
 export default () => {
     const dataCacheRef = useRef<DataSourceType[]>([]);
-    const account = useAccount();
     const [data, setData] = useState<DataSourceType[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const columns = useMemo(
@@ -39,6 +37,16 @@ export default () => {
             ].map((c, i) => ({ ...c, width: [3, 4, 3, 3, 2, 2][i] })),
         []
     );
+    const config = [
+        {
+            text: 'Paid APPs',
+            link: '/payment/consumer/paid-apps',
+        },
+        {
+            text: 'APPs',
+            active: true,
+        },
+    ];
 
     const handleDeposit = useCallback((address: string) => {
         console.log('deposit', address);
@@ -46,13 +54,11 @@ export default () => {
     }, []);
 
     const main = useCallback(async () => {
-        if (account) {
-            setLoading(true);
-            const data = await getAPPs();
-            dataCacheRef.current = data;
-            setData(data);
-            setLoading(false);
-        }
+        setLoading(true);
+        const data = await getAPPs();
+        dataCacheRef.current = data;
+        setData(data);
+        setLoading(false);
     }, []);
 
     useEffect(() => {
@@ -60,7 +66,7 @@ export default () => {
             setLoading(false);
             console.log(e);
         });
-    }, [account]);
+    }, []);
 
     const onSearch = useCallback(
         (value: string) =>
@@ -72,7 +78,7 @@ export default () => {
 
     return (
         <>
-            <Title>APPs</Title>
+            <Title config={config} />
 
             <Row gutter={12}>
                 <Col span="8">

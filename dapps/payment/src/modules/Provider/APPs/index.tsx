@@ -20,23 +20,24 @@ export default () => {
     );
 
     const main = useCallback(async () => {
-        // async function main() {
         if (account) {
             setLoading(true);
-            const data = await getAPPs();
-            // const data = await getAPPs(account);
+            const data = await getAPPs(account);
             dataCacheRef.current = data;
             setData(data);
             setLoading(false);
         }
-        // }
-    }, []);
+    }, [account]);
 
     useEffect(() => {
-        main().catch((e) => {
-            setLoading(false);
-            console.log(e);
-        });
+        if (account) {
+            main().catch((e) => {
+                setLoading(false);
+                console.log(e);
+            });
+        } else {
+            setData([]);
+        }
     }, [account]);
 
     const onSearch = useCallback(

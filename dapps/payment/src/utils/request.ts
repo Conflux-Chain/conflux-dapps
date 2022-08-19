@@ -172,7 +172,7 @@ export const getAPPUsers = async (
     total: 0;
 }> => {
     try {
-        const methods: Array<any> = [['listUser', [0, 1e8]]];
+        const methods: Array<[string, number[]]> = [['listUser', [0, 1e8]]];
 
         const data = (
             await request(
@@ -191,7 +191,7 @@ export const getAPPUsers = async (
         const total = data[1];
 
         if (users.length) {
-            const methodsOfBalance: Array<[string, [string]]> = users.map((u: { user: string }) => ['balanceOfWithAirdrop', [u.user]]);
+            const methodsOfBalance: Array<[string, string[]]> = users.map((u: { user: string }) => ['balanceOfWithAirdrop', [u.user]]);
 
             const dataOfBalance = await request(
                 methodsOfBalance.map((m, i: number) => ({

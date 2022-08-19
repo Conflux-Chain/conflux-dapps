@@ -68,7 +68,7 @@ export default ({ onComplete }: Props) => {
                 cancelText="Cancel"
                 confirmLoading={loading}
             >
-                <Form form={form} name="basic" autoComplete="off" layout="vertical">
+                <Form form={form} name="basic" autoComplete="off" layout="vertical" size="small">
                     <Form.Item
                         label="APP Name"
                         name="name"
