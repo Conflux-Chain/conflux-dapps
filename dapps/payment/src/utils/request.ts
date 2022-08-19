@@ -17,33 +17,37 @@ interface RequestProps {
 const request = async (params: RequestProps | RequestProps[]) => {
     try {
         if (Array.isArray(params)) {
-            return new Promise((resolve, reject) => {
-                try {
-                    const batch = new web3.BatchRequest();
-                    const results: any[] = Array(params.length);
-                    let counter = params.length;
-                    const cb = (error: any, result: any, i: number) => {
-                        counter -= 1;
-                        results[i] = error || result;
-                        if (!counter) {
-                            resolve(results);
-                        }
-                    };
+            if (params.length) {
+                return new Promise((resolve, reject) => {
+                    try {
+                        const batch = new web3.BatchRequest();
+                        const results: any[] = Array(params.length);
+                        let counter = params.length;
+                        const cb = (error: any, result: any, i: number) => {
+                            counter -= 1;
+                            results[i] = error || result;
+                            if (!counter) {
+                                resolve(results);
+                            }
+                        };
 
-                    params
-                        .map((p, i) => {
-                            const { name, method, args = [], address = '' } = p;
-                            const contract = getContract(name, address);
+                        params
+                            .map((p, i) => {
+                                const { name, method, args = [], address = '' } = p;
+                                const contract = getContract(name, address);
 
-                            return contract[method](...args).call.request({}, (e: any, r: any) => cb(e, r, i));
-                        })
-                        .forEach((i) => batch.add(i));
+                                return contract[method](...args).call.request({}, (e: any, r: any) => cb(e, r, i));
+                            })
+                            .forEach((i) => batch.add(i));
 
-                    batch.execute();
-                } catch (error) {
-                    reject(error);
-                }
-            });
+                        batch.execute();
+                    } catch (error) {
+                        reject(error);
+                    }
+                });
+            } else {
+                return [];
+            }
         } else {
             const { name, method, args = [] } = params;
             const contract = getContract(name);
