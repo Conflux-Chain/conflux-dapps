@@ -3,7 +3,7 @@ import Address from 'payment/src/components/Address';
 import { Link } from 'react-router-dom';
 import { Tag } from 'antd';
 import Networks from 'common/conf/Networks';
-import { Unit } from '@cfxjs/use-wallet-react/ethereum';
+import { ethers } from 'ethers';
 
 export const APPName = {
     title: 'APP Name',
@@ -50,7 +50,7 @@ export const earnings = {
     key: 'earnings',
     ellipsis: true,
     render(val: DataSourceType['earnings']) {
-        return Unit.fromMinUnit(val).toDecimalStandardUnit();
+        return ethers.utils.formatUnits(val, 18);
     },
 };
 

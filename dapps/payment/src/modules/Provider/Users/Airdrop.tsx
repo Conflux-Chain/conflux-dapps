@@ -36,6 +36,8 @@ export default ({ onComplete }: Props) => {
                         console.log('airdrop error: ', error);
                         setLoading(false);
                     }
+
+                    e.target.value = '';
                 },
                 error(error) {
                     console.log('process csv file error: ', error);

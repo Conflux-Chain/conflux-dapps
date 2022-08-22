@@ -7,10 +7,9 @@ import Address from 'payment/src/components/Address';
 import Networks from 'common/conf/Networks';
 import { APPDetailRow, APPDetailCard } from 'payment/src/components/APPDetail';
 import lodash from 'lodash';
-import BN from 'bn.js';
-import { DECIMALS } from 'payment/src/contracts/constants';
 import * as col from 'payment/src/utils/columns/resources';
 import { Table } from 'antd';
+import { ethers } from 'ethers';
 
 export default () => {
     const { address } = useParams();
@@ -20,7 +19,7 @@ export default () => {
         name: '',
         baseURL: '',
         owner: '',
-        earnings: '',
+        earnings: 0,
         requests: 0,
         users: 0,
         resources: {
@@ -93,7 +92,7 @@ export default () => {
                         details={[
                             {
                                 label: 'Earning',
-                                content: lodash.isNil(data.earnings) ? '-' : new BN(data.earnings).div(new BN(DECIMALS[18])).toNumber(),
+                                content: lodash.isNil(data.earnings) ? '-' : ethers.utils.formatUnits(data.earnings, 18),
                             },
                             {
                                 label: 'APIs',

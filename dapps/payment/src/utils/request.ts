@@ -1,11 +1,9 @@
-import { getContract, web3 } from '.';
+import { getContract, signer } from '.';
 import { DataSourceType, PostAPPType, DefinedContractNamesType, APPDataSourceType, UsersDataSourceType } from 'payment/src/utils/types';
 import lodash from 'lodash-es';
-import BN from 'bn.js';
 import { showToast } from 'common/components/showPopup/Toast';
 import { CSVType } from 'payment/src/utils/types';
-import { store } from '@cfxjs/use-wallet-react/ethereum';
-import { Unit } from '@cfxjs/use-wallet-react/ethereum';
+import { ethers } from 'ethers';
 
 interface RequestProps {
     name: DefinedContractNamesType;
@@ -18,41 +16,20 @@ const request = async (params: RequestProps | RequestProps[]) => {
     try {
         if (Array.isArray(params)) {
             if (params.length) {
-                return new Promise((resolve, reject) => {
-                    try {
-                        const batch = new web3.BatchRequest();
-                        const results: any[] = Array(params.length);
-                        let counter = params.length;
-                        const cb = (error: any, result: any, i: number) => {
-                            counter -= 1;
-                            results[i] = error || result;
-                            if (!counter) {
-                                resolve(results);
-                            }
-                        };
-
-                        params
-                            .map((p, i) => {
-                                const { name, method, args = [], address = '' } = p;
-                                const contract = getContract(name, address);
-
-                                return contract[method](...args).call.request({}, (e: any, r: any) => cb(e, r, i));
-                            })
-                            .forEach((i) => batch.add(i));
-
-                        batch.execute();
-                    } catch (error) {
-                        reject(error);
-                    }
-                });
+                return await Promise.all(
+                    params.map((p, i) => {
+                        const { name, method, args = [], address = '' } = p;
+                        const contract = getContract(name, address);
+                        return contract[method](...args);
+                    })
+                );
             } else {
                 return [];
             }
         } else {
             const { name, method, args = [] } = params;
             const contract = getContract(name);
-            const data = await contract[method](...args).call();
-            return data;
+            return await contract[method](...args);
         }
     } catch (error: any) {
         console.log('request error: ', error);
@@ -93,7 +70,7 @@ export const getAPPs = async (creator?: string): Promise<DataSourceType[]> => {
             name: d[0],
             baseURL: d[1],
             owner: d[2],
-            earnings: d[3],
+            earnings: (d[3] as ethers.BigNumber).toString(),
         }));
 
         return r;
@@ -103,9 +80,13 @@ export const getAPPs = async (creator?: string): Promise<DataSourceType[]> => {
     }
 };
 
-export const postAPP = async ({ name, url, weight, account }: PostAPPType) => {
+export const postAPP = async ({ name, url, weight }: PostAPPType) => {
     try {
-        return await getContract('controller').createApp(name, url, '', weight).send({ from: account });
+        return await (
+            await getContract('controller').connect(signer).createApp(name, url, '', weight, {
+                type: 0,
+            })
+        ).wait();
     } catch (error: any) {
         console.log('postAPP error: ', error);
         showToast(`Request failed, details: ${error.message}`, { type: 'failed' });
@@ -140,8 +121,8 @@ export const getAPP = async (address: RequestProps['address']): Promise<APPDataS
             baseURL: data[1],
             owner: data[2],
             earnings: data[3],
-            requests: new BN(data[4]).toNumber(),
-            users: new BN(data[5]['total']).toNumber(),
+            requests: data[4].toNumber(),
+            users: data[5]['total'].toNumber(),
             resources: {
                 list: data[6][0].map((d: any) => ({
                     resourceId: d.resourceId,
@@ -149,7 +130,7 @@ export const getAPP = async (address: RequestProps['address']): Promise<APPDataS
                     requests: d.requestTimes,
                     submitTimestamp: d.submitSeconds,
                 })),
-                total: new BN(data[6][1]).toNumber(),
+                total: data[6][1].toNumber(),
             },
         };
     } catch (error: any) {
@@ -158,7 +139,7 @@ export const getAPP = async (address: RequestProps['address']): Promise<APPDataS
             name: '',
             baseURL: '',
             owner: '',
-            earnings: '',
+            earnings: 0,
             requests: 0,
             users: 0,
             resources: {
@@ -231,21 +212,25 @@ export const airdrop = async (list: CSVType, address: string) => {
     try {
         const params = list.reduce(
             (prev, curr) => {
-                if (web3.utils.isAddress(curr[0])) {
+                if (ethers.utils.isAddress(curr[0])) {
                     prev[0].push(curr[0]);
-                    prev[1].push(web3.utils.toBN(Unit.fromStandardUnit(curr[1]).toDecimalMinUnit()));
+                    prev[1].push(ethers.utils.parseUnits(String(curr[1]), 18));
                     prev[2].push(curr[2] || '');
                 }
                 return prev;
             },
-            [[], [], []] as Array<(string | BN | number)[]>
+            [[], [], []] as Array<(string | ethers.BigNumber | number)[]>
         );
 
-        return await getContract('app', address)
-            .airdropBatch(...params)
-            .send({ from: store.getState().accounts?.[0] });
+        return (
+            await getContract('app', address)
+                .connect(signer)
+                .airdropBatch(...params, {
+                    type: 0,
+                })
+        ).wait();
     } catch (error: any) {
-        console.log('postAPP error: ', error);
+        console.log('airdrop error: ', error);
         showToast(`Request failed, details: ${error.message}`, { type: 'failed' });
         throw error;
     }

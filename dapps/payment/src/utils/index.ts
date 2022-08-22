@@ -1,14 +1,22 @@
-import Web3 from 'web3';
 import { RPC } from './constants';
 import { CONTRACT_ADDRESSES, CONTRACT_ABI } from 'payment/src/contracts/constants';
-import { DefinedContractNamesType } from './types'
-import { provider } from '@cfxjs/use-wallet-react/ethereum';
+import { DefinedContractNamesType } from './types';
+import { ethers } from 'ethers';
 
-export const web3 = new Web3(RPC);
+// @ts-ignore
+window.ethers = ethers;
+
+export const providerEthereum = new ethers.providers.Web3Provider(window.ethereum);
+
+export const signer = providerEthereum.getSigner();
+
+export const provider = new ethers.providers.JsonRpcBatchProvider({
+    url: RPC,
+    allowGzip: true,
+});
 
 export const getContract = (name: DefinedContractNamesType, address?: string) => {
-    web3.setProvider(provider as any)
-    return new web3.eth.Contract(CONTRACT_ABI[name] as any, address || CONTRACT_ADDRESSES[name]).methods
+    return new ethers.Contract(address || CONTRACT_ADDRESSES[name as keyof typeof CONTRACT_ADDRESSES], CONTRACT_ABI[name], provider);
 };
 
 export const formatAddress = (addr: string) => {

@@ -26,7 +26,6 @@ export default ({ onComplete }: Props) => {
                     weight,
                     account: account as string,
                 });
-                console.log('data: ', data);
                 setLoading(false);
                 setIsModalVisible(false);
                 onComplete && onComplete(data);

@@ -1,7 +1,7 @@
 import { UsersDataSourceType } from '../types';
 import Address from 'payment/src/components/Address';
 import Networks from 'common/conf/Networks';
-import { Unit } from '@cfxjs/use-wallet-react/ethereum';
+import { ethers } from 'ethers';
 
 export const balance = {
     title: 'Balance',
@@ -9,7 +9,7 @@ export const balance = {
     key: 'balance',
     ellipsis: true,
     render(val: UsersDataSourceType['balance']) {
-        return Unit.fromMinUnit(val).toDecimalStandardUnit();
+        return ethers.utils.formatUnits(val, 18);
     },
 };
 
@@ -19,7 +19,7 @@ export const airdrop = {
     key: 'airdrop',
     ellipsis: true,
     render(val: UsersDataSourceType['airdrop']) {
-        return Unit.fromMinUnit(val).toDecimalStandardUnit();
+        return ethers.utils.formatUnits(val, 18);
     },
 };
 
