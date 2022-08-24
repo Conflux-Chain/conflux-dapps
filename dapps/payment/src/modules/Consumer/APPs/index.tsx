@@ -5,6 +5,7 @@ import { DataSourceType } from 'payment/src/utils/types';
 import { getAPPs } from 'payment/src/utils/request';
 import { Table, Row, Col, Input, Tag } from 'antd';
 import { Link } from 'react-router-dom';
+import Deposit from 'payment/src/modules/Common/Deposit';
 
 const { Search } = Input;
 
@@ -27,9 +28,7 @@ export default () => {
                                 <Tag>
                                     <Link to={`/payment/consumer/app/${row.address}`}>Detail</Link>
                                 </Tag>
-                                <Tag className="cursor-pointer" onClick={(e) => handleDeposit(row.address)}>
-                                    Deposit
-                                </Tag>
+                                <Deposit appAddr={row.address} onComplete={main} />
                             </>
                         );
                     },
@@ -47,11 +46,6 @@ export default () => {
             active: true,
         },
     ];
-
-    const handleDeposit = useCallback((address: string) => {
-        console.log('deposit', address);
-        alert(`TODO, Deposit to ${address}`);
-    }, []);
 
     const main = useCallback(async () => {
         setLoading(true);

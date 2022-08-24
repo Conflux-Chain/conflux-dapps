@@ -1,8 +1,7 @@
 import { getContract, signer } from '.';
-import { DataSourceType, PostAPPType, DefinedContractNamesType, APPDataSourceType, UsersDataSourceType } from 'payment/src/utils/types';
+import { DataSourceType, PostAPPType, DefinedContractNamesType, APPDataSourceType, UsersDataSourceType, CSVType } from 'payment/src/utils/types';
 import lodash from 'lodash-es';
 import { showToast } from 'common/components/showPopup/Toast';
-import { CSVType } from 'payment/src/utils/types';
 import { ethers } from 'ethers';
 
 interface RequestProps {
@@ -234,4 +233,29 @@ export const airdrop = async (list: CSVType, address: string) => {
         showToast(`Request failed, details: ${error.message}`, { type: 'failed' });
         throw error;
     }
+};
+
+export const getAllowance = async ({ account, tokenAddr }: { account: string; tokenAddr: string }) => {
+    const contract = getContract('erc20', tokenAddr);
+    const apiAddr = await getContract('controller').api();
+    return await contract.allowance(account, apiAddr);
+};
+
+export const approve = async ({ tokenAddr, amount = (1e50).toLocaleString('fullwide', { useGrouping: false }) }: { tokenAddr: string; amount?: string }) => {
+    const contract = getContract('erc20', tokenAddr);
+    const apiAddr = await getContract('controller').api();
+    return (
+        await contract.connect(signer).approve(apiAddr, amount, {
+            type: 0,
+        })
+    ).wait();
+};
+
+export const deposit = async ({ amount, appAddr }: { account: string; amount: string; tokenAddr: string; appAddr: string }) => {
+    const contract = getContract('api');
+    return (
+        await contract.connect(signer).depositBaseToken(ethers.utils.parseUnits(amount), appAddr, {
+            type: 0,
+        })
+    ).wait();
 };
