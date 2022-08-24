@@ -252,10 +252,48 @@ export const approve = async ({ tokenAddr, amount = (1e50).toLocaleString('fullw
 };
 
 export const deposit = async ({ amount, appAddr }: { account: string; amount: string; tokenAddr: string; appAddr: string }) => {
-    const contract = getContract('api');
+    const apiAddr = await getContract('controller').api();
+    const contract = getContract('api', apiAddr);
     return (
         await contract.connect(signer).depositBaseToken(ethers.utils.parseUnits(amount), appAddr, {
             type: 0,
         })
     ).wait();
+};
+
+export const getPaidAPPs = async (account: string) => {
+    try {
+        const apiAddr = await getContract('controller').api();
+        const contract = getContract('api', apiAddr);
+        const apps = await contract.listPaidApp(account, 0, 1e15);
+
+        // copy from getAPPs, need to optimized
+        const appContracts = apps[0];
+        const methods = ['name', 'symbol', 'appOwner', 'totalCharged'];
+        const appDetails = await request(
+            lodash.flattenDeep([
+                appContracts.map((a: string) =>
+                    methods.map((m, i) => ({
+                        name: 'app',
+                        address: a,
+                        method: m,
+                        index: i,
+                    }))
+                ),
+            ])
+        );
+
+        const r: any = lodash.chunk(appDetails, methods.length).map((d, i) => ({
+            address: appContracts[i],
+            name: d[0],
+            baseURL: d[1],
+            owner: d[2],
+            earnings: (d[3] as ethers.BigNumber).toString(),
+        }));
+
+        return r;
+    } catch (error) {
+        console.log('getAPPs error: ', error);
+        return [];
+    }
 };

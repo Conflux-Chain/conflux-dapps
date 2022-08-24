@@ -21,7 +21,7 @@ export default () => {
                 col.APPAddress,
                 col.owner,
                 {
-                    ...col.action,
+                    ...col.action(),
                     render(_: string, row: DataSourceType) {
                         return (
                             <>
@@ -33,7 +33,7 @@ export default () => {
                         );
                     },
                 },
-            ].map((c, i) => ({ ...c, width: [3, 4, 3, 3, 2, 2][i] })),
+            ].map((c, i) => ({ ...c, width: [3, 4, 3, 3, 3][i] })),
         []
     );
     const config = [

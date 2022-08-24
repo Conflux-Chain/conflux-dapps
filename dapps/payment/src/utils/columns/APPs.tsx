@@ -54,15 +54,15 @@ export const earnings = {
     },
 };
 
-export const action = {
+export const action = (type = 'provider') => ({
     title: 'Action',
     dataIndex: 'action',
     key: 'action',
     render(_: string, row: DataSourceType) {
         return (
             <Tag>
-                <Link to={`/payment/provider/app/${row.address}`}>Detail</Link>
+                <Link to={`/payment/${type}/app/${row.address}`}>Detail</Link>
             </Tag>
         );
     },
-};
+});
