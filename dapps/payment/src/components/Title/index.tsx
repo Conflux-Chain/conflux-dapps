@@ -11,7 +11,7 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
     backTo?: string | Function;
 }
 
-export default ({ backTo, config = [], children }: Props) => {
+export default ({ backTo, config = [], children, ...others }: Props) => {
     const navigate = useNavigate();
 
     const handleGoBack = useCallback(() => {
@@ -50,9 +50,9 @@ export default ({ backTo, config = [], children }: Props) => {
     }, [config, children]);
 
     return (
-        <div className="mb-4">
+        <div id="title" className="mb-4" {...others}>
             {backTo && (
-                <a onClick={handleGoBack} className="mr-4">
+                <a onClick={handleGoBack} id="button_goBack" className="mr-4">
                     {'< Back'}
                 </a>
             )}

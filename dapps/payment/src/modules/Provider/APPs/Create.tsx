@@ -46,14 +46,14 @@ export default ({ onComplete }: Props) => {
         <>
             <AuthESpace
                 className="!rounded-sm"
-                id="createAPP-authConnect"
+                id="createAPP_authConnect"
                 size="mini"
                 connectTextType="concise"
                 checkChainMatch={false}
                 color="primary"
                 shape="rect"
                 authContent={() => (
-                    <Button size="small" type="primary" onClick={showModal}>
+                    <Button id="button_createAPP" type="primary" onClick={showModal}>
                         Create APP
                     </Button>
                 )}
@@ -66,6 +66,13 @@ export default ({ onComplete }: Props) => {
                 okText="Confirm"
                 cancelText="Cancel"
                 confirmLoading={loading}
+                wrapClassName="createAPP_modal"
+                okButtonProps={{
+                    id: 'button_ok',
+                }}
+                cancelButtonProps={{
+                    id: 'button_cancel',
+                }}
             >
                 <Form form={form} name="basic" autoComplete="off" layout="vertical">
                     <Form.Item
@@ -84,7 +91,7 @@ export default ({ onComplete }: Props) => {
                             },
                         ]}
                     >
-                        <Input />
+                        <Input id="input_APPName" />
                     </Form.Item>
                     <Form.Item
                         label="BaseURL"
@@ -102,7 +109,7 @@ export default ({ onComplete }: Props) => {
                             },
                         ]}
                     >
-                        <Input />
+                        <Input id="input_BaseURL" />
                     </Form.Item>
                     <Form.Item
                         label="Default Resource Weight"
@@ -115,7 +122,7 @@ export default ({ onComplete }: Props) => {
                             },
                         ]}
                     >
-                        <InputNumber style={{ width: '100%' }} min={1} precision={0} />
+                        <InputNumber id="input_ResourceWeight" style={{ width: '100%' }} min={1} precision={0} />
                     </Form.Item>
                 </Form>
             </Modal>

@@ -15,7 +15,8 @@ export default () => {
     const [data, setData] = useState<DataSourceType[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const columns = useMemo(
-        () => [col.APPName, col.baseURL, col.APPAddress, col.owner, col.earnings, col.action].map((c, i) => ({ ...c, width: [3, 4, 3, 3, 2, 2][i] })),
+        () =>
+            [col.APPName, col.baseURL, col.APPAddress, col.owner, col.earnings, col.action('provider')].map((c, i) => ({ ...c, width: [3, 4, 3, 3, 2, 2][i] })),
         []
     );
 
@@ -54,7 +55,9 @@ export default () => {
 
             <Row gutter={12}>
                 <Col span="8">
-                    <Search placeholder="Search APP name, BaseURL, APP Address, Owner" allowClear enterButton="Search" size="small" onSearch={onSearch} />
+                    <div id="search_container">
+                        <Search placeholder="Search APP name, BaseURL, APP Address, Owner" allowClear enterButton="Search" onSearch={onSearch} />
+                    </div>
                 </Col>
                 <Col span="16">
                     <CreateAPP onComplete={main} />
@@ -63,7 +66,7 @@ export default () => {
 
             <div className="mt-4"></div>
 
-            <Table dataSource={data} columns={columns} size="small" rowKey="address" scroll={{ x: 800 }} pagination={false} loading={loading} />
+            <Table id="table" dataSource={data} columns={columns} rowKey="address" scroll={{ x: 800 }} pagination={false} loading={loading} />
         </>
     );
 };

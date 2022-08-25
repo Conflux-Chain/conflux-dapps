@@ -3,8 +3,9 @@ import Title from 'payment/src/components/Title';
 import * as col from 'payment/src/utils/columns/APPs';
 import { DataSourceType } from 'payment/src/utils/types';
 import { getAPPs } from 'payment/src/utils/request';
-import { Table, Row, Col, Input, Tag } from 'antd';
+import { Table, Row, Col, Input, Tag, Button } from 'antd';
 import { Link } from 'react-router-dom';
+import Deposit from 'payment/src/modules/Common/Deposit';
 
 const { Search } = Input;
 
@@ -20,21 +21,19 @@ export default () => {
                 col.APPAddress,
                 col.owner,
                 {
-                    ...col.action,
+                    ...col.action(),
                     render(_: string, row: DataSourceType) {
                         return (
-                            <>
-                                <Tag>
+                            <div className="flex align-middle">
+                                <Button id="button_detail" className="mr-2">
                                     <Link to={`/payment/consumer/app/${row.address}`}>Detail</Link>
-                                </Tag>
-                                <Tag className="cursor-pointer" onClick={(e) => handleDeposit(row.address)}>
-                                    Deposit
-                                </Tag>
-                            </>
+                                </Button>
+                                <Deposit appAddr={row.address} onComplete={main} />
+                            </div>
                         );
                     },
                 },
-            ].map((c, i) => ({ ...c, width: [3, 4, 3, 3, 2, 2][i] })),
+            ].map((c, i) => ({ ...c, width: [3, 4, 3, 3, 3][i] })),
         []
     );
     const config = [
@@ -47,11 +46,6 @@ export default () => {
             active: true,
         },
     ];
-
-    const handleDeposit = useCallback((address: string) => {
-        console.log('deposit', address);
-        alert(`TODO, Deposit to ${address}`);
-    }, []);
 
     const main = useCallback(async () => {
         setLoading(true);
@@ -82,13 +76,15 @@ export default () => {
 
             <Row gutter={12}>
                 <Col span="8">
-                    <Search placeholder="Search APP name, BaseURL, APP Address, Owner" allowClear enterButton="Search" size="small" onSearch={onSearch} />
+                    <div className="search_container">
+                        <Search placeholder="Search APP name, BaseURL, APP Address, Owner" allowClear enterButton="Search" onSearch={onSearch} />
+                    </div>
                 </Col>
             </Row>
 
             <div className="mt-4"></div>
 
-            <Table dataSource={data} columns={columns} size="small" rowKey="address" scroll={{ x: 800 }} pagination={false} loading={loading} />
+            <Table id="table" dataSource={data} columns={columns} rowKey="address" scroll={{ x: 800 }} pagination={false} loading={loading} />
         </>
     );
 };

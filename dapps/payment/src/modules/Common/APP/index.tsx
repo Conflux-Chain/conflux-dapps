@@ -113,15 +113,7 @@ export default () => {
 
             <div className="mt-8 mb-4 text-xl">APIs</div>
 
-            <Table
-                dataSource={data.resources.list}
-                columns={columns}
-                size="small"
-                rowKey="resourceId"
-                scroll={{ x: 800 }}
-                pagination={false}
-                loading={loading}
-            />
+            <Table id="table" dataSource={data.resources.list} columns={columns} rowKey="resourceId" scroll={{ x: 800 }} pagination={false} loading={loading} />
         </div>
     );
 };

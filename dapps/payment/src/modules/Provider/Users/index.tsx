@@ -67,14 +67,16 @@ export default () => {
             <Title config={config} backTo="/payment/provider/apps"></Title>
             <Row gutter={12}>
                 <Col span="8">
-                    <Search placeholder="Search Address, Airdrop, Balance" allowClear enterButton="Search" size="small" onSearch={onSearch} />
+                    <div id="search_container">
+                        <Search placeholder="Search Address, Airdrop, Balance" allowClear enterButton="Search" onSearch={onSearch} />
+                    </div>
                 </Col>
                 <Col span="16">
                     <Airdrop onComplete={main} />
                 </Col>
             </Row>
             <div className="mt-4"></div>
-            <Table dataSource={data.list} columns={columns} size="small" rowKey="address" scroll={{ x: 800 }} pagination={false} loading={loading} />
+            <Table id="table" dataSource={data.list} columns={columns} rowKey="address" scroll={{ x: 800 }} pagination={false} loading={loading} />
         </div>
     );
 };

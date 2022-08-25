@@ -1,8 +1,7 @@
 import { getContract, signer } from '.';
-import { DataSourceType, PostAPPType, DefinedContractNamesType, APPDataSourceType, UsersDataSourceType } from 'payment/src/utils/types';
+import { DataSourceType, PostAPPType, DefinedContractNamesType, APPDataSourceType, UsersDataSourceType, CSVType } from 'payment/src/utils/types';
 import lodash from 'lodash-es';
 import { showToast } from 'common/components/showPopup/Toast';
-import { CSVType } from 'payment/src/utils/types';
 import { ethers } from 'ethers';
 
 interface RequestProps {
@@ -232,6 +231,81 @@ export const airdrop = async (list: CSVType, address: string) => {
     } catch (error: any) {
         console.log('airdrop error: ', error);
         showToast(`Request failed, details: ${error.message}`, { type: 'failed' });
+        throw error;
+    }
+};
+
+export const getAllowance = async ({ account, tokenAddr }: { account: string; tokenAddr: string }) => {
+    const contract = getContract('erc20', tokenAddr);
+    const apiAddr = await getContract('controller').api();
+    return await contract.allowance(account, apiAddr);
+};
+
+export const approve = async ({ tokenAddr, amount = (1e50).toLocaleString('fullwide', { useGrouping: false }) }: { tokenAddr: string; amount?: string }) => {
+    const contract = getContract('erc20', tokenAddr);
+    const apiAddr = await getContract('controller').api();
+    return (
+        await contract.connect(signer).approve(apiAddr, amount, {
+            type: 0,
+        })
+    ).wait();
+};
+
+export const deposit = async ({ amount, appAddr }: { account: string; amount: string; tokenAddr: string; appAddr: string }) => {
+    const apiAddr = await getContract('controller').api();
+    const contract = getContract('api', apiAddr);
+    return (
+        await contract.connect(signer).depositBaseToken(ethers.utils.parseUnits(amount), appAddr, {
+            type: 0,
+        })
+    ).wait();
+};
+
+export const getPaidAPPs = async (account: string) => {
+    try {
+        const apiAddr = await getContract('controller').api();
+        const contract = getContract('api', apiAddr);
+        const apps = await contract.listPaidApp(account, 0, 1e15);
+
+        // copy from getAPPs, need to optimized
+        const appContracts = apps[0];
+        const methods = ['name', 'symbol', 'appOwner', 'totalCharged'];
+        const appDetails = await request(
+            lodash.flattenDeep([
+                appContracts.map((a: string) =>
+                    methods.map((m, i) => ({
+                        name: 'app',
+                        address: a,
+                        method: m,
+                        index: i,
+                    }))
+                ),
+            ])
+        );
+
+        const r: any = lodash.chunk(appDetails, methods.length).map((d, i) => ({
+            address: appContracts[i],
+            name: d[0],
+            baseURL: d[1],
+            owner: d[2],
+            earnings: (d[3] as ethers.BigNumber).toString(),
+        }));
+
+        return r;
+    } catch (error) {
+        console.log('getAPPs error: ', error);
+        return [];
+    }
+};
+
+export const getAPIKey = async (appAddr: string) => {
+    try {
+        const seed = `${appAddr}_${Date.now()}`;
+        const sig = await signer.signMessage(seed);
+        const str = JSON.stringify({ msg: seed, sig });
+        return ethers.utils.base64.encode(ethers.utils.toUtf8Bytes(str));
+    } catch (error) {
+        console.log('getAPIKey error: ', error);
         throw error;
     }
 };
