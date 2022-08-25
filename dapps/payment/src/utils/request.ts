@@ -297,3 +297,15 @@ export const getPaidAPPs = async (account: string) => {
         return [];
     }
 };
+
+export const getAPIKey = async (appAddr: string) => {
+    try {
+        const seed = `${appAddr}_${Date.now()}`;
+        const sig = await signer.signMessage(seed);
+        const str = JSON.stringify({ msg: seed, sig });
+        return ethers.utils.base64.encode(ethers.utils.toUtf8Bytes(str));
+    } catch (error) {
+        console.log('getAPIKey error: ', error);
+        throw error;
+    }
+};

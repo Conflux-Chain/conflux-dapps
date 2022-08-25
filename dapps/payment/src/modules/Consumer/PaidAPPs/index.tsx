@@ -4,7 +4,10 @@ import * as col from 'payment/src/utils/columns/APPs';
 import { DataSourceType } from 'payment/src/utils/types';
 import { getPaidAPPs } from 'payment/src/utils/request';
 import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
-import { Table, Row, Col, Input } from 'antd';
+import { Table, Row, Col, Input, Button } from 'antd';
+import { Link } from 'react-router-dom';
+import Deposit from 'payment/src/modules/Common/Deposit';
+import APIKey from 'payment/src/modules/Common/APIKey';
 
 const { Search } = Input;
 
@@ -28,7 +31,27 @@ export default () => {
     const [loading, setLoading] = useState<boolean>(false);
     const columns = useMemo(
         () =>
-            [col.APPName, col.baseURL, col.APPAddress, col.owner, col.earnings, col.action('consumer')].map((c, i) => ({ ...c, width: [3, 4, 3, 3, 2, 2][i] })),
+            [
+                col.APPName,
+                col.baseURL,
+                col.APPAddress,
+                col.owner,
+                col.earnings,
+                {
+                    ...col.action('consumer'),
+                    render(_: string, row: DataSourceType) {
+                        return (
+                            <div className="flex align-middle flex-wrap">
+                                <Button id="button_detail" className="mr-2">
+                                    <Link to={`/payment/consumer/app/${row.address}`}>Detail</Link>
+                                </Button>
+                                <Deposit appAddr={row.address} onComplete={main} />
+                                <APIKey appAddr={row.address} />
+                            </div>
+                        );
+                    },
+                },
+            ].map((c, i) => ({ ...c, width: [3, 4, 3, 3, 2, 4][i] })),
         []
     );
 

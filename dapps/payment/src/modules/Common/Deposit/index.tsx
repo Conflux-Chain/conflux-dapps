@@ -111,7 +111,7 @@ export default ({ appAddr, onComplete }: Props) => {
     return (
         <>
             <AuthESpace
-                className="!rounded-sm !h-[32px]"
+                className="!rounded-sm !h-[32px] mr-2"
                 id="createAPP_authConnect"
                 size="mini"
                 connectTextType="concise"
@@ -119,7 +119,7 @@ export default ({ appAddr, onComplete }: Props) => {
                 color="primary"
                 shape="rect"
                 authContent={() => (
-                    <Button id="button_deposit" className="cursor-pointer" onClick={handleShowModal}>
+                    <Button id="button_deposit" className="cursor-pointer mr-2" onClick={handleShowModal}>
                         Deposit
                     </Button>
                 )}
