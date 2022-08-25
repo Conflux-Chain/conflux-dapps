@@ -63,13 +63,15 @@ export default () => {
 
             <Row gutter={12}>
                 <Col span="8">
-                    <Search placeholder="Search APP name, BaseURL, APP Address, Owner" allowClear enterButton="Search" size="small" onSearch={onSearch} />
+                    <div className="search_container">
+                        <Search placeholder="Search APP name, BaseURL, APP Address, Owner" allowClear enterButton="Search" onSearch={onSearch} />
+                    </div>
                 </Col>
             </Row>
 
             <div className="mt-4"></div>
 
-            <Table dataSource={data} columns={columns} size="small" rowKey="address" scroll={{ x: 800 }} pagination={false} loading={loading} />
+            <Table id="table" dataSource={data} columns={columns} rowKey="address" scroll={{ x: 800 }} pagination={false} loading={loading} />
         </>
     );
 };

@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
-import { Modal, InputNumber, Tag, Select, Row, Col } from 'antd';
+import { Modal, InputNumber, Tag, Select, Row, Col, Button } from 'antd';
 import { deposit, getAllowance, approve } from 'payment/src/utils/request';
 import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
 import { AuthESpace } from 'common/modules/AuthConnectButton';
@@ -111,17 +111,17 @@ export default ({ appAddr, onComplete }: Props) => {
     return (
         <>
             <AuthESpace
-                className="!rounded-sm"
-                id="createAPP-authConnect"
+                className="!rounded-sm !h-[32px]"
+                id="createAPP_authConnect"
                 size="mini"
                 connectTextType="concise"
                 checkChainMatch={false}
                 color="primary"
                 shape="rect"
                 authContent={() => (
-                    <Tag className="cursor-pointer" onClick={handleShowModal}>
+                    <Button id="button_deposit" className="cursor-pointer" onClick={handleShowModal}>
                         Deposit
-                    </Tag>
+                    </Button>
                 )}
             />
             {isModalVisible && (
@@ -133,14 +133,19 @@ export default ({ appAddr, onComplete }: Props) => {
                     okText={okText}
                     cancelText="Cancel"
                     confirmLoading={loading}
+                    wrapClassName="createAPP_modal"
                     okButtonProps={{
+                        id: 'button_ok',
                         disabled: isDisabled,
+                    }}
+                    cancelButtonProps={{
+                        id: 'button_cancel',
                     }}
                 >
                     <Row gutter={24}>
                         <Col span={8}>
                             <div>From</div>
-                            <Select defaultValue={fromValue} style={{ width: '100%' }} onChange={handleFromChange} disabled>
+                            <Select id="select_token" defaultValue={fromValue} style={{ width: '100%' }} onChange={handleFromChange} disabled>
                                 {TOKENs.map((t) => (
                                     <Option key={t.eSpace_address} value={t.eSpace_address}>
                                         {t.name}
@@ -151,6 +156,7 @@ export default ({ appAddr, onComplete }: Props) => {
                         <Col span={16}>
                             <div>To</div>
                             <InputNumber<string>
+                                id="input_APPCoin_value"
                                 stringMode
                                 value={toValue}
                                 addonAfter="APP Coin"
@@ -166,7 +172,7 @@ export default ({ appAddr, onComplete }: Props) => {
                                 <span>Expected amount in</span>
                             </Col>
                             <Col span={12} className="text-end text-lg">
-                                <span>{toValue || 0} USDT</span>
+                                <span id="span_expectedAmountIn">{toValue || 0} USDT</span>
                             </Col>
                         </Row>
                     </div>
@@ -180,7 +186,7 @@ export default ({ appAddr, onComplete }: Props) => {
                     </Col> */}
                     </Row>
 
-                    <ul className="mt-4 mb-0 p-4 bg-red-100 text-gray-600 rounded-sm">
+                    <ul id="ul_tips" className="mt-4 mb-0 p-4 bg-red-100 text-gray-600 rounded-sm">
                         {TIPs.map((t, i) => (
                             <li key={i}>{t}</li>
                         ))}

@@ -1,7 +1,7 @@
 import { DataSourceType } from '../types';
 import Address from 'payment/src/components/Address';
 import { Link } from 'react-router-dom';
-import { Tag } from 'antd';
+import { Tag, Button } from 'antd';
 import Networks from 'common/conf/Networks';
 import { ethers } from 'ethers';
 
@@ -60,9 +60,9 @@ export const action = (type = 'provider') => ({
     key: 'action',
     render(_: string, row: DataSourceType) {
         return (
-            <Tag>
+            <Button id="button_detail">
                 <Link to={`/payment/${type}/app/${row.address}`}>Detail</Link>
-            </Tag>
+            </Button>
         );
     },
 });

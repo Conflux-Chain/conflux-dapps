@@ -52,20 +52,20 @@ export default ({ onComplete }: Props) => {
         <div>
             <AuthESpace
                 className="!rounded-sm"
-                id="createAPP-authConnect"
+                id="createAPP_authConnect"
                 size="mini"
                 connectTextType="concise"
                 checkChainMatch={false}
                 color="primary"
                 shape="rect"
                 authContent={() => (
-                    <Button size="small" type="primary" onClick={handleClick} loading={loading}>
+                    <Button id="button_createAPP" type="primary" onClick={handleClick} loading={loading}>
                         Airdrop
                     </Button>
                 )}
             />
 
-            <input className="hidden" accept=".csv" type="file" onChange={handleChange} ref={inputRef}></input>
+            <input id="input_airdrop" className="hidden" accept=".csv" type="file" onChange={handleChange} ref={inputRef}></input>
         </div>
     );
 };
