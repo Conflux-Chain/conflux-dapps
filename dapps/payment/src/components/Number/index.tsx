@@ -12,10 +12,10 @@ export const NumberWithLimit = ({ children }: Props): React.ReactElement => {
     if (fN.startsWith('<')) {
         return (
             <Popper Content={children.toString()} arrow>
-                <span className="cursor-pointer">{formatNumber(children)}</span>
+                <span className="cursor-pointer">{fN}</span>
             </Popper>
         );
     } else {
-        return <>{children}</>;
+        return <>{fN}</>;
     }
 };

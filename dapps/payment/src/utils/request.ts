@@ -1,4 +1,4 @@
-import { getContract, signer } from '.';
+import { getContract, signer, formatNumber } from '.';
 import { DataSourceType, PostAPPType, DefinedContractNamesType, APPDataSourceType, UsersDataSourceType, CSVType } from 'payment/src/utils/types';
 import lodash from 'lodash-es';
 import { showToast } from 'common/components/showPopup/Toast';
@@ -189,8 +189,14 @@ export const getAPPUsers = async (
 
             list = users.map((u: any, i: number) => ({
                 address: u.user,
-                balance: dataOfBalance[i].total,
-                airdrop: dataOfBalance[i].airdrop_,
+                balance: formatNumber(dataOfBalance[i].total, {
+                    limit: 0,
+                    decimal: 18,
+                }),
+                airdrop: formatNumber(dataOfBalance[i].airdrop_, {
+                    limit: 0,
+                    decimal: 18,
+                }),
             }));
         }
 
