@@ -275,15 +275,16 @@ export const getPaidAPPs = async (account: string) => {
 
         // copy from getAPPs, need to optimized
         const appContracts = apps[0];
-        const methods = ['name', 'symbol', 'appOwner', 'totalCharged'];
+        const methods = ['name', 'symbol', 'appOwner', 'totalCharged', ['balanceOfWithAirdrop', [account]]];
         const appDetails = await request(
             lodash.flattenDeep([
                 appContracts.map((a: string) =>
                     methods.map((m, i) => ({
                         name: 'app',
                         address: a,
-                        method: m,
+                        method: Array.isArray(m) ? m[0] : m,
                         index: i,
+                        args: Array.isArray(m) ? m[1] : [],
                     }))
                 ),
             ])
@@ -294,7 +295,15 @@ export const getPaidAPPs = async (account: string) => {
             name: d[0],
             baseURL: d[1],
             owner: d[2],
-            earnings: (d[3] as ethers.BigNumber).toString(),
+            earnings: formatNumber(d[3] as string),
+            balance: formatNumber((d[4] as any).total, {
+                l4mit: 0,
+                decimal: 18,
+            }),
+            airdrop: formatNumber((d[4] as any).airdrop_, {
+                limit: 0,
+                decimal: 18,
+            }),
         }));
 
         return r;

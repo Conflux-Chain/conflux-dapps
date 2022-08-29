@@ -22,9 +22,11 @@ export interface DataSourceType {
     address: string;
     owner: string;
     earnings: string | number;
+    balance: string | number;
+    airdrop: string | number;
 }
 
-export interface APPDataSourceType extends Omit<DataSourceType, 'address'> {
+export interface APPDataSourceType extends Omit<DataSourceType, 'address' | 'balance' | 'airdrop'> {
     requests: number;
     users: number;
     resources: {

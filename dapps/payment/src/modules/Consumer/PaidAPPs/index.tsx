@@ -36,7 +36,8 @@ export default () => {
                 col.baseURL,
                 col.APPAddress,
                 col.owner,
-                col.earnings,
+                col.balance,
+                col.airdrop,
                 {
                     ...col.action('consumer'),
                     render(_: string, row: DataSourceType) {
@@ -51,7 +52,7 @@ export default () => {
                         );
                     },
                 },
-            ].map((c, i) => ({ ...c, width: [3, 4, 3, 3, 2, 4][i] })),
+            ].map((c, i) => ({ ...c, width: [3, 4, 3, 3, 2, 2, 4][i] })),
         []
     );
 

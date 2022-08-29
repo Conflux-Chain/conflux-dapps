@@ -3,7 +3,6 @@ import Address from 'payment/src/components/Address';
 import { Link } from 'react-router-dom';
 import { Button } from 'antd';
 import Networks from 'common/conf/Networks';
-import { ethers } from 'ethers';
 import { NumberWithLimit } from 'payment/src/components/Number';
 
 export const APPName = {
@@ -51,7 +50,27 @@ export const earnings = {
     key: 'earnings',
     ellipsis: true,
     render(val: DataSourceType['earnings']) {
-        return <NumberWithLimit>{ethers.utils.formatUnits(val, 18)}</NumberWithLimit>;
+        return <NumberWithLimit>{val}</NumberWithLimit>;
+    },
+};
+
+export const balance = {
+    title: 'Balance',
+    dataIndex: 'balance',
+    key: 'balance',
+    ellipsis: true,
+    render(val: DataSourceType['balance']) {
+        return <NumberWithLimit>{val}</NumberWithLimit>;
+    },
+};
+
+export const airdrop = {
+    title: 'Airdrop',
+    dataIndex: 'airdrop',
+    key: 'airdrop',
+    ellipsis: true,
+    render(val: DataSourceType['airdrop']) {
+        return <NumberWithLimit>{val}</NumberWithLimit>;
     },
 };
 
