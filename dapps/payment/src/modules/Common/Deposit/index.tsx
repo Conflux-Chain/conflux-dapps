@@ -113,7 +113,7 @@ export default ({ appAddr, onComplete }: Props) => {
             <AuthESpace
                 className="!rounded-sm !h-[32px] mr-2"
                 id="createAPP_authConnect"
-                size="mini"
+                size="small"
                 connectTextType="concise"
                 checkChainMatch={false}
                 color="primary"

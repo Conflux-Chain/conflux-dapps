@@ -1,9 +1,10 @@
 import { DataSourceType } from '../types';
 import Address from 'payment/src/components/Address';
 import { Link } from 'react-router-dom';
-import { Tag, Button } from 'antd';
+import { Button } from 'antd';
 import Networks from 'common/conf/Networks';
 import { ethers } from 'ethers';
+import { NumberWithLimit } from 'payment/src/components/Number';
 
 export const APPName = {
     title: 'APP Name',
@@ -50,7 +51,7 @@ export const earnings = {
     key: 'earnings',
     ellipsis: true,
     render(val: DataSourceType['earnings']) {
-        return ethers.utils.formatUnits(val, 18);
+        return <NumberWithLimit>{ethers.utils.formatUnits(val, 18)}</NumberWithLimit>;
     },
 };
 

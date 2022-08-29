@@ -10,6 +10,7 @@ import lodash from 'lodash';
 import * as col from 'payment/src/utils/columns/resources';
 import { Table } from 'antd';
 import { ethers } from 'ethers';
+import { NumberWithLimit } from 'payment/src/components/Number';
 
 export default () => {
     const { address } = useParams();
@@ -92,7 +93,7 @@ export default () => {
                         details={[
                             {
                                 label: 'Earning',
-                                content: lodash.isNil(data.earnings) ? '-' : ethers.utils.formatUnits(data.earnings, 18),
+                                content: lodash.isNil(data.earnings) ? '-' : <NumberWithLimit>{ethers.utils.formatUnits(data.earnings, 18)}</NumberWithLimit>,
                             },
                             {
                                 label: 'APIs',

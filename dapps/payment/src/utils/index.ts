@@ -2,7 +2,10 @@ import { RPC } from './constants';
 import { CONTRACT_ADDRESSES, CONTRACT_ABI } from 'payment/src/contracts/constants';
 import { DefinedContractNamesType } from './types';
 import { ethers } from 'ethers';
+import BigNumber from 'bignumber.js';
 
+// @ts-ignore
+window.BigNumber = BigNumber;
 // @ts-ignore
 window.ethers = ethers;
 
@@ -21,4 +24,18 @@ export const getContract = (name: DefinedContractNamesType, address?: string) =>
 
 export const formatAddress = (addr: string) => {
     return addr.replace(/^(0x.{4}).*(.{4})$/, '$1...$2');
+};
+
+export const formatNumber = (number: string | number | BigNumber, limit = 0.001) => {
+    const bn = new BigNumber(number);
+
+    if (bn.eq(0)) {
+        return '0';
+    }
+
+    if (bn.lt(limit)) {
+        return `<${limit}`;
+    }
+
+    return bn.toString();
 };
