@@ -9,9 +9,13 @@ window.BigNumber = BigNumber;
 // @ts-ignore
 window.ethers = ethers;
 
-export const providerEthereum = new ethers.providers.Web3Provider(window.ethereum);
+export let providerEthereum: ethers.providers.Web3Provider;
+export let signer: ethers.providers.JsonRpcSigner;
 
-export const signer = providerEthereum.getSigner();
+try {
+    providerEthereum = new ethers.providers.Web3Provider(window.ethereum);
+    signer = providerEthereum.getSigner();
+} catch (error) {}
 
 export const provider = new ethers.providers.JsonRpcBatchProvider({
     url: RPC,
