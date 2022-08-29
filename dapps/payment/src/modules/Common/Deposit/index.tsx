@@ -162,6 +162,7 @@ export default ({ appAddr, onComplete }: Props) => {
                                 addonAfter="APP Coin"
                                 onChange={handleToChange}
                                 style={{ width: '100%' }}
+                                min="0"
                             ></InputNumber>
                         </Col>
                     </Row>
