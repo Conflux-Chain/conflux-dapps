@@ -24,9 +24,11 @@ export interface DataSourceType {
     earnings: string | number;
     balance: string | number;
     airdrop: string | number;
+    frozen: string;
+    forceWithdrawDelay: string;
 }
 
-export interface APPDataSourceType extends Omit<DataSourceType, 'address' | 'balance' | 'airdrop'> {
+export interface APPDataSourceType extends Omit<DataSourceType, 'address' | 'balance' | 'airdrop' | 'frozen' | 'forceWithdrawDelay'> {
     requests: number;
     users: number;
     resources: {

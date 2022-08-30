@@ -1,32 +1,34 @@
 import React, { useState, useCallback } from 'react';
 import { Modal, Button } from 'antd';
-import { getAPIKey } from 'payment/src/utils/request';
+import { withdrawRequest } from 'payment/src/utils/request';
 import { AuthESpace } from 'common/modules/AuthConnectButton';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
-    onComplete?: (data: any) => void;
+    onComplete?: () => void;
     appAddr: string;
+    content: string;
+    disabled?: boolean;
 }
 
-export default ({ appAddr }: Props) => {
+export default ({ appAddr, content, disabled, onComplete }: Props) => {
     const [loading, setLoading] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-    const [content, setContent] = useState<string>('');
 
     const handleClick = useCallback(async () => {
-        try {
-            setLoading(true);
-            const key = await getAPIKey(appAddr);
-            setContent(key);
-            setIsModalVisible(true);
-            setLoading(false);
-        } catch (error: any) {
-            setContent('Error: ' + error.message || error);
-            setLoading(false);
-        }
+        setIsModalVisible(true);
     }, []);
 
-    const handleOk = useCallback(() => {
+    const handleOk = useCallback(async () => {
+        try {
+            setLoading(true);
+            await withdrawRequest(appAddr);
+            onComplete && onComplete();
+            setIsModalVisible(false);
+        } catch (error: any) {}
+        setLoading(false);
+    }, [appAddr]);
+
+    const handleCancel = useCallback(() => {
         setIsModalVisible(false);
     }, []);
 
@@ -41,30 +43,28 @@ export default ({ appAddr }: Props) => {
                 color="primary"
                 shape="rect"
                 authContent={() => (
-                    <Button id="button_APIKey" className="cursor-pointer mr-2" onClick={handleClick} loading={loading}>
-                        API Key
+                    <Button id="button_APIKey" className="cursor-pointer mr-2" onClick={handleClick} disabled={disabled}>
+                        Refund
                     </Button>
                 )}
             />
             {isModalVisible && (
                 <Modal
-                    title="API Key"
+                    title={<span className="text-red-500">Refund Notice</span>}
                     visible={isModalVisible}
+                    confirmLoading={loading}
                     onOk={handleOk}
                     okText={'Confirm'}
-                    onCancel={handleOk}
-                    wrapClassName="createAPP_modal"
+                    onCancel={handleCancel}
+                    wrapClassName="refund_modal"
                     okButtonProps={{
                         id: 'button_ok',
                     }}
                     cancelButtonProps={{
-                        disabled: true,
-                        style: {
-                            display: 'none',
-                        },
+                        id: 'button_cancel',
                     }}
                 >
-                    <div id="APIKey" className="p-2 bg-gray-200">
+                    <div id="APIKey" className="">
                         {content}
                     </div>
                 </Modal>
