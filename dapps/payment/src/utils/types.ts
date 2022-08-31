@@ -53,3 +53,5 @@ export interface TitleType {
     link?: string;
     active?: boolean;
 }
+
+export type ContractCall = [string, any[]?];

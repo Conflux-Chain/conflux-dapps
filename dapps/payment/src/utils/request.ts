@@ -1,10 +1,9 @@
 import { getContract, signer, formatNumber } from '.';
-import { DataSourceType, PostAPPType, DefinedContractNamesType, APPDataSourceType, UsersDataSourceType, CSVType } from 'payment/src/utils/types';
+import { DataSourceType, PostAPPType, DefinedContractNamesType, APPDataSourceType, UsersDataSourceType, CSVType, ContractCall } from 'payment/src/utils/types';
 import lodash from 'lodash-es';
 import { showToast } from 'common/components/showPopup/Toast';
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { CONTRACT_ABI } from 'payment/src/contracts/constants';
-import { FormatTypes } from 'ethers/lib/utils';
 
 interface RequestProps {
     name: DefinedContractNamesType;
@@ -13,70 +12,50 @@ interface RequestProps {
     args?: Array<any>;
 }
 
-const request = async (params: RequestProps | RequestProps[]) => {
-    try {
-        if (Array.isArray(params)) {
-            if (params.length) {
-                return await Promise.all(
-                    params.map((p, i) => {
-                        const { name, method, args = [], address = '' } = p;
-                        const contract = getContract(name, address);
-                        return contract[method](...args);
-                    })
-                );
-            } else {
-                return [];
-            }
-        } else {
-            const { name, method, args = [] } = params;
-            const contract = getContract(name);
-            return await contract[method](...args);
-        }
-    } catch (error: any) {
-        console.log('request error: ', error);
-        showToast(`Request failed, details: ${error}`, { type: 'failed' });
-        throw error;
+const INTERFACE_APP = new ethers.utils.Interface(CONTRACT_ABI['app']);
+const MULTICALL = getContract('multicall');
+const CONTRACT_CONTROLLER = await getContract('controller');
+
+const noticeError = (e: unknown) => {
+    let msg = '';
+    if (typeof e === 'string') {
+        msg = e;
+    } else if (e instanceof Error) {
+        msg = e.message;
     }
+    showToast(`Request failed, details: ${msg}`, { type: 'failed' });
 };
 
 export const getAPPs = async (creator?: string): Promise<DataSourceType[]> => {
     try {
         const method = creator ? 'listAppByCreator' : 'listApp';
         const args = creator ? [creator, 0, 1e8] : [0, 1e8];
-
-        const apps = await request({
-            name: 'controller',
-            method,
-            args,
-        });
-        const methods = ['name', 'symbol', 'appOwner', 'totalCharged'];
+        const apps = await CONTRACT_CONTROLLER[method](...args);
 
         const appContracts = creator ? apps[0].map((a: string[]) => a[0]) : apps[0];
 
-        const appDetails = await request(
-            lodash.flattenDeep([
-                appContracts.map((a: string) =>
-                    methods.map((m, i) => ({
-                        name: 'app',
-                        address: a,
-                        method: m,
-                        index: i,
-                    }))
-                ),
-            ])
+        const calls: ContractCall[] = [['name'], ['symbol'], ['appOwner'], ['totalCharged']];
+        const promises = lodash.flattenDepth(
+            appContracts.map((a: any) => calls.map((c) => [a, INTERFACE_APP.encodeFunctionData(...c)])),
+            1
         );
+        const results: { returnData: ethers.utils.Result } = await MULTICALL.callStatic.aggregate(promises);
 
-        const r: any = lodash.chunk(appDetails, methods.length).map((d, i) => ({
-            address: appContracts[i],
-            name: d[0],
-            baseURL: d[1],
-            owner: d[2],
-            earnings: (d[3] as ethers.BigNumber).toString(),
-        }));
+        const r: any = lodash
+            .chunk(results.returnData, calls.length)
+            .map((r) => r.map((d, i) => INTERFACE_APP.decodeFunctionResult(calls[i][0], d)))
+            .map((d, i) => ({
+                address: appContracts[i],
+                name: d[0][0],
+                baseURL: d[1][0],
+                owner: d[2][0],
+                earnings: (d[3][0] as ethers.BigNumber).toString(),
+            }));
 
         return r;
     } catch (error) {
         console.log('getAPPs error: ', error);
+        noticeError(error);
         return [];
     }
 };
@@ -84,20 +63,20 @@ export const getAPPs = async (creator?: string): Promise<DataSourceType[]> => {
 export const postAPP = async ({ name, url, weight }: PostAPPType) => {
     try {
         return await (
-            await getContract('controller').connect(signer).createApp(name, url, '', weight, {
+            await CONTRACT_CONTROLLER.connect(signer).createApp(name, url, '', weight, {
                 type: 0,
             })
         ).wait();
-    } catch (error: any) {
+    } catch (error) {
         console.log('postAPP error: ', error);
-        showToast(`Request failed, details: ${error.message}`, { type: 'failed' });
+        noticeError(error);
         throw error;
     }
 };
 
 export const getAPP = async (address: RequestProps['address']): Promise<APPDataSourceType> => {
     try {
-        const methods: Array<any> = [
+        const calls: Array<[string, any[]?]> = [
             ['name'],
             ['symbol'],
             ['appOwner'],
@@ -106,36 +85,30 @@ export const getAPP = async (address: RequestProps['address']): Promise<APPDataS
             ['listUser', [0, 0]],
             ['listResources', [0, 1e8]],
         ];
-
-        const data = await request(
-            methods.map((m, i) => ({
-                name: 'app',
-                address: address,
-                method: m[0],
-                index: i,
-                args: m[1],
-            }))
-        );
+        const promises = calls.map((c) => [address, INTERFACE_APP.encodeFunctionData(...c)]);
+        const results: { returnData: ethers.utils.Result } = await MULTICALL.callStatic.aggregate(promises);
+        const r = results.returnData.map((d, i) => INTERFACE_APP.decodeFunctionResult(calls[i][0], d));
 
         return {
-            name: data[0],
-            baseURL: data[1],
-            owner: data[2],
-            earnings: data[3],
-            requests: data[4].toNumber(),
-            users: data[5]['total'].toNumber(),
+            name: r[0][0],
+            baseURL: r[1][0],
+            owner: r[2][0],
+            earnings: r[3][0],
+            requests: r[4][0].toNumber(),
+            users: r[5]['total'].toNumber(),
             resources: {
-                list: data[6][0].map((d: any) => ({
+                list: r[6][0].map((d: any) => ({
                     resourceId: d.resourceId,
                     weight: d.weight,
                     requests: d.requestTimes,
                     submitTimestamp: d.submitSeconds,
                 })),
-                total: data[6][1].toNumber(),
+                total: r[6][1].toNumber(),
             },
         };
-    } catch (error: any) {
+    } catch (error) {
         console.log('getAPP error: ', error);
+        noticeError(error);
         return {
             name: '',
             baseURL: '',
@@ -158,44 +131,25 @@ export const getAPPUsers = async (
     total: 0;
 }> => {
     try {
-        const methods: Array<[string, number[]]> = [['listUser', [0, 1e8]]];
-
-        const data = (
-            await request(
-                methods.map((m, i) => ({
-                    name: 'app',
-                    address: address,
-                    method: m[0],
-                    index: i,
-                    args: m[1],
-                }))
-            )
-        )[0];
+        const data = await getContract('app', address).listUser(0, 1e8);
 
         let list = [];
         const users = data[0];
         const total = data[1];
 
         if (users.length) {
-            const methodsOfBalance: Array<[string, string[]]> = users.map((u: { user: string }) => ['balanceOfWithAirdrop', [u.user]]);
-
-            const dataOfBalance = await request(
-                methodsOfBalance.map((m, i: number) => ({
-                    name: 'app',
-                    address: address,
-                    method: m[0],
-                    index: i,
-                    args: m[1],
-                }))
-            );
+            const calls: ContractCall[] = users.map((u: { user: string }) => ['balanceOfWithAirdrop', [u.user]]);
+            const promises = calls.map((c) => [address, INTERFACE_APP.encodeFunctionData(...c)]);
+            const results: { returnData: ethers.utils.Result } = await MULTICALL.callStatic.aggregate(promises);
+            const r = results.returnData.map((d, i) => INTERFACE_APP.decodeFunctionResult(calls[i][0], d));
 
             list = users.map((u: any, i: number) => ({
                 address: u.user,
-                balance: formatNumber(dataOfBalance[i].total, {
+                balance: formatNumber(r[i].total, {
                     limit: 0,
                     decimal: 18,
                 }),
-                airdrop: formatNumber(dataOfBalance[i].airdrop_, {
+                airdrop: formatNumber(r[i].airdrop_, {
                     limit: 0,
                     decimal: 18,
                 }),
@@ -208,6 +162,7 @@ export const getAPPUsers = async (
         };
     } catch (error) {
         console.log('getAPPUsers error: ', error);
+        noticeError(error);
         return {
             list: [],
             total: 0,
@@ -236,48 +191,66 @@ export const airdrop = async (list: CSVType, address: string) => {
                     type: 0,
                 })
         ).wait();
-    } catch (error: any) {
+    } catch (error) {
         console.log('airdrop error: ', error);
-        showToast(`Request failed, details: ${error.message}`, { type: 'failed' });
+        noticeError(error);
         throw error;
     }
 };
 
 export const getAllowance = async ({ account, tokenAddr }: { account: string; tokenAddr: string }) => {
-    const contract = getContract('erc20', tokenAddr);
-    const apiAddr = await getContract('controller').api();
-    return await contract.allowance(account, apiAddr);
+    try {
+        const contract = getContract('erc20', tokenAddr);
+        const apiAddr = await CONTRACT_CONTROLLER.api();
+        return await contract.allowance(account, apiAddr);
+    } catch (error) {
+        console.log('getAllowance error: ', error);
+        noticeError(error);
+        throw error;
+    }
 };
 
 export const approve = async ({ tokenAddr, amount = (1e50).toLocaleString('fullwide', { useGrouping: false }) }: { tokenAddr: string; amount?: string }) => {
-    const contract = getContract('erc20', tokenAddr);
-    const apiAddr = await getContract('controller').api();
-    return (
-        await contract.connect(signer).approve(apiAddr, amount, {
-            type: 0,
-        })
-    ).wait();
+    try {
+        const contract = getContract('erc20', tokenAddr);
+        const apiAddr = await CONTRACT_CONTROLLER.api();
+        return (
+            await contract.connect(signer).approve(apiAddr, amount, {
+                type: 0,
+            })
+        ).wait();
+    } catch (error) {
+        console.log('approve error: ', error);
+        noticeError(error);
+        throw error;
+    }
 };
 
 export const deposit = async ({ amount, appAddr }: { account: string; amount: string; tokenAddr: string; appAddr: string }) => {
-    const apiAddr = await getContract('controller').api();
-    const contract = getContract('api', apiAddr);
-    return (
-        await contract.connect(signer).depositBaseToken(ethers.utils.parseUnits(amount), appAddr, {
-            type: 0,
-        })
-    ).wait();
+    try {
+        const apiAddr = await CONTRACT_CONTROLLER.api();
+        const contract = getContract('api', apiAddr);
+        return (
+            await contract.connect(signer).depositBaseToken(ethers.utils.parseUnits(amount), appAddr, {
+                type: 0,
+            })
+        ).wait();
+    } catch (error) {
+        console.log('deposit error: ', error);
+        noticeError(error);
+        throw error;
+    }
 };
 
 export const getPaidAPPs = async (account: string) => {
     try {
         const Interface = new ethers.utils.Interface(CONTRACT_ABI['app']);
-        const apiAddr = await getContract('controller').api();
+        const apiAddr = await CONTRACT_CONTROLLER.api();
         const apiContract = getContract('api', apiAddr);
         const apps = await apiContract.listPaidApp(account, 0, 1e15);
         const appContracts: string[] = apps[0];
 
-        const calls: Array<[string, string[]?]> = [
+        const calls: ContractCall[] = [
             ['name'],
             ['symbol'],
             ['appOwner'],
@@ -287,13 +260,12 @@ export const getPaidAPPs = async (account: string) => {
             ['forceWithdrawDelay'],
         ];
 
-        const multicall = getContract('multicall');
         const promises = lodash.flattenDepth(
             appContracts.map((a) => calls.map((c) => [a, Interface.encodeFunctionData(...c)])),
             1
         );
 
-        const results: { returnData: ethers.utils.Result } = await multicall.callStatic.aggregate(promises);
+        const results: { returnData: ethers.utils.Result } = await MULTICALL.callStatic.aggregate(promises);
 
         const data = lodash
             .chunk(results.returnData, calls.length)
@@ -325,6 +297,7 @@ export const getPaidAPPs = async (account: string) => {
         return data;
     } catch (error) {
         console.log('getPaidAPPs error: ', error);
+        noticeError(error);
         return [];
     }
 };
@@ -337,6 +310,7 @@ export const getAPIKey = async (appAddr: string) => {
         return ethers.utils.base64.encode(ethers.utils.toUtf8Bytes(str));
     } catch (error) {
         console.log('getAPIKey error: ', error);
+        noticeError(error);
         throw error;
     }
 };
@@ -346,6 +320,7 @@ export const withdrawRequest = async (appAddr: string) => {
         return (await getContract('app', appAddr).connect(signer).withdrawRequest()).wait();
     } catch (error) {
         console.log('withdrawRequest error: ', error);
+        noticeError(error);
         throw error;
     }
 };

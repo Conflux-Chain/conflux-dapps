@@ -23,7 +23,8 @@ export default () => {
     const main = useCallback(async () => {
         if (account) {
             setLoading(true);
-            const data = await getAPPs(account);
+            // const data = await getAPPs(account);
+            const data = await getAPPs();
             dataCacheRef.current = data;
             setData(data);
             setLoading(false);
