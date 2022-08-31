@@ -81,7 +81,7 @@ export const action = (type = 'provider') => ({
     render(_: string, row: DataSourceType) {
         return (
             <Button id="button_detail">
-                <Link to={`/payment/${type}/app/${row.address}`}>Detail</Link>
+                <Link to={`/payment/${type}/app/${row.address}`}>Details</Link>
             </Button>
         );
     },

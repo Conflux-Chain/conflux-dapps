@@ -23,8 +23,7 @@ export default () => {
     const main = useCallback(async () => {
         if (account) {
             setLoading(true);
-            // const data = await getAPPs(account);
-            const data = await getAPPs();
+            const data = await getAPPs(account);
             dataCacheRef.current = data;
             setData(data);
             setLoading(false);
@@ -45,9 +44,15 @@ export default () => {
     const onSearch = useCallback(
         (value: string) =>
             setData(
-                dataCacheRef.current.filter((d) => d.name.includes(value) || d.baseURL.includes(value) || d.address.includes(value) || d.owner.includes(value))
+                dataCacheRef.current.filter(
+                    (d) =>
+                        d.name.includes(value) ||
+                        d.baseURL.includes(value) ||
+                        d.address.toLowerCase().includes(value.toLowerCase()) ||
+                        d.owner.toLowerCase().includes(value.toLowerCase())
+                )
             ),
-        []
+        [dataCacheRef.current]
     );
 
     return (

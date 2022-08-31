@@ -116,11 +116,11 @@ export default ({ appAddr, onComplete, disabled }: Props) => {
                 id="createAPP_authConnect"
                 size="small"
                 connectTextType="concise"
-                checkChainMatch={false}
+                checkChainMatch={true}
                 color="primary"
                 shape="rect"
                 authContent={() => (
-                    <Button id="button_deposit" className="cursor-pointer mr-2" onClick={handleShowModal} disabled={disabled}>
+                    <Button id="button_deposit" className="cursor-pointer mr-2 mb-2" onClick={handleShowModal} disabled={disabled}>
                         Deposit
                     </Button>
                 )}
@@ -170,7 +170,7 @@ export default ({ appAddr, onComplete, disabled }: Props) => {
 
                     <div className="text-white bg-blue-400 p-2 mt-6 rounded-sm">
                         <Row gutter={24}>
-                            <Col span={12}>
+                            <Col span={12} className="!flex items-center">
                                 <span>Expected amount in</span>
                             </Col>
                             <Col span={12} className="text-end text-lg">

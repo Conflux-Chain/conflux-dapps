@@ -8,7 +8,6 @@ import Users from './Provider/Users';
 import Setting from './Provider/Setting';
 import ConsumerAPPs from './Consumer/APPs';
 import ConsumerPaidAPPs from './Consumer/PaidAPPs';
-// import ConsumerAPP from './Consumer/APP';
 
 export default () => {
     return (
@@ -20,7 +19,7 @@ export default () => {
                 <Route path="/provider/app/:address/users" element={<Users />} />
                 <Route path="/provider/app/:address" element={<APP />} />
                 <Route path="/provider/setting" element={<Setting />} />
-                <Route path="/consumer" element={<Navigate to="apps" />} />
+                <Route path="/consumer" element={<Navigate to="paid-apps" />} />
                 <Route path="/consumer/apps" element={<ConsumerAPPs />} />
                 <Route path="/consumer/paid-apps" element={<ConsumerPaidAPPs />} />
                 <Route path="/consumer/app/:address" element={<APP />} />

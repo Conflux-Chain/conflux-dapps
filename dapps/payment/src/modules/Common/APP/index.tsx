@@ -14,7 +14,7 @@ import { NumberWithLimit } from 'payment/src/components/Number';
 
 export default () => {
     const { address } = useParams();
-    const { pathname } = useLocation();
+    const { pathname, state } = useLocation();
     const from = pathname.includes('/payment/consumer') ? 'consumer' : 'provider';
     const [data, setData] = useState<APPDataSourceType>({
         name: '',
@@ -62,7 +62,7 @@ export default () => {
 
     return (
         <div>
-            <Title config={config} backTo={`/payment/${from}/apps`}></Title>
+            <Title config={config} backTo={`/payment/${from}/${state?.from || 'apps'}`}></Title>
 
             <APPDetailRow
                 details={[
@@ -92,7 +92,7 @@ export default () => {
                     <APPDetailCard
                         details={[
                             {
-                                label: 'Earning',
+                                label: 'Earnings',
                                 content: lodash.isNil(data.earnings) ? '-' : <NumberWithLimit>{ethers.utils.formatUnits(data.earnings, 18)}</NumberWithLimit>,
                             },
                             {

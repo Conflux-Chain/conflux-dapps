@@ -116,7 +116,7 @@ export default ({ appAddr, onComplete, disabled }: Props) => {
                 id="createAPP_authConnect"
                 size="small"
                 connectTextType="concise"
-                checkChainMatch={false}
+                checkChainMatch={true}
                 color="primary"
                 shape="rect"
                 authContent={() => (

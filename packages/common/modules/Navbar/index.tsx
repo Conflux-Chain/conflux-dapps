@@ -9,7 +9,7 @@ interface Props {
     Enhance?: {
         type: 'childRoutes';
         Content: React.ReactNode;
-    }
+    };
 }
 
 const Navbar: React.FC<Props> = ({ handleSwitchLocale, handleSwitchMode, dappIcon, dappName, Enhance }) => {
@@ -17,14 +17,8 @@ const Navbar: React.FC<Props> = ({ handleSwitchLocale, handleSwitchMode, dappIco
         <nav className="h-[64px] flex-shrink-0">
             <div className="container h-full m-auto flex justify-between items-center whitespace-nowrap">
                 <div className="flex items-center">
-                    <img
-                        className="mr-[4px] w-[24px] h-[24px]"
-                        src={dappIcon}
-                        alt="conflux-network icon"
-                    />
-                    <h4 className="flex items-center h-[22px] text-[16px] font-medium text-black">
-                        {dappName}
-                    </h4>
+                    <img className="mr-[4px] w-[24px] h-[24px]" src={dappIcon} alt="conflux-network icon" />
+                    <h4 className="flex items-center h-[22px] text-[16px] font-medium text-black mb-0">{dappName}</h4>
                     {Enhance?.type === 'childRoutes' && isValidElement(Enhance?.Content) && Enhance?.Content}
                 </div>
 

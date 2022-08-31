@@ -37,11 +37,11 @@ export default ({ appAddr }: Props) => {
                 id="createAPP_authConnect"
                 size="small"
                 connectTextType="concise"
-                checkChainMatch={false}
+                checkChainMatch={true}
                 color="primary"
                 shape="rect"
                 authContent={() => (
-                    <Button id="button_APIKey" className="cursor-pointer mr-2" onClick={handleClick} loading={loading}>
+                    <Button id="button_APIKey" className="cursor-pointer mr-2 mb-2" onClick={handleClick} loading={loading}>
                         API Key
                     </Button>
                 )}

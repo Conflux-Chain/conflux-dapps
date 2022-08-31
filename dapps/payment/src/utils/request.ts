@@ -145,7 +145,7 @@ export const getAPPUsers = async (
 
             list = users.map((u: any, i: number) => ({
                 address: u.user,
-                balance: formatNumber(r[i].total, {
+                balance: formatNumber(r[i].total.sub(r[i].airdrop_), {
                     limit: 0,
                     decimal: 18,
                 }),
