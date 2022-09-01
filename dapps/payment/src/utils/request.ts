@@ -14,7 +14,7 @@ interface RequestProps {
 
 const INTERFACE_APP = new ethers.utils.Interface(CONTRACT_ABI['app']);
 const MULTICALL = getContract('multicall');
-const CONTRACT_CONTROLLER = await getContract('controller');
+const CONTRACT_CONTROLLER = getContract('controller');
 
 const noticeError = (e: unknown) => {
     let msg = '';
