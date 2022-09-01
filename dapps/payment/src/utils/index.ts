@@ -2,13 +2,20 @@ import { RPC } from './constants';
 import { CONTRACT_ADDRESSES, CONTRACT_ABI } from 'payment/src/contracts/constants';
 import { DefinedContractNamesType } from './types';
 import { ethers } from 'ethers';
+import BigNumber from 'bignumber.js';
 
+// @ts-ignore
+window.BigNumber = BigNumber;
 // @ts-ignore
 window.ethers = ethers;
 
-export const providerEthereum = new ethers.providers.Web3Provider(window.ethereum);
+export let providerEthereum: ethers.providers.Web3Provider;
+export let signer: ethers.providers.JsonRpcSigner;
 
-export const signer = providerEthereum.getSigner();
+try {
+    providerEthereum = new ethers.providers.Web3Provider(window.ethereum);
+    signer = providerEthereum.getSigner();
+} catch (error) {}
 
 export const provider = new ethers.providers.JsonRpcBatchProvider({
     url: RPC,
@@ -21,4 +28,24 @@ export const getContract = (name: DefinedContractNamesType, address?: string) =>
 
 export const formatAddress = (addr: string) => {
     return addr.replace(/^(0x.{4}).*(.{4})$/, '$1...$2');
+};
+
+export const formatNumber = (number: string | number | BigNumber, _opt?: Object) => {
+    const opt = { limit: 0.001, decimal: 0, ..._opt };
+
+    let bn = new BigNumber(String(number));
+
+    if (bn.eq(0)) {
+        return '0';
+    }
+
+    if (opt.decimal > 0) {
+        bn = bn.div(10 ** opt.decimal);
+    }
+
+    if (bn.lt(opt.limit)) {
+        return `<${opt.limit}`;
+    }
+
+    return bn.toString();
 };

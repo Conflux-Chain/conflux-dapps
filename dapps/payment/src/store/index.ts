@@ -1,5 +1,5 @@
 // clone from /airdrop/src/store/index.ts, modify to ajust eSpace tokens
-import { store } from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { store } from '@cfxjs/use-wallet-react/ethereum';
 import { createBalanceTracker } from '@cfxjs/use-wallet-enhance-react';
 import CRC20TokenABI from 'common/contracts/ERC20.json';
 import createContract from 'common/utils/Contract';

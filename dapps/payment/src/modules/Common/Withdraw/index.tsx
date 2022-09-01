@@ -120,21 +120,21 @@ export default ({ appAddr, onComplete, disabled }: Props) => {
                 color="primary"
                 shape="rect"
                 authContent={() => (
-                    <Button id="button_deposit" className="cursor-pointer mr-2 mb-2" onClick={handleShowModal} disabled={disabled}>
-                        Deposit
+                    <Button id="button_deposit" className="cursor-pointer mr-2" onClick={handleShowModal} disabled={disabled}>
+                        Withdraw
                     </Button>
                 )}
             />
             {isModalVisible && (
                 <Modal
-                    title="Deposit Plan"
+                    title="Withdraw Refund"
                     visible={isModalVisible}
                     onOk={handleOk}
                     onCancel={handleCancel}
                     okText={okText}
                     cancelText="Cancel"
                     confirmLoading={loading}
-                    wrapClassName="createAPP_modal"
+                    wrapClassName="withdraw_modal"
                     okButtonProps={{
                         id: 'button_ok',
                         disabled: isDisabled,
@@ -143,7 +143,8 @@ export default ({ appAddr, onComplete, disabled }: Props) => {
                         id: 'button_cancel',
                     }}
                 >
-                    <Row gutter={24}>
+                    TODO. withdraw usdt to consumer account
+                    {/* <Row gutter={24}>
                         <Col span={8}>
                             <div>From</div>
                             <Select id="select_token" defaultValue={fromValue} style={{ width: '100%' }} onChange={handleFromChange} disabled>
@@ -170,7 +171,7 @@ export default ({ appAddr, onComplete, disabled }: Props) => {
 
                     <div className="text-white bg-blue-400 p-2 mt-6 rounded-sm">
                         <Row gutter={24}>
-                            <Col span={12} className="!flex items-center">
+                            <Col span={12}>
                                 <span>Expected amount in</span>
                             </Col>
                             <Col span={12} className="text-end text-lg">
@@ -183,16 +184,16 @@ export default ({ appAddr, onComplete, disabled }: Props) => {
                         <Col span={12}>
                             <span>1 APPCoin = 1 USDT</span>
                         </Col>
-                        {/* <Col span={12} className="text-end">
-                        <span>~ 1USDT ($1)</span>
-                    </Col> */}
+                        <Col span={12} className="text-end">
+                            <span>~ 1USDT ($1)</span>
+                        </Col>
                     </Row>
 
                     <ul id="ul_tips" className="mt-4 mb-0 p-4 bg-red-100 text-gray-600 rounded-sm">
                         {TIPs.map((t, i) => (
                             <li key={i}>{t}</li>
                         ))}
-                    </ul>
+                    </ul> */}
                 </Modal>
             )}
         </>

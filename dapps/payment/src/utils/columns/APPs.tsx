@@ -1,9 +1,9 @@
 import { DataSourceType } from '../types';
 import Address from 'payment/src/components/Address';
 import { Link } from 'react-router-dom';
-import { Tag, Button } from 'antd';
+import { Button } from 'antd';
 import Networks from 'common/conf/Networks';
-import { ethers } from 'ethers';
+import { NumberWithLimit } from 'payment/src/components/Number';
 
 export const APPName = {
     title: 'APP Name',
@@ -50,7 +50,27 @@ export const earnings = {
     key: 'earnings',
     ellipsis: true,
     render(val: DataSourceType['earnings']) {
-        return ethers.utils.formatUnits(val, 18);
+        return <NumberWithLimit>{val}</NumberWithLimit>;
+    },
+};
+
+export const balance = {
+    title: 'Balance',
+    dataIndex: 'balance',
+    key: 'balance',
+    ellipsis: true,
+    render(val: DataSourceType['balance']) {
+        return <NumberWithLimit>{val}</NumberWithLimit>;
+    },
+};
+
+export const airdrop = {
+    title: 'Airdrop',
+    dataIndex: 'airdrop',
+    key: 'airdrop',
+    ellipsis: true,
+    render(val: DataSourceType['airdrop']) {
+        return <NumberWithLimit>{val}</NumberWithLimit>;
     },
 };
 
@@ -61,7 +81,7 @@ export const action = (type = 'provider') => ({
     render(_: string, row: DataSourceType) {
         return (
             <Button id="button_detail">
-                <Link to={`/payment/${type}/app/${row.address}`}>Detail</Link>
+                <Link to={`/payment/${type}/app/${row.address}`}>Details</Link>
             </Button>
         );
     },

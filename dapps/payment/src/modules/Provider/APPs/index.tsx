@@ -44,9 +44,15 @@ export default () => {
     const onSearch = useCallback(
         (value: string) =>
             setData(
-                dataCacheRef.current.filter((d) => d.name.includes(value) || d.baseURL.includes(value) || d.address.includes(value) || d.owner.includes(value))
+                dataCacheRef.current.filter(
+                    (d) =>
+                        d.name.includes(value) ||
+                        d.baseURL.includes(value) ||
+                        d.address.toLowerCase().includes(value.toLowerCase()) ||
+                        d.owner.toLowerCase().includes(value.toLowerCase())
+                )
             ),
-        []
+        [dataCacheRef.current]
     );
 
     return (

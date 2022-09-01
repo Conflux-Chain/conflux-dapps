@@ -3,7 +3,7 @@ import Title from 'payment/src/components/Title';
 import * as col from 'payment/src/utils/columns/APPs';
 import { DataSourceType } from 'payment/src/utils/types';
 import { getAPPs } from 'payment/src/utils/request';
-import { Table, Row, Col, Input, Tag, Button } from 'antd';
+import { Table, Row, Col, Input, Button } from 'antd';
 import { Link } from 'react-router-dom';
 import Deposit from 'payment/src/modules/Common/Deposit';
 
@@ -26,7 +26,14 @@ export default () => {
                         return (
                             <div className="flex align-middle">
                                 <Button id="button_detail" className="mr-2">
-                                    <Link to={`/payment/consumer/app/${row.address}`}>Detail</Link>
+                                    <Link
+                                        to={`/payment/consumer/app/${row.address}`}
+                                        state={{
+                                            from: 'apps',
+                                        }}
+                                    >
+                                        Details
+                                    </Link>
                                 </Button>
                                 <Deposit appAddr={row.address} onComplete={main} />
                             </div>
@@ -65,7 +72,13 @@ export default () => {
     const onSearch = useCallback(
         (value: string) =>
             setData(
-                dataCacheRef.current.filter((d) => d.name.includes(value) || d.baseURL.includes(value) || d.address.includes(value) || d.owner.includes(value))
+                dataCacheRef.current.filter(
+                    (d) =>
+                        d.name.includes(value) ||
+                        d.baseURL.includes(value) ||
+                        d.address.toLowerCase().includes(value.toLowerCase()) ||
+                        d.owner.toLowerCase().includes(value.toLowerCase())
+                )
             ),
         []
     );

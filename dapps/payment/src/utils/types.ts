@@ -22,9 +22,13 @@ export interface DataSourceType {
     address: string;
     owner: string;
     earnings: string | number;
+    balance: string | number;
+    airdrop: string | number;
+    frozen: string;
+    forceWithdrawDelay: string;
 }
 
-export interface APPDataSourceType extends Omit<DataSourceType, 'address'> {
+export interface APPDataSourceType extends Omit<DataSourceType, 'address' | 'balance' | 'airdrop' | 'frozen' | 'forceWithdrawDelay'> {
     requests: number;
     users: number;
     resources: {
@@ -49,3 +53,5 @@ export interface TitleType {
     link?: string;
     active?: boolean;
 }
+
+export type ContractCall = [string, any[]?];

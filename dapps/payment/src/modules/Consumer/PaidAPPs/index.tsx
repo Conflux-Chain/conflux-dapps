@@ -8,6 +8,9 @@ import { Table, Row, Col, Input, Button } from 'antd';
 import { Link } from 'react-router-dom';
 import Deposit from 'payment/src/modules/Common/Deposit';
 import APIKey from 'payment/src/modules/Common/APIKey';
+// import Refund from 'payment/src/modules/Common/Refund';
+// import Withdraw from 'payment/src/modules/Common/Withdraw';
+// import BigNumber from 'bignumber.js';
 
 const { Search } = Input;
 
@@ -29,6 +32,11 @@ export default () => {
     const account = useAccount();
     const [data, setData] = useState<DataSourceType[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    // const REFUND_CONTENT = useMemo(
+    //     () =>
+    //         'After applying for a refund of the APP stored value balance, the APIkey will be invalid, which may affect your use of the API. Refunds will be withdrawable after the settlement time.',
+    //     []
+    // );
     const columns = useMemo(
         () =>
             [
@@ -36,22 +44,54 @@ export default () => {
                 col.baseURL,
                 col.APPAddress,
                 col.owner,
-                col.earnings,
+                col.balance,
+                col.airdrop,
                 {
                     ...col.action('consumer'),
                     render(_: string, row: DataSourceType) {
                         return (
-                            <div className="flex align-middle flex-wrap">
-                                <Button id="button_detail" className="mr-2">
-                                    <Link to={`/payment/consumer/app/${row.address}`}>Detail</Link>
+                            <div className="flex align-middle flex-wrap -mb-2">
+                                <Button id="button_detail" className="mr-2 mb-2">
+                                    <Link
+                                        to={`/payment/consumer/app/${row.address}`}
+                                        state={{
+                                            from: 'paid-apps',
+                                        }}
+                                    >
+                                        Details
+                                    </Link>
                                 </Button>
                                 <Deposit appAddr={row.address} onComplete={main} />
                                 <APIKey appAddr={row.address} />
                             </div>
                         );
                     },
+                    // render(_: string, row: DataSourceType) {
+                    //     const isFrozen = row.frozen !== '0';
+                    //     // TODO contract should update to return timestamp
+                    //     // const isWithdrawable = new BigNumber(row.frozen).plus(row.forceWithdrawDelay).lt(+new Date());
+                    //     const isWithdrawable = false;
+
+                    //     return (
+                    //         <div className="flex align-middle flex-wrap">
+                    //             <Button id="button_detail" className="mr-2">
+                    //                 <Link to={`/payment/consumer/app/${row.address}`}>Details</Link>
+                    //             </Button>
+
+                    //             {isFrozen && <Withdraw appAddr={row.address} onComplete={main} disabled={!isWithdrawable} />}
+
+                    //             {!isFrozen && (
+                    //                 <>
+                    //                     <Deposit appAddr={row.address} onComplete={main} />
+                    //                     <APIKey appAddr={row.address} />
+                    //                     <Refund appAddr={row.address} content={REFUND_CONTENT} onComplete={main} />
+                    //                 </>
+                    //             )}
+                    //         </div>
+                    //     );
+                    // },
                 },
-            ].map((c, i) => ({ ...c, width: [3, 4, 3, 3, 2, 4][i] })),
+            ].map((c, i) => ({ ...c, width: [3, 4, 3, 3, 2, 2, 4][i] })),
         []
     );
 
@@ -75,7 +115,13 @@ export default () => {
     const onSearch = useCallback(
         (value: string) =>
             setData(
-                dataCacheRef.current.filter((d) => d.name.includes(value) || d.baseURL.includes(value) || d.address.includes(value) || d.owner.includes(value))
+                dataCacheRef.current.filter(
+                    (d) =>
+                        d.name.includes(value) ||
+                        d.baseURL.includes(value) ||
+                        d.address.toLowerCase().includes(value.toLowerCase()) ||
+                        d.owner.toLowerCase().includes(value.toLowerCase())
+                )
             ),
         []
     );
