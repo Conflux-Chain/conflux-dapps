@@ -281,7 +281,7 @@ export const getPaidAPPs = async (account: string) => {
                     baseURL: d[1][0],
                     owner: d[2][0],
                     earnings: formatNumber(d[3][0] as any),
-                    balance: formatNumber((d[4] as any).total, {
+                    balance: formatNumber((d[4] as any).total - (d[4] as any).airdrop_, {
                         l4mit: 0,
                         decimal: 18,
                     }),
@@ -320,6 +320,16 @@ export const withdrawRequest = async (appAddr: string) => {
         return (await getContract('app', appAddr).connect(signer).withdrawRequest()).wait();
     } catch (error) {
         console.log('withdrawRequest error: ', error);
+        noticeError(error);
+        throw error;
+    }
+};
+
+export const forceWithdraw = async (appAddr: string) => {
+    try {
+        return (await getContract('app', appAddr).connect(signer).forceWithdraw()).wait();
+    } catch (error) {
+        console.log('forceWithdraw error: ', error);
         noticeError(error);
         throw error;
     }

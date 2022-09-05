@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { Modal, Button } from 'antd';
 import { withdrawRequest } from 'payment/src/utils/request';
 import { AuthESpace } from 'common/modules/AuthConnectButton';
+import { showToast } from 'common/components/showPopup/Toast';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
     onComplete?: () => void;
@@ -24,7 +25,10 @@ export default ({ appAddr, content, disabled, onComplete }: Props) => {
             await withdrawRequest(appAddr);
             onComplete && onComplete();
             setIsModalVisible(false);
-        } catch (error: any) {}
+            showToast('Refund success', { type: 'success' });
+        } catch (error: any) {
+            console.log(error);
+        }
         setLoading(false);
     }, [appAddr]);
 
