@@ -1,5 +1,6 @@
 import React from 'react';
 import { Descriptions, Col, Row } from 'antd';
+import Card from 'payment/src/components/Card';
 
 interface APPDetailProps extends React.HTMLAttributes<HTMLDivElement> {
     details: Array<{
@@ -26,10 +27,9 @@ export const APPDetailCard = ({ details = [] }: APPDetailProps): React.ReactElem
         <Row gutter={16}>
             {details.map((d, i) => (
                 <Col span={6} key={i}>
-                    <div className="border-solid border-1 bg-sky-500 p-4 text-white shadow-xl rounded-sm">
-                        <div className="">{d.label}</div>
+                    <Card title={d.label}>
                         <div className="text-xl">{d.content}</div>
-                    </div>
+                    </Card>
                 </Col>
             ))}
         </Row>
