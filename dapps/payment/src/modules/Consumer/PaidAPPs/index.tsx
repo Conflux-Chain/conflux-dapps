@@ -93,7 +93,7 @@ export default () => {
             setData(data);
             setLoading(false);
         }
-    }, []);
+    }, [account]);
 
     useEffect(() => {
         main().catch((e) => {
