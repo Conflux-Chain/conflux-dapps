@@ -39,7 +39,7 @@ export default ({ appAddr, content, disabled, onComplete }: Props) => {
     return (
         <>
             <AuthESpace
-                className="!rounded-sm !h-[32px]"
+                className="!rounded-sm !h-[32px] mr-2"
                 id="createAPP_authConnect"
                 size="small"
                 connectTextType="concise"

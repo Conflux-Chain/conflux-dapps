@@ -92,6 +92,9 @@ export default () => {
             dataCacheRef.current = data;
             setData(data);
             setLoading(false);
+        } else {
+            dataCacheRef.current = [];
+            setData([]);
         }
     }, [account]);
 
