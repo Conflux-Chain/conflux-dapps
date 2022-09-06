@@ -49,7 +49,10 @@ export const getAPPs = async (creator?: string): Promise<DataSourceType[]> => {
                 name: d[0][0],
                 baseURL: d[1][0],
                 owner: d[2][0],
-                earnings: (d[3][0] as ethers.BigNumber).toString(),
+                earnings: formatNumber(d[3][0], {
+                    limit: 0,
+                    decimal: 18,
+                }),
             }));
 
         return r;
@@ -93,7 +96,10 @@ export const getAPP = async (address: RequestProps['address']): Promise<APPDataS
             name: r[0][0],
             baseURL: r[1][0],
             owner: r[2][0],
-            earnings: r[3][0],
+            earnings: formatNumber(r[3][0], {
+                limit: 0,
+                decimal: 18,
+            }),
             requests: r[4][0].toNumber(),
             users: r[5]['total'].toNumber(),
             resources: {
@@ -280,16 +286,19 @@ export const getPaidAPPs = async (account: string) => {
                     name: d[0][0],
                     baseURL: d[1][0],
                     owner: d[2][0],
-                    earnings: formatNumber(d[3][0] as any),
-                    balance: formatNumber((d[4] as any).total - (d[4] as any).airdrop_, {
-                        l4mit: 0,
-                        decimal: 18,
-                    }),
-                    airdrop: formatNumber((d[4] as any).airdrop_, {
+                    earnings: formatNumber(d[3][0], {
                         limit: 0,
                         decimal: 18,
                     }),
-                    frozen: formatNumber((d[5][0] as any).toString()),
+                    balance: formatNumber(d[4].total - d[4].airdrop_, {
+                        limit: 0,
+                        decimal: 18,
+                    }),
+                    airdrop: formatNumber(d[4].airdrop_, {
+                        limit: 0,
+                        decimal: 18,
+                    }),
+                    frozen: d[5][0].toString(),
                     forceWithdrawDelay: d[6][0].toString(),
                 };
             });

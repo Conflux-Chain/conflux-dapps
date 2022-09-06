@@ -93,7 +93,7 @@ export default () => {
                         details={[
                             {
                                 label: 'Earnings',
-                                content: lodash.isNil(data.earnings) ? '-' : <NumberWithLimit>{ethers.utils.formatUnits(data.earnings, 18)}</NumberWithLimit>,
+                                content: lodash.isNil(data.earnings) ? '-' : <NumberWithLimit>{data.earnings}</NumberWithLimit>,
                             },
                             {
                                 label: 'APIs',
