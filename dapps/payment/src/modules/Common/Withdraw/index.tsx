@@ -67,7 +67,7 @@ export default ({ appAddr, onComplete, disabled, balance }: Props) => {
                 color="primary"
                 shape="rect"
                 authContent={() => (
-                    <Button id="button_deposit" className="cursor-pointer mr-2" onClick={handleShowModal} disabled={disabled}>
+                    <Button id="button_withdraw" className="cursor-pointer mr-2" onClick={handleShowModal} disabled={disabled}>
                         Withdraw
                     </Button>
                 )}
