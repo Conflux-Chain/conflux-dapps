@@ -12,7 +12,21 @@ const { Search } = Input;
 export default () => {
     const dataCacheRef = useRef<DataSourceType[]>([]);
     const [data, setData] = useState<DataSourceType[]>([]);
+    const [filter, setFilter] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
+
+    const main = useCallback(async () => {
+        try {
+            setLoading(true);
+            const data = await getAPPs();
+            dataCacheRef.current = data;
+            setData(onFilter(data, filter));
+        } catch (error) {
+            console.log(error);
+        }
+        setLoading(false);
+    }, [filter]);
+
     const columns = useMemo(
         () =>
             [
@@ -41,47 +55,41 @@ export default () => {
                     },
                 },
             ].map((c, i) => ({ ...c, width: [3, 4, 3, 3, 3][i] })),
+        [main]
+    );
+
+    const config = useMemo(
+        () => [
+            {
+                text: 'Paid APPs',
+                link: '/payment/consumer/paid-apps',
+            },
+            {
+                text: 'APPs',
+                active: true,
+            },
+        ],
         []
     );
-    const config = [
-        {
-            text: 'Paid APPs',
-            link: '/payment/consumer/paid-apps',
-        },
-        {
-            text: 'APPs',
-            active: true,
-        },
-    ];
-
-    const main = useCallback(async () => {
-        setLoading(true);
-        const data = await getAPPs();
-        dataCacheRef.current = data;
-        setData(data);
-        setLoading(false);
-    }, []);
 
     useEffect(() => {
-        main().catch((e) => {
-            setLoading(false);
-            console.log(e);
-        });
+        main();
     }, []);
 
-    const onSearch = useCallback(
-        (value: string) =>
-            setData(
-                dataCacheRef.current.filter(
-                    (d) =>
-                        d.name.includes(value) ||
-                        d.baseURL.includes(value) ||
-                        d.address.toLowerCase().includes(value.toLowerCase()) ||
-                        d.owner.toLowerCase().includes(value.toLowerCase())
-                )
-            ),
-        []
-    );
+    const onFilter = useCallback((data: DataSourceType[], f: string) => {
+        return data.filter(
+            (d) =>
+                d.name.includes(f) ||
+                d.baseURL.includes(f) ||
+                d.address.toLowerCase().includes(f.toLowerCase()) ||
+                d.owner.toLowerCase().includes(f.toLowerCase())
+        );
+    }, []);
+
+    const onSearch = useCallback((value: string) => {
+        setData(onFilter(dataCacheRef.current, value));
+        setFilter(value);
+    }, []);
 
     return (
         <>

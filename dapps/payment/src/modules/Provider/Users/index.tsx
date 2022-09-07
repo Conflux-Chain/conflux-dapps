@@ -23,43 +23,60 @@ export default () => {
     const { address } = useParams();
     const dataCacheRef = useRef<DataType>(initData);
     const [data, setData] = useState<DataType>(initData);
+    const [filter, setFilter] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
-    const config = [
-        {
-            text: 'Details',
-            link: `/payment/provider/app/${address}`,
-        },
-        {
-            text: 'Users',
-            active: true,
-        },
-    ];
+    const config = useMemo(
+        () => [
+            {
+                text: 'Details',
+                link: `/payment/provider/app/${address}`,
+            },
+            {
+                text: 'Users',
+                active: true,
+            },
+        ],
+        [address]
+    );
 
-    const main = useCallback(async function () {
-        if (address) {
-            setLoading(true);
-            const data = await getAPPUsers(address);
-            dataCacheRef.current = data;
-            setData(data);
+    const main = useCallback(
+        async function () {
+            try {
+                if (address) {
+                    setLoading(true);
+                    const data = await getAPPUsers(address);
+                    dataCacheRef.current = data;
+                    const list = onFilter(data, filter);
+                    setData({
+                        list,
+                        total: list.length,
+                    });
+                }
+            } catch (error) {
+                console.log(error);
+            }
             setLoading(false);
-        }
-    }, []);
+        },
+        [filter]
+    );
 
     useEffect(() => {
-        main().catch((e) => {
-            setLoading(false);
-            console.log(e);
-        });
+        main();
     }, [address]);
 
-    const columns = useMemo(() => [col.user, col.airdrop, col.balance].map((c, i) => ({ ...c, width: [4, 2, 2][i] })), []);
+    const columns = useMemo(() => [col.user, col.airdrop, col.balance].map((c, i) => ({ ...c, width: [4, 2, 2][i] })), [main]);
+
+    const onFilter = useCallback((data: DataType, f: string) => {
+        return data.list.filter((d) => d.address.toLowerCase().includes(f) || d.airdrop.includes(f) || d.balance.includes(f));
+    }, []);
 
     const onSearch = useCallback((value: string) => {
-        const newList = dataCacheRef.current.list.filter((d) => d.address.includes(value) || d.airdrop.includes(value) || d.balance.includes(value));
+        const list = onFilter(dataCacheRef.current, value);
         setData({
-            list: newList,
-            total: newList.length,
+            list: list,
+            total: list.length,
         });
+        setFilter(value);
     }, []);
 
     return (
@@ -72,7 +89,8 @@ export default () => {
                     </div>
                 </Col>
                 <Col span="16">
-                    <Airdrop onComplete={main} />
+                    {/* add key to refresh main fn reference */}
+                    <Airdrop onComplete={main} key={`airdrop-${filter}`} />
                 </Col>
             </Row>
             <div className="mt-4"></div>

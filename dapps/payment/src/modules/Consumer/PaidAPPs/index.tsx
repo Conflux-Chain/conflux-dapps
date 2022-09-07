@@ -33,12 +33,31 @@ export default () => {
     const dataCacheRef = useRef<DataSourceType[]>([]);
     const account = useAccount();
     const [data, setData] = useState<DataSourceType[]>([]);
+    const [filter, setFilter] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     const REFUND_CONTENT = useMemo(
         () =>
             'After applying for a refund of the APP stored value balance, the APIkey will be invalid, which may affect your use of the API. Refunds will be withdrawable after the settlement time.',
         []
     );
+
+    const main = useCallback(async () => {
+        try {
+            if (account) {
+                setLoading(true);
+                const data = await getPaidAPPs(account);
+                dataCacheRef.current = data;
+                setData(onFilter(data, filter));
+                setLoading(false);
+            } else {
+                dataCacheRef.current = [];
+                setData([]);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }, [account, filter]);
+
     const columns = useMemo(
         () =>
             [
@@ -82,44 +101,29 @@ export default () => {
                     },
                 },
             ].map((c, i) => ({ ...c, width: [3, 4, 3, 3, 2, 2, 4][i] })),
-        []
+        [main]
     );
-
-    const main = useCallback(async () => {
-        if (account) {
-            setLoading(true);
-            const data = await getPaidAPPs(account);
-            dataCacheRef.current = data;
-            setData(data);
-            setLoading(false);
-        } else {
-            dataCacheRef.current = [];
-            setData([]);
-        }
-    }, [account]);
 
     useEffect(() => {
-        main().catch((e) => {
-            setLoading(false);
-            console.log(e);
-        });
+        main();
     }, [account]);
 
-    const onSearch = useCallback(
-        (value: string) =>
-            setData(
-                dataCacheRef.current.filter(
-                    (d) =>
-                        d.name.includes(value) ||
-                        d.baseURL.includes(value) ||
-                        d.address.toLowerCase().includes(value.toLowerCase()) ||
-                        d.owner.toLowerCase().includes(value.toLowerCase())
-                )
-            ),
-        []
-    );
+    const onFilter = useCallback((data: DataSourceType[], f: string) => {
+        return data.filter(
+            (d) =>
+                d.name.includes(f) ||
+                d.baseURL.includes(f) ||
+                d.address.toLowerCase().includes(f.toLowerCase()) ||
+                d.owner.toLowerCase().includes(f.toLowerCase())
+        );
+    }, []);
 
-    const withdrawableBalance = data.reduce((prev, curr) => {
+    const onSearch = useCallback((value: string) => {
+        setData(onFilter(dataCacheRef.current, value));
+        setFilter(value);
+    }, []);
+
+    const withdrawableBalance = dataCacheRef.current.reduce((prev, curr) => {
         return new BigNumber(curr.balance).plus(prev).toNumber();
     }, 0);
 
