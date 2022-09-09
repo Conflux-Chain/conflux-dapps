@@ -22,6 +22,10 @@ interface RequestProps {
     args?: Array<any>;
 }
 
+interface ErrorType {
+    message: string;
+}
+
 type EditableAPI = Pick<ResourceDataSourceType, 'resourceId' | 'index' | 'op' | 'weight'>;
 
 const INTERFACE_APP = new ethers.utils.Interface(CONTRACT_ABI['app']);
@@ -32,8 +36,11 @@ const noticeError = (e: unknown) => {
     let msg = '';
     if (typeof e === 'string') {
         msg = e;
-    } else if (e instanceof Error) {
-        msg = e.message;
+    } else if (typeof (e as ErrorType).message === 'string') {
+        console.log((e as ErrorType).message);
+        msg = (e as ErrorType).message;
+    } else {
+        msg = e as any;
     }
     showToast(`Request failed, details: ${msg}`, { type: 'failed' });
 };
@@ -403,6 +410,16 @@ export const forceWithdraw = async (appAddr: string) => {
         return (await getContract('app', appAddr).connect(signer).forceWithdraw()).wait();
     } catch (error) {
         console.log('forceWithdraw error: ', error);
+        noticeError(error);
+        throw error;
+    }
+};
+
+export const takeEarnings = async (appAddr: string, to: string, amount: string) => {
+    try {
+        return (await getContract('app', appAddr).connect(signer).takeProfit(to, ethers.utils.parseUnits(amount))).wait();
+    } catch (error) {
+        console.log('takeEarnings error: ', error);
         noticeError(error);
         throw error;
     }

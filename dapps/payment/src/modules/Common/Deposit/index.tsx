@@ -168,7 +168,7 @@ export default ({ appAddr, onComplete, disabled }: Props) => {
                         </Col>
                     </Row>
 
-                    <div className="text-white bg-blue-400 p-2 mt-6 rounded-sm">
+                    <div className="text-white bg-blue-500 p-2 mt-6 rounded-sm">
                         <Row gutter={24}>
                             <Col span={12} className="!flex items-center">
                                 <span>Expected amount in</span>

@@ -36,7 +36,7 @@ export default ({ children, link, short, tooltip = true }: Props): React.ReactEl
                         className="!mb-0"
                         copyable={{
                             text: children,
-                            tooltips: false,
+                            tooltips: [false, false],
                             icon: [
                                 <CopyOutlined className="!text-white !inline-flex" key="copy-icon" />,
                                 <CheckOutlined className="!inline-flex" key="copied-icon" />,

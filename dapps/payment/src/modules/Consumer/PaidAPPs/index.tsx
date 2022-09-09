@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import Title from 'payment/src/components/Title';
 import * as col from 'payment/src/utils/columns/APPs';
 import { DataSourceType } from 'payment/src/utils/types';
-import { getPaidAPPs } from 'payment/src/utils/request';
+import { getPaidAPPs, forceWithdraw } from 'payment/src/utils/request';
 import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
 import { Table, Row, Col, Input, Button } from 'antd';
 import { Link } from 'react-router-dom';
@@ -40,6 +40,14 @@ export default () => {
             'After applying for a refund of the APP stored value balance, the APIkey will be invalid, which may affect your use of the API. Refunds will be withdrawable after the settlement time.',
         []
     );
+    const TIPs = useMemo(
+        () => [
+            '1. After you apply for a refund or your account is frozen by the provider, the refund settlement will be entered. During the settlement period, if you use the provider service, balance may will be continuously charged.',
+            '2. The estimated amount received based on the withdrawable token type you specified.',
+            // '3. You can use the allowed cryptocurrencies to withdraw, the platform will obtain the dex quotation to calculate the estimated payment amount, or go Swappi to learn more.',
+        ],
+        []
+    );
 
     const main = useCallback(async () => {
         try {
@@ -57,6 +65,11 @@ export default () => {
             console.log(error);
         }
     }, [account, filter]);
+
+    const handleConfirm = useCallback(async (addr: string) => {
+        await forceWithdraw(addr);
+        main();
+    }, []);
 
     const columns = useMemo(
         () =>
@@ -87,7 +100,15 @@ export default () => {
                                     </Link>
                                 </Button>
 
-                                {isFrozen && <Withdraw appAddr={row.address} onComplete={main} disabled={!isWithdrawable} balance={row.balance} />}
+                                {isFrozen && (
+                                    <Withdraw
+                                        title="Withdraw Refund"
+                                        disabled={!isWithdrawable}
+                                        value={row.balance}
+                                        tips={TIPs}
+                                        onConfirm={() => handleConfirm(row.address)}
+                                    />
+                                )}
 
                                 {!isFrozen && (
                                     <>

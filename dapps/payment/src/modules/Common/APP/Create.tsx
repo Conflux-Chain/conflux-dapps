@@ -73,7 +73,7 @@ export default ({ onComplete, op, data = {}, className, type = 'default' }: Prop
     return (
         <>
             <AuthESpace
-                className="!rounded-sm"
+                className="!rounded-sm mb-2"
                 id="addAPI_authConnect"
                 size="small"
                 connectTextType="concise"
@@ -81,7 +81,7 @@ export default ({ onComplete, op, data = {}, className, type = 'default' }: Prop
                 color="primary"
                 shape="rect"
                 authContent={() => (
-                    <Button id="button_addAPI" type={type} onClick={showModal} className={`mr-1 ${className}`}>
+                    <Button id="button_addAPI" type={type} onClick={showModal} className={`mr-1 mb-2 ${className}`}>
                         {action}
                     </Button>
                 )}

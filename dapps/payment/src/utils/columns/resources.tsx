@@ -63,5 +63,4 @@ export const action: ColumnType<ResourceDataSourceType> = {
     title: 'Action',
     dataIndex: 'action',
     key: 'action',
-    ellipsis: true,
 };
