@@ -1,5 +1,15 @@
 import { getContract, signer, formatNumber } from '.';
-import { DataSourceType, PostAPPType, DefinedContractNamesType, APPDataSourceType, UsersDataSourceType, CSVType, ContractCall } from 'payment/src/utils/types';
+import {
+    DataSourceType,
+    PostAPPType,
+    DefinedContractNamesType,
+    APPDataSourceType,
+    UsersDataSourceType,
+    CSVType,
+    ContractCall,
+    APPResourceType,
+    ResourceDataSourceType,
+} from 'payment/src/utils/types';
 import lodash from 'lodash-es';
 import { showToast } from 'common/components/showPopup/Toast';
 import { ethers } from 'ethers';
@@ -11,6 +21,8 @@ interface RequestProps {
     method: string;
     args?: Array<any>;
 }
+
+type EditableAPI = Pick<ResourceDataSourceType, 'resourceId' | 'index' | 'op' | 'weight'>;
 
 const INTERFACE_APP = new ethers.utils.Interface(CONTRACT_ABI['app']);
 const MULTICALL = getContract('multicall');
@@ -86,7 +98,7 @@ export const getAPP = async (address: RequestProps['address']): Promise<APPDataS
             ['totalCharged'],
             ['totalRequests'],
             ['listUser', [0, 0]],
-            ['listResources', [0, 1e8]],
+            ['listResources', [0, 0]],
         ];
         const promises = calls.map((c) => [address, INTERFACE_APP.encodeFunctionData(...c)]);
         const results: { returnData: ethers.utils.Result } = await MULTICALL.callStatic.aggregate(promises);
@@ -103,12 +115,7 @@ export const getAPP = async (address: RequestProps['address']): Promise<APPDataS
             requests: r[4][0].toNumber(),
             users: r[5]['total'].toNumber(),
             resources: {
-                list: r[6][0].map((d: any) => ({
-                    resourceId: d.resourceId,
-                    weight: d.weight,
-                    requests: d.requestTimes,
-                    submitTimestamp: d.submitSeconds,
-                })),
+                list: [],
                 total: r[6][1].toNumber(),
             },
         };
@@ -127,6 +134,63 @@ export const getAPP = async (address: RequestProps['address']): Promise<APPDataS
                 total: 0,
             },
         };
+    }
+};
+
+export const getAPPAPIs = async (address: RequestProps['address']): Promise<APPResourceType> => {
+    try {
+        const contract = await getContract('app', address);
+        const pendingSeconds = await contract.pendingSeconds();
+        const data = await contract.listResources(0, 1e8);
+
+        return {
+            list: data[0].map((d: any) => ({
+                resourceId: d.resourceId,
+                weight: d.weight.toString(),
+                requests: d.requestTimes.toString(),
+                submitTimestamp: d.submitSeconds.toString(),
+                pendingOP: d.pendingOP.toString(), // 0-add 1-edit 2-delete 3-no pending 4-?
+                index: d.index,
+                pendingSeconds: pendingSeconds.toNumber(),
+                pendingWeight: d.pendingWeight.toString(),
+            })),
+            total: data.total.toNumber(),
+        };
+    } catch (error) {
+        console.log('getAPP error: ', error);
+        noticeError(error);
+        return {
+            list: [],
+            total: 0,
+        };
+    }
+};
+
+export const configAPPAPI = async (address: RequestProps['address'], data: EditableAPI): Promise<any> => {
+    try {
+        return await (
+            await getContract('app', address)
+                .connect(signer)
+                .configResource([data.index, data.resourceId, Number(data.weight), data.op])
+        ).wait();
+    } catch (error) {
+        console.log(error);
+        noticeError(error);
+        throw error;
+    }
+};
+
+export const deleteAPPAPI = async (address: RequestProps['address'], data: EditableAPI): Promise<any> => {
+    try {
+        return await (
+            await getContract('app', address)
+                .connect(signer)
+                .configResource([data.index, data.resourceId, Number(data.weight), data.op])
+        ).wait();
+    } catch (error) {
+        console.log(error);
+        noticeError(error);
+        throw error;
     }
 };
 

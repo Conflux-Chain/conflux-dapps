@@ -1,9 +1,8 @@
 import { ColumnType } from 'antd/es/table';
 import { ResourceDataSourceType } from '../types';
+import { OP_ACTION } from '../constants';
 
-const PENDING_SECONDS = 604800; // 7 * 24 * 3600
-
-export const index: ColumnType<{}> = {
+export const index: ColumnType<ResourceDataSourceType> = {
     title: '#',
     dataIndex: 'index',
     key: 'index',
@@ -12,40 +11,57 @@ export const index: ColumnType<{}> = {
     },
 };
 
-export const resource: ColumnType<{}> = {
+export const resource: ColumnType<ResourceDataSourceType> = {
     title: 'Resource',
     dataIndex: 'resourceId',
     key: 'resourceId',
     ellipsis: true,
 };
 
-export const weight: ColumnType<{}> = {
+export const weight: ColumnType<ResourceDataSourceType> = {
     title: 'Billing Weight',
     dataIndex: 'weight',
     key: 'weight',
     ellipsis: true,
-    render(val) {
-        return val.toNumber();
-    },
 };
 
-export const requests: ColumnType<{}> = {
+export const requests: ColumnType<ResourceDataSourceType> = {
     title: 'Resource Requests',
     dataIndex: 'requests',
     key: 'requests',
     ellipsis: true,
+};
+
+export const op: ColumnType<ResourceDataSourceType> = {
+    title: 'Action',
+    dataIndex: 'pendingOP',
+    key: 'pendingOP',
+    ellipsis: true,
     render(val) {
-        return val.toNumber();
+        return OP_ACTION[val];
     },
 };
 
-export const effectTime: ColumnType<{}> = {
+export const effectTime: ColumnType<ResourceDataSourceType> = {
     title: 'Expected Effective Time',
     dataIndex: 'submitTimestamp',
     key: 'submitTimestamp',
     ellipsis: true,
-    render(val: ResourceDataSourceType['submitTimestamp']) {
-        const date = new Date((Number(val) + PENDING_SECONDS) * 1000);
-        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+    render(val, row) {
+        const t = (Number(val) + row.pendingSeconds) * 1000;
+
+        if (t > +new Date()) {
+            const date = new Date((Number(val) + row.pendingSeconds) * 1000);
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+        } else {
+            return '-';
+        }
     },
+};
+
+export const action: ColumnType<ResourceDataSourceType> = {
+    title: 'Action',
+    dataIndex: 'action',
+    key: 'action',
+    ellipsis: true,
 };

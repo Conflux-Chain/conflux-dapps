@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import Title from 'payment/src/components/Title';
 import { useParams, useLocation } from 'react-router-dom';
 import { getAPP } from 'payment/src/utils/request';
@@ -7,10 +7,8 @@ import Address from 'payment/src/components/Address';
 import Networks from 'common/conf/Networks';
 import { APPDetailRow, APPDetailCard } from 'payment/src/components/APPDetail';
 import lodash from 'lodash';
-import * as col from 'payment/src/utils/columns/resources';
-import { Table } from 'antd';
-import { ethers } from 'ethers';
 import { NumberWithLimit } from 'payment/src/components/Number';
+import APIs from './APIs';
 
 export default () => {
     const { address } = useParams();
@@ -58,11 +56,9 @@ export default () => {
         });
     }, [address]);
 
-    const columns = useMemo(() => [col.index, col.resource, col.weight, col.requests, col.effectTime].map((c, i) => ({ ...c, width: [1, 4, 4, 4, 4][i] })), []);
-
     return (
         <div>
-            <Title config={config} backTo={`/payment/${from}/${state?.from || 'apps'}`}></Title>
+            <Title config={config} backTo={`/payment/${from}/${(state as { from: string })?.from || 'apps'}`}></Title>
 
             <APPDetailRow
                 details={[
@@ -114,7 +110,7 @@ export default () => {
 
             <div className="mt-8 mb-4 text-xl">APIs</div>
 
-            <Table id="table" dataSource={data.resources.list} columns={columns} rowKey="resourceId" scroll={{ x: 800 }} pagination={false} loading={loading} />
+            <APIs />
         </div>
     );
 };

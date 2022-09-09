@@ -9,11 +9,15 @@ export interface UsersDataSourceType {
 }
 
 export interface ResourceDataSourceType {
+    index: number;
     resourceId: string;
     weight: string;
+    pendingWeight: string;
     requests: string;
     submitTimestamp: string;
+    pendingSeconds: number;
     action?: string;
+    op: number;
 }
 
 export interface DataSourceType {
@@ -28,13 +32,15 @@ export interface DataSourceType {
     forceWithdrawDelay: string;
 }
 
+export interface APPResourceType {
+    list: Array<ResourceDataSourceType>;
+    total: number;
+}
+
 export interface APPDataSourceType extends Omit<DataSourceType, 'address' | 'balance' | 'airdrop' | 'frozen' | 'forceWithdrawDelay'> {
     requests: number;
     users: number;
-    resources: {
-        list: Array<ResourceDataSourceType>;
-        total: number;
-    };
+    resources: APPResourceType;
 }
 
 export type DefinedContractNamesType = keyof typeof CONTRACT_ABI;
