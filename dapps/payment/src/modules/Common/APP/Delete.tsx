@@ -1,17 +1,19 @@
-import React, { useState, useCallback } from 'react';
-import { Modal, Button } from 'antd';
-import { withdrawRequest } from 'payment/src/utils/request';
+import { useState, useCallback } from 'react';
+import { Button, Modal } from 'antd';
+import { deleteAPPAPI } from 'payment/src/utils/request';
 import { AuthESpace } from 'common/modules/AuthConnectButton';
 import { showToast } from 'common/components/showPopup/Toast';
+import { ResourceDataSourceType } from 'payment/src/utils/types';
+import { useParams } from 'react-router-dom';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
-    onComplete?: () => void;
-    appAddr: string;
-    content: string;
-    disabled?: boolean;
+    onComplete?: (data: any) => void;
+    data: ResourceDataSourceType;
+    type?: string;
 }
 
-export default ({ appAddr, content, disabled, onComplete }: Props) => {
+export default ({ onComplete, data }: Props) => {
+    const { address } = useParams();
     const [loading, setLoading] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
@@ -22,15 +24,20 @@ export default ({ appAddr, content, disabled, onComplete }: Props) => {
     const handleOk = useCallback(async () => {
         try {
             setLoading(true);
-            await withdrawRequest(appAddr);
-            onComplete && onComplete();
+            const d = await deleteAPPAPI(address, {
+                index: data.index,
+                op: 2,
+                resourceId: data.resourceId,
+                weight: data.weight,
+            });
+            onComplete && onComplete(d);
+            showToast('Create APP success', { type: 'success' });
             setIsModalVisible(false);
-            showToast('Refund success', { type: 'success' });
-        } catch (error: any) {
-            console.log(error);
+        } catch (e) {
+            console.log(e);
         }
         setLoading(false);
-    }, [appAddr]);
+    }, []);
 
     const handleCancel = useCallback(() => {
         setIsModalVisible(false);
@@ -39,28 +46,29 @@ export default ({ appAddr, content, disabled, onComplete }: Props) => {
     return (
         <>
             <AuthESpace
-                className="!rounded-sm !h-[32px] mr-2"
-                id="createAPP_authConnect"
+                className="!rounded-sm"
+                id="deleteAPI_authConnect"
                 size="small"
                 connectTextType="concise"
                 checkChainMatch={true}
                 color="primary"
                 shape="rect"
                 authContent={() => (
-                    <Button id="button_refund" className="cursor-pointer mr-2" onClick={handleClick} disabled={disabled}>
-                        Refund
+                    <Button className="mr-1" onClick={() => handleClick()}>
+                        Delete
                     </Button>
                 )}
+                loading={loading}
             />
             {isModalVisible && (
                 <Modal
-                    title={<span className="text-red-500">Refund Notice</span>}
+                    title={<span className="text-red-500">Delete API</span>}
                     visible={isModalVisible}
                     confirmLoading={loading}
                     onOk={handleOk}
                     okText={'Confirm'}
                     onCancel={handleCancel}
-                    wrapClassName="refund_modal"
+                    wrapClassName="deleteAPI_modal"
                     okButtonProps={{
                         id: 'button_ok',
                     }}
@@ -69,7 +77,7 @@ export default ({ appAddr, content, disabled, onComplete }: Props) => {
                     }}
                 >
                     <div id="APIKey" className="">
-                        {content}
+                        The deletion of the API will be expected take effect in 7 days, and the interface continue to be billed before it takes effect.
                     </div>
                 </Modal>
             )}

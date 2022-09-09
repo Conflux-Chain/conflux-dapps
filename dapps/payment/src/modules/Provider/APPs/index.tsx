@@ -13,47 +13,51 @@ export default () => {
     const dataCacheRef = useRef<DataSourceType[]>([]);
     const account = useAccount();
     const [data, setData] = useState<DataSourceType[]>([]);
+    const [filter, setFilter] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
+
+    const main = useCallback(async () => {
+        try {
+            if (account) {
+                setLoading(true);
+                const data = await getAPPs(account);
+                dataCacheRef.current = data;
+                setData(onFilter(data, filter));
+            }
+        } catch (error) {
+            console.log(error);
+        }
+        setLoading(false);
+    }, [account, filter]);
+
     const columns = useMemo(
         () =>
             [col.APPName, col.baseURL, col.APPAddress, col.owner, col.earnings, col.action('provider')].map((c, i) => ({ ...c, width: [3, 4, 3, 3, 2, 2][i] })),
-        []
+        [main]
     );
-
-    const main = useCallback(async () => {
-        if (account) {
-            setLoading(true);
-            const data = await getAPPs(account);
-            dataCacheRef.current = data;
-            setData(data);
-            setLoading(false);
-        }
-    }, [account]);
 
     useEffect(() => {
         if (account) {
-            main().catch((e) => {
-                setLoading(false);
-                console.log(e);
-            });
+            main();
         } else {
             setData([]);
         }
     }, [account]);
 
-    const onSearch = useCallback(
-        (value: string) =>
-            setData(
-                dataCacheRef.current.filter(
-                    (d) =>
-                        d.name.includes(value) ||
-                        d.baseURL.includes(value) ||
-                        d.address.toLowerCase().includes(value.toLowerCase()) ||
-                        d.owner.toLowerCase().includes(value.toLowerCase())
-                )
-            ),
-        [dataCacheRef.current]
-    );
+    const onFilter = useCallback((data: DataSourceType[], f: string) => {
+        return data.filter(
+            (d) =>
+                d.name.includes(f) ||
+                d.baseURL.includes(f) ||
+                d.address.toLowerCase().includes(f.toLowerCase()) ||
+                d.owner.toLowerCase().includes(f.toLowerCase())
+        );
+    }, []);
+
+    const onSearch = useCallback((value: string) => {
+        setData(onFilter(dataCacheRef.current, value));
+        setFilter(value);
+    }, []);
 
     return (
         <>
@@ -66,7 +70,8 @@ export default () => {
                     </div>
                 </Col>
                 <Col span="16">
-                    <CreateAPP onComplete={main} />
+                    {/* add key to refresh main fn reference */}
+                    <CreateAPP onComplete={main} key={`createAPP-${filter}`} />
                 </Col>
             </Row>
 

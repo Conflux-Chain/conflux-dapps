@@ -1,31 +1,33 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Modal, InputNumber, Select, Row, Col, Button } from 'antd';
+import { forceWithdraw } from 'payment/src/utils/request';
 import { AuthESpace } from 'common/modules/AuthConnectButton';
 import { showToast } from 'common/components/showPopup/Toast';
 import { useTokenList } from 'payment/src/store';
-import { ButtonProps } from 'antd/es/button';
 
 const { Option } = Select;
 
-interface BottonType extends ButtonProps {
-    className?: string;
-}
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
     onComplete?: () => void;
+    appAddr: string;
     disabled?: boolean;
-    value: string | number;
-    tips?: string[];
-    onConfirm: () => {};
-    title: string;
-    buttonProps?: BottonType;
+    balance: string | number;
 }
 
-export default ({ disabled, value, tips = [], onConfirm, title, buttonProps }: Props) => {
+export default ({ appAddr, onComplete, disabled, balance }: Props) => {
+    const TIPs = useMemo(
+        () => [
+            '1. After you apply for a refund or your account is frozen by the provider, the refund settlement will be entered. During the settlement period, if you use the provider service, balance may will be continuously charged.',
+            '2. The estimated amount received based on the withdrawable token type you specified.',
+            // '3. You can use the allowed cryptocurrencies to withdraw, the platform will obtain the dex quotation to calculate the estimated payment amount, or go Swappi to learn more.',
+        ],
+        []
+    );
     const TOKENs = useTokenList();
     const [loading, setLoading] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
     const [errMsg /*, setErrMsg */] = useState<string>('');
-    const [fromValue, setFromValue] = useState<string>(String(value));
+    const [fromValue, setFromValue] = useState<string>(String(balance));
     const [toValue, setToValue] = useState<string>(TOKENs[0].eSpace_address);
 
     const handleShowModal = useCallback(() => setIsModalVisible(true), []);
@@ -37,7 +39,8 @@ export default ({ disabled, value, tips = [], onConfirm, title, buttonProps }: P
     const handleOk = async () => {
         try {
             setLoading(true);
-            await onConfirm();
+            await forceWithdraw(appAddr);
+            onComplete && onComplete();
             setIsModalVisible(false);
             showToast('Withdraw success', { type: 'success' });
         } catch (e) {
@@ -64,20 +67,14 @@ export default ({ disabled, value, tips = [], onConfirm, title, buttonProps }: P
                 color="primary"
                 shape="rect"
                 authContent={() => (
-                    <Button
-                        id="button_withdraw"
-                        className={`cursor-pointer mr-2 ${buttonProps?.className}`}
-                        onClick={handleShowModal}
-                        disabled={disabled}
-                        {...buttonProps}
-                    >
+                    <Button id="button_withdraw" className="cursor-pointer mr-2" onClick={handleShowModal} disabled={disabled}>
                         Withdraw
                     </Button>
                 )}
             />
             {isModalVisible && (
                 <Modal
-                    title={title}
+                    title="Withdraw Refund"
                     visible={isModalVisible}
                     onOk={handleOk}
                     onCancel={handleCancel}
@@ -139,13 +136,11 @@ export default ({ disabled, value, tips = [], onConfirm, title, buttonProps }: P
                         </Col> */}
                     </Row>
 
-                    {tips.length && (
-                        <ul id="ul_tips" className="mt-4 mb-0 p-4 bg-red-100 text-gray-600 rounded-sm">
-                            {tips.map((t, i) => (
-                                <li key={i}>{t}</li>
-                            ))}
-                        </ul>
-                    )}
+                    <ul id="ul_tips" className="mt-4 mb-0 p-4 bg-red-100 text-gray-600 rounded-sm">
+                        {TIPs.map((t, i) => (
+                            <li key={i}>{t}</li>
+                        ))}
+                    </ul>
                 </Modal>
             )}
         </>

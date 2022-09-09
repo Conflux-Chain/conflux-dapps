@@ -21,7 +21,7 @@ export default ({ appAddr, onComplete, disabled }: Props) => {
         () => [
             '1. APP coin will be used as the recharge points deducted when the interface is used.',
             '2. The API provider will notify the platform of the number of calls you have made to the interface, and the platform will calculate the interface usage fee and deduct the APP deposit balance. The calculation is according to: number of calls * interface billing weight.',
-            '3. You can use the allowed cryptocurrencies to deposit to APP, the platform will obtain the dex quotation to calculate the estimated payment amount, or go Swappi to learn more.',
+            // '3. You can use the allowed cryptocurrencies to deposit to APP, the platform will obtain the dex quotation to calculate the estimated payment amount, or go Swappi to learn more.',
         ],
         []
     );
@@ -112,7 +112,7 @@ export default ({ appAddr, onComplete, disabled }: Props) => {
     return (
         <>
             <AuthESpace
-                className="!rounded-sm !h-[32px] mr-2"
+                className="!rounded-sm !h-[32px] mr-2 mb-2"
                 id="createAPP_authConnect"
                 size="small"
                 connectTextType="concise"
@@ -168,7 +168,7 @@ export default ({ appAddr, onComplete, disabled }: Props) => {
                         </Col>
                     </Row>
 
-                    <div className="text-white bg-blue-400 p-2 mt-6 rounded-sm">
+                    <div className="text-white bg-blue-500 p-2 mt-6 rounded-sm">
                         <Row gutter={24}>
                             <Col span={12} className="!flex items-center">
                                 <span>Expected amount in</span>

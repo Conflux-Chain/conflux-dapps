@@ -1,19 +1,20 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import Title from 'payment/src/components/Title';
 import { useParams, useLocation } from 'react-router-dom';
-import { getAPP } from 'payment/src/utils/request';
+import { getAPP, takeEarnings } from 'payment/src/utils/request';
 import { APPDataSourceType, TitleType } from 'payment/src/utils/types';
 import Address from 'payment/src/components/Address';
 import Networks from 'common/conf/Networks';
 import { APPDetailRow, APPDetailCard } from 'payment/src/components/APPDetail';
 import lodash from 'lodash';
-import * as col from 'payment/src/utils/columns/resources';
-import { Table } from 'antd';
-import { ethers } from 'ethers';
 import { NumberWithLimit } from 'payment/src/components/Number';
+import APIs from './APIs';
+import Withdraw from 'payment/src/modules/Common/Withdraw';
+import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
 
 export default () => {
     const { address } = useParams();
+    const account = useAccount();
     const { pathname, state } = useLocation();
     const from = pathname.includes('/payment/consumer') ? 'consumer' : 'provider';
     const [data, setData] = useState<APPDataSourceType>({
@@ -28,13 +29,25 @@ export default () => {
             total: 0,
         },
     });
-    const [loading, setLoading] = useState<boolean>(false);
-    const config: TitleType[] = [
-        {
-            text: 'Details',
-            active: true,
-        },
-    ];
+    const [_, setLoading] = useState<boolean>(false);
+    const config: TitleType[] = useMemo(
+        () => [
+            {
+                text: 'Details',
+                active: true,
+            },
+        ],
+        []
+    );
+
+    const TIPs = useMemo(
+        () => [
+            '1. The earning anchor value is: 1 income = 1 usdt.',
+            '2. The estimated amount received based on the withdrawable token type you specified.',
+            // '3. If you want to withdraw your CFX assets to Confluxcore to experience other projects, you can fill in the Bridge address, send the assets to the Bridge address, and then go to the Space Bridge to withdraw.',
+        ],
+        []
+    );
 
     if (from === 'provider') {
         config.push({
@@ -43,26 +56,36 @@ export default () => {
         });
     }
 
-    useEffect(() => {
+    const main = useCallback(
         async function main() {
-            if (address) {
-                setLoading(true);
-                const data = await getAPP(address);
-                setData(data);
-                setLoading(false);
+            try {
+                if (address) {
+                    setLoading(true);
+                    const data = await getAPP(address);
+                    setData(data);
+                }
+            } catch (error) {
+                console.log(error);
             }
-        }
-        main().catch((e) => {
             setLoading(false);
-            console.log(e);
-        });
+        },
+        [address]
+    );
+
+    useEffect(() => {
+        main();
     }, [address]);
 
-    const columns = useMemo(() => [col.index, col.resource, col.weight, col.requests, col.effectTime].map((c, i) => ({ ...c, width: [1, 4, 4, 4, 4][i] })), []);
+    const handleConfirm = useCallback(async () => {
+        if (address && account) {
+            await takeEarnings(address, account, String(data.earnings));
+            main();
+        }
+    }, [address, account, data.earnings]);
 
     return (
         <div>
-            <Title config={config} backTo={`/payment/${from}/${state?.from || 'apps'}`}></Title>
+            <Title config={config} backTo={`/payment/${from}/${(state as { from: string })?.from || 'apps'}`}></Title>
 
             <APPDetailRow
                 details={[
@@ -93,7 +116,25 @@ export default () => {
                         details={[
                             {
                                 label: 'Earnings',
-                                content: lodash.isNil(data.earnings) ? '-' : <NumberWithLimit>{ethers.utils.formatUnits(data.earnings, 18)}</NumberWithLimit>,
+                                content: lodash.isNil(data.earnings) ? (
+                                    '-'
+                                ) : (
+                                    <>
+                                        <NumberWithLimit>{data.earnings}</NumberWithLimit>
+                                        <span className="float-right">
+                                            <Withdraw
+                                                title="Take Earnings"
+                                                value={data.earnings}
+                                                tips={TIPs}
+                                                onConfirm={() => handleConfirm()}
+                                                buttonProps={{
+                                                    shape: 'round',
+                                                    className: '!text-blue-500',
+                                                }}
+                                            />
+                                        </span>
+                                    </>
+                                ),
                             },
                             {
                                 label: 'APIs',
@@ -114,7 +155,7 @@ export default () => {
 
             <div className="mt-8 mb-4 text-xl">APIs</div>
 
-            <Table id="table" dataSource={data.resources.list} columns={columns} rowKey="resourceId" scroll={{ x: 800 }} pagination={false} loading={loading} />
+            <APIs />
         </div>
     );
 };

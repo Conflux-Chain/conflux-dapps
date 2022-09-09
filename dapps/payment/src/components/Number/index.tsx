@@ -1,6 +1,6 @@
 import React from 'react';
 import { formatNumber } from 'payment/src/utils';
-import Popper from 'common/components/Popper';
+import { Tooltip } from 'antd';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
     children: string | number;
@@ -11,9 +11,9 @@ export const NumberWithLimit = ({ children }: Props): React.ReactElement => {
 
     if (fN.startsWith('<')) {
         return (
-            <Popper Content={children.toString()} arrow>
+            <Tooltip title={children.toString()} color="#222222">
                 <span className="cursor-pointer">{fN}</span>
-            </Popper>
+            </Tooltip>
         );
     } else {
         return <>{fN}</>;
