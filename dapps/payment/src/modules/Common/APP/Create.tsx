@@ -14,9 +14,10 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
     op: OP_ACTION;
     data?: Partial<ResourceDataSourceType>;
     type?: ButtonType;
+    disabled?: boolean;
 }
 
-export default ({ onComplete, op, data = {}, className, type = 'default' }: Props) => {
+export default ({ onComplete, op, data = {}, className, type = 'default', disabled = false }: Props) => {
     const { address } = useParams();
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
@@ -81,7 +82,7 @@ export default ({ onComplete, op, data = {}, className, type = 'default' }: Prop
                 color="primary"
                 shape="rect"
                 authContent={() => (
-                    <Button id="button_addAPI" type={type} onClick={showModal} className={`mr-1 mb-2 ${className}`}>
+                    <Button id="button_addAPI" type={type} onClick={showModal} className={`mr-1 mb-2 ${className}`} disabled={disabled}>
                         {action}
                     </Button>
                 )}

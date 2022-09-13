@@ -60,7 +60,7 @@ export const effectTime: ColumnType<ResourceDataSourceType> = {
 };
 
 export const action: ColumnType<ResourceDataSourceType> = {
-    title: 'Action',
-    dataIndex: 'action',
-    key: 'action',
+    title: 'Operation',
+    dataIndex: 'operation',
+    key: 'operation',
 };
