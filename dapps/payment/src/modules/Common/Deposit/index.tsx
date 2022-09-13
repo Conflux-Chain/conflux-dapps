@@ -6,6 +6,7 @@ import { AuthESpace } from 'common/modules/AuthConnectButton';
 import { showToast } from 'common/components/showPopup/Toast';
 import { startTrack, useTokenList } from 'payment/src/store';
 import { ethers } from 'ethers';
+import { ButtonType } from 'antd/es/button';
 
 const { Option } = Select;
 
@@ -13,9 +14,10 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
     onComplete?: (data: any) => void;
     appAddr: string;
     disabled?: boolean;
+    type?: ButtonType;
 }
 
-export default ({ appAddr, onComplete, disabled }: Props) => {
+export default ({ appAddr, onComplete, disabled, type: buttonType, className }: Props) => {
     useEffect(startTrack, []);
     const TIPs = useMemo(
         () => [
@@ -112,7 +114,7 @@ export default ({ appAddr, onComplete, disabled }: Props) => {
     return (
         <>
             <AuthESpace
-                className="!rounded-sm !h-[32px] mr-2 mb-2"
+                className={`!rounded-sm !h-[32px] mr-2 mb-2 ${className}`}
                 id="createAPP_authConnect"
                 size="small"
                 connectTextType="concise"
@@ -120,7 +122,13 @@ export default ({ appAddr, onComplete, disabled }: Props) => {
                 color="primary"
                 shape="rect"
                 authContent={() => (
-                    <Button id="button_deposit" className="cursor-pointer mr-2 mb-2" onClick={handleShowModal} disabled={disabled}>
+                    <Button
+                        id="button_deposit"
+                        className={`cursor-pointer mr-2 mb-2 ${className}`}
+                        onClick={handleShowModal}
+                        disabled={disabled}
+                        type={buttonType}
+                    >
                         Deposit
                     </Button>
                 )}

@@ -18,6 +18,7 @@ export interface ResourceDataSourceType {
     pendingSeconds: number;
     action?: string;
     op: number;
+    pendingOP: string;
 }
 
 export interface DataSourceType {

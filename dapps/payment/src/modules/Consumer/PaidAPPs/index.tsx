@@ -11,8 +11,6 @@ import APIKey from 'payment/src/modules/Common/APIKey';
 import Refund from 'payment/src/modules/Common/Refund';
 import Withdraw from 'payment/src/modules/Common/Withdraw';
 import BigNumber from 'bignumber.js';
-import Card from 'payment/src/components/Card';
-import { NumberWithLimit } from 'payment/src/components/Number';
 
 const { Search } = Input;
 
@@ -144,21 +142,9 @@ export default () => {
         setFilter(value);
     }, []);
 
-    const withdrawableBalance = dataCacheRef.current.reduce((prev, curr) => {
-        return new BigNumber(curr.balance).plus(prev).toNumber();
-    }, 0);
-
     return (
         <>
             <Title config={config} />
-
-            <Row gutter={16}>
-                <Col span={6}>
-                    <Card title="Withdrawable">
-                        <NumberWithLimit>{withdrawableBalance}</NumberWithLimit>
-                    </Card>
-                </Col>
-            </Row>
 
             <Row gutter={12} className="mt-4">
                 <Col span="8">

@@ -11,6 +11,7 @@ import { NumberWithLimit } from 'payment/src/components/Number';
 import APIs from './APIs';
 import Withdraw from 'payment/src/modules/Common/Withdraw';
 import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
+import Deposit from 'payment/src/modules/Common/Deposit';
 
 export default () => {
     const { address } = useParams();
@@ -153,9 +154,12 @@ export default () => {
                 </>
             )}
 
-            <div className="mt-8 mb-4 text-xl">APIs</div>
+            <div className="mt-8 mb-4 text-xl">
+                <span>APIs</span>
+                {address && <Deposit appAddr={address} onComplete={main} type="primary" className="float-right" />}
+            </div>
 
-            <APIs />
+            <APIs onChange={main} operable={from === 'provider'} />
         </div>
     );
 };

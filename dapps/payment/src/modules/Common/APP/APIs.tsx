@@ -11,7 +11,12 @@ interface ResourceType extends ResourceDataSourceType {
     edit?: boolean;
 }
 
-export default () => {
+interface Props {
+    onChange?: () => void;
+    operable?: boolean;
+}
+
+export default ({ onChange, operable = false }: Props) => {
     const { address } = useParams();
     const dataCacheRef = useRef<{
         list: ResourceType[];
@@ -47,35 +52,40 @@ export default () => {
         main();
     }, [address]);
 
-    const columns = useMemo(
-        () =>
-            [
-                col.index,
-                col.resource,
-                col.weight,
-                col.requests,
-                col.op,
-                col.effectTime,
-                {
-                    ...col.action,
-                    render(_: any, row: ResourceDataSourceType, i: number) {
-                        return !i ? null : (
-                            <>
-                                <Create op={OP_ACTION.edit} data={row} onComplete={main} />
-                                <Delete data={row} onComplete={main} />
-                            </>
-                        );
-                    },
+    const handleComplete = useCallback(() => {
+        onChange && onChange();
+        main();
+    }, []);
+
+    const columns = useMemo(() => {
+        const cols = [col.index, col.resource, col.weight, col.requests, col.op, col.effectTime].map((c, i) => ({ ...c, width: [1, 3, 3, 3, 2, 4][i] }));
+
+        if (operable) {
+            cols.push({
+                ...col.action,
+                width: 3,
+                render(_: any, row: ResourceDataSourceType, i: number) {
+                    const disabled = row.pendingOP !== '3';
+                    return (
+                        <>
+                            <Create op={OP_ACTION.edit} data={row} onComplete={handleComplete} disabled={disabled} />
+                            {!!i && <Delete data={row} onComplete={handleComplete} disabled={disabled} />}
+                        </>
+                    );
                 },
-            ].map((c, i) => ({ ...c, width: [1, 3, 3, 3, 2, 4, 3][i] })),
-        []
-    );
+            });
+        }
+
+        return cols;
+    }, [operable]);
 
     return (
         <>
-            <div className="mb-4 float-right">
-                <Create op={OP_ACTION.add} type="primary" onComplete={main} />
-            </div>
+            {operable && (
+                <div className="mb-4 float-right">
+                    <Create op={OP_ACTION.add} type="primary" onComplete={handleComplete} />
+                </div>
+            )}
             <Table
                 id="table"
                 dataSource={data.list}

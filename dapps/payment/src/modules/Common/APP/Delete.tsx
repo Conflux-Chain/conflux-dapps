@@ -10,9 +10,10 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
     onComplete?: (data: any) => void;
     data: ResourceDataSourceType;
     type?: string;
+    disabled?: boolean;
 }
 
-export default ({ onComplete, data }: Props) => {
+export default ({ onComplete, data, disabled = false }: Props) => {
     const { address } = useParams();
     const [loading, setLoading] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
@@ -31,7 +32,7 @@ export default ({ onComplete, data }: Props) => {
                 weight: data.weight,
             });
             onComplete && onComplete(d);
-            showToast('Create APP success', { type: 'success' });
+            showToast('Delete APP success', { type: 'success' });
             setIsModalVisible(false);
         } catch (e) {
             console.log(e);
@@ -54,7 +55,7 @@ export default ({ onComplete, data }: Props) => {
                 color="primary"
                 shape="rect"
                 authContent={() => (
-                    <Button className="mr-1" onClick={() => handleClick()}>
+                    <Button className="mr-1" onClick={() => handleClick()} disabled={disabled}>
                         Delete
                     </Button>
                 )}

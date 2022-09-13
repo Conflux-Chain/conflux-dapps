@@ -86,7 +86,7 @@ export default ({ onComplete }: Props) => {
                             },
                             {
                                 min: 1,
-                                max: 10,
+                                max: 225,
                                 message: 'Please input APP name with 1-10 character',
                             },
                         ]}
@@ -104,7 +104,7 @@ export default ({ onComplete }: Props) => {
                             },
                             {
                                 min: 1,
-                                max: 50,
+                                max: 1000,
                                 message: 'Please input APP name with 1-50 character',
                             },
                         ]}
