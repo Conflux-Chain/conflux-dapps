@@ -67,7 +67,7 @@ export default () => {
     const columns = useMemo(() => [col.user, col.airdrop, col.balance].map((c, i) => ({ ...c, width: [4, 2, 2][i] })), [main]);
 
     const onFilter = useCallback((data: DataType, f: string) => {
-        return data.list.filter((d) => d.address.toLowerCase().includes(f) || d.airdrop.includes(f) || d.balance.includes(f));
+        return data.list.filter((d) => d.address.toLowerCase().includes(f.toLowerCase()) || d.airdrop.includes(f) || d.balance.includes(f));
     }, []);
 
     const onSearch = useCallback((value: string) => {

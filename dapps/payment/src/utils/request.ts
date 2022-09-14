@@ -361,7 +361,7 @@ export const getPaidAPPs = async (account: string) => {
                         limit: 0,
                         decimal: 18,
                     }),
-                    balance: formatNumber(d[4].total - d[4].airdrop_, {
+                    balance: formatNumber(d[4].total.sub(d[4].airdrop_), {
                         limit: 0,
                         decimal: 18,
                     }),

@@ -1,12 +1,16 @@
 import { UsersDataSourceType } from '../types';
 import Address from 'payment/src/components/Address';
 import Networks from 'common/conf/Networks';
+import { NumberWithLimit } from 'payment/src/components/Number';
 
 export const balance = {
     title: 'Balance',
     dataIndex: 'balance',
     key: 'balance',
     ellipsis: true,
+    render(val) {
+        return <NumberWithLimit>{val}</NumberWithLimit>;
+    },
 };
 
 export const airdrop = {
@@ -14,6 +18,9 @@ export const airdrop = {
     dataIndex: 'airdrop',
     key: 'airdrop',
     ellipsis: true,
+    render(val) {
+        return <NumberWithLimit>{val}</NumberWithLimit>;
+    },
 };
 
 export const user = {
