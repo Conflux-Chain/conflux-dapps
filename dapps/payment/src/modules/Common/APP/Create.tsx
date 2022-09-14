@@ -7,6 +7,7 @@ import { ResourceDataSourceType } from 'payment/src/utils/types';
 import { useParams } from 'react-router-dom';
 import ModalTip from 'payment/src/components/ModalTip';
 import { OP_ACTION } from 'payment/src/utils/constants';
+import { formatNumber } from 'payment/src/utils';
 import { ButtonType } from 'antd/lib/button';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
@@ -120,7 +121,7 @@ export default ({ onComplete, op, data = {}, className, type = 'default', disabl
                             },
                         ]}
                     >
-                        <Input id="input_APIResource" />
+                        <Input id="input_APIResource" disabled={op !== OP_ACTION.add} />
                     </Form.Item>
                     <Form.Item
                         label="Billing Weight"
@@ -133,7 +134,19 @@ export default ({ onComplete, op, data = {}, className, type = 'default', disabl
                             },
                         ]}
                     >
-                        <InputNumber id="input_APIWeight" style={{ width: '100%' }} min={1} maxLength={50} precision={0} />
+                        <InputNumber
+                            id="input_APIWeight"
+                            style={{ width: '100%' }}
+                            min={1}
+                            maxLength={50}
+                            precision={5}
+                            formatter={(val) => {
+                                return formatNumber(val as number, {
+                                    limit: 0,
+                                    decimal: 0,
+                                });
+                            }}
+                        />
                     </Form.Item>
                 </Form>
 

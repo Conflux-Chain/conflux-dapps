@@ -12,6 +12,7 @@ import APIs from './APIs';
 import Withdraw from 'payment/src/modules/Common/Withdraw';
 import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
 import Deposit from 'payment/src/modules/Common/Deposit';
+import { Descriptions, Col, Row, Typography } from 'antd';
 
 export default () => {
     const { address } = useParams();
@@ -120,21 +121,25 @@ export default () => {
                                 content: lodash.isNil(data.earnings) ? (
                                     '-'
                                 ) : (
-                                    <>
-                                        <NumberWithLimit>{data.earnings}</NumberWithLimit>
-                                        <span className="float-right">
-                                            <Withdraw
-                                                title="Take Earnings"
-                                                value={data.earnings}
-                                                tips={TIPs}
-                                                onConfirm={() => handleConfirm()}
-                                                buttonProps={{
-                                                    shape: 'round',
-                                                    className: '!text-blue-500',
-                                                }}
-                                            />
-                                        </span>
-                                    </>
+                                    <Row>
+                                        <Col span={12} className="">
+                                            <NumberWithLimit className="text-ellipsis overflow-hidden block">{data.earnings}</NumberWithLimit>
+                                        </Col>
+                                        <Col span={12}>
+                                            <span className="float-right">
+                                                <Withdraw
+                                                    title="Take Earnings"
+                                                    value={data.earnings}
+                                                    tips={TIPs}
+                                                    onConfirm={() => handleConfirm()}
+                                                    buttonProps={{
+                                                        shape: 'round',
+                                                        className: '!text-blue-500',
+                                                    }}
+                                                />
+                                            </span>
+                                        </Col>
+                                    </Row>
                                 ),
                             },
                             {

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Modal, InputNumber, Select, Row, Col, Button } from 'antd';
 import { AuthESpace } from 'common/modules/AuthConnectButton';
 import { showToast } from 'common/components/showPopup/Toast';
@@ -49,6 +49,12 @@ export default ({ disabled, value, tips = [], onConfirm, title, buttonProps }: P
     const handleCancel = useCallback(() => {
         setIsModalVisible(false);
     }, []);
+
+    useEffect(() => {
+        if (value) {
+            setFromValue(String(value));
+        }
+    }, [value]);
 
     // control confirm button status
     const isDisabled = fromValue === '0' || fromValue === null || !!errMsg;
