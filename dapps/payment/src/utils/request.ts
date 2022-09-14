@@ -385,7 +385,7 @@ export const getPaidAPPs = async (account: string) => {
 
 export const getAPIKey = async (appAddr: string) => {
     try {
-        const ethTypedData = { domain: 'web3payment', contract: appAddr };
+        const ethTypedData = { domain: 'web3pay', contract: appAddr };
         const sig = await personalSign(JSON.stringify(ethTypedData, null, 2));
         return ethers.utils.base64.encode(sig);
     } catch (error) {
