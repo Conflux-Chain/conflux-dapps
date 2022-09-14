@@ -156,7 +156,7 @@ export default () => {
 
             <div className="mt-8 mb-4 text-xl">
                 <span>APIs</span>
-                {address && <Deposit appAddr={address} onComplete={main} type="primary" className="float-right" />}
+                {address && from === 'consumer' && <Deposit appAddr={address} onComplete={main} type="primary" className="float-right" />}
             </div>
 
             <APIs onChange={main} operable={from === 'provider'} />

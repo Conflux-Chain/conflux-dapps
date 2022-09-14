@@ -85,7 +85,7 @@ export const getAPPs = async (creator?: string): Promise<DataSourceType[]> => {
 export const postAPP = async ({ name, url, weight }: PostAPPType) => {
     try {
         return await (
-            await CONTRACT_CONTROLLER.connect(signer).createApp(name, url, '', weight, {
+            await CONTRACT_CONTROLLER.connect(signer).createApp(name, url, '', ethers.utils.parseUnits(String(weight)), {
                 type: 0,
             })
         ).wait();
@@ -153,13 +153,13 @@ export const getAPPAPIs = async (address: RequestProps['address']): Promise<APPR
         return {
             list: data[0].map((d: any) => ({
                 resourceId: d.resourceId,
-                weight: d.weight.toString(),
+                weight: ethers.utils.formatUnits(d.weight),
                 requests: d.requestTimes.toString(),
                 submitTimestamp: d.submitSeconds.toString(),
                 pendingOP: d.pendingOP.toString(), // 0-add 1-edit 2-delete 3-no pending 4-?
                 index: d.index,
                 pendingSeconds: pendingSeconds.toNumber(),
-                pendingWeight: d.pendingWeight.toString(),
+                pendingWeight: ethers.utils.formatUnits(d.pendingWeight),
             })),
             total: data.total.toNumber(),
         };
@@ -178,7 +178,7 @@ export const configAPPAPI = async (address: RequestProps['address'], data: Edita
         return await (
             await getContract('app', address)
                 .connect(signer)
-                .configResource([data.index, data.resourceId, Number(data.weight), data.op])
+                .configResource([data.index, data.resourceId, ethers.utils.parseUnits(String(data.weight)), data.op])
         ).wait();
     } catch (error) {
         console.log(error);
@@ -192,7 +192,7 @@ export const deleteAPPAPI = async (address: RequestProps['address'], data: Edita
         return await (
             await getContract('app', address)
                 .connect(signer)
-                .configResource([data.index, data.resourceId, Number(data.weight), data.op])
+                .configResource([data.index, data.resourceId, ethers.utils.parseUnits(data.weight), data.op])
         ).wait();
     } catch (error) {
         console.log(error);
