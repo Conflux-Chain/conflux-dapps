@@ -14,6 +14,7 @@ import lodash from 'lodash-es';
 import { showToast } from 'common/components/showPopup/Toast';
 import { ethers } from 'ethers';
 import { CONTRACT_ABI } from 'payment/src/contracts/constants';
+import { personalSign } from '@cfxjs/use-wallet-react/ethereum';
 
 interface RequestProps {
     name: DefinedContractNamesType;
@@ -384,10 +385,9 @@ export const getPaidAPPs = async (account: string) => {
 
 export const getAPIKey = async (appAddr: string) => {
     try {
-        const seed = `${appAddr}_${Date.now()}`;
-        const sig = await signer.signMessage(seed);
-        const str = JSON.stringify({ msg: seed, sig });
-        return ethers.utils.base64.encode(ethers.utils.toUtf8Bytes(str));
+        const ethTypedData = { domain: 'web3payment', contract: appAddr };
+        const sig = await personalSign(JSON.stringify(ethTypedData, null, 2));
+        return ethers.utils.base64.encode(sig);
     } catch (error) {
         console.log('getAPIKey error: ', error);
         noticeError(error);
