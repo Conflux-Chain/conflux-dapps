@@ -74,7 +74,7 @@ export default ({ onComplete, op, data = {}, className, type = 'default', disabl
     return (
         <>
             <AuthESpace
-                className="!rounded-sm mb-2"
+                className="!rounded-sm mb-2 mr-1"
                 id="addAPI_authConnect"
                 size="small"
                 connectTextType="concise"

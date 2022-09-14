@@ -1,6 +1,7 @@
 import { ColumnType } from 'antd/es/table';
 import { ResourceDataSourceType } from '../types';
 import { OP_ACTION } from '../constants';
+import { NumberWithLimit } from 'payment/src/components/Number';
 
 export const index: ColumnType<ResourceDataSourceType> = {
     title: '#',
@@ -23,6 +24,9 @@ export const weight: ColumnType<ResourceDataSourceType> = {
     dataIndex: 'weight',
     key: 'weight',
     ellipsis: true,
+    render(val) {
+        return <NumberWithLimit>{val}</NumberWithLimit>;
+    },
 };
 
 export const requests: ColumnType<ResourceDataSourceType> = {
@@ -50,7 +54,7 @@ export const effectTime: ColumnType<ResourceDataSourceType> = {
     render(val, row) {
         const t = (Number(val) + row.pendingSeconds) * 1000;
 
-        if (t > +new Date()) {
+        if (row.pendingOP !== '3' && t > +new Date()) {
             const date = new Date((Number(val) + row.pendingSeconds) * 1000);
             return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
         } else {
