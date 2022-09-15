@@ -45,6 +45,9 @@ export default ({ onComplete, op, data = {}, className, type = 'default', disabl
 
     const showModal = useCallback(() => setIsModalVisible(true), []);
 
+    const action = op === OP_ACTION.add ? 'Add' : 'Edit';
+    const title = `${action} API`;
+
     const handleOk = useCallback(() => {
         form.validateFields().then(async function ({ resource, weight }) {
             try {
@@ -57,7 +60,7 @@ export default ({ onComplete, op, data = {}, className, type = 'default', disabl
                 });
                 setIsModalVisible(false);
                 onComplete && onComplete(d);
-                showToast('Create APP success', { type: 'success' });
+                showToast(`${title} success`, { type: 'success' });
             } catch (e) {
                 console.log(e);
             }
@@ -71,9 +74,6 @@ export default ({ onComplete, op, data = {}, className, type = 'default', disabl
         setLoading(false);
         form.resetFields();
     }, []);
-
-    const action = op === OP_ACTION.add ? 'Add' : 'Edit';
-    const title = `${action} API`;
 
     return (
         <>

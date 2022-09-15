@@ -37,15 +37,17 @@ Keyboard.mount();
 
 Keyboard.bind('p -> a -> y -> m -> e -> n -> t', () => {
     const pre = localStorage.getItem('payment');
-    showToast({
-        text: `Page will auto refresh after 3s to ${pre === '1' ? 'unload' : 'load'} Payment Dapp.`,
-        onClickOk: () => location.reload(),
-        okButtonText: `${pre === '1' ? 'Unload' : 'Load'} Now`,
-    }, { type: 'success', duration: 3333 });
+    showToast(
+        {
+            text: `Page will auto refresh after 3s to ${pre === '1' ? 'unload' : 'load'} Web3 Paywall Dapp.`,
+            onClickOk: () => location.reload(),
+            okButtonText: `${pre === '1' ? 'Unload' : 'Load'} Now`,
+        },
+        { type: 'success', duration: 3333 }
+    );
     setTimeout(() => location.reload(), 3333);
     localStorage.setItem('payment', pre === '1' ? '0' : '1');
 });
-
 
 export const dapps = [
     {
@@ -85,7 +87,7 @@ export const dapps = [
 
 if (localStorage.getItem('payment') == '1' && !isProduction) {
     dapps.push({
-        name: 'Payment',
+        name: 'Web3 Paywall',
         icon: PaymentIcon,
         path: 'payment',
         link: 'payment',
