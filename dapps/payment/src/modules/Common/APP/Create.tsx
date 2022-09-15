@@ -62,11 +62,14 @@ export default ({ onComplete, op, data = {}, className, type = 'default', disabl
                 console.log(e);
             }
             setLoading(false);
+            form.resetFields();
         });
     }, []);
 
     const handleCancel = useCallback(() => {
         setIsModalVisible(false);
+        setLoading(false);
+        form.resetFields();
     }, []);
 
     const action = op === OP_ACTION.add ? 'Add' : 'Edit';
@@ -103,6 +106,7 @@ export default ({ onComplete, op, data = {}, className, type = 'default', disabl
                 cancelButtonProps={{
                     id: 'button_cancel',
                 }}
+                destroyOnClose
             >
                 <Form form={form} name="api" autoComplete="off" layout="vertical">
                     <Form.Item
@@ -137,7 +141,7 @@ export default ({ onComplete, op, data = {}, className, type = 'default', disabl
                         <InputNumber
                             id="input_APIWeight"
                             style={{ width: '100%' }}
-                            min={1}
+                            min={0}
                             maxLength={50}
                             precision={5}
                             formatter={(val) => {

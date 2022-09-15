@@ -54,7 +54,7 @@ export const getAPPs = async (creator?: string): Promise<DataSourceType[]> => {
 
         const appContracts = creator ? apps[0].map((a: string[]) => a[0]) : apps[0];
 
-        const calls: ContractCall[] = [['name'], ['symbol'], ['appOwner'], ['totalCharged']];
+        const calls: ContractCall[] = [['name'], ['symbol'], ['appOwner'], ['totalCharged'], ['totalTakenProfit']];
         const promises = lodash.flattenDepth(
             appContracts.map((a: any) => calls.map((c) => [a, INTERFACE_APP.encodeFunctionData(...c)])),
             1
@@ -69,7 +69,7 @@ export const getAPPs = async (creator?: string): Promise<DataSourceType[]> => {
                 name: d[0][0],
                 baseURL: d[1][0],
                 owner: d[2][0],
-                earnings: formatNumber(d[3][0], {
+                earnings: formatNumber(d[3][0].sub(d[4][0]), {
                     limit: 0,
                     decimal: 18,
                 }),
@@ -97,7 +97,7 @@ export const postAPP = async ({ name, url, weight }: PostAPPType) => {
     }
 };
 
-export const getAPP = async (address: RequestProps['address']): Promise<APPDataSourceType> => {
+export const getAPP = async (address: RequestProps['address'], account?: string): Promise<APPDataSourceType> => {
     try {
         const calls: Array<[string, any[]?]> = [
             ['name'],
@@ -107,7 +107,11 @@ export const getAPP = async (address: RequestProps['address']): Promise<APPDataS
             ['totalRequests'],
             ['listUser', [0, 0]],
             ['listResources', [0, 0]],
+            ['totalTakenProfit'],
         ];
+        if (account) {
+            calls.push(['frozenMap', [account]]);
+        }
         const promises = calls.map((c) => [address, INTERFACE_APP.encodeFunctionData(...c)]);
         const results: { returnData: ethers.utils.Result } = await MULTICALL.callStatic.aggregate(promises);
         const r = results.returnData.map((d, i) => INTERFACE_APP.decodeFunctionResult(calls[i][0], d));
@@ -116,7 +120,7 @@ export const getAPP = async (address: RequestProps['address']): Promise<APPDataS
             name: r[0][0],
             baseURL: r[1][0],
             owner: r[2][0],
-            earnings: formatNumber(r[3][0], {
+            earnings: formatNumber(r[3][0].sub(r[7][0]), {
                 limit: 0,
                 decimal: 18,
             }),
@@ -126,6 +130,7 @@ export const getAPP = async (address: RequestProps['address']): Promise<APPDataS
                 list: [],
                 total: r[6][1].toNumber(),
             },
+            frozen: account ? r[calls.length - 1][0].toString() : '0',
         };
     } catch (error) {
         console.log('getAPP error: ', error);
@@ -141,6 +146,7 @@ export const getAPP = async (address: RequestProps['address']): Promise<APPDataS
                 list: [],
                 total: 0,
             },
+            frozen: '0',
         };
     }
 };
