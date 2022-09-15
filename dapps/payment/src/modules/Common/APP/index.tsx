@@ -12,7 +12,7 @@ import APIs from './APIs';
 import Withdraw from 'payment/src/modules/Common/Withdraw';
 import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
 import Deposit from 'payment/src/modules/Common/Deposit';
-import { Descriptions, Col, Row, Typography } from 'antd';
+import { Col, Row } from 'antd';
 
 export default () => {
     const { address } = useParams();
@@ -30,6 +30,7 @@ export default () => {
             list: [],
             total: 0,
         },
+        frozen: '0',
     });
     const [_, setLoading] = useState<boolean>(false);
     const config: TitleType[] = useMemo(
@@ -63,7 +64,7 @@ export default () => {
             try {
                 if (address) {
                     setLoading(true);
-                    const data = await getAPP(address);
+                    const data = await getAPP(address, account);
                     setData(data);
                 }
             } catch (error) {
@@ -84,6 +85,8 @@ export default () => {
             main();
         }
     }, [address, account, data.earnings]);
+
+    const isFrozen = data.frozen !== '0';
 
     return (
         <div>
@@ -134,7 +137,8 @@ export default () => {
                                                     onConfirm={() => handleConfirm()}
                                                     buttonProps={{
                                                         shape: 'round',
-                                                        className: '!text-blue-500',
+                                                        className: data.earnings === '0' ? '!text-gray' : '!text-blue-500',
+                                                        disabled: data.earnings === '0',
                                                     }}
                                                 />
                                             </span>
@@ -161,7 +165,7 @@ export default () => {
 
             <div className="mt-8 mb-4 text-xl">
                 <span>APIs</span>
-                {address && from === 'consumer' && <Deposit appAddr={address} onComplete={main} type="primary" className="float-right" />}
+                {address && from === 'consumer' && <Deposit appAddr={address} onComplete={main} type="primary" className="float-right" disabled={isFrozen} />}
             </div>
 
             <APIs onChange={main} operable={from === 'provider'} />

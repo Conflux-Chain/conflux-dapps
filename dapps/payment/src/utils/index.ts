@@ -31,6 +31,10 @@ export const formatAddress = (addr: string) => {
 };
 
 export const formatNumber = (number: string | number | BigNumber, _opt?: Object) => {
+    if (number === '') {
+        return '';
+    }
+
     const opt = { limit: 0.001, decimal: 0, dp: null, ..._opt };
 
     let bn = new BigNumber(String(number));

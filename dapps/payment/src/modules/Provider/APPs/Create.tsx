@@ -122,7 +122,7 @@ export default ({ onComplete }: Props) => {
                             },
                         ]}
                     >
-                        <InputNumber id="input_ResourceWeight" style={{ width: '100%' }} min={1} precision={0} />
+                        <InputNumber id="input_ResourceWeight" style={{ width: '100%' }} min={0} precision={0} />
                     </Form.Item>
                 </Form>
             </Modal>

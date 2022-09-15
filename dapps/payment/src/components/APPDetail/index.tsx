@@ -27,7 +27,7 @@ export const APPDetailCard = ({ details = [] }: APPDetailProps): React.ReactElem
         <Row gutter={16}>
             {details.map((d, i) => (
                 <Col span={6} key={i}>
-                    <Card title={d.label}>
+                    <Card title={d.label} className="h-[88px]">
                         <div className="text-xl">{d.content}</div>
                     </Card>
                 </Col>

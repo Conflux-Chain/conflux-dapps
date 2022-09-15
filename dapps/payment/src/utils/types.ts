@@ -38,7 +38,7 @@ export interface APPResourceType {
     total: number;
 }
 
-export interface APPDataSourceType extends Omit<DataSourceType, 'address' | 'balance' | 'airdrop' | 'frozen' | 'forceWithdrawDelay'> {
+export interface APPDataSourceType extends Omit<DataSourceType, 'address' | 'balance' | 'airdrop' | 'forceWithdrawDelay'> {
     requests: number;
     users: number;
     resources: APPResourceType;
