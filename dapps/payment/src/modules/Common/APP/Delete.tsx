@@ -32,7 +32,7 @@ export default ({ onComplete, data, disabled = false }: Props) => {
                 weight: data.weight,
             });
             onComplete && onComplete(d);
-            showToast('Delete APP success', { type: 'success' });
+            showToast('Delete API success', { type: 'success' });
             setIsModalVisible(false);
         } catch (e) {
             console.log(e);
