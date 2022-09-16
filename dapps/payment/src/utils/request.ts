@@ -15,6 +15,8 @@ import { showToast } from 'common/components/showPopup/Toast';
 import { ethers } from 'ethers';
 import { CONTRACT_ABI } from 'payment/src/contracts/constants';
 import { personalSign } from '@cfxjs/use-wallet-react/ethereum';
+// @ts-ignore
+import { binary_to_base58 } from 'base58-js';
 
 interface RequestProps {
     name: DefinedContractNamesType;
@@ -391,9 +393,9 @@ export const getPaidAPPs = async (account: string) => {
 
 export const getAPIKey = async (appAddr: string) => {
     try {
-        const ethTypedData = { domain: 'web3pay', contract: appAddr };
-        const sig = await personalSign(JSON.stringify(ethTypedData, null, 2));
-        return ethers.utils.base64.encode(sig);
+        const msg = { domain: 'web3pay', contract: appAddr };
+        const sig = await personalSign(JSON.stringify(msg));
+        return binary_to_base58(ethers.utils.arrayify(sig));
     } catch (error) {
         console.log('getAPIKey error: ', error);
         noticeError(error);

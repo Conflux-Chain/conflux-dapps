@@ -2,6 +2,9 @@ import React, { useState, useCallback } from 'react';
 import { Modal, Button } from 'antd';
 import { getAPIKey } from 'payment/src/utils/request';
 import { AuthESpace } from 'common/modules/AuthConnectButton';
+import { Typography } from 'antd';
+import { CopyOutlined, CheckOutlined } from '@ant-design/icons';
+const { Paragraph } = Typography;
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
     onComplete?: (data: any) => void;
@@ -65,7 +68,19 @@ export default ({ appAddr }: Props) => {
                     }}
                 >
                     <div id="APIKey" className="p-2 bg-gray-200">
-                        {content}
+                        <Paragraph
+                            className="!mb-0"
+                            copyable={{
+                                text: content,
+                                tooltips: [false, false],
+                                icon: [
+                                    <CopyOutlined className="!text-black !inline-flex" key="copy-icon" />,
+                                    <CheckOutlined className="!inline-flex" key="copied-icon" />,
+                                ],
+                            }}
+                        >
+                            {content}
+                        </Paragraph>
                     </div>
                 </Modal>
             )}
