@@ -8,7 +8,7 @@ const Dashboard: React.FC = () => {
     useEffect(startTrack, []);
 
     return (
-        <div className="mx-auto w-[1140px] h-[704px] pt-[16px] it grid grid-rows-2 grid-cols-2 gap-[24px]">
+        <div className="dashboard-wrapper mx-auto w-[1140px] h-[704px] pt-[16px] it grid grid-rows-2 grid-cols-2 gap-[24px]">
             <Stake />
             <Lock />
             <Unstake />

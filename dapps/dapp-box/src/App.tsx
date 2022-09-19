@@ -23,7 +23,6 @@ import CrossSpaceIcon from 'hub/src/assets/cross-space.svg';
 import AirdropIcon from 'hub/src/assets/Airdrop.svg';
 import { hideAllToast } from 'common/components/showPopup/Toast';
 import LocalStorage from 'localstorage-enhance';
-import './App.css';
 import { isProduction } from 'common/conf/Networks';
 import { showToast } from 'common/components/showPopup/Toast';
 
@@ -32,6 +31,7 @@ import PaymentNavbarEnhance from 'hub/src/modules/NavbarEnhance/Payment';
 // TODO just for temporary, need to replace with real
 import PaymentIcon from 'payment/src/assets/Payment.png';
 import Keyboard from 'custom-keyboard';
+import './App.css';
 
 Keyboard.mount();
 

@@ -63,7 +63,7 @@ const Result: React.FC<{
 
             <div className="mb-[16px] flex justify-between items-center">
                 <div>
-                    <p className="mb-[4px] flex items-center text-[14px] text-[#898D9A]">
+                    <div className="mb-[4px] flex items-center text-[14px] text-[#898D9A]">
                         Previous voting {type === 'Reward of block' ? 'reward' : 'APY'}
                         <img
                             src={QuestionMark}
@@ -71,15 +71,15 @@ const Result: React.FC<{
                             className="ml-[4px] cursor-pointer hover:scale-110 transition-transform select-none"
                             onClick={onClickPreValTip}
                         />
-                    </p>
-                    <p className="leading-[28px] text-[20px] text-[#1B1B1C] font-medium">
+                    </div>
+                    <div className="leading-[28px] text-[20px] text-[#1B1B1C] font-medium">
                         {type === 'Interest rate' ? displayInterestRate(preVoteDetail?.value) : displayPowBaseReward(preVoteDetail?.value)}
                         {unit}
-                    </p>
+                    </div>
                 </div>
 
                 <div className="px-[12px] py-[8px] rounded-[4px] bg-[#F0F3FF]">
-                    <p className="mb-[4px] flex items-center text-[14px] text-[#898D9A]">
+                    <div className="mb-[4px] flex items-center text-[14px] text-[#898D9A]">
                         {type === 'Reward of block' ? 'Reward' : 'APY'} in voting
                         <img
                             src={QuestionMark}
@@ -87,8 +87,8 @@ const Result: React.FC<{
                             className="ml-[4px] cursor-pointer hover:scale-110 transition-transform select-none"
                             onClick={onClickVotingValTip}
                         />
-                    </p>
-                    <p className="flex items-center leading-[28px] text-[20px] text-[#1B1B1C] font-medium">
+                    </div>
+                    <div className="flex items-center leading-[28px] text-[20px] text-[#1B1B1C] font-medium">
                         {type === 'Interest rate' ? displayInterestRate(voteDetail?.value) : displayPowBaseReward(voteDetail?.value)}
                         {unit}
 
@@ -99,7 +99,7 @@ const Result: React.FC<{
                                 className="ml-[6px] w-[16px] h-[16px] select-none"
                             />
                         )}
-                    </p>
+                    </div>
                 </div>
             </div>
 
@@ -120,15 +120,15 @@ const Result: React.FC<{
             <div className="mb-[24px] flex justify-between">
                 {options.map(({ name, color }, index) => (
                     <div key={name} className="">
-                        <p className="mb-[4px] text-[12px] leading-[16px] text-[#939393]">Voting power</p>
-                        <p className="mb-[12px] text-[14px] leading-[18px] font-medium" style={{ color: index === 1 ? '#3D3F4C' : color }}>
+                        <div className="mb-[4px] text-[12px] leading-[16px] text-[#939393]">Voting power</div>
+                        <div className="mb-[12px] text-[14px] leading-[18px] font-medium" style={{ color: index === 1 ? '#3D3F4C' : color }}>
                             {voteDetail?.voting?.[index]?.toDecimalStandardUnit() ?? 0}
-                        </p>
+                        </div>
 
-                        <p className="mb-[4px] text-[12px] leading-[16px] text-[#939393]">Proportion</p>
-                        <p className="mb-[12px] text-[14px] leading-[18px] font-medium" style={{ color: index === 1 ? '#3D3F4C' : color }}>
+                        <div className="mb-[4px] text-[12px] leading-[16px] text-[#939393]">Proportion</div>
+                        <div className="mb-[12px] text-[14px] leading-[18px] font-medium" style={{ color: index === 1 ? '#3D3F4C' : color }}>
                             {proportions[index]}
-                        </p>
+                        </div>
                     </div>
                 ))}
             </div>
@@ -163,9 +163,9 @@ const Index: React.FC = () => {
 const PowPreviousVotingRewardTipContent: React.FC = memo(() => {
     return (
         <>
-            <p className="text-[16px] leading-[22px] font-medium text-[#3D3F4C]">Previous voting reward (PoW):</p>
-            <p className="mt-[8px] text-[14px] leading-[21px] text-[#898D9A]">The PoW block rewards of the most recent voting,</p>
-            <p className="text-[14px] leading-[21px] text-[#898D9A]">calculated from the previous round of voting.</p>
+            <div className="text-[16px] leading-[22px] font-medium text-[#3D3F4C]">Previous voting reward (PoW):</div>
+            <div className="mt-[8px] text-[14px] leading-[21px] text-[#898D9A]">The PoW block rewards of the most recent voting,</div>
+            <div className="text-[14px] leading-[21px] text-[#898D9A]">calculated from the previous round of voting.</div>
         </>
     );
 });
@@ -173,9 +173,9 @@ const PowPreviousVotingRewardTipContent: React.FC = memo(() => {
 const PosPreviousVotingAPYTipContent: React.FC = memo(() => {
     return (
         <>
-            <p className="text-[16px] leading-[22px] font-medium text-[#3D3F4C]">Previous voting APY (PoS):</p>
-            <p className="mt-[8px] text-[14px] leading-[21px] text-[#898D9A]">The PoS rewards rate of the most recent voting,</p>
-            <p className="text-[14px] leading-[21px] text-[#898D9A]">calculated from the previous round of voting.</p>
+            <div className="text-[16px] leading-[22px] font-medium text-[#3D3F4C]">Previous voting APY (PoS):</div>
+            <div className="mt-[8px] text-[14px] leading-[21px] text-[#898D9A]">The PoS rewards rate of the most recent voting,</div>
+            <div className="text-[14px] leading-[21px] text-[#898D9A]">calculated from the previous round of voting.</div>
         </>
     );
 });
@@ -183,16 +183,16 @@ const PosPreviousVotingAPYTipContent: React.FC = memo(() => {
 const PowVotingRewardTipContent: React.FC = memo(() => {
     return (
         <>
-            <p className="text-[16px] leading-[22px] font-medium text-[#3D3F4C]">Reward in voting (PoW):</p>
-            <p className="mt-[8px] text-[14px] leading-[21px] text-[#898D9A]">
+            <div className="text-[16px] leading-[22px] font-medium text-[#3D3F4C]">Reward in voting (PoW):</div>
+            <div className="mt-[8px] text-[14px] leading-[21px] text-[#898D9A]">
                 During the voting period, the current PoW block rewards is obtained according to the voting distribution statistics and calculated from:
-            </p>
-            <p className="mt-[6px] text-[14px] leading-[21px] text-[#898D9A]">
+            </div>
+            <div className="mt-[6px] text-[14px] leading-[21px] text-[#898D9A]">
                 <MathTex type="reward" />
-            </p>
-            <p className="mt-[14px] text-[14px] leading-[21px] text-[#898D9A]">
+            </div>
+            <div className="mt-[14px] text-[14px] leading-[21px] text-[#898D9A]">
                 After the voting ends, the voting result will be applied to the PoW block reward when the next voting starts.
-            </p>
+            </div>
         </>
     );
 });
@@ -200,16 +200,16 @@ const PowVotingRewardTipContent: React.FC = memo(() => {
 const PosVotingAPYTipContent: React.FC = memo(() => {
     return (
         <>
-            <p className="text-[16px] leading-[22px] font-medium text-[#3D3F4C]">APY in voting (PoS):</p>
-            <p className="mt-[8px] text-[14px] leading-[21px] text-[#898D9A]">
+            <div className="text-[16px] leading-[22px] font-medium text-[#3D3F4C]">APY in voting (PoS):</div>
+            <div className="mt-[8px] text-[14px] leading-[21px] text-[#898D9A]">
                 During the voting period, the current PoS reward interest rate is obtained according to the voting distribution statistics and calculated from:
-            </p>
-            <p className="mt-[6px] text-[14px] leading-[21px] text-[#898D9A]">
+            </div>
+            <div className="mt-[6px] text-[14px] leading-[21px] text-[#898D9A]">
                 <MathTex type="rate" />
-            </p>
-            <p className="mt-[14px] text-[14px] leading-[21px] text-[#898D9A]">
+            </div>
+            <div className="mt-[14px] text-[14px] leading-[21px] text-[#898D9A]">
                 After the voting ends, the voting result will be applied to the PoS reward interest rate when the next voting starts.
-            </p>
+            </div>
         </>
     );
 });

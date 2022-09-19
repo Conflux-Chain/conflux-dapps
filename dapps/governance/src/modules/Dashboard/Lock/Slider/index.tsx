@@ -94,9 +94,9 @@ const Slider = forwardRef<HTMLInputElement, Props>(({ onChange, currentGapBlockN
             />
             <div className="mt-[6px] flex justify-between text-[12px] leading-[16px] text-[#898D9A]">
                 {periods.map((period, index) => (
-                    <p key={period} className={cx('opacity-0 group-hover:opacity-50 transition-opacity duration-200', +progress === index && '!opacity-100')}>
+                    <div key={period} className={cx('opacity-0 group-hover:opacity-50 transition-opacity duration-200', +progress === index && '!opacity-100')}>
                         {period}
-                    </p>
+                    </div>
                 ))}
             </div>
         </div>

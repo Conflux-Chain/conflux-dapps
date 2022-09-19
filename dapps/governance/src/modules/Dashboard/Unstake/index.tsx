@@ -51,7 +51,7 @@ const UnStake: React.FC = () => {
                 />
             </div>
 
-            <p className="mt-[16px] mb-[12px] text-[16px] leading-[22px] text-[#3D3F4C] font-medium">Amount to unstake</p>
+            <div className="mt-[16px] mb-[12px] text-[16px] leading-[22px] text-[#3D3F4C] font-medium">Amount to unstake</div>
             <form onSubmit={onSubmit}>
                 <Input
                     id="governance-unstake-input"
@@ -93,16 +93,16 @@ const AvailableToUnstakeTipContent: React.FC = memo(() => {
 
     return (
         <>
-            <p className="text-[16px] leading-[22px] font-medium text-[#3D3F4C]">Available to unstake</p>
-            <p className="mt-[8px] text-[14px] leading-[21px] text-[#898D9A]">
+            <div className="text-[16px] leading-[22px] font-medium text-[#3D3F4C]">Available to unstake</div>
+            <div className="mt-[8px] text-[14px] leading-[21px] text-[#898D9A]">
                 CFX are only withdrawable for which have not been staked in the governance nor the POS.
-            </p>
-            <p className="text-[14px] leading-[21px] text-[#898D9A]">
+            </div>
+            <div className="text-[14px] leading-[21px] text-[#898D9A]">
                 Locked: <BalanceText className='text-[#808BE7]' balance={lockedBalance} symbol="CFX" decimals={18} />
-            </p>
-            <p className="text-[14px] leading-[21px] text-[#898D9A]">
+            </div>
+            <div className="text-[14px] leading-[21px] text-[#898D9A]">
                 Staked in PoS: <BalanceText className='text-[#808BE7]' balance={posTotalBalance} symbol="CFX" decimals={18} />
-            </p>
+            </div>
         </>
     );
 });

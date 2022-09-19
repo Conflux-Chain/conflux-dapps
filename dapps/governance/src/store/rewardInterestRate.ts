@@ -8,7 +8,7 @@ import { decodeHexResult } from 'common/utils/Contract';
 import { paramsControlContract, paramsControlContractAdress } from './contracts';
 import { convertCfxToHex, validateCfxAddress } from 'common/utils/addressUtils';
 import createTrackStoreChangeOnce from 'common/utils/createTrackStoreChangeOnce';
-
+console.log(paramsControlContract)
 const dateConfigs = {
     '8888': {
         start: Unit.fromMinUnit('360000'),
@@ -119,6 +119,7 @@ rewardRateStore.subscribe(
                 callback: (r: string) => {
                     if (!r) return;
                     const res = decodeHexResult(paramsControlContract.totalVotes(currentRoundHex)._method.outputs, r)?.[0];
+                    console.log(res)
                     const currentVotingOrigin = {
                         powBaseReward: [res[0][1][1], res[0][1][0], res[0][1][2]] as [string, string, string],
                         interestRate: [res[1][1][1], res[1][1][0], res[1][1][2]] as [string, string, string],
