@@ -26,7 +26,9 @@
         "dev:payment": "turbo run dev --scope=payment",
         "build:payment": "turbo run build --scope=payment",
         "dev:shuttle-flow": "turbo run dev --scope=shuttle-flow",
-        "build:shuttle-flow": "turbo run build --scope=shuttle-flow"
+        "build:shuttle-flow": "turbo run build --scope=shuttle-flow",
+        "dev:pos": "turbo run dev --scope=pos",
+        "build:pos": "turbo run build --scope=pos"
     },
     "devDependencies": {
         "prettier": "latest",

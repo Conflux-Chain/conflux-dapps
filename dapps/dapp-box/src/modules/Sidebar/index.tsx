@@ -15,7 +15,7 @@ import Close from 'common/assets/icons/close.svg';
 import { useNotSupportMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFluent';
 import './index.css';
 
-const dappsSupportMetaMaskHostedByFluent = ['eSpace Bridge', 'Governance', 'Web3 Paywall'];
+const dappsSupportMetaMaskHostedByFluent = ['eSpace Bridge', 'Governance', 'Web3 Paywall', 'Pos'];
 
 const Sidebar: React.FC = () => {
     const navigate = useNavigate();

@@ -25,7 +25,7 @@ import { hideAllToast } from 'common/components/showPopup/Toast';
 import LocalStorage from 'localstorage-enhance';
 import { isProduction } from 'common/conf/Networks';
 import { showToast } from 'common/components/showPopup/Toast';
-
+import Pos from 'pos/src/modules';
 import Payment from 'payment/src/modules';
 import PaymentNavbarEnhance from 'hub/src/modules/NavbarEnhance/Payment';
 // TODO just for temporary, need to replace with real
@@ -82,6 +82,12 @@ export const dapps = [
             type: 'childRoutes' as 'childRoutes',
             Content: <GovernanceNavbarEnhance />,
         },
+    },
+    {
+        name: 'Pos',
+        icon: GovernanceIcon,
+        path: 'pos',
+        element: <Pos />
     },
 ];
 
@@ -191,6 +197,7 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                             <Route key="payment" path="payment/*" element={<Payment />} />
                         </>
                     )}
+                    <Route key="pos" path="pos" element={<Pos />} />
                     <Route path="*" element={<Navigate to="espace-bridge" />} />
                 </Routes>
             </ErrorBoundary>
