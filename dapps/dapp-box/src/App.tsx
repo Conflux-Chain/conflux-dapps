@@ -111,7 +111,7 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                 <Route key='espace-bridge' path='espace-bridge' element={<Outlet />}>
                     <Route index element={<ESpaceBridgeEnter />}  />
                     <Route key='cross-space' path='cross-space' element={<CrossSpace />} />
-                    <Route key='bsc-esapce-cfx' path='bsc-esapce-cfx' element={<BscEspace />} />
+                    <Route key='bsc-espace-cfx' path='bsc-espace-cfx' element={<BscEspace />} />
                 </Route>
                 <Route key='espace-airdrop' path='espace-airdrop' element={<Airdrop />} />
                 {dapps

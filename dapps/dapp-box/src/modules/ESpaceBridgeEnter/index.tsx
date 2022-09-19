@@ -12,7 +12,7 @@ const dapps = [{
     title: 'Between BSC and eSpace',
     tip: 'Only CFX',
     bg: BscESpaceBg,
-    to: 'bsc-esapce-cfx'
+    to: 'bsc-espace-cfx'
 
 }] as const;
 
