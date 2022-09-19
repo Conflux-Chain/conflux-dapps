@@ -32,6 +32,7 @@ interface Contracts {
         currentRound(): { encodeABI: () => string; };
         totalVotes(round: string): { encodeABI: () => string; _method: { outputs: Array<any> }; };
         readVote(account: string): { encodeABI: () => string; _method: { outputs: Array<any> }; };
+        posStakeForVotes(round: string): { encodeABI: () => string; _method: { outputs: Array<any> }; };
         castVote(round: string, vote_data: [[string, [string, string, string]], [string, [string, string, string]]]): { encodeABI: () => string; };
     }
 }
@@ -43,6 +44,6 @@ export const governanceContractAddress = isProduction ? 'cfx:acev1c6tz2gu832fwdj
 export const posContract = createContract<Contracts['posContract']>(PosContract.abi);
 export const posContractAddress = convertHexToCfx('0x0888000000000000000000000000000000000005', +Networks.core.chainId);
 export const paramsControlContract = createContract<Contracts['paramsControlContract']>(ParamsControlContract.abi);
-export const paramsControlContractAdress = convertHexToCfx('0x0888000000000000000000000000000000000007', +Networks.core.chainId);
+export const paramsControlContractAddress = convertHexToCfx('0x0888000000000000000000000000000000000007', +Networks.core.chainId);
 
 export default Contracts;

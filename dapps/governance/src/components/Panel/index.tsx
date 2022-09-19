@@ -8,7 +8,7 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
 const Panel: React.FC<Props> = ({ className, title, children, ...props }) => {
     return (
         <div className={cx('governance-panel', className)} {...props}>
-            <p className="mb-[16px] text-[28px] leading-[36px] color-[#3D3F4C] font-medium">{title}</p>
+            <div className="mb-[16px] text-[28px] leading-[36px] color-[#3D3F4C] font-medium">{title}</div>
             {children}
         </div>
     );

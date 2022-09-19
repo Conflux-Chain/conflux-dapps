@@ -5,7 +5,7 @@ import Decimal from 'decimal.js';
 import { intervalFetchChain, fetchChain } from 'common/utils/fetchChain';
 import Networks from 'common/conf/Networks';
 import { decodeHexResult } from 'common/utils/Contract';
-import { paramsControlContract, paramsControlContractAdress } from './contracts';
+import { paramsControlContract, paramsControlContractAddress } from './contracts';
 import { convertCfxToHex, validateCfxAddress } from 'common/utils/addressUtils';
 import createTrackStoreChangeOnce from 'common/utils/createTrackStoreChangeOnce';
 
@@ -60,6 +60,7 @@ interface RewardRateStore {
         interestRate: [string, string, string];
     };
     currentAccountVoted: Voting | undefined;
+    posStakeForVotes?: Unit;
 }
 
 const zero = Unit.fromMinUnit(0);
@@ -75,6 +76,7 @@ const initState = {
     currentExecValueOrigin: undefined,
     preVotingOrigin: undefined,
     currentAccountVoted: undefined,
+    posStakeForVotes: undefined,
 } as RewardRateStore;
 export const rewardRateStore = create(subscribeWithSelector(() => initState));
 
@@ -85,6 +87,7 @@ let unsubFetchPreVoting: VoidFunction | null = null;
 let unsubFetchCurrentExecValue: VoidFunction | null = null;
 let unsubCalPreVote1: VoidFunction | null = null;
 let unsubCalPreVote2: VoidFunction | null = null;
+let unsubPosStakeForVotes: VoidFunction | null = null;
 rewardRateStore.subscribe(
     (state) => state.currentVotingRound,
     (currentVotingRound) => {
@@ -95,6 +98,7 @@ rewardRateStore.subscribe(
         unsubFetchCurrentExecValue?.();
         unsubCalPreVote1?.();
         unsubCalPreVote2?.();
+        unsubPosStakeForVotes?.();
         if (!currentVotingRound) {
             rewardRateStore.setState(initState);
             return;
@@ -107,7 +111,7 @@ rewardRateStore.subscribe(
                 method: 'cfx_call',
                 params: [
                     {
-                        to: paramsControlContractAdress,
+                        to: paramsControlContractAddress,
                         data: paramsControlContract.totalVotes(currentRoundHex).encodeABI(),
                     },
                     'latest_state',
@@ -129,6 +133,29 @@ rewardRateStore.subscribe(
                     };
 
                     rewardRateStore.setState({ currentVotingOrigin, currentVoting });
+                },
+            }
+        )();
+
+        unsubPosStakeForVotes = intervalFetchChain(
+            {
+                rpcUrl: Networks.core.rpcUrls[0],
+                method: 'cfx_call',
+                params: [
+                    {
+                        to: paramsControlContractAddress,
+                        data: paramsControlContract.posStakeForVotes(currentRoundHex).encodeABI(),
+                    },
+                    'latest_state',
+                ],
+                equalKey: `Round:${currentRoundHex}-posStakeForVotes`
+            },
+            {
+                intervalTime: 2222,
+                callback: (r: string) => {
+                    if (!r) return;
+                    const res = decodeHexResult(paramsControlContract.posStakeForVotes(currentRoundHex)._method.outputs, r)?.[0];
+                    rewardRateStore.setState({ posStakeForVotes: Unit.fromMinUnit(res) });
                 },
             }
         )();
@@ -163,7 +190,7 @@ rewardRateStore.subscribe(
                     method: 'cfx_call',
                     params: [
                         {
-                            to: paramsControlContractAdress,
+                            to: paramsControlContractAddress,
                             data: paramsControlContract.readVote(convertCfxToHex(account)).encodeABI(),
                         },
                         'latest_state',
@@ -195,7 +222,7 @@ rewardRateStore.subscribe(
                 method: 'cfx_call',
                 params: [
                     {
-                        to: paramsControlContractAdress,
+                        to: paramsControlContractAddress,
                         data: paramsControlContract.totalVotes('0x' + Number(currentVotingRound - 1).toString(16)).encodeABI(),
                     },
                     'latest_state',
@@ -324,7 +351,7 @@ export const fetchCurrentRound = () => {
         method: 'cfx_call',
         params: [
             {
-                to: paramsControlContractAdress,
+                to: paramsControlContractAddress,
                 data: paramsControlContract.currentRound().encodeABI(),
             },
             'latest_state',
@@ -341,6 +368,7 @@ const selectors = {
     currentVotingRoundEndBlockNumber: (state: RewardRateStore) => state.currentVotingRoundEndBlockNumber,
     preVote: (state: RewardRateStore) => state.preVote,
     currentAccountVoted: (state: RewardRateStore) => state.currentAccountVoted,
+    posStakeForVotes: (state: RewardRateStore) => state.posStakeForVotes,
 };
 
 export const useCurrentVotingRound = () => rewardRateStore(selectors.currentVotingRound);
@@ -348,4 +376,5 @@ export const usePreVote = () => rewardRateStore(selectors.preVote);
 export const useCurrentVote = () => rewardRateStore(selectors.currentVote);
 export const useCurrentVotingRoundEndBlockNumber = () => rewardRateStore(selectors.currentVotingRoundEndBlockNumber);
 export const useCurrentAccountVoted = () => rewardRateStore(selectors.currentAccountVoted);
+export const usePosStakeForVotes = () => rewardRateStore(selectors.posStakeForVotes);
 export const trackCurrentAccountVotedChangeOnce = createTrackStoreChangeOnce(rewardRateStore, 'currentAccountVoted');

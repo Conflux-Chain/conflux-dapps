@@ -37,7 +37,7 @@ const Stake: React.FC = () => {
         <Panel title="Stake" className="row-span-1 row-col-1">
             <Cell title="Wallet Balance" icon={WalletBalance} Content={<BalanceText id="Wallet Balance" balance={balance} symbol="CFX" decimals={18} />} />
 
-            <p className="mt-[16px] mb-[12px] text-[16px] leading-[22px] text-[#3D3F4C] font-medium">Amount to stake</p>
+            <div className="mt-[16px] mb-[12px] text-[16px] leading-[22px] text-[#3D3F4C] font-medium">Amount to stake</div>
             <form onSubmit={onSubmit}>
                 <Input
                     id="governance-stake-input"

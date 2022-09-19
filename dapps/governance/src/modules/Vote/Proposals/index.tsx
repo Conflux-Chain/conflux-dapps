@@ -81,9 +81,9 @@ const ProposalItem: React.FC<Proposal & { isOpen: boolean }> = ({ id, title, sta
             >
                 {status}
             </span>
-            <p className="leading-[28px] text-[20px] text-[#3D3F4C] font-medium truncate">
+            <div className="leading-[28px] text-[20px] text-[#3D3F4C] font-medium truncate">
                 # {id} {title}
-            </p>
+            </div>
             <img
                 src={isOpen ? Close : Arrow}
                 alt="arrow"
@@ -130,7 +130,7 @@ const OpenedProposalDetail: React.FC = () => {
         <div className="proposal-itemWrapper absolute min-h-[560px] left-0 top-0 rounded-[8px] rounded-tl-none bg-white" id={`proposer-${id}`}>
             <ProposalItem {...openedProposal} isOpen={true} />
             <div className={cx('pl-[24px] pr-[34px] pt-[4px]', proposer ? 'opacity-100' : 'opacity-0', status === 'Closed' ? 'pb-[60px]' : 'pb-[24px]')}>
-                <p className="relative h-[24px] leading-[24px]">
+                <div className="relative h-[24px] leading-[24px]">
                     <span className="text-[14px] text-[#898D9A]">Proposer:</span>
                     <a
                         className="absolute left-[140px] top-1/2 -translate-y-1/2 text-[16px] text-[#808BE7] font-medium hover:underline"
@@ -140,8 +140,8 @@ const OpenedProposalDetail: React.FC = () => {
                     >
                         {proposer ? shortenAddress(proposer) : '--'}
                     </a>
-                </p>
-                <p className="mt-[8px] relative h-[24px] leading-[24px]">
+                </div>
+                <div className="mt-[8px] relative h-[24px] leading-[24px]">
                     <span className="text-[14px] text-[#898D9A]">Proposer discussion:</span>
                     <a
                         className="absolute left-[140px] top-1/2 -translate-y-1/2 text-[16px] text-[#808BE7] font-medium hover:underline max-w-[940px] truncate"
@@ -151,9 +151,9 @@ const OpenedProposalDetail: React.FC = () => {
                     >
                         {proposalDiscussion ?? '--'}
                     </a>
-                </p>
-                <p className="mt-[8px] mb-[22px] relative h-[24px] leading-[24px]">
-                    <p className="flex items-center text-[14px] text-[#898D9A]">
+                </div>
+                <div className="mt-[8px] mb-[22px] relative h-[24px] leading-[24px]">
+                    <div className="flex items-center text-[14px] text-[#898D9A]">
                         Votes counting at:
                         <img
                             src={QuestionMark}
@@ -161,9 +161,9 @@ const OpenedProposalDetail: React.FC = () => {
                             className="ml-[4px] cursor-pointer hover:scale-110 transition-transform select-none"
                             onClick={() => showTipModal(<VotingCountsTipContent />)}
                         />
-                    </p>
+                    </div>
                     <span className="absolute left-[140px] top-1/2 -translate-y-1/2 text-[16px] text-[#3D3F4C] font-medium">about {votesAtTime}</span>
-                </p>
+                </div>
 
                 <div className={cx("flex flex-col gap-[12px]", status === 'Closed' && 'pointer-events-none')}>
                     {options?.map?.((option, index) => (
@@ -249,14 +249,14 @@ const VotingCountsTipContent: React.FC = memo(() => {
 
     return (
         <>
-            <p className="text-[16px] leading-[22px] font-medium text-[#3D3F4C]">Deadline extend tip</p>
-            <p className="mt-[8px] text-[14px] leading-[21px] text-[#898D9A]">
+            <div className="text-[16px] leading-[22px] font-medium text-[#3D3F4C]">Deadline extend tip</div>
+            <div className="mt-[8px] text-[14px] leading-[21px] text-[#898D9A]">
                 {`If the voting result changes within ${extendDay?.blockNumber ?? '--'} blocks (about ${
                     extendDay?.intervalMinutes ?? '--'
                 } minutes) before the deadline, the deadline will be extended to the current block plus ${extendDay?.blockNumber ?? '--'} blocks (about ${
                     extendDay?.intervalMinutes ?? '--'
                 } minutes).`}
-            </p>
+            </div>
         </>
     );
 });
