@@ -5,6 +5,7 @@ import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
 import { AuthESpace } from 'common/modules/AuthConnectButton';
 import { showToast } from 'common/components/showPopup/Toast';
 import Tip from 'payment/src/components/Tip';
+import { formatNumber } from 'payment/src/utils';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
     onComplete?: (data: any) => void;
@@ -93,7 +94,7 @@ export default ({ onComplete }: Props) => {
                             {
                                 min: 1,
                                 max: 225,
-                                message: 'Please input APP name with 1-10 character',
+                                message: 'Please input APP name with 1-225 character',
                             },
                         ]}
                     >
@@ -116,7 +117,7 @@ export default ({ onComplete }: Props) => {
                             {
                                 min: 1,
                                 max: 1000,
-                                message: 'Please input APP name with 1-50 character',
+                                message: 'Please input APP name with 1-1000 character',
                             },
                         ]}
                     >
@@ -136,9 +137,27 @@ export default ({ onComplete }: Props) => {
                                 required: true,
                                 message: 'Please input APP default resource weight',
                             },
+                            {
+                                type: 'string',
+                                min: 0,
+                                max: 40,
+                                message: 'Please input APP default resource weight with 1-40 character',
+                            },
                         ]}
                     >
-                        <InputNumber id="input_ResourceWeight" style={{ width: '100%' }} min={0} precision={5} />
+                        <InputNumber
+                            id="input_ResourceWeight"
+                            style={{ width: '100%' }}
+                            min={0}
+                            precision={5}
+                            stringMode={true}
+                            formatter={(val) => {
+                                return formatNumber(val as number, {
+                                    limit: 0,
+                                    decimal: 0,
+                                });
+                            }}
+                        />
                     </Form.Item>
                 </Form>
             </Modal>
