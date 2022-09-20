@@ -36,7 +36,7 @@ export default ({ onComplete, op, data = {}, className, type = 'default', disabl
     const TIPs = useMemo(() => {
         if (op === OP_ACTION.add) {
             return [
-                'You are adding API resource. If the new API service resource billing is included in the default resource, please modify the default resource weight to avoid double billing.And the newly added resources and default resource weightswill take effect after 7 days.',
+                'You are adding API resource. If the new API service resource billing is included in the default resource, please modify the default resource weight to avoid double billing. And the newly added resources and default resource weightswill take effect after 7 days.',
             ];
         } else {
             return ['The updated information is expected to take effect in 7 days.'];

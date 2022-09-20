@@ -4,6 +4,7 @@ import { postAPP } from 'payment/src/utils/request';
 import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
 import { AuthESpace } from 'common/modules/AuthConnectButton';
 import { showToast } from 'common/components/showPopup/Toast';
+import Tip from 'payment/src/components/Tip';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
     onComplete?: (data: any) => void;
@@ -76,7 +77,12 @@ export default ({ onComplete }: Props) => {
             >
                 <Form form={form} name="basic" autoComplete="off" layout="vertical">
                     <Form.Item
-                        label="APP Name"
+                        label={
+                            <>
+                                APP Name
+                                <Tip info="Contract name for your APIs collection."></Tip>
+                            </>
+                        }
                         name="name"
                         validateFirst={true}
                         rules={[
@@ -94,7 +100,12 @@ export default ({ onComplete }: Props) => {
                         <Input id="input_APPName" />
                     </Form.Item>
                     <Form.Item
-                        label="BaseURL"
+                        label={
+                            <>
+                                BaseURL
+                                <Tip info="It is recommended to input the interface baseURL so that consumers can know more information."></Tip>
+                            </>
+                        }
                         name="url"
                         validateFirst={true}
                         rules={[
@@ -112,7 +123,12 @@ export default ({ onComplete }: Props) => {
                         <Input id="input_BaseURL" />
                     </Form.Item>
                     <Form.Item
-                        label="Default Resource Weight"
+                        label={
+                            <>
+                                Default Resource Weight
+                                <Tip info="Initialize billing weight for default resource usage when creating new APP."></Tip>
+                            </>
+                        }
                         name="weight"
                         validateFirst={true}
                         rules={[

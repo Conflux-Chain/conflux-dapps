@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Button } from 'antd';
 import Networks from 'common/conf/Networks';
 import { NumberWithLimit } from 'payment/src/components/Number';
+import Tip from 'payment/src/components/Tip';
 
 export const APPName = {
     title: 'APP Name',
@@ -55,7 +56,11 @@ export const earnings = {
 };
 
 export const balance = {
-    title: 'Balance',
+    title: (
+        <>
+            Balance<Tip info="Your stored left balance in the app. The calculation is according to: number of calls * API billing weight."></Tip>
+        </>
+    ),
     dataIndex: 'balance',
     key: 'balance',
     ellipsis: true,
@@ -65,7 +70,12 @@ export const balance = {
 };
 
 export const airdrop = {
-    title: 'Airdrop',
+    title: (
+        <>
+            Airdrop
+            <Tip info="Giveaways from APP Owner. The airdrop amount will be deducted first when calling the APIs of APP. The calculation is according to: number of calls * API billing weight."></Tip>
+        </>
+    ),
     dataIndex: 'airdrop',
     key: 'airdrop',
     ellipsis: true,

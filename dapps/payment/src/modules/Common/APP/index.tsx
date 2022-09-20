@@ -13,6 +13,7 @@ import Withdraw from 'payment/src/modules/Common/Withdraw';
 import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
 import Deposit from 'payment/src/modules/Common/Deposit';
 import { Col, Row } from 'antd';
+import Tip from 'payment/src/components/Tip';
 
 export default () => {
     const { address } = useParams();
@@ -120,7 +121,12 @@ export default () => {
                     <APPDetailCard
                         details={[
                             {
-                                label: 'Earnings',
+                                label: (
+                                    <>
+                                        Earnings
+                                        <Tip info="The income of the interface project, calculated according to the sum of: number of calls * API billing weight."></Tip>
+                                    </>
+                                ),
                                 content: lodash.isNil(data.earnings) ? (
                                     '-'
                                 ) : (

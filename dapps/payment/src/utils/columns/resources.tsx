@@ -2,6 +2,7 @@ import { ColumnType } from 'antd/es/table';
 import { ResourceDataSourceType } from '../types';
 import { OP_ACTION } from '../constants';
 import { NumberWithLimit } from 'payment/src/components/Number';
+import Tip from 'payment/src/components/Tip';
 
 export const index: ColumnType<ResourceDataSourceType> = {
     title: '#',
@@ -13,14 +14,23 @@ export const index: ColumnType<ResourceDataSourceType> = {
 };
 
 export const resource: ColumnType<ResourceDataSourceType> = {
-    title: 'Resource',
+    title: (
+        <>
+            Resource
+            <Tip info="Interface resource information. The interface resource filled in cannot be repeated and resources that are not added will be classified as default resources for billing."></Tip>
+        </>
+    ),
     dataIndex: 'resourceId',
     key: 'resourceId',
     ellipsis: true,
 };
 
 export const weight: ColumnType<ResourceDataSourceType> = {
-    title: 'Billing Weight',
+    title: (
+        <>
+            Billing Weight<Tip info="The billing weight value for a single call of a single interface in the collection."></Tip>
+        </>
+    ),
     dataIndex: 'weight',
     key: 'weight',
     ellipsis: true,
@@ -30,14 +40,22 @@ export const weight: ColumnType<ResourceDataSourceType> = {
 };
 
 export const requests: ColumnType<ResourceDataSourceType> = {
-    title: 'Resource Requests',
+    title: (
+        <>
+            Resource Requests<Tip info="The total number of calls to the interface."></Tip>
+        </>
+    ),
     dataIndex: 'requests',
     key: 'requests',
     ellipsis: true,
 };
 
 export const op: ColumnType<ResourceDataSourceType> = {
-    title: 'Action',
+    title: (
+        <>
+            Action<Tip info="Action records of interface resources addition, modification, and deletion."></Tip>
+        </>
+    ),
     dataIndex: 'pendingOP',
     key: 'pendingOP',
     ellipsis: true,
@@ -47,7 +65,12 @@ export const op: ColumnType<ResourceDataSourceType> = {
 };
 
 export const effectTime: ColumnType<ResourceDataSourceType> = {
-    title: 'Expected Effective Time',
+    title: (
+        <>
+            Expected Effective Time
+            <Tip info="Any action on the resource is expected to take effect in 7 days.When the weight is modified or deleted of the resource, the billing will continue to be charged before it takes effect. The newly added item will not be billed before it takes effect."></Tip>
+        </>
+    ),
     dataIndex: 'submitTimestamp',
     key: 'submitTimestamp',
     ellipsis: true,
