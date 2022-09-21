@@ -45,14 +45,14 @@ const Lock: React.FC = () => {
             <ExtendLockingPeriod unlockBlockNumber={unlockBlockNumber} />
 
             <div className="pl-[48px] pr-[16px] py-[13px] rounded-[4px] bg-[#FCF1E8]">
-                <p className="relative text-[16px] leading-[20px] text-[#3D3F4C]">
+                <div className="relative text-[16px] leading-[20px] text-[#3D3F4C]">
                     <img src={Warning} alt="warning image" className="absolute -left-[34px] top-[47%] -translate-y-[50%] w-[24px] h-[24px]" />
                     Tips
-                </p>
-                <p className="mt-[8px] text-[14px] leading-[18px] text-[#3D3F4C]">
+                </div>
+                <div className="mt-[8px] text-[14px] leading-[18px] text-[#3D3F4C]">
                     The voting rights will be awarded according to: number of quarters × number of tokens × 0.25. The longest lock duration for voting is 1
                     year.
-                </p>
+                </div>
             </div>
 
             {!unlockBlockNumber && (
@@ -87,10 +87,10 @@ const AddLockingAmount: React.FC<{ unlockBlockNumber?: Unit; isAvailableStakedBa
         <>
             <div className="flex flex-row justify-between items-center my-[24px] pl-[12px] pr-[16px] py-[16px] rounded-[4px] border-[1px] border-[#EAECEF] bg-[#FAFBFD]">
                 <div>
-                    <p className="text-[14px] leading-[18px] text-[#898D9A]">Current Locked</p>
-                    <p className="mt-[16px] text-[16px] leading-[20px] text-[#3D3F4C]">
+                    <div className="text-[14px] leading-[18px] text-[#898D9A]">Current Locked</div>
+                    <div className="mt-[16px] text-[16px] leading-[20px] text-[#3D3F4C]">
                         <BalanceText id="Current Locked" balance={lockedBalance} symbol={'CFX'} decimals={18} />
-                    </p>
+                    </div>
                 </div>
                 {unlockBlockNumber && (
                     <AuthCoreSpace
@@ -126,8 +126,8 @@ const ExtendLockingPeriod: React.FC<{ unlockBlockNumber?: Unit }> = ({ unlockBlo
         <>
             <div className="flex flex-row justify-between items-center my-[24px] pl-[12px] pr-[16px] py-[16px] rounded-[4px] border-[1px] border-[#EAECEF] bg-[#FAFBFD]">
                 <div>
-                    <p className="text-[14px] leading-[18px] text-[#898D9A]">{`About ${timeToUnlock ?? '--'} to unlock`}</p>
-                    <p className="mt-[16px] text-[16px] leading-[20px] text-[#3D3F4C]">{`${votingRightsPerCfx ?? '--'} voting rights/CFX`}</p>
+                    <div className="text-[14px] leading-[18px] text-[#898D9A]">{`About ${timeToUnlock ?? '--'} to unlock`}</div>
+                    <div className="mt-[16px] text-[16px] leading-[20px] text-[#3D3F4C]">{`${votingRightsPerCfx ?? '--'} voting rights/CFX`}</div>
                 </div>
                 {unlockBlockNumber && (
                     <AuthCoreSpace
@@ -155,13 +155,13 @@ const ExtendLockingPeriod: React.FC<{ unlockBlockNumber?: Unit }> = ({ unlockBlo
 
 export const CurrentVotingRightsTipContent = (
     <>
-        <p className="text-[16px] leading-[22px] font-medium text-[#3D3F4C]">Current voting rights</p>
-        <p className="my-[8px] text-[14px] leading-[18px] text-[#898D9A]">
+        <div className="text-[16px] leading-[22px] font-medium text-[#3D3F4C]">Current voting rights</div>
+        <div className="my-[8px] text-[14px] leading-[18px] text-[#898D9A]">
             The voting rights will be awarded according to:
             <br />
             <span className="text-[#3D3F4C]">number of quarters × number of tokens × 0.25.</span>
-        </p>
-        <p className="text-[14px] leading-[18px] text-[#898D9A]">For instance</p>
+        </div>
+        <div className="text-[14px] leading-[18px] text-[#898D9A]">For instance</div>
         <ul className="my-[8px] text-[14px] leading-[18px] text-[#3D3F4C]">
             <li>
                 <span className="mr-[1px]">·</span>Locking expiration in less than a quarter: No voting rights.
@@ -176,11 +176,11 @@ export const CurrentVotingRightsTipContent = (
                 <span className="mr-[1px]">·</span>Locking expiration in more than a year: One CFX has 1 votes.
             </li>
         </ul>
-        <p className="text-[14px] leading-[18px] text-[#898D9A]">
+        <div className="text-[14px] leading-[18px] text-[#898D9A]">
             We measure 'time' in blocks based on the assumed number of 63,072,000 per year. While tokens are locked to obtain votes, users retain the right to
             staking interest. The longest locking duration for voting is 1 year. Whiletokens are locked to gain a voting right, users cannot withdraw the tokens
             or decrease the locking duration.
-        </p>
+        </div>
     </>
 );
 

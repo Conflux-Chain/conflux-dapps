@@ -72,17 +72,17 @@ const CastVotesModalContent: React.FC = memo(({}) => {
                 src={Close}
                 alt="close icon"
             />
-            <p className="mb-[24px] text-[24px] leading-[32px] font-medium text-[#1B1B1C] text-center">Cast votes</p>
+            <div className="mb-[24px] text-[24px] leading-[32px] font-medium text-[#1B1B1C] text-center">Cast votes</div>
 
             <div className="cast-votes-modal-vote-area flex flex-col gap-[16px]">
                 {voteTypes.map((voteType) => (
                     <div className={'relative p-[12px] pb-[24px] rounded-[4px] border-[1px] border-[#EAECEF] bg-[#FAFBFD]'} key={voteType}>
-                        <p className="mb-[12px] flex items-center justify-between text-[16px] leading-[22px] font-medium text-[#383838]">
+                        <div className="mb-[12px] flex items-center justify-between text-[16px] leading-[22px] font-medium text-[#383838]">
                             Change {voteType}
                             <span className="text-[12px] leading-[16px] text-[#898D9A] font-normal translate-y-[1px]">
                                 Total voting rights: {votingRights?.toDecimalStandardUnit() ?? '...'}
                             </span>
-                        </p>
+                        </div>
 
                         <div className="flex flex-col gap-[8px] pl-[1px]">
                             {options.map((option, index) => (
@@ -106,25 +106,25 @@ const CastVotesModalContent: React.FC = memo(({}) => {
                             ))}
                         </div>
 
-                        <p
+                        <div
                             className={cx(
-                                'absolute right-[12px] bottom-[4px] text-[12px] leading-[16px] text-[#E96170] text-right opacity-0 transition-opacity',
+                                'absolute right-[12px] -bottom-[8px] text-[12px] leading-[16px] text-[#E96170] text-right opacity-0 transition-opacity',
                                 (voteType === 'PoW block rewards' ? !isBlockRewardRightsLtVotingRights : !isPosAPYRightsLtVotingRights) && 'opacity-100'
                             )}
                         >
                             Not enough votes, you can redistribute or get more votes.
-                        </p>
+                        </div>
                     </div>
                 ))}
             </div>
 
             <div className="mt-[16px] mb-[24px] px-[16px] py-[12px] rounded-[4px] text-[14px] leading-[18px] text-[#3D3F4C] bg-[#FCF1E8]">
-                <p>
+                <div>
                     1. The total voting rights is votes you have locked. You can freely distribute votes on the POW and POS rewards rate parameters. The new
                     rewards is according to: <MathTex className='ml-[4px]' type='result'/>
-                </p>
-                <p className="mt-[10px]">2. The previous rate is calculated from the previous round of voting.</p>
-                <p className="mt-[4px]">3. During the valid voting period, you can reassign your votes at any time.</p>
+                </div>
+                <div className="mt-[10px]">2. The previous rate is calculated from the previous round of voting.</div>
+                <div className="mt-[4px]">3. During the valid voting period, you can reassign your votes at any time.</div>
             </div>
 
             <AuthCoreSpace

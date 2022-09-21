@@ -15,7 +15,7 @@ import Close from 'common/assets/icons/close.svg';
 import { useNotSupportMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFluent';
 import './index.css';
 
-const dappsSupportMetaMaskHostedByFluent = ['eSpace Bridge', 'Governance'];
+const dappsSupportMetaMaskHostedByFluent = ['eSpace Bridge', 'Governance', 'Web3 Paywall'];
 
 const Sidebar: React.FC = () => {
     const navigate = useNavigate();
@@ -75,7 +75,7 @@ const Sidebar: React.FC = () => {
         config: config.stiff,
         x: expand ? 12 : isExploreOpen ? 80 : 0,
         scale: expand ? 1 : isExploreOpen ? 1 : 0.3,
-        opacity: expand ? 1 : isExploreOpen ? 1 : 0
+        opacity: expand ? 1 : isExploreOpen ? 1 : 0,
     });
 
     return (
@@ -99,7 +99,12 @@ const Sidebar: React.FC = () => {
                     )}
                     onClick={triggerExpand}
                 >
-                    <img className={cx("w-[14px] h-[14px] transition-transform", expand ? 'rotate-180' : 'rotate-0')} alt="expand button" src={Expand} draggable="false" />
+                    <img
+                        className={cx('w-[14px] h-[14px] transition-transform', expand ? 'rotate-180' : 'rotate-0')}
+                        alt="expand button"
+                        src={Expand}
+                        draggable="false"
+                    />
                 </div>
             </div>
 
@@ -158,7 +163,7 @@ const Sidebar: React.FC = () => {
             </div>
 
             <a.div
-                className='advert absolute bottom-[32px] w-[182px] h-[182px] rounded-[24px] pt-[60px] px-[6px] font-normal text-center overflow-hidden contain-strict origin-bottom-left'
+                className="advert absolute bottom-[32px] w-[182px] h-[182px] rounded-[24px] pt-[60px] px-[6px] font-normal text-center overflow-hidden contain-strict origin-bottom-left"
                 style={advertStyle}
             >
                 <img className="absolute -top-[2.5%] left-0 w-full" src={AdvertBg} alt="background image" draggable="false" />

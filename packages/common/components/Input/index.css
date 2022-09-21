@@ -50,11 +50,11 @@
 }
 
 .prefix-icon ~ .input {
-    @apply px-[35px];
+    @apply !px-[36px];
 }
 
 .prefix-icon ~ .input.outer-placeholder + * {
-    @apply left-[37px];
+    @apply left-[36px];
 }
 
 input::-webkit-outer-spin-button,

@@ -29,7 +29,7 @@ const fetchChain = ({ rpcUrl, method, params, equalKey }: FetchParams) =>
             equalMap.set(equalKey, result);
             return result;
         }
-    }).catch(() => {})
+    })
 
 const intervalFetchChain =
     <T>(fetchParams: FetchParams, { intervalTime, callback }: { intervalTime: number; callback: (res: T) => void }) =>
