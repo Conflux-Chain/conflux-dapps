@@ -106,8 +106,8 @@ const LockModalContent: React.FC<{ type: Type }> = memo(({ type }) => {
 
             <form onSubmit={onSubmit}>
                 <div className={cx('transition-opacity', inDoubleConfirm ? 'opacity-0 pointer-events-none' : 'opacity-100')}>
-                    <p className="mb-[8px] text-[24px] leading-[32px] font-medium text-[#1B1B1C] text-center">{title[type]}</p>
-                    <p className="mb-[24px] text-[14px] leading-[18px] text-[#898D9A] text-center">
+                    <div className="mb-[8px] text-[24px] leading-[32px] font-medium text-[#1B1B1C] text-center">{title[type]}</div>
+                    <div className="mb-[24px] text-[14px] leading-[18px] text-[#898D9A] text-center">
                         {type === 'lock' ? 'Available' : 'Locked'}:
                         <BalanceText
                             className="ml-[4px] text-[#3D3F4C]"
@@ -117,10 +117,10 @@ const LockModalContent: React.FC<{ type: Type }> = memo(({ type }) => {
                             placement="bottom"
                             decimals={18}
                         />
-                    </p>
+                    </div>
                     {type !== 'extend' && (
                         <div className="mb-[24px]">
-                            <p className="mb-[12px] text-[16px] leading-[22px] text-[#3D3F4C] font-medium">Amount to lock</p>
+                            <div className="mb-[12px] text-[16px] leading-[22px] text-[#3D3F4C] font-medium">Amount to lock</div>
                             <Input
                                 id="governance-lock-input"
                                 {...register('amount', {
@@ -138,7 +138,7 @@ const LockModalContent: React.FC<{ type: Type }> = memo(({ type }) => {
                                 suffix={[<InputMAXSuffix id="governance-lock-max" />, <InputCFXPrefixSuffix />]}
                             />
                             {type === 'add' && (
-                                <p className="mt-[8px] text-[14px] leading-[18px] text-[#898D9A]">
+                                <div className="mt-[8px] text-[14px] leading-[18px] text-[#898D9A]">
                                     Available:
                                     <BalanceText
                                         className="ml-[4px] text-[#3D3F4C]"
@@ -147,17 +147,17 @@ const LockModalContent: React.FC<{ type: Type }> = memo(({ type }) => {
                                         symbol="CFX"
                                         decimals={18}
                                     />
-                                </p>
+                                </div>
                             )}
                         </div>
                     )}
 
                     {type !== 'add' && (
                         <div className="mb-[16px]">
-                            <p className="mb-[4px] text-[16px] leading-[22px] text-[#3D3F4C] font-medium">Locking Period</p>
-                            <p className="mb-[12px] text-[14px] leading-[18px] text-[#898D9A]">
+                            <div className="mb-[4px] text-[16px] leading-[22px] text-[#3D3F4C] font-medium">Locking Period</div>
+                            <div className="mb-[12px] text-[14px] leading-[18px] text-[#898D9A]">
                                 Voting rights is given when CFX are locked for at least a quarter.
-                            </p>
+                            </div>
                             <Slider
                                 id="governance-lock-period"
                                 currentGapBlockNumber={currentGapBlockNumber}
@@ -170,23 +170,23 @@ const LockModalContent: React.FC<{ type: Type }> = memo(({ type }) => {
 
                     <div className="flex flex-row justify-between items-center">
                         <div>
-                            <p className="text-[14px] leading-[18px] text-[#808BE7] font-medium">
+                            <div className="text-[14px] leading-[18px] text-[#808BE7] font-medium">
                                 <BalanceText id="estimate voting rights" balance={estimateVotingRights} symbol="" decimals={18} />
-                            </p>
-                            <p className="mt-[4px] text-[12px] leading-[16px] text-[#898D9A]">Final voting rights</p>
+                            </div>
+                            <div className="mt-[4px] text-[12px] leading-[16px] text-[#898D9A]">Final voting rights</div>
                         </div>
 
                         <div className="text-right">
-                            <p className="text-[14px] leading-[18px] text-[#3D3F4C] font-medium">
+                            <div className="text-[14px] leading-[18px] text-[#3D3F4C] font-medium">
                                 About{' '}
                                 <span id="timeToUnlock" className="text-[#808BE7]">
                                     {timeToUnlock ?? '--'}
                                 </span>{' '}
                                 to unlock
-                            </p>
-                            <p className="mt-[4px] text-[12px] leading-[16px] text-[#898D9A]" id="estimate voting rightsPerCfx">
+                            </div>
+                            <div className="mt-[4px] text-[12px] leading-[16px] text-[#898D9A]" id="estimate voting rightsPerCfx">
                                 {estimateVotingRightsPerCfx} voting rights/CFX
-                            </p>
+                            </div>
                         </div>
                     </div>
 
@@ -232,20 +232,20 @@ const DoubleConfirm: React.FC<{ inDoubleConfirm: boolean; inLocking: boolean; es
         >
             <div>
                 <img src={Warning} alt="Notice" className="mx-auto w-[48px] h-[48px]" />
-                <p className="mt-[12px] mb-[24px] text-[24px] leading-[32px] text-[#1B1B1C] font-medium text-center">Notice</p>
-                <p className="text-[14px] leading-[18px] text-[#3D3F4C]">
+                <div className="mt-[12px] mb-[24px] text-[24px] leading-[32px] text-[#1B1B1C] font-medium text-center">Notice</div>
+                <div className="text-[14px] leading-[18px] text-[#3D3F4C]">
                     When the token is locked for voting, you cannot withdraw the token or shorten the lock time.
-                </p>
-                <p className="mt-[4px] text-[14px] leading-[18px] text-[#3D3F4C]">
+                </div>
+                <div className="mt-[4px] text-[14px] leading-[18px] text-[#3D3F4C]">
                     Please vote as soon as possible after the lock to avoid the decline of voting rights.
-                </p>
+                </div>
             </div>
 
             <div>
-                <p className="mt-[24px] text-[14px] leading-[18px] text-[#808BE7] font-medium text-right">
+                <div className="mt-[24px] text-[14px] leading-[18px] text-[#808BE7] font-medium text-right">
                     <BalanceText id="estimate voting rights" balance={estimateVotingRights} symbol="" decimals={18} />
-                </p>
-                <p className="mt-[4px] text-[12px] leading-[16px] text-[#898D9A] text-right">Final voting rights</p>
+                </div>
+                <div className="mt-[4px] text-[12px] leading-[16px] text-[#898D9A] text-right">Final voting rights</div>
 
                 <div className="mt-[24px] flex justify-end items-center gap-[16px]">
                     <Button fullWidth size="large" variant="outlined" type="button" onClick={onCancel}>

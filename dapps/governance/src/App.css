@@ -3,6 +3,6 @@ html {
 }
 
 .main-scroll {
-    @apply  px-[60px];
+    @apply px-[60px];
     height: calc(100vh - 64px);
 }

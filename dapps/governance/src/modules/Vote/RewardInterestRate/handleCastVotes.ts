@@ -1,7 +1,7 @@
 import type React from 'react';
 import { sendTransaction, Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
 import { rewardRateStore, trackCurrentAccountVotedChangeOnce } from 'governance/src/store';
-import { paramsControlContract, paramsControlContractAdress } from 'governance/src/store/contracts';
+import { paramsControlContract, paramsControlContractAddress } from 'governance/src/store/contracts';
 import { showWaitWallet, showActionSubmitted, hideWaitWallet, hideActionSubmitted } from 'common/components/showPopup/Modal';
 import { showToast } from 'common/components/showPopup/Toast';
 import Networks from 'common/conf/Networks';
@@ -28,7 +28,7 @@ const handleCastVotes = async (data: Data, setInVoting: React.Dispatch<React.Set
         setInVoting(true);
         waitFluentKey = showWaitWallet('Fluent', { key: 'Vote' });
         const TxnHash = await sendTransaction({
-            to: paramsControlContractAdress,
+            to: paramsControlContractAddress,
             data: paramsControlContract
                 .castVote('0x' + currentVotingRound.toString(16), [
                     [
