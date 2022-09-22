@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import cx from 'clsx';
 import CheckBox from '../../components/CheckBox';
+import Button from 'common/components/Button';
 
 const guide = {
   "RiskWarning": {
@@ -31,7 +33,12 @@ const guide = {
 }
 
 const Guide: React.FC = () => {
-  const [accepted, setAccepted] = useState(false);
+  const [checked, setChecked] = useState(false);
+  const onClick = (e: React.FormEvent<HTMLInputElement>) => {
+    console.log(e);
+    console.log(e.target)
+    setChecked(!checked);
+  }
   return (
     <>
       <div>
@@ -53,12 +60,12 @@ const Guide: React.FC = () => {
         <div className='font-medium mt-0.5'>{guide.steps.contentTitle}</div>
         <div className='text-gray-400 mt-2'>{guide.steps.contentDesc}</div>
       </div>
-      <div className='flex flex-col justify-center'>
-        <div>
-          <CheckBox className='appearance-none w-3 h-3 cursor-pointer border checked:bg-[#808BE7] checked:border-[#808BE7] checked:content-["√"] checked:text-white' />
-          <span>I accepted</span>
+      <div className='flex flex-col items-center'>
+        <div className='flex flex-row justify-center items-center'>
+          <CheckBox checked={checked} onClick={onClick} />
+          <span className='ml-2'>I accepted</span>
         </div>
-        <button>Stake votes</button>
+        <Button disabled={!checked} className={cx('w-4/5 max-w-lg')}>Stake votes</Button>
       </div>
     </>
   )
