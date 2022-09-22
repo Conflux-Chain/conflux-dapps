@@ -22,13 +22,13 @@ const PeggedModalContent: React.FC<{ toChain: string; amount: string; callback: 
                 alt="close icon"
             />
 
-            <p className="mb-[8px] font-medium text-[16px] text-[#1B1B1C] leading-[22px] text-center">Claim Information</p>
+            <div className="mb-[8px] font-medium text-[16px] text-[#1B1B1C] leading-[22px] text-center">Claim Information</div>
             <div className="mb-[24px] text-[14px] text-[#898D9A] leading-[18px]">
-                <p>Insufficient liquidity on {toChain}</p>
-                <p className='mt-[2px]'>You will receive {amount} PeggedCFX</p>
+                <div>Insufficient liquidity on {toChain}</div>
+                <div className='mt-[2px]'>You will receive {amount} PeggedCFX</div>
             </div>
             <div className='mb-[24px] bg-[#F7F8FA] p-[16px]'>
-                <p className='mb-[8px] text-[16px] text-[#3D3F4C] leading-[22px]'>PeggedCFX minted 1:1 for each unclaimed CFX</p>
+                <div className='mb-[8px] text-[16px] text-[#3D3F4C] leading-[22px]'>PeggedCFX minted 1:1 for each unclaimed CFX</div>
                 <ul className="list-disc pl-[16px] text-[14px] text-[#898D9A] leading-[18px]">
 					<li>Redeem later to get CFX on {toChain}.</li>
 					<li>Cross-chain to where there is sufficient CFX liquidity.</li>

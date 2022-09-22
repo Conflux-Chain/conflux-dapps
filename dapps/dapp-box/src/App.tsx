@@ -13,6 +13,7 @@ import GovernanceDashboard from 'governance/src/modules/Dashboard';
 import Vote from 'governance/src/modules/Vote';
 import Proposals from 'governance/src/modules/Vote/Proposals';
 import RewardInterestRate from 'governance/src/modules/Vote/RewardInterestRate';
+import Bridge from 'bridge/src/modules';
 import ESpaceBridgeEnter from 'hub/src/modules/ESpaceBridgeEnter';
 import ShuttleFlowNavbarEnhance from 'hub/src/modules/NavbarEnhance/ShuttleFlow';
 import GovernanceNavbarEnhance from 'hub/src/modules/NavbarEnhance/Governance';
@@ -50,6 +51,11 @@ Keyboard.bind('p -> a -> y -> m -> e -> n -> t', () => {
 });
 
 export const dapps = [
+    {
+        name: 'Bridge',
+        icon: CrossSpaceIcon,
+        path: 'bridge',
+    },
     {
         name: 'eSpace Bridge',
         icon: CrossSpaceIcon,
@@ -184,6 +190,8 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                     </Route>
                     <Route path="governance/" element={<Navigate to="/governance/dashboard" />} />
                     <Route path="governance/*" element={<Navigate to="/governance/dashboard" />} />
+                    <Route path="bridge" element={<Bridge />} />
+                    
                     <Route key="shuttle-flow" path="shuttle-flow/*" element={<div id="shuttle-flow" />} />
                     {localStorage.getItem('payment') == '1' && !isProduction && (
                         <>

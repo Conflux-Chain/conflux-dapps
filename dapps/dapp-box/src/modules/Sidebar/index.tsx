@@ -15,7 +15,7 @@ import Close from 'common/assets/icons/close.svg';
 import { useNotSupportMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFluent';
 import './index.css';
 
-const dappsSupportMetaMaskHostedByFluent = ['eSpace Bridge', 'Governance', 'Web3 Paywall'];
+const dappsSupportMetaMaskHostedByFluent = ['eSpace Bridge', 'Governance', 'Web3 Paywall', 'Bridge'];
 
 const Sidebar: React.FC = () => {
     const navigate = useNavigate();
@@ -108,7 +108,7 @@ const Sidebar: React.FC = () => {
                 </div>
             </div>
 
-            <p className="mt-[32px] mb-[8px] ml-[17.62px] text-[12px] leading-[16px] text-[#A9ABB2]">APP</p>
+            <div className="mt-[32px] mb-[8px] ml-[17.62px] text-[12px] leading-[16px] text-[#A9ABB2]">APP</div>
 
             <div className="flex flex-col gap-[12px]">
                 {dapps.map((dapp, index) => (
@@ -177,7 +177,7 @@ const Sidebar: React.FC = () => {
                     draggable="false"
                     onClick={triggerExploreOpen}
                 />
-                <p className="text-[14px] leading-[18px] text-[#4D71FF] translate-x-0">Directly from Ethereum to Conflux eSpace, Multichain is recommended</p>
+                <div className="text-[14px] leading-[18px] text-[#4D71FF] translate-x-0">Directly from Ethereum to Conflux eSpace, Multichain is recommended</div>
                 <a
                     className="mt-[16px] group inline-flex items-center justify-center w-[120px] h-[32px] rounded-[48px] leading-[32px] text-[12px] text-white bg-[#4D71FF] translate-x-0"
                     href="https://app.multichain.org/#/router"

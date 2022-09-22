@@ -96,10 +96,10 @@ const Core2ESpace: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 	}), []);
 
 	return (
-		<a.div className="cross-space-module" style={style}>
+		<a.div className="cross-space-module absolute" style={style}>
 			<form onSubmit={onSubmit}>
 				<div className="p-[16px] rounded-[8px] border border-[#EAECEF] mb-[16px]">
-					<p className='relative flex items-center mb-[12px]'>
+					<div className='relative flex items-center mb-[12px]'>
 						<span className='mr-[8px] text-[14px] text-[#A9ABB2]'>To:</span>
 						<span className='mr-[8px] text-[16px] text-[#15C184] font-medium'>Conflux eSpace</span>
 						
@@ -112,16 +112,16 @@ const Core2ESpace: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 						>
 							<img src={TurnPage} alt="turn page" className='w-[14px] h-[14px]' draggable="false"/>
 						</button>
-					</p>
+					</div>
 
 					<div className='relative flex items-center'>
 						<Input
 							id="core2eSpace-eSpaceAccount-input"
 							className={cx('text-[13px]', isLockMetaMaskAccount ? 'pr-[24px]' : 'pr-[12px]')}
 							outerPlaceholder={
-								<p className='input-placeholder text-[14px]'>
+								<div className='input-placeholder text-[14px]'>
 									<span className='font-semibold text-[#15C184]'>Conflux eSpace</span> <span className='text-[#979797]'>Destination Address</span>
-								</p>
+								</div>
 							}
 							pattern="0x[a-fA-F0-9]{40}"
 							error="Invalid Address"
@@ -240,14 +240,14 @@ const Transfer2ESpace: React.FC<{
 				tabIndex={isShow ? 4 : -1}
 			/>
 
-			<p className="text-[14px] leading-[18px] text-[#3D3F4C]">
+			<div className="text-[14px] leading-[18px] text-[#3D3F4C]">
 				<span className="text-[#2959B4]" id="core-balance">Core</span> Balance:
 				<BalanceText className="ml-[4px]" balance={currentTokenBalance} id="core2eSpace-currentTokenBalance" symbol={currentToken.core_space_symbol} decimals={+currentToken.decimals} status={fluentStatus}/>
-			</p>
-			<p className="mt-[20px] text-[14px] leading-[18px] text-[#3D3F4C]">
+			</div>
+			<div className="mt-[20px] text-[14px] leading-[18px] text-[#3D3F4C]">
 				Will receive on <span className="text-[#15C184]">eSpace</span>:
 				<span className="ml-[4px]" id="core2eSpace-willReceive" ref={eSpaceReceivedRef} />
-			</p>
+			</div>
 
 			<AuthCoreSpace
 				id="core2eSpace-auth-both-transfer"
