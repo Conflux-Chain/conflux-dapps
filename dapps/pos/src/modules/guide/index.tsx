@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import cx from 'clsx';
-import CheckBox from '../../components/CheckBox';
 import Button from 'common/components/Button';
+import CheckBox from '../../components/CheckBox';
 
 const guide = {
   "RiskWarning": {
@@ -34,11 +34,10 @@ const guide = {
 
 const Guide: React.FC = () => {
   const [checked, setChecked] = useState(false);
-  const onClick = (e: React.FormEvent<HTMLInputElement>) => {
-    console.log(e);
-    console.log(e.target)
-    setChecked(!checked);
-  }
+  const onClick = useCallback(() => {
+    setChecked(pre => !pre);
+  }, []);
+
   return (
     <>
       <div>
@@ -62,8 +61,9 @@ const Guide: React.FC = () => {
       </div>
       <div className='flex flex-col items-center'>
         <div className='flex flex-row justify-center items-center'>
-          <CheckBox checked={checked} onClick={onClick} />
-          <span className='ml-2'>I accepted</span>
+          <CheckBox checked={checked} onClick={onClick}>
+            I accepted
+          </CheckBox>
         </div>
         <Button disabled={!checked} className={cx('w-4/5 max-w-lg')}>Stake votes</Button>
       </div>
