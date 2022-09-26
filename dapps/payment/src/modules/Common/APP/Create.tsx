@@ -25,13 +25,13 @@ export default ({ onComplete, op, data = {}, className, type = 'default', disabl
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
     useEffect(() => {
-        if (op === OP_ACTION.edit) {
+        if (op === OP_ACTION.edit && !form.getFieldValue('resource')) {
             form.setFieldsValue({
                 resource: data.resourceId,
                 weight: data.weight,
             });
         }
-    }, [op, data]);
+    });
 
     const TIPs = useMemo(() => {
         if (op === OP_ACTION.add) {
@@ -65,13 +65,15 @@ export default ({ onComplete, op, data = {}, className, type = 'default', disabl
                 console.log(e);
             }
             setLoading(false);
-            form.resetFields();
         });
     }, []);
 
     const handleCancel = useCallback(() => {
         setIsModalVisible(false);
         setLoading(false);
+    }, []);
+
+    const resetFields = useCallback(() => {
         form.resetFields();
     }, []);
 
@@ -107,6 +109,7 @@ export default ({ onComplete, op, data = {}, className, type = 'default', disabl
                     id: 'button_cancel',
                 }}
                 destroyOnClose
+                afterClose={resetFields}
             >
                 <Form form={form} name="api" autoComplete="off" layout="vertical">
                     <Form.Item
