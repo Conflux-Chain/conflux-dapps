@@ -18,6 +18,7 @@ import ESpaceBridgeEnter from 'hub/src/modules/ESpaceBridgeEnter';
 import ShuttleFlowNavbarEnhance from 'hub/src/modules/NavbarEnhance/ShuttleFlow';
 import GovernanceNavbarEnhance from 'hub/src/modules/NavbarEnhance/Governance';
 import useCurrentDapp from 'hub/src/hooks/useCurrentDapp';
+import BridgeIcon from 'hub/src/assets/Bridge.svg';
 import ShuttleFlowIcon from 'hub/src/assets/shuttle-flow.svg';
 import GovernanceIcon from 'hub/src/assets/governance.svg';
 import CrossSpaceIcon from 'hub/src/assets/cross-space.svg';
@@ -53,7 +54,7 @@ Keyboard.bind('p -> a -> y -> m -> e -> n -> t', () => {
 export const dapps = [
     {
         name: 'Bridge',
-        icon: CrossSpaceIcon,
+        icon: BridgeIcon,
         path: 'bridge',
     },
     {

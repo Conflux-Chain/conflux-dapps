@@ -1,10 +1,12 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useSpring } from '@react-spring/web';
 import useI18n from 'common/hooks/useI18n';
 import LocalStorage from 'localstorage-enhance';
 import Core2ESpace from './Core2ESpace';
 import ESpace2Core from './ESpace2Core';
-import { startSub } from 'cross-space/src/store';
+import { useTokenList } from 'cross-space/src/components/TokenList/tokenListStore';
+import { startSub, setCurrentToken } from 'cross-space/src/store';
 import { completeDetect as completeDetectConflux } from '@cfxjs/use-wallet-react/conflux/Fluent';
 import { completeDetect as completeDetectEthereum } from '@cfxjs/use-wallet-react/ethereum';
 import { useMetaMaskHostedByFluentRqPermissions } from 'common/hooks/useMetaMaskHostedByFluent';
@@ -37,14 +39,48 @@ const Apps: React.FC = () => {
     }, []);
     useMetaMaskHostedByFluentRqPermissions();
 
+    const hasInit = useRef(false);
+    const tokenList = useTokenList();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const initTokenAndFlip = useCallback(() => {
+        if (hasInit.current) return;
+        if (tokenList) {
+            hasInit.current = true;
+            const sourceChain = searchParams.get('sourceChain');
+            const flip = sourceChain !== 'Conflux Core';
+            LocalStorage.setItem({ key: 'flipped', data: flip, namespace: 'cross-space'});
+            
+            const token = searchParams.get('token');
+            const targetToken = tokenList?.find(tokenData => tokenData.core_space_symbol === token || tokenData.evm_space_symbol === token);
+            searchParams.delete('sourceChain');
+            searchParams.delete('destinationChain');
+            searchParams.delete('token');
+            setTimeout(() => setSearchParams(searchParams))
+            if (!targetToken) return flip;
+            setCurrentToken(targetToken)
+            return flip;
+        }
+    }, [tokenList]);
+
     const [flipped, setFlipped] = useState(() => {
-        if (window.location.hash.slice(1).indexOf('source=fluent-wallet') !== -1) {
+        if (searchParams.get('sourceChain')) {
+            const flipRes = initTokenAndFlip();
+            if (typeof flipRes === 'boolean') return flipRes;
+        } else if (window.location.hash.slice(1).indexOf('source=fluent-wallet') !== -1) {
             LocalStorage.setItem({ key: 'flipped', data: false, namespace: 'cross-space'});
             history.pushState('', document.title, window.location.pathname + window.location.search);
             return false;
         }
         return LocalStorage.getItem('flipped', 'cross-space') === true;
     });
+
+
+    useEffect(() => {
+        const flipRes = initTokenAndFlip();
+        if (typeof flipRes === 'boolean') {
+            setFlipped(flipRes);
+        }
+    }, [tokenList]);
 
     const { transform, opacity } = useSpring({
         opacity: flipped ? 1 : 0,

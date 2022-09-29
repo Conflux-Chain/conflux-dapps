@@ -25,19 +25,22 @@ export const dataStore = create(
     subscribeWithSelector(
         () =>
             ({
-                data: (LocalStorage.getItem('data', 'bridge') as Array<any>) ?? undefined,
-                sourceChain: (LocalStorage.getItem('sourceChain', 'bridge') as string) ?? undefined,
-                sourceChains: (LocalStorage.getItem('sourceChains', 'bridge') as Array<string>) ?? undefined,
-                destinationChain: (LocalStorage.getItem('destinationChain', 'bridge') as string) ?? undefined,
-                destinationChains: (LocalStorage.getItem('destinationChains', 'bridge') as Array<string>) ?? undefined,
-                token: (LocalStorage.getItem('token', 'bridge') as string) ?? undefined,
-                tokens: (LocalStorage.getItem('tokens', 'bridge') as Array<string>) ?? undefined,
+                data: (LocalStorage.getItem('data', `bridge-${Networks.core.chainId}`) as Array<any>) ?? undefined,
+                sourceChain: (LocalStorage.getItem('sourceChain', `bridge-${Networks.core.chainId}`) as string) ?? undefined,
+                sourceChains: (LocalStorage.getItem('sourceChains', `bridge-${Networks.core.chainId}`) as Array<string>) ?? undefined,
+                destinationChain: (LocalStorage.getItem('destinationChain', `bridge-${Networks.core.chainId}`) as string) ?? undefined,
+                destinationChains: (LocalStorage.getItem('destinationChains', `bridge-${Networks.core.chainId}`) as Array<string>) ?? undefined,
+                token: (LocalStorage.getItem('token', `bridge-${Networks.core.chainId}`) as string) ?? undefined,
+                tokens: (LocalStorage.getItem('tokens', `bridge-${Networks.core.chainId}`) as Array<string>) ?? undefined,
             } as DataStore)
     )
 );
 
-export const map: Record<'chain' | 'shuttleFlowFromTokenAddress' | 'receiveSymbol' | 'chainsIcon' | 'tokensIcon', any> = LocalStorage.getItem('map', 'bridge') as any || {
-    chain: {
+export const map: Record<'shuttleFlowChains' | 'shuttleFlowFromTokenAddress' | 'receiveSymbol' | 'chainsIcon' | 'tokensIcon', any> = (LocalStorage.getItem(
+    'maps',
+    `bridge-${Networks.core.chainId}`
+) as any) || {
+    shuttleFlowChains: {
         'Conflux Core': 'cfx',
         Ethereum: 'eth',
         'BSC Chain': 'bsc',
@@ -56,11 +59,11 @@ export const map: Record<'chain' | 'shuttleFlowFromTokenAddress' | 'receiveSymbo
         OKExChain: OECIcon,
         'HECO Chain': HECOIcon,
         Bitcoin: BTCIcon,
-    }
+    },
 };
 
 Promise.all([
-    fetch('https://www.confluxhub.io/rpcsponsor', {
+    fetch('rpcsponsor', {
         body: JSON.stringify({ id: 1, jsonrpc: '2.0', method: 'getTokenList', params: [] }),
         headers: { 'content-type': 'application/json' },
         method: 'POST',
@@ -93,7 +96,7 @@ Promise.all([
                 ETH: ['Multichain'],
             },
         },
-        "BSC Chain": {
+        'BSC Chain': {
             'Conflux eSpace': {
                 CFX: ['Chain Bridge', 'Multichain'],
                 BNB: ['Multichain'],
@@ -103,7 +106,7 @@ Promise.all([
                 WBTC: ['Multichain'],
                 DAI: ['Multichain'],
                 ETH: ['Multichain'],
-            }
+            },
         },
         Ethereum: {
             'Conflux eSpace': {
@@ -116,10 +119,10 @@ Promise.all([
                 DAI: [['Space Bridge', 'Shuttle Flow'], 'cBridge'],
                 BNB: ['Multichain'],
                 BUSD: ['Multichain'],
-            }
-        }
+            },
+        },
     };
-    Object.keys(map.chain).forEach((chain) => {
+    Object.keys(map.shuttleFlowChains).forEach((chain) => {
         if (!data[chain]) {
             data[chain] = {};
         }
@@ -140,7 +143,7 @@ Promise.all([
             });
         } else {
             const tokens = sfData
-                .filter((item: any) => item.origin === map.chain[chain] || item.to_chain === map.chain[chain])
+                .filter((item: any) => item.origin === map.shuttleFlowChains[chain] || item.to_chain === map.shuttleFlowChains[chain])
                 .filter((asset: any) => asset.in_token_list === 1 && asset.supported === 1);
 
             tokens?.forEach((token: any) => {
@@ -161,7 +164,6 @@ Promise.all([
                 }
                 map.receiveSymbol[chain]['Conflux Core'][token.reference_symbol] = token.symbol;
                 map.tokensIcon[token.reference_symbol] = token.icon;
-
 
                 if (!data['Conflux Core'][chain]) {
                     data['Conflux Core'][chain] = {};
@@ -188,23 +190,23 @@ Promise.all([
     const { data: preData, sourceChain: preSourceChain, sourceChains: preSourceChains } = dataStore.getState();
     if (!isEqual(preData, data)) {
         dataStore.setState({ data });
-        LocalStorage.setItem({ data, key: 'data', namespace: 'bridge' });
+        LocalStorage.setItem({ data, key: 'data', namespace: `bridge-${Networks.core.chainId}` });
     }
 
     const sourceChains = Object.keys(data);
     if (!isEqual(preSourceChains, sourceChains)) {
         dataStore.setState({ sourceChains });
-        LocalStorage.setItem({ data: sourceChains, key: 'sourceChains', namespace: 'bridge' });
+        LocalStorage.setItem({ data: sourceChains, key: 'sourceChains', namespace: `bridge-${Networks.core.chainId}` });
     }
 
     if (!preSourceChain || !sourceChains.includes(preSourceChain)) {
         dataStore.setState({ sourceChain: 'Conflux Core' });
-        LocalStorage.setItem({ data: 'Conflux Core', key: 'sourceChain', namespace: 'bridge' });
+        LocalStorage.setItem({ data: 'Conflux Core', key: 'sourceChain', namespace: `bridge-${Networks.core.chainId}` });
         const destinationChain = resetDestinationChains('Conflux Core')!;
         resetTokens('Conflux Core', destinationChain);
     }
 
-    LocalStorage.setItem({ data: map, key: 'map', namespace: 'bridge' })
+    LocalStorage.setItem({ data: map, key: 'maps', namespace: `bridge-${Networks.core.chainId}` });
 });
 
 const resetDestinationChains = (sourceChain: string, resetDestinationChain = true) => {
@@ -215,10 +217,10 @@ const resetDestinationChains = (sourceChain: string, resetDestinationChain = tru
     }
     const destinationChains = Object.keys(data[sourceChain] ?? Object.create(null));
     dataStore.setState({ destinationChains });
-    LocalStorage.setItem({ data: destinationChains, key: 'destinationChains', namespace: 'bridge' });
+    LocalStorage.setItem({ data: destinationChains, key: 'destinationChains', namespace: `bridge-${Networks.core.chainId}` });
     if (resetDestinationChain) {
         dataStore.setState({ destinationChain: destinationChains[0] });
-        LocalStorage.setItem({ data: destinationChains[0], key: 'destinationChain', namespace: 'bridge' });
+        LocalStorage.setItem({ data: destinationChains[0], key: 'destinationChain', namespace: `bridge-${Networks.core.chainId}` });
     }
     return destinationChains[0];
 };
@@ -231,10 +233,10 @@ const resetTokens = (sourceChain: string, destinationChain: string, resetToken =
     }
     const tokens = Object.keys(data[sourceChain]?.[destinationChain] ?? Object.create(null));
     dataStore.setState({ tokens });
-    LocalStorage.setItem({ data: tokens, key: 'tokens', namespace: 'bridge' });
+    LocalStorage.setItem({ data: tokens, key: 'tokens', namespace: `bridge-${Networks.core.chainId}` });
     if (resetToken) {
         dataStore.setState({ token: tokens[0] });
-        LocalStorage.setItem({ data: tokens[0], key: 'token', namespace: 'bridge' });
+        LocalStorage.setItem({ data: tokens[0], key: 'token', namespace: `bridge-${Networks.core.chainId}` });
     }
     return tokens;
 };
@@ -261,7 +263,7 @@ export const handleSourceChainChange = (sourceChain: string) => {
         handleReverse();
         return;
     }
-    LocalStorage.setItem({ data: sourceChain, key: 'sourceChain', namespace: 'bridge' });
+    LocalStorage.setItem({ data: sourceChain, key: 'sourceChain', namespace: `bridge-${Networks.core.chainId}` });
     dataStore.setState({ sourceChain });
     const destinationChain = resetDestinationChains(sourceChain)!;
     resetTokens(sourceChain, destinationChain);
@@ -273,40 +275,66 @@ export const handleDestinationChainChange = (destinationChain: string) => {
         return;
     }
     const sourceChain = dataStore.getState().sourceChain!;
-    LocalStorage.setItem({ data: destinationChain, key: 'destinationChain', namespace: 'bridge' });
+    LocalStorage.setItem({ data: destinationChain, key: 'destinationChain', namespace: `bridge-${Networks.core.chainId}` });
     dataStore.setState({ destinationChain });
     resetTokens(sourceChain, destinationChain);
 };
 
 export const handleTokenChange = (token: string) => {
-    LocalStorage.setItem({ data: token, key: 'token', namespace: 'bridge' });
+    LocalStorage.setItem({ data: token, key: 'token', namespace: `bridge-${Networks.core.chainId}` });
     dataStore.setState({ token });
 };
 
 export const handleReverse = () => {
     const { sourceChain, destinationChain, token } = dataStore.getState();
-    LocalStorage.setItem({ data: sourceChain, key: 'destinationChain', namespace: 'bridge' });
-    LocalStorage.setItem({ data: destinationChain, key: 'sourceChain', namespace: 'bridge' });
+    LocalStorage.setItem({ data: sourceChain, key: 'destinationChain', namespace: `bridge-${Networks.core.chainId}` });
+    LocalStorage.setItem({ data: destinationChain, key: 'sourceChain', namespace: `bridge-${Networks.core.chainId}` });
     dataStore.setState({ sourceChain: destinationChain, destinationChain: sourceChain });
     resetDestinationChains(destinationChain!, false)!;
     const reversedToken = map.receiveSymbol?.[sourceChain!]?.[destinationChain!]?.[token!];
     const newTokens = resetTokens(destinationChain!, sourceChain!, false);
     if (newTokens?.includes(reversedToken)) {
         dataStore.setState({ token: reversedToken });
-        LocalStorage.setItem({ data: reversedToken, key: 'token', namespace: 'bridge' });
+        LocalStorage.setItem({ data: reversedToken, key: 'token', namespace: `bridge-${Networks.core.chainId}` });
     }
 };
 
-
-export const afterSpaceBridge = ({ sourceChain, destinationChain }: { sourceChain: string; destinationChain: string; }) => {
+export const afterSpaceBridge = ({ sourceChain, destinationChain }: { sourceChain: string; destinationChain: string }) => {
     if (sourceChain === 'Conflux Core' || destinationChain === 'Conflux Core') return 'Conflux eSpace';
     else if (sourceChain === 'Conflux eSpace' || destinationChain === 'Conflux eSpace') return 'Conflux Core';
     return '';
-}
+};
 
-export const createHref = ({ sourceChain, destinationChain, route, token }: { sourceChain: string; destinationChain: string; route: string; token: string; }) => {
+export const createHref = ({
+    sourceChain,
+    destinationChain,
+    route,
+    token,
+}: {
+    sourceChain: string;
+    destinationChain: string;
+    route: string;
+    token: string;
+}) => {
+    if (route === 'Space Bridge') {
+        return location.origin + `/espace-bridge/cross-space?sourceChain=${sourceChain}&destinationChain=${destinationChain}&token=${token}`;
+    }
+    if (route === 'Chain Bridge') {
+        return location.origin + '/espace-bridge/bsc-esapce-cfx';
+    }
+    if (route === 'Multichain') {
+        return 'https://app.multichain.org/#/router';
+    }
     if (route === 'cBridge') {
-        return `https://cbridge.celer.network/${destinationChain === 'Conflux eSpace' ? '1' : '1030'}/${destinationChain === 'Conflux eSpace' ? '1030' : '1'}/${token}`
+        return `https://cbridge.celer.network/${destinationChain === 'Conflux eSpace' ? '1' : '1030'}/${
+            destinationChain === 'Conflux eSpace' ? '1030' : '1'
+        }/${token}`;
+    }
+    if (route === 'Shuttle Flow') {
+        return (
+            location.origin +
+            `/shuttle-flow/?fromChain=${map.shuttleFlowChains[sourceChain]}&fromTokenAddress=${map.shuttleFlowFromTokenAddress?.[sourceChain]?.[token]}&toChain=${map.shuttleFlowChains[destinationChain]}`
+        );
     }
     return '';
-}
+};
