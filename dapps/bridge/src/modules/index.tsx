@@ -52,7 +52,7 @@ const Index: React.FC = () => {
             <Chain title="Destination" current={destinationChain} chains={destinationChains} handleSelect={handleDestinationChainChange} />
 
             <div className="mb-[6px] text-[13px] text-[#898D9A]">Asset</div>
-            <Select className="bg-[#F7F8FA]" current={token} data={tokens} renderItem={renderToken} onSelect={handleTokenChange} />
+            <Select className="bg-[#F7F8FA]" current={token} data={tokens} renderItem={renderToken} onSelect={handleTokenChange} useSearch />
 
             <button
                 id="bridge-reverse"

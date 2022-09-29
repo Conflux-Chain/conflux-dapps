@@ -3,6 +3,7 @@ import { subscribeWithSelector } from 'zustand/middleware';
 import LocalStorage from 'localstorage-enhance';
 import { innerTokenListUrl as crossSpaceTokenListUrl } from 'cross-space/src/components/TokenList/tokenListStore';
 import { isEqual, escapeRegExp } from 'lodash-es';
+import Cache from 'common/utils/LRUCache';
 import CFXIcon from 'common/assets/chains/Conflux.svg';
 import BSCIcon from 'common/assets/chains/BSC.svg';
 import BTCIcon from 'common/assets/chains/BTC.svg';
@@ -10,6 +11,11 @@ import EthereumIcon from 'common/assets/chains/Ethereum.svg';
 import HECOIcon from 'common/assets/chains/HECO.svg';
 import OECIcon from 'common/assets/chains/OEC.svg';
 import Networks, { isProduction } from 'common/conf/Networks';
+
+
+const CommonTokenCount = 16;
+const commonTokensCache = new Cache<string>(CommonTokenCount, 'bridge-common-tokens');
+
 
 interface DataStore {
     data?: Record<string, any>;
@@ -19,6 +25,7 @@ interface DataStore {
     destinationChains?: Array<string>;
     token?: string;
     tokens?: Array<string>;
+    commonTokens?: Array<string>;
 }
 
 export const dataStore = create(
@@ -32,6 +39,7 @@ export const dataStore = create(
                 destinationChains: (LocalStorage.getItem('destinationChains', `bridge-${Networks.core.chainId}`) as Array<string>) ?? undefined,
                 token: (LocalStorage.getItem('token', `bridge-${Networks.core.chainId}`) as string) ?? undefined,
                 tokens: (LocalStorage.getItem('tokens', `bridge-${Networks.core.chainId}`) as Array<string>) ?? undefined,
+                commonTokens: commonTokensCache.toArr(),
             } as DataStore)
     )
 );
@@ -249,6 +257,7 @@ const selector = {
     destinationChains: (state: DataStore) => state.destinationChains,
     token: (state: DataStore) => state.token,
     tokens: (state: DataStore) => state.tokens,
+    commonTokens: (state: DataStore) => state.commonTokens,
 };
 
 export const useData = () => dataStore(selector.data);
@@ -258,6 +267,8 @@ export const useDestinationChain = () => dataStore(selector.destinationChain);
 export const useDestinationChains = () => dataStore(selector.destinationChains);
 export const useToken = () => dataStore(selector.token);
 export const useTokens = () => dataStore(selector.tokens);
+export const useCommonTokens = () => dataStore(selector.commonTokens);
+
 export const handleSourceChainChange = (sourceChain: string) => {
     if (sourceChain === dataStore.getState().destinationChain) {
         handleReverse();
@@ -283,6 +294,9 @@ export const handleDestinationChainChange = (destinationChain: string) => {
 export const handleTokenChange = (token: string) => {
     LocalStorage.setItem({ data: token, key: 'token', namespace: `bridge-${Networks.core.chainId}` });
     dataStore.setState({ token });
+
+    commonTokensCache.set(token, token);
+    dataStore.setState({ commonTokens: commonTokensCache.toArr() });
 };
 
 export const handleReverse = () => {
@@ -334,7 +348,7 @@ export const createHref = ({
         let fromTokenAddress = map.shuttleFlowFromTokenAddress?.[sourceChain]?.[token];
         if (!fromTokenAddress) {
             const allKeys = Object.keys(map.shuttleFlowFromTokenAddress?.[sourceChain]);
-            const matchKey = allKeys.find(key => key.search(new RegExp(escapeRegExp(token), 'i')) !== -1);
+            const matchKey = allKeys.find(key => key.search(new RegExp(escapeRegExp(token), 'i')) !== -1 || token.search(new RegExp(escapeRegExp(key), 'i')) !== -1);
             if (matchKey) {
                 fromTokenAddress = map.shuttleFlowFromTokenAddress?.[sourceChain][matchKey];
             }

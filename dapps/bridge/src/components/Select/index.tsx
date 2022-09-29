@@ -3,16 +3,17 @@ import cx from 'clsx';
 import ArrowRight from 'cross-space/src/assets/arrow-right.svg';
 import TokenListDropdown from './Dropdown';
 
-export interface Props<T extends any> {
+export interface Props {
     id?: string;
     className?: string;
-    current: T;
-    data: Array<T>;
-    renderItem: (item: T) => React.ReactNode;
-    onSelect: (item: T) => void;
+    useSearch?: boolean;
+    current: string;
+    data: Array<string>;
+    renderItem: (item: string) => React.ReactNode;
+    onSelect: (item: string) => void;
 }
 
-const TokenList = <T extends any>({ id, className, ...props }: Props<T>) => {
+const TokenList: React.FC<Props> = ({ id, className, ...props }) => {
     return (
         <TokenListDropdown {...props}>
             {(triggerDropdown, visible) => (

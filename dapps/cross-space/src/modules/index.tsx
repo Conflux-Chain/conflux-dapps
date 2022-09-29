@@ -51,11 +51,11 @@ const Apps: React.FC = () => {
             LocalStorage.setItem({ key: 'flipped', data: flip, namespace: 'cross-space' });
 
             const token = searchParams.get('token');
-            const targetToken = tokenList?.find(
+            const targetToken = token ? tokenList?.find(
                 (tokenData) =>
                     tokenData.core_space_symbol.search(new RegExp(escapeRegExp(token), 'i')) !== -1 ||
                     tokenData.evm_space_symbol.search(new RegExp(escapeRegExp(token), 'i')) !== -1
-            );
+            ) : null;
             searchParams.delete('sourceChain');
             searchParams.delete('destinationChain');
             searchParams.delete('token');
