@@ -1,4 +1,5 @@
 import React from 'react';
+import cx from 'clsx';
 import {
     map,
     useData,
@@ -13,7 +14,7 @@ import {
     handleTokenChange,
     handleReverse,
     afterSpaceBridge,
-    createHref
+    createHref,
 } from './data';
 import Select from '../components/Select';
 import TurnPage from 'cross-space/src/assets/turn-page.svg';
@@ -46,12 +47,12 @@ const Index: React.FC = () => {
 
     if (!sourceChain) return <div>loading...</div>;
     return (
-        <div className="cross-space-module mx-auto mt-[100px]">
+        <div className="cross-space-module mx-auto mt-[16px] mb-[24px]">
             <Chain title="Source" current={sourceChain} chains={sourceChains} handleSelect={handleSourceChainChange} />
             <Chain title="Destination" current={destinationChain} chains={destinationChains} handleSelect={handleDestinationChainChange} />
 
             <div className="mb-[6px] text-[13px] text-[#898D9A]">Asset</div>
-            <Select className='bg-[#F7F8FA]' current={token} data={tokens} renderItem={renderToken} onSelect={handleTokenChange} />
+            <Select className="bg-[#F7F8FA]" current={token} data={tokens} renderItem={renderToken} onSelect={handleTokenChange} />
 
             <button
                 id="bridge-reverse"
@@ -94,14 +95,27 @@ const Routes: React.FC = () => {
             <div className="mt-[24px] mb-[6px] text-[13px] text-[#898D9A] font-normal">Recommended Route</div>
             <div className="flex flex-col gap-[16px]">
                 {routes?.map?.((route: string | Array<string>, index: number) => (
-                    <div className="flex flex-col gap-[16px] px-[12px] py-[16px] rounded-[4px] border border-[#EAECEF] bg-[#FAFBFD]" key={index}>
-                        {(Array.isArray(route) ? route : [route])?.map((eachRoute) => {
+                    <div
+                        className={cx(
+                            'relative flex flex-col gap-[16px] px-[12px] py-[16px] rounded-[4px] border border-[#EAECEF] bg-[#FAFBFD] overflow-hidden',
+                            routes.length > 1 && index === 0 && 'pt-[42px]'
+                        )}
+                        key={index}
+                    >
+                        {routes.length > 1 && index === 0 && (
+                            <span className="absolute left-0 top-0 w-fit rounded-br-[4px] px-[10px] py-[4px] text-[12px] text-[#808BE7] font-medium bg-[#F0F3FF]">
+                                Low gas fee
+                            </span>
+                        )}
+                        {(Array.isArray(route) ? route : [route])?.map((eachRoute, index) => {
                             const _sourceChain =
-                                Array.isArray(route) && eachRoute !== 'Space Bridge' ? afterSpaceBridge({ sourceChain, destinationChain }) : sourceChain;
-                            const _destinationChain =
-                                Array.isArray(route) && eachRoute === 'Space Bridge' ? afterSpaceBridge({ sourceChain, destinationChain }) : destinationChain;
+                                Array.isArray(route) && index !== 0 ? afterSpaceBridge({ sourceChain, destinationChain }) : sourceChain;
+                            const _destinationChain = Array.isArray(route) && index !== route.length - 1
+                                ? afterSpaceBridge({ sourceChain, destinationChain })
+                                : destinationChain;
+                            const href = createHref({ sourceChain: _sourceChain, destinationChain: _destinationChain, token, route: eachRoute });
                             return (
-                                <div className="flex items-center" key={eachRoute}>
+                                <div className="flex items-center whitespace-nowrap" key={eachRoute}>
                                     <div className="text-center text-[12px] text-[#3D3F4C] w-[80px]">
                                         <img className="mx-auto mb-[8px] w-[28px] h-[28px]" src={map.chainsIcon[_sourceChain]} alt="" />
                                         {_sourceChain}
@@ -127,9 +141,10 @@ const Routes: React.FC = () => {
                                     <Button
                                         className="ml-auto min-w-[100px]"
                                         size="small"
-                                        href={createHref({ sourceChain: _sourceChain, destinationChain: _destinationChain, token, route: eachRoute })}
+                                        href={href}
                                         target="_blank"
                                         rel="noreferrer"
+                                        disabled={!href}
                                     >
                                         {eachRoute}
                                     </Button>

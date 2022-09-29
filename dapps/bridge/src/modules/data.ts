@@ -2,7 +2,7 @@ import create from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import LocalStorage from 'localstorage-enhance';
 import { innerTokenListUrl as crossSpaceTokenListUrl } from 'cross-space/src/components/TokenList/tokenListStore';
-import { isEqual } from 'lodash-es';
+import { isEqual, escapeRegExp } from 'lodash-es';
 import CFXIcon from 'common/assets/chains/Conflux.svg';
 import BSCIcon from 'common/assets/chains/BSC.svg';
 import BTCIcon from 'common/assets/chains/BTC.svg';
@@ -63,7 +63,7 @@ export const map: Record<'shuttleFlowChains' | 'shuttleFlowFromTokenAddress' | '
 };
 
 Promise.all([
-    fetch('rpcsponsor', {
+    fetch('https://www.confluxhub.io/rpcsponsor', {
         body: JSON.stringify({ id: 1, jsonrpc: '2.0', method: 'getTokenList', params: [] }),
         headers: { 'content-type': 'application/json' },
         method: 'POST',
@@ -110,13 +110,13 @@ Promise.all([
         },
         Ethereum: {
             'Conflux eSpace': {
-                CFX: [['Space Bridge', 'Shuttle Flow']],
-                ETH: [['Space Bridge', 'Shuttle Flow'], 'Multichain'],
+                CFX: [['Shuttle Flow', 'Space Bridge']],
+                ETH: [['Shuttle Flow', 'Space Bridge'], 'Multichain'],
                 WETH: ['cBridge'],
-                USDT: [['Space Bridge', 'Shuttle Flow'], 'Multichain', 'cBridge'],
-                USDC: [['Space Bridge', 'Shuttle Flow'], 'Multichain', 'cBridge'],
-                WBTC: [['Space Bridge', 'Shuttle Flow'], 'Multichain', 'cBridge'],
-                DAI: [['Space Bridge', 'Shuttle Flow'], 'cBridge'],
+                USDT: [['Shuttle Flow', 'Space Bridge'], 'Multichain', 'cBridge'],
+                USDC: [['Shuttle Flow', 'Space Bridge'], 'Multichain', 'cBridge'],
+                WBTC: [['Shuttle Flow', 'Space Bridge'], 'Multichain', 'cBridge'],
+                DAI: [['Shuttle Flow', 'Space Bridge'], 'cBridge'],
                 BNB: ['Multichain'],
                 BUSD: ['Multichain'],
             },
@@ -331,10 +331,16 @@ export const createHref = ({
         }/${token}`;
     }
     if (route === 'Shuttle Flow') {
-        return (
-            location.origin +
-            `/shuttle-flow/?fromChain=${map.shuttleFlowChains[sourceChain]}&fromTokenAddress=${map.shuttleFlowFromTokenAddress?.[sourceChain]?.[token]}&toChain=${map.shuttleFlowChains[destinationChain]}`
-        );
+        let fromTokenAddress = map.shuttleFlowFromTokenAddress?.[sourceChain]?.[token];
+        if (!fromTokenAddress) {
+            const allKeys = Object.keys(map.shuttleFlowFromTokenAddress?.[sourceChain]);
+            const matchKey = allKeys.find(key => key.search(new RegExp(escapeRegExp(token), 'i')) !== -1);
+            if (matchKey) {
+                fromTokenAddress = map.shuttleFlowFromTokenAddress?.[sourceChain][matchKey];
+            }
+        }
+        if (!fromTokenAddress) return '';
+        return `https://www.confluxhub.io/shuttle-flow/?fromChain=${map.shuttleFlowChains[sourceChain]}&fromTokenAddress=${fromTokenAddress}&toChain=${map.shuttleFlowChains[destinationChain]}`;
     }
     return '';
 };
