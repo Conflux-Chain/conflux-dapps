@@ -340,7 +340,7 @@ export const createHref = ({
             }
         }
         if (!fromTokenAddress) return '';
-        return `https://www.confluxhub.io/shuttle-flow/?fromChain=${map.shuttleFlowChains[sourceChain]}&fromTokenAddress=${fromTokenAddress}&toChain=${map.shuttleFlowChains[destinationChain]}`;
+        return `https://${isProduction ? 'www' : 'test'}.confluxhub.io/shuttle-flow/?fromChain=${map.shuttleFlowChains[sourceChain]}&fromTokenAddress=${fromTokenAddress}&toChain=${map.shuttleFlowChains[destinationChain]}`;
     }
     return '';
 };
