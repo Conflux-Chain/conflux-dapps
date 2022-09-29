@@ -9,7 +9,7 @@ import BTCIcon from 'common/assets/chains/BTC.svg';
 import EthereumIcon from 'common/assets/chains/Ethereum.svg';
 import HECOIcon from 'common/assets/chains/HECO.svg';
 import OECIcon from 'common/assets/chains/OEC.svg';
-import Networks from 'common/conf/Networks';
+import Networks, { isProduction } from 'common/conf/Networks';
 
 interface DataStore {
     data?: Record<string, any>;
@@ -63,7 +63,7 @@ export const map: Record<'shuttleFlowChains' | 'shuttleFlowFromTokenAddress' | '
 };
 
 Promise.all([
-    fetch('https://www.confluxhub.io/rpcsponsor', {
+    fetch(`https://${isProduction ? 'www' : 'test'}.confluxhub.io/rpcsponsor`, {
         body: JSON.stringify({ id: 1, jsonrpc: '2.0', method: 'getTokenList', params: [] }),
         headers: { 'content-type': 'application/json' },
         method: 'POST',
