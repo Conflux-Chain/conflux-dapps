@@ -9,6 +9,7 @@ import BTCIcon from 'common/assets/chains/BTC.svg';
 import EthereumIcon from 'common/assets/chains/Ethereum.svg';
 import HECOIcon from 'common/assets/chains/HECO.svg';
 import OECIcon from 'common/assets/chains/OEC.svg';
+import Networks from 'common/conf/Networks';
 
 interface DataStore {
     data?: Record<string, any>;
@@ -130,9 +131,9 @@ Promise.all([
             map.receiveSymbol['Conflux Core']['Conflux eSpace'] = {};
             map.receiveSymbol['Conflux eSpace']['Conflux Core'] = {};
             [...csData.core_native_tokens, ...csData.evm_native_tokens].forEach((item: Record<string, string>) => {
-                data['Conflux Core']['Conflux eSpace'][item.core_space_symbol] = 'Space Bridge';
+                data['Conflux Core']['Conflux eSpace'][item.core_space_symbol] = ['Space Bridge'];
                 map.receiveSymbol['Conflux Core']['Conflux eSpace'][item.core_space_symbol] = item.evm_space_symbol;
-                data['Conflux eSpace']['Conflux Core'][item.evm_space_symbol] = 'Space Bridge';
+                data['Conflux eSpace']['Conflux Core'][item.evm_space_symbol] = ['Space Bridge'];
                 map.receiveSymbol['Conflux eSpace']['Conflux Core'][item.evm_space_symbol] = item.core_space_symbol;
                 map.tokensIcon[item.core_space_symbol] = item.icon;
                 map.tokensIcon[item.evm_space_symbol] = item.icon;
@@ -297,9 +298,15 @@ export const handleReverse = () => {
 };
 
 
-
 export const afterSpaceBridge = ({ sourceChain, destinationChain }: { sourceChain: string; destinationChain: string; }) => {
     if (sourceChain === 'Conflux Core' || destinationChain === 'Conflux Core') return 'Conflux eSpace';
     else if (sourceChain === 'Conflux eSpace' || destinationChain === 'Conflux eSpace') return 'Conflux Core';
+    return '';
+}
+
+export const createHref = ({ sourceChain, destinationChain, route, token }: { sourceChain: string; destinationChain: string; route: string; token: string; }) => {
+    if (route === 'cBridge') {
+        return `https://cbridge.celer.network/${destinationChain === 'Conflux eSpace' ? '1' : '1030'}/${destinationChain === 'Conflux eSpace' ? '1030' : '1'}/${token}`
+    }
     return '';
 }
