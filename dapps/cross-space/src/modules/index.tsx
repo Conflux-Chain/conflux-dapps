@@ -5,6 +5,7 @@ import useI18n from 'common/hooks/useI18n';
 import LocalStorage from 'localstorage-enhance';
 import Core2ESpace from './Core2ESpace';
 import ESpace2Core from './ESpace2Core';
+import { escapeRegExp } from 'lodash-es';
 import { useTokenList } from 'cross-space/src/components/TokenList/tokenListStore';
 import { startSub, setCurrentToken } from 'cross-space/src/store';
 import { completeDetect as completeDetectConflux } from '@cfxjs/use-wallet-react/conflux/Fluent';
@@ -28,14 +29,13 @@ const Apps: React.FC = () => {
 
     useEffect(() => {
         let unsub: undefined | (() => void);
-        Promise.all([completeDetectConflux(), completeDetectEthereum()])
-            .then(() => unsub = startSub());
-            
+        Promise.all([completeDetectConflux(), completeDetectEthereum()]).then(() => (unsub = startSub()));
+
         return () => {
             if (typeof unsub === 'function') {
                 unsub();
             }
-        }
+        };
     }, []);
     useMetaMaskHostedByFluentRqPermissions();
 
@@ -48,16 +48,20 @@ const Apps: React.FC = () => {
             hasInit.current = true;
             const sourceChain = searchParams.get('sourceChain');
             const flip = sourceChain !== 'Conflux Core';
-            LocalStorage.setItem({ key: 'flipped', data: flip, namespace: 'cross-space'});
-            
+            LocalStorage.setItem({ key: 'flipped', data: flip, namespace: 'cross-space' });
+
             const token = searchParams.get('token');
-            const targetToken = tokenList?.find(tokenData => tokenData.core_space_symbol === token || tokenData.evm_space_symbol === token);
+            const targetToken = tokenList?.find(
+                (tokenData) =>
+                    tokenData.core_space_symbol.search(new RegExp(escapeRegExp(token), 'i')) !== -1 ||
+                    tokenData.evm_space_symbol.search(new RegExp(escapeRegExp(token), 'i')) !== -1
+            );
             searchParams.delete('sourceChain');
             searchParams.delete('destinationChain');
             searchParams.delete('token');
-            setTimeout(() => setSearchParams(searchParams))
+            setTimeout(() => setSearchParams(searchParams));
             if (!targetToken) return flip;
-            setCurrentToken(targetToken)
+            setCurrentToken(targetToken);
             return flip;
         }
     }, [tokenList]);
@@ -67,13 +71,12 @@ const Apps: React.FC = () => {
             const flipRes = initTokenAndFlip();
             if (typeof flipRes === 'boolean') return flipRes;
         } else if (window.location.hash.slice(1).indexOf('source=fluent-wallet') !== -1) {
-            LocalStorage.setItem({ key: 'flipped', data: false, namespace: 'cross-space'});
+            LocalStorage.setItem({ key: 'flipped', data: false, namespace: 'cross-space' });
             history.pushState('', document.title, window.location.pathname + window.location.search);
             return false;
         }
         return LocalStorage.getItem('flipped', 'cross-space') === true;
     });
-
 
     useEffect(() => {
         const flipRes = initTokenAndFlip();
@@ -90,7 +93,7 @@ const Apps: React.FC = () => {
 
     const handleClickFlipped = useCallback(() => {
         setFlipped((pre) => {
-            LocalStorage.setItem({ key: 'flipped', data: !pre, namespace: 'cross-space'});
+            LocalStorage.setItem({ key: 'flipped', data: !pre, namespace: 'cross-space' });
             return !pre;
         });
     }, []);
@@ -100,11 +103,11 @@ const Apps: React.FC = () => {
             <div className="pl-[32px] font-medium	text-[28px] leading-[36px] text-[#3D3F4C]">{i18n.transfer_assets}</div>
             <div className="pl-[32px] text-[16px] leading-[22px] mt-[4px] text-[#A9ABB2]">{i18n.between_space}</div>
 
-            <div className='mt-[24px] h-[726px]'>
+            <div className="mt-[24px] h-[726px]">
                 <Core2ESpace
                     style={{
                         zIndex: flipped ? 0 : 1,
-                        opacity: opacity.to(o => 1 - o),
+                        opacity: opacity.to((o) => 1 - o),
                         transform,
                     }}
                     isShow={!flipped}
