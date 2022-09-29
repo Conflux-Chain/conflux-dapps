@@ -102,7 +102,7 @@ const Routes: React.FC = () => {
                                 Array.isArray(route) && eachRoute === 'Space Bridge' ? afterSpaceBridge({ sourceChain, destinationChain }) : destinationChain;
                             return (
                                 <div className="flex items-center" key={eachRoute}>
-                                    <div className="text-center text-[12px] text-[#3D3F4C]">
+                                    <div className="text-center text-[12px] text-[#3D3F4C] w-[80px]">
                                         <img className="mx-auto mb-[8px] w-[28px] h-[28px]" src={map.chainsIcon[_sourceChain]} alt="" />
                                         {_sourceChain}
                                     </div>
@@ -119,7 +119,7 @@ const Routes: React.FC = () => {
 
                                     <div className="w-[40px] h-0 border border-[#A9ABB2] border-dashed -translate-y-[12px]" />
 
-                                    <div className="text-center text-[12px] text-[#3D3F4C]">
+                                    <div className="text-center text-[12px] text-[#3D3F4C] w-[80px]">
                                         <img className="mx-auto mb-[8px] w-[28px] h-[28px]" src={map.chainsIcon[_destinationChain]} alt="" />
                                         {_destinationChain}
                                     </div>
