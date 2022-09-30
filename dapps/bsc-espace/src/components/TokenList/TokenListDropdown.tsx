@@ -184,8 +184,8 @@ const TokenItem = memo<TokenItemProps>(({
                 <img src={token.icon} alt="token img" className="w-[28px] h-[28px] mr-[8px]" />
 
                 <div className='h-[36px]'>
-                    <p className='text-[14px] text-[#3D3F4C]'>{symbol}</p>
-                    <p className='text-[12px] text-[#A9ABB2]'>{name}</p>
+                    <div className='text-[14px] text-[#3D3F4C]'>{symbol}</div>
+                    <div className='text-[12px] text-[#A9ABB2]'>{name}</div>
                 </div>
             </div>
 

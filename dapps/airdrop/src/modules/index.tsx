@@ -25,18 +25,18 @@ const App: React.FC = () => {
 
     return (
         <div className="relative max-w-[1000px] mx-auto pt-[16px] mb-24px">
-            <p className="font-medium text-[28px] leading-[36px] text-[#3D3F4C]">{i18n.espace_airdrop}</p>
-            <p className="text-[16px] leading-[22px] mt-[12px] text-[#A9ABB2]">{i18n.description}</p>
-            <p className="text-[16px] leading-[22px] mt-[4px] text-[#A9ABB2]">
+            <div className="font-medium text-[28px] leading-[36px] text-[#3D3F4C]">{i18n.espace_airdrop}</div>
+            <div className="text-[16px] leading-[22px] mt-[12px] text-[#A9ABB2]">{i18n.description}</div>
+            <div className="text-[16px] leading-[22px] mt-[4px] text-[#A9ABB2]">
                 {i18n.click_here}
                 <a className="text-[#808BE7] hover:underline" href="https://www.conflux-pos-validators.com/" rel="" target="_blank">Conflux PoS Validators</a>
-            </p>
+            </div>
 
             <ConnectTip />
 
-            <p className="mt-[40px] mb-[16px] flex items-center h-[24px] text-[16px] text-[#3D3F4C] font-medium">
+            <div className="mt-[40px] mb-[16px] flex items-center h-[24px] text-[16px] text-[#3D3F4C] font-medium">
                 Claimable Tokens
-            </p>
+            </div>
             <AuthESpaceAndCore
                 size="large"
                 type="button"
