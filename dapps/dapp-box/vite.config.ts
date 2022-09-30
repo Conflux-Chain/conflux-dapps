@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
-const TestServerUrl = 'https://test-rigel.confluxhub.io';
+const TestServerUrl = 'https://test.confluxhub.io';
 const ProxyConfig = {
     target: TestServerUrl,
     changeOrigin: true,
