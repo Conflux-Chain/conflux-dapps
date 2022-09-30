@@ -77,7 +77,7 @@ const DropdownContent: React.FC<{ visible: boolean; hideDropdown: () => void } &
                 <div className="px-[16px] pt-[16px] pb-[12px] select-none">
                     <Input className="pr-[12px]" ref={inputRef} prefixIcon={Search} placeholder="Search token symbol" onChange={handleFilterChange} />
 
-                    {filteredCommonTokens && filteredCommonTokens.length > 1 && (
+                    {filteredCommonTokens && filteredCommonTokens.length > 0 && (
                         <>
                             <div className="mt-[12px] mb-[8px] text-[14px] text-[#A9ABB2]">Common tokens</div>
                             <CustomScrollbar contentClassName="items-center pb-[16px] gap-[12px]" direction="horizontal">
