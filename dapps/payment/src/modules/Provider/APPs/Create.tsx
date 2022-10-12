@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Button, Input, Modal, Form, InputNumber } from 'antd';
+import { Button, Input, Modal, Form, InputNumber, Radio } from 'antd';
 import { postAPP } from 'payment/src/utils/request';
 import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
 import { AuthESpace } from 'common/modules/AuthConnectButton';
@@ -17,9 +17,10 @@ export default ({ onComplete }: Props) => {
     const [loading, setLoading] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
     const showModal = useCallback(() => setIsModalVisible(true), []);
+    const [type, setType] = useState('1');
 
     const handleOk = useCallback(() => {
-        form.validateFields().then(async function ({ name, url, weight }) {
+        form.validateFields().then(async function ({ name, url, weight, symbol, description, type }) {
             try {
                 setLoading(true);
                 const data = await postAPP({
@@ -27,6 +28,10 @@ export default ({ onComplete }: Props) => {
                     url,
                     weight,
                     account: account as string,
+                    symbol,
+                    description,
+                    // type: 0 - none, 1 - billing, 2 - subscription
+                    type,
                 });
                 setLoading(false);
                 setIsModalVisible(false);
@@ -42,6 +47,12 @@ export default ({ onComplete }: Props) => {
     const handleCancel = useCallback(() => {
         form.resetFields();
         setIsModalVisible(false);
+    }, []);
+
+    const handleValuesChange = useCallback((changedValues: { type: string }) => {
+        if (changedValues.type) {
+            setType(changedValues.type);
+        }
     }, []);
 
     return (
@@ -76,7 +87,16 @@ export default ({ onComplete }: Props) => {
                     id: 'button_cancel',
                 }}
             >
-                <Form form={form} name="basic" autoComplete="off" layout="vertical">
+                <Form
+                    form={form}
+                    name="basic"
+                    autoComplete="off"
+                    layout="vertical"
+                    onValuesChange={handleValuesChange}
+                    initialValues={{
+                        type: '1',
+                    }}
+                >
                     <Form.Item
                         label={
                             <>
@@ -93,27 +113,108 @@ export default ({ onComplete }: Props) => {
                             },
                             {
                                 min: 1,
-                                max: 225,
-                                message: 'Please input APP name with 1-225 character',
+                                max: 15,
+                                message: 'Please input APP name with 1-15 character',
                             },
                         ]}
                     >
-                        <Input id="input_APPName" />
+                        <Input id="input_APPName" placeholder="Less than 15 characters." />
                     </Form.Item>
                     <Form.Item
-                        label={
-                            <>
-                                BaseURL
-                                <Tip info="It is recommended to input the interface baseURL so that consumers can know more information."></Tip>
-                            </>
-                        }
+                        label={<>Symbol</>}
+                        name="symbol"
+                        validateFirst={true}
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Please input APP Symbol',
+                            },
+                            {
+                                min: 1,
+                                max: 5,
+                                message: 'Please input Symbol with 1-5 character',
+                            },
+                        ]}
+                    >
+                        <Input id="input_symbol" placeholder="Limited here to 5 alphanumeric characters." />
+                    </Form.Item>
+                    <Form.Item
+                        label={<>Link</>}
                         name="url"
                         validateFirst={true}
                         rules={[
                             {
                                 required: true,
-                                message: 'Please input APP base url',
+                                message: 'Please input APP link',
                             },
+                            {
+                                min: 1,
+                                max: 1000,
+                                message: 'Please input APP link with 1-1000 character',
+                            },
+                        ]}
+                    >
+                        <Input id="input_link" placeholder="E.g.a link to project" />
+                    </Form.Item>
+                    <Form.Item
+                        label="Payment Type"
+                        name="type"
+                        validateFirst={true}
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Please select APP payment type',
+                            },
+                        ]}
+                    >
+                        <Radio.Group id="radio_PaymentType">
+                            <Radio value="1"> Billing </Radio>
+                            <Radio value="2"> Subscription </Radio>
+                        </Radio.Group>
+                    </Form.Item>
+                    {type === '1' && (
+                        <Form.Item
+                            label={
+                                <>
+                                    Default Weight
+                                    <Tip info="Initialize billing weight for default resource usage when creating new APP."></Tip>
+                                </>
+                            }
+                            name="weight"
+                            validateFirst={true}
+                            rules={[
+                                {
+                                    required: true,
+                                    message: 'Please input APP weight',
+                                },
+                                {
+                                    type: 'string',
+                                    min: 0,
+                                    max: 40,
+                                    message: 'Please input APP weight with 1-40 character',
+                                },
+                            ]}
+                        >
+                            <InputNumber
+                                id="input_ResourceWeight"
+                                style={{ width: '100%' }}
+                                min={0}
+                                precision={5}
+                                stringMode={true}
+                                formatter={(val) => {
+                                    return formatNumber(val as number, {
+                                        limit: 0,
+                                        decimal: 0,
+                                    });
+                                }}
+                                placeholder="0.00000"
+                            />
+                        </Form.Item>
+                    )}
+                    <Form.Item
+                        label={<>APP Description（Optional）</>}
+                        name="description"
+                        rules={[
                             {
                                 min: 1,
                                 max: 1000,
@@ -121,43 +222,7 @@ export default ({ onComplete }: Props) => {
                             },
                         ]}
                     >
-                        <Input id="input_BaseURL" />
-                    </Form.Item>
-                    <Form.Item
-                        label={
-                            <>
-                                Default Resource Weight
-                                <Tip info="Initialize billing weight for default resource usage when creating new APP."></Tip>
-                            </>
-                        }
-                        name="weight"
-                        validateFirst={true}
-                        rules={[
-                            {
-                                required: true,
-                                message: 'Please input APP default resource weight',
-                            },
-                            {
-                                type: 'string',
-                                min: 0,
-                                max: 40,
-                                message: 'Please input APP default resource weight with 1-40 character',
-                            },
-                        ]}
-                    >
-                        <InputNumber
-                            id="input_ResourceWeight"
-                            style={{ width: '100%' }}
-                            min={0}
-                            precision={5}
-                            stringMode={true}
-                            formatter={(val) => {
-                                return formatNumber(val as number, {
-                                    limit: 0,
-                                    decimal: 0,
-                                });
-                            }}
-                        />
+                        <Input id="input_APPName" placeholder="Description to project." />
                     </Form.Item>
                 </Form>
             </Modal>

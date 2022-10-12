@@ -31,7 +31,7 @@ export default () => {
         () =>
             [
                 col.APPName,
-                col.baseURL,
+                col.link,
                 col.APPAddress,
                 col.owner,
                 {
@@ -79,10 +79,7 @@ export default () => {
     const onFilter = useCallback((data: DataSourceType[], f: string) => {
         return data.filter(
             (d) =>
-                d.name.includes(f) ||
-                d.baseURL.includes(f) ||
-                d.address.toLowerCase().includes(f.toLowerCase()) ||
-                d.owner.toLowerCase().includes(f.toLowerCase())
+                d.name.includes(f) || d.link.includes(f) || d.address.toLowerCase().includes(f.toLowerCase()) || d.owner.toLowerCase().includes(f.toLowerCase())
         );
     }, []);
 
@@ -98,7 +95,7 @@ export default () => {
             <Row gutter={12}>
                 <Col span="8">
                     <div className="search_container">
-                        <Search placeholder="Search APP name, BaseURL, APP Address, Owner" allowClear enterButton="Search" onSearch={onSearch} />
+                        <Search placeholder="Search APP name, Link, APP Address, Owner" allowClear enterButton="Search" onSearch={onSearch} />
                     </div>
                 </Col>
             </Row>

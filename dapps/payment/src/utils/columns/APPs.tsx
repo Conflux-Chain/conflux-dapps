@@ -5,6 +5,7 @@ import { Button } from 'antd';
 import Networks from 'common/conf/Networks';
 import { NumberWithLimit } from 'payment/src/components/Number';
 import Tip from 'payment/src/components/Tip';
+import { PAYMENT_TYPE } from '../constants';
 
 export const APPName = {
     title: 'APP Name',
@@ -12,11 +13,30 @@ export const APPName = {
     key: 'name',
 };
 
-export const baseURL = {
-    title: 'BaseURL',
-    dataIndex: 'baseURL',
-    key: 'baseURL',
+export const APPSymbol = {
+    title: 'Symbol',
+    dataIndex: 'symbol',
+    key: 'symbol',
+};
+
+export const link = {
+    title: 'Link',
+    dataIndex: 'link',
+    key: 'link',
     ellipsis: true,
+    render(val: DataSourceType['link']) {
+        return val || '--';
+    },
+};
+
+export const pType = {
+    title: 'Payment Type',
+    dataIndex: 'type',
+    key: 'type',
+    ellipsis: true,
+    render(type: number) {
+        return PAYMENT_TYPE[type];
+    },
 };
 
 export const APPAddress = {
@@ -85,13 +105,13 @@ export const airdrop = {
 };
 
 export const action = (type = 'provider') => ({
-    title: 'Action',
-    dataIndex: 'action',
-    key: 'action',
+    title: 'Operation',
+    dataIndex: 'operation',
+    key: 'operation',
     render(_: string, row: DataSourceType) {
         return (
             <Button id="button_detail">
-                <Link to={`/payment/${type}/app/${row.address}`}>Details</Link>
+                <Link to={`/payment/${type}/app/${PAYMENT_TYPE[row.type]}/${row.address}`}>Details</Link>
             </Button>
         );
     },

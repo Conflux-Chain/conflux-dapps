@@ -1,12 +1,13 @@
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
-import { getAPPAPIs } from 'payment/src/utils/request';
-import { ResourceDataSourceType } from 'payment/src/utils/types';
+import { getAPPCards } from 'payment/src/utils/request';
+import { SResourceDataSourceType } from 'payment/src/utils/types';
 import * as col from 'payment/src/utils/columns/resources';
 import { Table } from 'antd';
-import Create from './Create';
 import Delete from './Delete';
 import { OP_ACTION } from 'payment/src/utils/constants';
-interface ResourceType extends ResourceDataSourceType {
+import Airdrop from 'payment/src/modules/Provider/Users/Airdrop';
+
+interface ResourceType extends SResourceDataSourceType {
     edit?: boolean;
 }
 
@@ -37,7 +38,7 @@ export default ({ onChange, operable = false, address }: Props) => {
         try {
             if (address) {
                 setLoading(true);
-                const data = await getAPPAPIs(address);
+                const data = await getAPPCards(address);
                 dataCacheRef.current = data;
                 setData(data);
             }
@@ -57,23 +58,23 @@ export default ({ onChange, operable = false, address }: Props) => {
     }, []);
 
     const columns = useMemo(() => {
-        const cols = [col.index, col.resource, col.weight, col.requests, col.op, col.effectTime].map((c, i) => ({ ...c, width: [1, 3, 3, 3, 2, 4][i] }));
+        const cols = [col.id, col.name, col.price, col.duration, col.giveawayDuration].map((c, i) => ({ ...c, width: [1, 3, 3, 3, 2][i] }));
 
-        if (operable) {
-            cols.push({
-                ...col.action,
-                width: 3,
-                render(_: any, row: ResourceDataSourceType, i: number) {
-                    const disabled = row.pendingOP !== '3';
-                    return (
-                        <>
-                            <Create op={OP_ACTION.edit} data={row} onComplete={handleComplete} disabled={disabled} />
-                            {!!i && <Delete data={row} onComplete={handleComplete} disabled={disabled} />}
-                        </>
-                    );
-                },
-            });
-        }
+        // if (operable) {
+        //     cols.push({
+        //         ...col.action,
+        //         width: 3,
+        //         render(_: any, row: SResourceDataSourceType, i: number) {
+        //             const disabled = row.pendingOP !== '3';
+        //             return (
+        //                 <>
+        //                     <Create op={OP_ACTION.edit} data={row} onComplete={handleComplete} disabled={disabled} />
+        //                     {!!i && <Delete data={row} onComplete={handleComplete} disabled={disabled} />}
+        //                 </>
+        //             );
+        //         },
+        //     });
+        // }
 
         return cols;
     }, [operable]);
@@ -84,7 +85,7 @@ export default ({ onChange, operable = false, address }: Props) => {
             dataSource={data.list}
             columns={columns}
             rowKey={(p, i) => {
-                return (p as ResourceType).resourceId + i;
+                return (p as ResourceType).id;
             }}
             scroll={{ x: 800 }}
             pagination={false}

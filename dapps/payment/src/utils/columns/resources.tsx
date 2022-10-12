@@ -1,5 +1,5 @@
 import { ColumnType } from 'antd/es/table';
-import { ResourceDataSourceType } from '../types';
+import { ResourceDataSourceType, SResourceDataSourceType } from '../types';
 import { OP_ACTION } from '../constants';
 import { NumberWithLimit } from 'payment/src/components/Number';
 import Tip from 'payment/src/components/Tip';
@@ -13,6 +13,7 @@ export const index: ColumnType<ResourceDataSourceType> = {
     },
 };
 
+// billing resource table column
 export const resource: ColumnType<ResourceDataSourceType> = {
     title: (
         <>
@@ -87,6 +88,43 @@ export const effectTime: ColumnType<ResourceDataSourceType> = {
 };
 
 export const action: ColumnType<ResourceDataSourceType> = {
+    title: 'Operation',
+    dataIndex: 'operation',
+    key: 'operation',
+};
+
+// subscription resource table column
+export const id: ColumnType<SResourceDataSourceType> = {
+    title: 'ID',
+    dataIndex: 'id',
+    key: 'id',
+};
+
+export const name: ColumnType<SResourceDataSourceType> = {
+    title: 'Name',
+    dataIndex: 'name',
+    key: 'name',
+};
+
+export const price: ColumnType<SResourceDataSourceType> = {
+    title: 'Price',
+    dataIndex: 'price',
+    key: 'price',
+};
+
+export const duration: ColumnType<SResourceDataSourceType> = {
+    title: 'Duration',
+    dataIndex: 'duration',
+    key: 'duration',
+};
+
+export const giveawayDuration: ColumnType<SResourceDataSourceType> = {
+    title: 'Diveaways',
+    dataIndex: 'giveawayDuration',
+    key: 'giveawayDuration',
+};
+
+export const SAction: ColumnType<ResourceDataSourceType> = {
     title: 'Operation',
     dataIndex: 'operation',
     key: 'operation',

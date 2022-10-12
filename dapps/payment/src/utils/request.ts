@@ -3,7 +3,8 @@ import {
     DataSourceType,
     PostAPPType,
     DefinedContractNamesType,
-    APPDataSourceType,
+    APPCardResourceType,
+    APPDetailType,
     UsersDataSourceType,
     CSVType,
     ContractCall,
@@ -17,6 +18,7 @@ import { CONTRACT_ABI } from 'payment/src/contracts/constants';
 import { personalSign } from '@cfxjs/use-wallet-react/ethereum';
 // @ts-ignore
 import { binary_to_base58 } from 'base58-js';
+import Subscription from 'js-conflux-sdk/dist/types/subscribe/Subscription';
 
 interface RequestProps {
     name: DefinedContractNamesType;
@@ -30,6 +32,11 @@ interface ErrorType {
 }
 
 type EditableAPI = Pick<ResourceDataSourceType, 'resourceId' | 'index' | 'op' | 'weight'>;
+
+const INTERFACE_APPV2 = new ethers.utils.Interface(CONTRACT_ABI['appv2']);
+const INTERFACE_APPCoin = new ethers.utils.Interface(CONTRACT_ABI['appCoin']);
+const INTERFACE_VIPCoin = new ethers.utils.Interface(CONTRACT_ABI['vipCoin']);
+const CONTRACT_APPREGISTRY = getContract('appRegistry');
 
 const INTERFACE_APP = new ethers.utils.Interface(CONTRACT_ABI['app']);
 const MULTICALL = getContract('multicall');
@@ -48,36 +55,92 @@ const noticeError = (e: unknown) => {
     showToast(`Request failed, details: ${msg}`, { type: 'failed' });
 };
 
-export const getAPPs = async (creator?: string): Promise<DataSourceType[]> => {
+const getAPPsRelatedContract = async (apps: string[]) => {
     try {
-        const method = creator ? 'listAppByCreator' : 'listApp';
-        const args = creator ? [creator, 0, 1e8] : [0, 1e8];
-        const apps = await CONTRACT_CONTROLLER[method](...args);
-
-        const appContracts = creator ? apps[0].map((a: string[]) => a[0]) : apps[0];
-
-        const calls: ContractCall[] = [['name'], ['symbol'], ['appOwner'], ['totalCharged'], ['totalTakenProfit']];
+        const calls: ContractCall[] = [['getAppCoin'], ['getVipCoin'], ['getApiWeightToken'], ['cardShop']];
         const promises = lodash.flattenDepth(
-            appContracts.map((a: any) => calls.map((c) => [a, INTERFACE_APP.encodeFunctionData(...c)])),
+            apps.map((app) => calls.map((c) => [app, INTERFACE_APPV2.encodeFunctionData(...c)])),
             1
         );
         const results: { returnData: ethers.utils.Result } = await MULTICALL.callStatic.aggregate(promises);
-
         const r: any = lodash
             .chunk(results.returnData, calls.length)
-            .map((r) => r.map((d, i) => INTERFACE_APP.decodeFunctionResult(calls[i][0], d)))
+            .map((r) => r.map((d, i) => INTERFACE_APPV2.decodeFunctionResult(calls[i][0], d)))
+            .map((d) => ({
+                appCoin: d[0][0],
+                vipCoin: d[1][0],
+                apiWeightToken: d[2][0],
+                cardShop: d[3][0],
+            }));
+
+        return r;
+    } catch (error) {
+        console.log('getAPPsRelatedContract error: ', error);
+    }
+};
+
+export const getAPPsDetail = async (apps: string[]) => {
+    try {
+        // get APP related contract address
+        const appInfos = await getAPPsRelatedContract(apps);
+        // console.table(appInfos);
+
+        // get APP link and payment type
+        const callsAPP: ContractCall[] = [['link'], ['paymentType'], ['totalCharged'], ['totalTakenProfit']];
+        const promisesAPP = lodash.flattenDepth(
+            apps.map((a: string) => callsAPP.map((c) => [a, INTERFACE_APPV2.encodeFunctionData(...c)])),
+            1
+        );
+
+        // get APP name and symbol
+        const callsVIPCoin: ContractCall[] = [['name'], ['symbol']];
+        const promisesVIPCoin = lodash.flattenDepth(
+            appInfos.map((a: any) => callsVIPCoin.map((c) => [a.vipCoin, INTERFACE_VIPCoin.encodeFunctionData(...c)])),
+            1
+        );
+
+        // @ts-ignore
+        const results: { returnData: ethers.utils.Result } = await MULTICALL.callStatic.aggregate([].concat(promisesAPP, promisesVIPCoin));
+
+        const rAPP: any = lodash
+            .chunk(results.returnData.slice(0, callsAPP.length * apps.length), callsAPP.length)
+            .map((r) => r.map((d, i) => INTERFACE_APPV2.decodeFunctionResult(callsAPP[i][0], d)))
             .map((d, i) => ({
-                address: appContracts[i],
-                name: d[0][0],
-                baseURL: d[1][0],
-                owner: d[2][0],
-                earnings: formatNumber(d[3][0].sub(d[4][0]), {
+                address: apps[i],
+                link: d[0][0],
+                type: d[1][0],
+                earnings: formatNumber(d[2][0].sub(d[3][0]), {
                     limit: 0,
                     decimal: 18,
                 }),
             }));
 
-        return r;
+        const rVIPCoin: any = lodash
+            .chunk(results.returnData.slice(callsAPP.length * apps.length), callsVIPCoin.length)
+            .map((r) => r.map((d, i) => INTERFACE_VIPCoin.decodeFunctionResult(callsVIPCoin[i][0], d)))
+            .map((d, i) => ({
+                name: d[0][0],
+                symbol: d[1][0],
+            }));
+
+        return rAPP.map((r: any, i: number) => ({
+            ...r,
+            ...rVIPCoin[i],
+        }));
+    } catch (error) {
+        console.log('getAPPsDetail error: ', error);
+        return [];
+    }
+};
+
+export const getAPPs = async (creator?: string): Promise<DataSourceType[]> => {
+    try {
+        // get APPs
+        const method = creator ? 'listByOwner' : 'list';
+        const args = creator ? [creator, 0, 1e8] : [0, 1e8];
+        const apps = await CONTRACT_APPREGISTRY[method](...args);
+        const appContracts = apps[1];
+        return await getAPPsDetail(appContracts.map((app: any) => app.addr));
     } catch (error) {
         console.log('getAPPs error: ', error);
         noticeError(error);
@@ -85,12 +148,22 @@ export const getAPPs = async (creator?: string): Promise<DataSourceType[]> => {
     }
 };
 
-export const postAPP = async ({ name, url, weight }: PostAPPType) => {
+export const postAPP = async ({ name, url, weight, description, symbol, account, type }: PostAPPType) => {
     try {
-        return await (
-            await CONTRACT_CONTROLLER.connect(signer).createApp(name, url, '', ethers.utils.parseUnits(String(weight)), {
-                type: 0,
-            })
+        await (
+            await CONTRACT_APPREGISTRY.connect(signer).create(
+                name,
+                symbol,
+                url,
+                description,
+                type,
+                '0',
+                ethers.utils.parseUnits(String(weight || 0)),
+                account,
+                {
+                    type: 0,
+                }
+            )
         ).wait();
     } catch (error) {
         console.log('postAPP error: ', error);
@@ -99,63 +172,89 @@ export const postAPP = async ({ name, url, weight }: PostAPPType) => {
     }
 };
 
-export const getAPP = async (address: RequestProps['address'], account?: string): Promise<APPDataSourceType> => {
+export const getAPP = async (address: string): Promise<APPDetailType> => {
     try {
-        const calls: Array<[string, any[]?]> = [
-            ['name'],
-            ['symbol'],
-            ['appOwner'],
-            ['totalCharged'],
-            ['totalRequests'],
-            ['listUser', [0, 0]],
-            ['listResources', [0, 0]],
-            ['totalTakenProfit'],
-        ];
-        if (account) {
-            calls.push(['frozenMap', [account]]);
-        }
-        const promises = calls.map((c) => [address, INTERFACE_APP.encodeFunctionData(...c)]);
-        const results: { returnData: ethers.utils.Result } = await MULTICALL.callStatic.aggregate(promises);
-        const r = results.returnData.map((d, i) => INTERFACE_APP.decodeFunctionResult(calls[i][0], d));
+        const detail = (await getAPPsDetail([address]))[0];
 
         return {
-            name: r[0][0],
-            baseURL: r[1][0],
-            owner: r[2][0],
-            earnings: formatNumber(r[3][0].sub(r[7][0]), {
-                limit: 0,
-                decimal: 18,
-            }),
-            requests: r[4][0].toNumber(),
-            users: r[5]['total'].toNumber(),
-            resources: {
-                list: [],
-                total: r[6][1].toNumber(),
-            },
-            frozen: account ? r[calls.length - 1][0].toString() : '0',
+            name: '',
+            link: '',
+            address,
+            symbol: '',
+            description: '',
+            ...detail,
         };
     } catch (error) {
         console.log('getAPP error: ', error);
         noticeError(error);
         return {
             name: '',
-            baseURL: '',
-            owner: '',
-            earnings: 0,
-            requests: 0,
-            users: 0,
-            resources: {
-                list: [],
-                total: 0,
-            },
-            frozen: '0',
+            link: '',
+            address,
+            symbol: '',
+            description: '',
         };
     }
+    // try {
+    //     const calls: Array<[string, any[]?]> = [
+    //         ['name'],
+    //         ['symbol'],
+    //         ['appOwner'],
+    //         ['totalCharged'],
+    //         ['totalRequests'],
+    //         ['listUser', [0, 0]],
+    //         ['listResources', [0, 0]],
+    //         ['totalTakenProfit'],
+    //     ];
+    //     if (account) {
+    //         calls.push(['frozenMap', [account]]);
+    //     }
+    //     const promises = calls.map((c) => [address, INTERFACE_APP.encodeFunctionData(...c)]);
+    //     const results: { returnData: ethers.utils.Result } = await MULTICALL.callStatic.aggregate(promises);
+    //     const r = results.returnData.map((d, i) => INTERFACE_APP.decodeFunctionResult(calls[i][0], d));
+
+    //     return {
+    //         name: r[0][0],
+    //         link: r[1][0],
+    //         owner: r[2][0],
+    // earnings: formatNumber(r[3][0].sub(r[7][0]), {
+    //     limit: 0,
+    //     decimal: 18,
+    // }),
+    //         requests: r[4][0].toNumber(),
+    //         users: r[5]['total'].toNumber(),
+    //         resources: {
+    //             list: [],
+    //             total: r[6][1].toNumber(),
+    //         },
+    //         frozen: account ? r[calls.length - 1][0].toString() : '0',
+    //     };
+    // } catch (error) {
+    //     console.log('getAPP error: ', error);
+    //     noticeError(error);
+    //     return {
+    //         name: '',
+    //         link: '',
+    //         owner: '',
+    //         earnings: 0,
+    //         requests: 0,
+    //         users: 0,
+    //         resources: {
+    //             list: [],
+    //             total: 0,
+    //         },
+    //         frozen: '0',
+    //     };
+    // }
 };
 
 export const getAPPAPIs = async (address: RequestProps['address']): Promise<APPResourceType> => {
     try {
-        const contract = await getContract('app', address);
+        const appInfos = await getAPPsRelatedContract([address].map((app: any) => app));
+        const contract = await getContract('apiWeightToken', appInfos[0].apiWeightToken);
+
+        console.log('appInfos[0].apiWeightToken: ', appInfos[0]);
+
         const pendingSeconds = await contract.pendingSeconds();
         const data = await contract.listResources(0, 1e8);
 
@@ -184,8 +283,9 @@ export const getAPPAPIs = async (address: RequestProps['address']): Promise<APPR
 
 export const configAPPAPI = async (address: RequestProps['address'], data: EditableAPI): Promise<any> => {
     try {
+        const appInfos = await getAPPsRelatedContract([address].map((app: any) => app));
         return await (
-            await getContract('app', address)
+            await getContract('apiWeightToken', appInfos[0].apiWeightToken)
                 .connect(signer)
                 .configResource([data.index, data.resourceId, ethers.utils.parseUnits(String(data.weight)), data.op])
         ).wait();
@@ -198,8 +298,9 @@ export const configAPPAPI = async (address: RequestProps['address'], data: Edita
 
 export const deleteAPPAPI = async (address: RequestProps['address'], data: EditableAPI): Promise<any> => {
     try {
+        const appInfos = await getAPPsRelatedContract([address].map((app: any) => app));
         return await (
-            await getContract('app', address)
+            await getContract('apiWeightToken', appInfos[0].apiWeightToken)
                 .connect(signer)
                 .configResource([data.index, data.resourceId, ethers.utils.parseUnits(data.weight), data.op])
         ).wait();
@@ -258,6 +359,7 @@ export const getAPPUsers = async (
 
 export const airdrop = async (list: CSVType, address: string) => {
     try {
+        const appInfos = await getAPPsRelatedContract([address].map((app: any) => app));
         const params = list.reduce(
             (prev, curr) => {
                 if (ethers.utils.isAddress(curr[0])) {
@@ -271,9 +373,9 @@ export const airdrop = async (list: CSVType, address: string) => {
         );
 
         return (
-            await getContract('app', address)
+            await getContract('vipCoin', appInfos[0].vipCoin)
                 .connect(signer)
-                .airdropBatch(...params, {
+                .mintBatch(...params, {
                     type: 0,
                 })
         ).wait();
@@ -364,7 +466,7 @@ export const getPaidAPPs = async (account: string) => {
                 return {
                     address: appContracts[i],
                     name: d[0][0],
-                    baseURL: d[1][0],
+                    link: d[1][0],
                     owner: d[2][0],
                     earnings: formatNumber(d[3][0], {
                         limit: 0,
@@ -428,6 +530,59 @@ export const takeEarnings = async (appAddr: string, to: string, amount: string) 
         return (await getContract('app', appAddr).connect(signer).takeProfit(to, ethers.utils.parseUnits(amount))).wait();
     } catch (error) {
         console.log('takeEarnings error: ', error);
+        noticeError(error);
+        throw error;
+    }
+};
+
+// card operation
+export const getAPPCards = async (address: RequestProps['address']): Promise<APPCardResourceType> => {
+    try {
+        const appInfos = await getAPPsRelatedContract([address].map((app: any) => app));
+        const contract = await getContract('apiWeightToken', appInfos[0].vipCoin);
+
+        // console.log('appInfos[0].vipCoin: ', appInfos[0]);
+
+        return {
+            list: [],
+            total: 0,
+        };
+
+        const pendingSeconds = await contract.pendingSeconds();
+        const data = await contract.listResources(0, 1e8);
+
+        return {
+            list: data[0].map((d: any) => ({
+                resourceId: d.resourceId,
+                weight: ethers.utils.formatUnits(d.weight),
+                requests: d.requestTimes.toString(),
+                submitTimestamp: d.submitSeconds.toString(),
+                pendingOP: d.pendingOP.toString(), // 0-add 1-edit 2-delete 3-no pending 4-?
+                index: d.index,
+                pendingSeconds: pendingSeconds.toNumber(),
+                pendingWeight: ethers.utils.formatUnits(d.pendingWeight),
+            })),
+            total: data.total.toNumber(),
+        };
+    } catch (error) {
+        console.log('getAPP error: ', error);
+        noticeError(error);
+        return {
+            list: [],
+            total: 0,
+        };
+    }
+};
+
+export const configAPPCard = async (address: RequestProps['address'], data: any): Promise<any> => {
+    try {
+        // console.log('configAPPCard: ', address, data);
+        const contracts = await getAPPsRelatedContract([address].map((app: any) => app));
+        const cardTemplate = await getContract('cardShop', contracts[0].cardShop).connect(signer).template();
+        // console.log(cardTemplate);
+        return await (await getContract('cardShopTemplate', cardTemplate).connect(signer).config(data)).wait();
+    } catch (error) {
+        console.log(error);
         noticeError(error);
         throw error;
     }

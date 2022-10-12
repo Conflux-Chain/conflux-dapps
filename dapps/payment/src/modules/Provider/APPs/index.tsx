@@ -32,7 +32,10 @@ export default () => {
 
     const columns = useMemo(
         () =>
-            [col.APPName, col.baseURL, col.APPAddress, col.owner, col.earnings, col.action('provider')].map((c, i) => ({ ...c, width: [3, 4, 3, 3, 2, 2][i] })),
+            [col.APPAddress, col.APPName, col.APPSymbol, col.link, col.pType, col.earnings, col.action('provider')].map((c, i) => ({
+                ...c,
+                width: [3, 3, 2, 3, 3, 2, 2][i],
+            })),
         [main]
     );
 
@@ -45,13 +48,7 @@ export default () => {
     }, [account]);
 
     const onFilter = useCallback((data: DataSourceType[], f: string) => {
-        return data.filter(
-            (d) =>
-                d.name.includes(f) ||
-                d.baseURL.includes(f) ||
-                d.address.toLowerCase().includes(f.toLowerCase()) ||
-                d.owner.toLowerCase().includes(f.toLowerCase())
-        );
+        return data.filter((d) => d.name.includes(f) || d.symbol.includes(f) || d.link.includes(f) || d.address.toLowerCase().includes(f.toLowerCase()));
     }, []);
 
     const onSearch = useCallback((value: string) => {
@@ -66,11 +63,10 @@ export default () => {
             <Row gutter={12}>
                 <Col span="8">
                     <div id="search_container">
-                        <Search placeholder="Search APP name, BaseURL, APP Address, Owner" allowClear enterButton="Search" onSearch={onSearch} />
+                        <Search placeholder="Search APP Name, Symbol, Link, APP Address" allowClear enterButton="Search" onSearch={onSearch} />
                     </div>
                 </Col>
                 <Col span="16">
-                    {/* add key to refresh main fn reference */}
                     <CreateAPP onComplete={main} key={`createAPP-${filter}`} />
                 </Col>
             </Row>

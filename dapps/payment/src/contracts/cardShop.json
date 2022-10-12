@@ -1,0 +1,133 @@
+[
+    {
+        "anonymous": false,
+        "inputs": [
+            { "indexed": true, "internalType": "address", "name": "operator", "type": "address" },
+            { "indexed": true, "internalType": "address", "name": "to", "type": "address" },
+            { "indexed": false, "internalType": "uint256", "name": "cardId", "type": "uint256" }
+        ],
+        "name": "GAVEN_CARD",
+        "type": "event"
+    },
+    {
+        "inputs": [],
+        "name": "belongsToApp",
+        "outputs": [{ "internalType": "contract IApp", "name": "", "type": "address" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "receiver", "type": "address" },
+            { "internalType": "uint256", "name": "templateId", "type": "uint256" },
+            { "internalType": "uint256", "name": "count", "type": "uint256" }
+        ],
+        "name": "buyWithAsset",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "receiver", "type": "address" },
+            { "internalType": "uint256", "name": "templateId", "type": "uint256" },
+            { "internalType": "uint256", "name": "count", "type": "uint256" }
+        ],
+        "name": "buyWithEth",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [{ "internalType": "uint256", "name": "id", "type": "uint256" }],
+        "name": "getCard",
+        "outputs": [
+            {
+                "components": [
+                    { "internalType": "uint256", "name": "id", "type": "uint256" },
+                    { "internalType": "uint256", "name": "duration", "type": "uint256" },
+                    { "internalType": "address", "name": "owner", "type": "address" },
+                    { "internalType": "uint256", "name": "count", "type": "uint256" },
+                    {
+                        "components": [
+                            { "internalType": "uint256", "name": "id", "type": "uint256" },
+                            { "internalType": "string", "name": "name", "type": "string" },
+                            { "internalType": "string", "name": "description", "type": "string" },
+                            { "internalType": "uint256", "name": "price", "type": "uint256" },
+                            { "internalType": "uint256", "name": "duration", "type": "uint256" },
+                            { "internalType": "uint256", "name": "giveawayDuration", "type": "uint256" },
+                            {
+                                "components": [
+                                    { "internalType": "string[]", "name": "keys", "type": "string[]" },
+                                    { "internalType": "string[]", "name": "values", "type": "string[]" }
+                                ],
+                                "internalType": "struct ICardTemplate.Props",
+                                "name": "props",
+                                "type": "tuple"
+                            }
+                        ],
+                        "internalType": "struct ICardTemplate.Template",
+                        "name": "template",
+                        "type": "tuple"
+                    }
+                ],
+                "internalType": "struct ICards.Card",
+                "name": "",
+                "type": "tuple"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "address[]", "name": "receiverArr", "type": "address[]" },
+            { "internalType": "uint256[]", "name": "countArr", "type": "uint256[]" },
+            { "internalType": "uint256", "name": "templateId", "type": "uint256" }
+        ],
+        "name": "giveCardBatch",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "contract IApp", "name": "belongsTo_", "type": "address" },
+            { "internalType": "contract ICardTemplate", "name": "template_", "type": "address" },
+            { "internalType": "contract ICards", "name": "instance_", "type": "address" },
+            { "internalType": "contract ICardTracker", "name": "tracker_", "type": "address" }
+        ],
+        "name": "initialize",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "instance",
+        "outputs": [{ "internalType": "contract ICards", "name": "", "type": "address" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "nextCardId",
+        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "template",
+        "outputs": [{ "internalType": "contract ICardTemplate", "name": "", "type": "address" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "tracker",
+        "outputs": [{ "internalType": "contract ICardTracker", "name": "", "type": "address" }],
+        "stateMutability": "view",
+        "type": "function"
+    }
+]
