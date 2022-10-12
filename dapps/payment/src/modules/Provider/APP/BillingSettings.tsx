@@ -17,7 +17,7 @@ export default ({ address }: Props) => {
             </Col>
             <Col span={18} className="text-right">
                 <span className="inline-block mr-2">
-                    <Airdrop />
+                    <Airdrop address={address} />
                 </span>
                 <Create op={OP_ACTION.add} type="primary" />
             </Col>

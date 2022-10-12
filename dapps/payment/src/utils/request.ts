@@ -372,6 +372,8 @@ export const airdrop = async (list: CSVType, address: string) => {
             [[], [], []] as Array<(string | ethers.BigNumber | number)[]>
         );
 
+        console.log('airdrop params: ', params, appInfos[0].vipCoin);
+
         return (
             await getContract('vipCoin', appInfos[0].vipCoin)
                 .connect(signer)

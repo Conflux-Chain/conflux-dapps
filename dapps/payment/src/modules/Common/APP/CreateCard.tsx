@@ -9,7 +9,7 @@ import ModalTip from 'payment/src/components/ModalTip';
 import { OP_ACTION, ONE_DAY_SECONDS } from 'payment/src/utils/constants';
 import { formatNumber } from 'payment/src/utils';
 import { ButtonType } from 'antd/lib/button';
-import { MinusCircleOutlined, PlusOutlined, PlusCircleOutlined } from '@ant-design/icons';
+import { MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import BigNumber from 'bignumber.js';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
