@@ -34,13 +34,12 @@ export default () => {
 
     const getSetting = useCallback(() => {
         if (address) {
-            return <APPSettings address={address} />;
             if (APPType === 'billing') {
                 return <BillingSettings address={address} />;
             } else if (APPType === 'subscription') {
                 return <SubscriptionSettings address={address} />;
             } else {
-                return <APPSettings />;
+                return <APPSettings address={address} />;
             }
         } else {
             return null;

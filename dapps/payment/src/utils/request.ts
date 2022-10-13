@@ -388,11 +388,10 @@ export const airdrop = async (list: CSVType, address: string) => {
     }
 };
 
-export const getAllowance = async ({ account, tokenAddr }: { account: string; tokenAddr: string }) => {
+export const getAllowance = async ({ tokenAddr, appAddr }: { tokenAddr: string; appAddr: string }) => {
     try {
         const contract = getContract('erc20', tokenAddr);
-        const apiAddr = await CONTRACT_CONTROLLER.api();
-        return await contract.allowance(account, apiAddr);
+        return await contract.allowance(await signer.getAddress(), appAddr);
     } catch (error) {
         console.log('getAllowance error: ', error);
         noticeError(error);
@@ -400,12 +399,19 @@ export const getAllowance = async ({ account, tokenAddr }: { account: string; to
     }
 };
 
-export const approve = async ({ tokenAddr, amount = (1e50).toLocaleString('fullwide', { useGrouping: false }) }: { tokenAddr: string; amount?: string }) => {
+export const approve = async ({
+    tokenAddr,
+    amount = (1e50).toLocaleString('fullwide', { useGrouping: false }),
+    appAddr,
+}: {
+    tokenAddr: string;
+    amount?: string;
+    appAddr: string;
+}) => {
     try {
         const contract = getContract('erc20', tokenAddr);
-        const apiAddr = await CONTRACT_CONTROLLER.api();
         return (
-            await contract.connect(signer).approve(apiAddr, amount, {
+            await contract.connect(signer).approve(appAddr, amount, {
                 type: 0,
             })
         ).wait();
@@ -416,12 +422,11 @@ export const approve = async ({ tokenAddr, amount = (1e50).toLocaleString('fullw
     }
 };
 
-export const deposit = async ({ amount, appAddr }: { account: string; amount: string; tokenAddr: string; appAddr: string }) => {
+export const deposit = async ({ amount, appAddr }: { amount: string; appAddr: string }) => {
     try {
-        const apiAddr = await CONTRACT_CONTROLLER.api();
-        const contract = getContract('api', apiAddr);
+        const contract = getContract('appv2', appAddr);
         return (
-            await contract.connect(signer).depositBaseToken(ethers.utils.parseUnits(amount), appAddr, {
+            await contract.connect(signer).depositAsset(ethers.utils.parseUnits(amount), await signer.getAddress(), {
                 type: 0,
             })
         ).wait();
@@ -434,60 +439,68 @@ export const deposit = async ({ amount, appAddr }: { account: string; amount: st
 
 export const getPaidAPPs = async (account: string) => {
     try {
-        const Interface = new ethers.utils.Interface(CONTRACT_ABI['app']);
-        const apiAddr = await CONTRACT_CONTROLLER.api();
-        const apiContract = getContract('api', apiAddr);
-        const apps = await apiContract.listPaidApp(account, 0, 1e15);
-        const appContracts: string[] = apps[0];
+        const apps = await CONTRACT_APPREGISTRY.listByUser(account, 0, 1e8);
+        const appContracts = apps[1];
+        const APPsDetail = await getAPPsDetail(appContracts.map((app: any) => app.addr));
 
-        const calls: ContractCall[] = [
-            ['name'],
-            ['symbol'],
-            ['appOwner'],
-            ['totalCharged'],
-            ['balanceOfWithAirdrop', [account]],
-            ['frozenMap', [account]],
-            ['forceWithdrawDelay'],
-        ];
+        console.log('APPsDetail: ', APPsDetail);
 
-        const promises = lodash.flattenDepth(
-            appContracts.map((a) => calls.map((c) => [a, Interface.encodeFunctionData(...c)])),
-            1
-        );
+        return [];
 
-        const results: { returnData: ethers.utils.Result } = await MULTICALL.callStatic.aggregate(promises);
+        // const Interface = new ethers.utils.Interface(CONTRACT_ABI['app']);
+        // const apiAddr = await CONTRACT_CONTROLLER.api();
+        // const apiContract = getContract('api', apiAddr);
+        // const apps = await apiContract.listPaidApp(account, 0, 1e15);
+        // const appContracts: string[] = apps[0];
 
-        const data = lodash
-            .chunk(results.returnData, calls.length)
-            .map((r) => {
-                return r.map((d, i) => {
-                    return Interface.decodeFunctionResult(calls[i][0], d);
-                });
-            })
-            .map((d, i) => {
-                return {
-                    address: appContracts[i],
-                    name: d[0][0],
-                    link: d[1][0],
-                    owner: d[2][0],
-                    earnings: formatNumber(d[3][0], {
-                        limit: 0,
-                        decimal: 18,
-                    }),
-                    balance: formatNumber(d[4].total.sub(d[4].airdrop_), {
-                        limit: 0,
-                        decimal: 18,
-                    }),
-                    airdrop: formatNumber(d[4].airdrop_, {
-                        limit: 0,
-                        decimal: 18,
-                    }),
-                    frozen: d[5][0].toString(),
-                    forceWithdrawDelay: d[6][0].toString(),
-                };
-            });
+        // const calls: ContractCall[] = [
+        //     ['name'],
+        //     ['symbol'],
+        //     ['appOwner'],
+        //     ['totalCharged'],
+        //     ['balanceOfWithAirdrop', [account]],
+        //     ['frozenMap', [account]],
+        //     ['forceWithdrawDelay'],
+        // ];
 
-        return data;
+        // const promises = lodash.flattenDepth(
+        //     appContracts.map((a) => calls.map((c) => [a, Interface.encodeFunctionData(...c)])),
+        //     1
+        // );
+
+        // const results: { returnData: ethers.utils.Result } = await MULTICALL.callStatic.aggregate(promises);
+
+        // const data = lodash
+        //     .chunk(results.returnData, calls.length)
+        //     .map((r) => {
+        //         return r.map((d, i) => {
+        //             return Interface.decodeFunctionResult(calls[i][0], d);
+        //         });
+        //     })
+        //     .map((d, i) => {
+        //         return {
+        //             address: appContracts[i],
+        //             name: d[0][0],
+        //             link: d[1][0],
+        //             owner: d[2][0],
+        //             earnings: formatNumber(d[3][0], {
+        //                 limit: 0,
+        //                 decimal: 18,
+        //             }),
+        //             balance: formatNumber(d[4].total.sub(d[4].airdrop_), {
+        //                 limit: 0,
+        //                 decimal: 18,
+        //             }),
+        //             airdrop: formatNumber(d[4].airdrop_, {
+        //                 limit: 0,
+        //                 decimal: 18,
+        //             }),
+        //             frozen: d[5][0].toString(),
+        //             forceWithdrawDelay: d[6][0].toString(),
+        //         };
+        //     });
+
+        // return data;
     } catch (error) {
         console.log('getPaidAPPs error: ', error);
         noticeError(error);

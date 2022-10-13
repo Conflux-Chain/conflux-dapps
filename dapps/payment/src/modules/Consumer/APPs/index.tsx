@@ -6,6 +6,7 @@ import { getAPPs } from 'payment/src/utils/request';
 import { Table, Row, Col, Input, Button } from 'antd';
 import { Link } from 'react-router-dom';
 import Deposit from 'payment/src/modules/Common/Deposit';
+import { PAYMENT_TYPE } from 'payment/src/utils/constants';
 
 const { Search } = Input;
 
@@ -30,10 +31,11 @@ export default () => {
     const columns = useMemo(
         () =>
             [
-                col.APPName,
-                col.link,
                 col.APPAddress,
-                col.owner,
+                col.APPName,
+                col.APPSymbol,
+                col.link,
+                col.pType,
                 {
                     ...col.action(),
                     render(_: string, row: DataSourceType) {
@@ -41,7 +43,7 @@ export default () => {
                             <div className="flex align-middle">
                                 <Button id="button_detail" className="mr-2">
                                     <Link
-                                        to={`/payment/consumer/app/${row.address}`}
+                                        to={`/payment/consumer/app/${PAYMENT_TYPE[row.type]}/${row.address}`}
                                         state={{
                                             from: 'apps',
                                         }}
@@ -54,7 +56,7 @@ export default () => {
                         );
                     },
                 },
-            ].map((c, i) => ({ ...c, width: [3, 4, 3, 3, 3][i] })),
+            ].map((c, i) => ({ ...c, width: [3, 4, 3, 3, 3, 3][i] })),
         [main]
     );
 

@@ -6,17 +6,18 @@ import { Table } from 'antd';
 import Create from './Create';
 import Delete from './Delete';
 import { OP_ACTION } from 'payment/src/utils/constants';
+
 interface ResourceType extends ResourceDataSourceType {
     edit?: boolean;
 }
 
 interface Props {
     onChange?: () => void;
-    operable?: boolean;
     address: string;
+    from: 'provider' | 'consumer';
 }
 
-export default ({ onChange, operable = false, address }: Props) => {
+export default ({ onChange, address, from }: Props) => {
     const dataCacheRef = useRef<{
         list: ResourceType[];
         total: number;
@@ -59,7 +60,7 @@ export default ({ onChange, operable = false, address }: Props) => {
     const columns = useMemo(() => {
         const cols = [col.index, col.resource, col.weight, col.requests, col.op, col.effectTime].map((c, i) => ({ ...c, width: [1, 3, 3, 3, 2, 4][i] }));
 
-        if (operable) {
+        if (from === 'provider') {
             cols.push({
                 ...col.action,
                 width: 3,
@@ -76,7 +77,7 @@ export default ({ onChange, operable = false, address }: Props) => {
         }
 
         return cols;
-    }, [operable]);
+    }, [from]);
 
     return (
         <Table

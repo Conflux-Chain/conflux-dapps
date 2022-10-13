@@ -25,7 +25,7 @@ export default () => {
                     <Route path="/consumer" element={<Navigate to="paid-apps" />} />
                     <Route path="/consumer/apps" element={<ConsumerAPPs />} />
                     <Route path="/consumer/paid-apps" element={<ConsumerPaidAPPs />} />
-                    <Route path="/consumer/app/:address" element={<APP />} />
+                    <Route path="/consumer/app/:type/:address" element={<APP />} />
                     <Route path="*" element={<Navigate to="provider/apps" />} />
                 </Routes>
                 <Outlet />

@@ -52,8 +52,8 @@ export default ({ appAddr, onComplete, disabled, type: buttonType, className }: 
     const checkAllowance = useCallback(
         async function main() {
             const allowance = await getAllowance({
-                account: account as string,
                 tokenAddr: token.eSpace_address,
+                appAddr: appAddr,
             });
 
             if (allowance.lt(ethers.utils.parseUnits(toValue || '0'))) {
@@ -82,12 +82,10 @@ export default ({ appAddr, onComplete, disabled, type: buttonType, className }: 
 
             // need approve first
             if (type === 1) {
-                await approve({ tokenAddr: token.eSpace_address });
+                await approve({ tokenAddr: token.eSpace_address, appAddr });
                 await checkAllowance();
             } else {
                 await deposit({
-                    account: account as string,
-                    tokenAddr: token.eSpace_address,
                     appAddr: appAddr,
                     amount: toValue,
                 });
