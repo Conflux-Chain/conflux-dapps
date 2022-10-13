@@ -1,7 +1,7 @@
 import React from 'react';
 import APIs from 'payment/src/modules/Common/APP/APIs';
-import Create from 'payment/src/modules/Common/APP/Create';
-import Airdrop from 'payment/src/modules/Provider/Users/Airdrop';
+import Create from './Create';
+import Airdrop from './AirdropBilling';
 import { OP_ACTION } from 'payment/src/utils/constants';
 import { Row, Col } from 'antd';
 import { useLocation } from 'react-router-dom';

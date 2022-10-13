@@ -1,8 +1,8 @@
 import React from 'react';
-import Cards from 'payment/src/modules/Common/APP/Cards';
+import Cards from './Cards';
 import { OP_ACTION } from 'payment/src/utils/constants';
 import { Row, Col } from 'antd';
-import CreateCard from 'payment/src/modules/Common/APP/CreateCard';
+import CreateCard from './CreateCard';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
     address: string;

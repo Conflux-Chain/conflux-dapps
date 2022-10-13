@@ -3,7 +3,7 @@ import { showToast } from 'common/components/showPopup/Toast';
 import Papa from 'papaparse';
 import { useCallback, useRef, useState } from 'react';
 import { CSVType } from 'payment/src/utils/types';
-import { airdrop } from 'payment/src/utils/request';
+import { airdropBiiling } from 'payment/src/utils/request';
 import { useParams } from 'react-router-dom';
 import { AuthESpace } from 'common/modules/AuthConnectButton';
 
@@ -28,7 +28,7 @@ export default ({ onComplete, address }: Props) => {
                 complete: async (results) => {
                     try {
                         setLoading(true);
-                        await airdrop(results.data as CSVType, address);
+                        await airdropBiiling(results.data as CSVType, address);
                         setLoading(false);
                         showToast(`Airdrop success`, { type: 'success' });
                         onComplete && onComplete();

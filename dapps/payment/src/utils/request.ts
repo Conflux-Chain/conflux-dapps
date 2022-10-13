@@ -19,6 +19,7 @@ import { personalSign } from '@cfxjs/use-wallet-react/ethereum';
 // @ts-ignore
 import { binary_to_base58 } from 'base58-js';
 import Subscription from 'js-conflux-sdk/dist/types/subscribe/Subscription';
+import { ONE_DAY_SECONDS } from './constants';
 
 interface RequestProps {
     name: DefinedContractNamesType;
@@ -252,9 +253,6 @@ export const getAPPAPIs = async (address: RequestProps['address']): Promise<APPR
     try {
         const appInfos = await getAPPsRelatedContract([address].map((app: any) => app));
         const contract = await getContract('apiWeightToken', appInfos[0].apiWeightToken);
-
-        console.log('appInfos[0].apiWeightToken: ', appInfos[0]);
-
         const pendingSeconds = await contract.pendingSeconds();
         const data = await contract.listResources(0, 1e8);
 
@@ -272,7 +270,7 @@ export const getAPPAPIs = async (address: RequestProps['address']): Promise<APPR
             total: data.total.toNumber(),
         };
     } catch (error) {
-        console.log('getAPP error: ', error);
+        console.log('getAPPAPIs error: ', error);
         noticeError(error);
         return {
             list: [],
@@ -357,9 +355,8 @@ export const getAPPUsers = async (
     }
 };
 
-export const airdrop = async (list: CSVType, address: string) => {
+export const airdropBiiling = async (list: CSVType, address: string) => {
     try {
-        const appInfos = await getAPPsRelatedContract([address].map((app: any) => app));
         const params = list.reduce(
             (prev, curr) => {
                 if (ethers.utils.isAddress(curr[0])) {
@@ -372,17 +369,15 @@ export const airdrop = async (list: CSVType, address: string) => {
             [[], [], []] as Array<(string | ethers.BigNumber | number)[]>
         );
 
-        console.log('airdrop params: ', params, appInfos[0].vipCoin);
-
         return (
-            await getContract('vipCoin', appInfos[0].vipCoin)
+            await getContract('appv2', address)
                 .connect(signer)
-                .mintBatch(...params, {
+                .airdropBatch(...params, {
                     type: 0,
                 })
         ).wait();
     } catch (error) {
-        console.log('airdrop error: ', error);
+        console.log('airdropBiiling error: ', error);
         noticeError(error);
         throw error;
     }
@@ -553,34 +548,24 @@ export const takeEarnings = async (appAddr: string, to: string, amount: string) 
 // card operation
 export const getAPPCards = async (address: RequestProps['address']): Promise<APPCardResourceType> => {
     try {
-        const appInfos = await getAPPsRelatedContract([address].map((app: any) => app));
-        const contract = await getContract('apiWeightToken', appInfos[0].vipCoin);
-
-        // console.log('appInfos[0].vipCoin: ', appInfos[0]);
-
-        return {
-            list: [],
-            total: 0,
-        };
-
-        const pendingSeconds = await contract.pendingSeconds();
-        const data = await contract.listResources(0, 1e8);
+        const contracts = await getAPPsRelatedContract([address].map((app: any) => app));
+        const cardTemplate = await getContract('cardShop', contracts[0].cardShop).connect(signer).template();
+        const cards = await getContract('cardShopTemplate', cardTemplate).list(0, 1e8);
 
         return {
-            list: data[0].map((d: any) => ({
-                resourceId: d.resourceId,
-                weight: ethers.utils.formatUnits(d.weight),
-                requests: d.requestTimes.toString(),
-                submitTimestamp: d.submitSeconds.toString(),
-                pendingOP: d.pendingOP.toString(), // 0-add 1-edit 2-delete 3-no pending 4-?
-                index: d.index,
-                pendingSeconds: pendingSeconds.toNumber(),
-                pendingWeight: ethers.utils.formatUnits(d.pendingWeight),
+            list: cards[0].map((c: any) => ({
+                id: c.id.toString(),
+                name: c.name,
+                price: c.price.toString(),
+                duration: c.duration.div(ONE_DAY_SECONDS).toString(),
+                giveawayDuration: c.giveawayDuration.div(ONE_DAY_SECONDS).toString(),
+                description: c.description,
+                configurations: c.props,
             })),
-            total: data.total.toNumber(),
+            total: cards.total,
         };
     } catch (error) {
-        console.log('getAPP error: ', error);
+        console.log('getAPPCards error: ', error);
         noticeError(error);
         return {
             list: [],
@@ -597,7 +582,7 @@ export const configAPPCard = async (address: RequestProps['address'], data: any)
         // console.log(cardTemplate);
         return await (await getContract('cardShopTemplate', cardTemplate).connect(signer).config(data)).wait();
     } catch (error) {
-        console.log(error);
+        console.log('configAPPCard: ', error);
         noticeError(error);
         throw error;
     }

@@ -3,9 +3,6 @@ import { getAPPCards } from 'payment/src/utils/request';
 import { SResourceDataSourceType } from 'payment/src/utils/types';
 import * as col from 'payment/src/utils/columns/resources';
 import { Table } from 'antd';
-import Delete from './Delete';
-import { OP_ACTION } from 'payment/src/utils/constants';
-import Airdrop from 'payment/src/modules/Provider/Users/Airdrop';
 
 interface ResourceType extends SResourceDataSourceType {
     edit?: boolean;
@@ -84,7 +81,7 @@ export default ({ onChange, operable = false, address }: Props) => {
             id="table"
             dataSource={data.list}
             columns={columns}
-            rowKey={(p, i) => {
+            rowKey={(p) => {
                 return (p as ResourceType).id;
             }}
             scroll={{ x: 800 }}

@@ -2,9 +2,9 @@ import { useMemo, useState, useCallback } from 'react';
 import Title from 'payment/src/components/Title';
 import { useParams, useLocation } from 'react-router-dom';
 import { TitleType } from 'payment/src/utils/types';
-import BillingSettings from 'payment/src/modules/Provider/APP/BillingSettings';
-import SubscriptionSettings from 'payment/src/modules/Provider/APP/SubscriptionSettings';
-import APPSettings from 'payment/src/modules/Provider/APP/APPSettings';
+import BillingSettings from './BillingSettings';
+import SubscriptionSettings from './SubscriptionSettings';
+import APPSettings from './APPSettings';
 
 export default () => {
     const { address, type } = useParams();

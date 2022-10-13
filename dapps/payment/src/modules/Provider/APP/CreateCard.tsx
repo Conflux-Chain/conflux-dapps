@@ -189,14 +189,9 @@ export default ({ onComplete, op, data = {}, className, type = 'default', disabl
                                 required: true,
                                 message: 'Please input basic days',
                             },
-                            {
-                                min: 1,
-                                max: 10000,
-                                message: 'Please input basic days with 1-10000 character',
-                            },
                         ]}
                     >
-                        <InputNumber id="input_CardDuration" style={{ width: '100%' }} min={0} maxLength={50} precision={0} placeholder="0" />
+                        <InputNumber id="input_CardDuration" style={{ width: '100%' }} min={0} max={10000} precision={0} placeholder="0" />
                     </Form.Item>
                     <Form.Item
                         label={
@@ -206,15 +201,9 @@ export default ({ onComplete, op, data = {}, className, type = 'default', disabl
                         }
                         name="giveaways"
                         validateFirst={true}
-                        rules={[
-                            {
-                                min: 0,
-                                max: 10000,
-                                message: 'Please input basic days with 1-10000 character',
-                            },
-                        ]}
+                        rules={[]}
                     >
-                        <InputNumber id="input_CardGiveaways" style={{ width: '100%' }} min={0} maxLength={50} precision={0} placeholder="0" />
+                        <InputNumber id="input_CardGiveaways" style={{ width: '100%' }} min={0} max={10000} precision={0} placeholder="0" />
                     </Form.Item>
                     <div className="mb-2">
                         Configuration <small> (Extensions of the resource)</small>

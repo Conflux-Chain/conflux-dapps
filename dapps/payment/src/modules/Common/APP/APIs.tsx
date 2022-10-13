@@ -3,8 +3,8 @@ import { getAPPAPIs } from 'payment/src/utils/request';
 import { ResourceDataSourceType } from 'payment/src/utils/types';
 import * as col from 'payment/src/utils/columns/resources';
 import { Table } from 'antd';
-import Create from './Create';
-import Delete from './Delete';
+import Create from '../../Provider/APP/Create';
+import Delete from '../../Provider/APP/Delete';
 import { OP_ACTION } from 'payment/src/utils/constants';
 
 interface ResourceType extends ResourceDataSourceType {
@@ -84,8 +84,8 @@ export default ({ onChange, address, from }: Props) => {
             id="table"
             dataSource={data.list}
             columns={columns}
-            rowKey={(p, i) => {
-                return (p as ResourceType).resourceId + i;
+            rowKey={(p: ResourceDataSourceType) => {
+                return p.resourceId + p.submitTimestamp;
             }}
             scroll={{ x: 800 }}
             pagination={false}

@@ -3,17 +3,16 @@ import { showToast } from 'common/components/showPopup/Toast';
 import Papa from 'papaparse';
 import { useCallback, useRef, useState } from 'react';
 import { CSVType } from 'payment/src/utils/types';
-import { airdrop } from 'payment/src/utils/request';
-import { useParams } from 'react-router-dom';
+import { airdropBiiling } from 'payment/src/utils/request';
 import { AuthESpace } from 'common/modules/AuthConnectButton';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
     onComplete?: () => void;
+    address: string;
 }
 
-export default ({ onComplete }: Props) => {
+export default ({ onComplete, address }: Props) => {
     const inputRef = useRef<HTMLInputElement>(null);
-    const { address } = useParams();
     const [loading, setLoading] = useState<boolean>(false);
 
     const handleClick = useCallback(() => {
@@ -28,7 +27,7 @@ export default ({ onComplete }: Props) => {
                 complete: async (results) => {
                     try {
                         setLoading(true);
-                        await airdrop(results.data as CSVType, address as string);
+                        await airdropBiiling(results.data as CSVType, address as string);
                         setLoading(false);
                         showToast(`Airdrop success`, { type: 'success' });
                         onComplete && onComplete();
