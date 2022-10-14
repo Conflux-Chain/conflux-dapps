@@ -560,7 +560,10 @@ export const getAPPCards = async (address: RequestProps['address']): Promise<APP
                 duration: c.duration.div(ONE_DAY_SECONDS).toString(),
                 giveawayDuration: c.giveawayDuration.div(ONE_DAY_SECONDS).toString(),
                 description: c.description,
-                configurations: c.props,
+                configurations: c.props[0].map((_: any, i: number) => ({
+                    value: [c.props[0][i]],
+                    description: [c.props[1][i]],
+                })),
             })),
             total: cards.total,
         };
@@ -585,5 +588,20 @@ export const configAPPCard = async (address: RequestProps['address'], data: any)
         console.log('configAPPCard: ', error);
         noticeError(error);
         throw error;
+    }
+};
+
+export const purchaseCard = async (appAddr: RequestProps['address'], templateId: string, amount: number) => {
+    try {
+        const contracts = await getAPPsRelatedContract([appAddr].map((app: any) => app));
+        const r = await getContract('cardShop', contracts[0].cardShop)
+            .connect(signer)
+            .buyWithAsset(await signer.getAddress(), templateId, amount);
+        console.log('purchaseCard r: ', r);
+        return r;
+    } catch (error) {
+        console.log('purchaseCard error: ', error);
+        noticeError(error);
+        return {};
     }
 };

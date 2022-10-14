@@ -5,11 +5,12 @@ import { TitleType } from 'payment/src/utils/types';
 import BillingSettings from './BillingSettings';
 import SubscriptionSettings from './SubscriptionSettings';
 import APPSettings from './APPSettings';
+import { useFrom } from 'payment/src/utils/hooks';
 
 export default () => {
     const { address, type } = useParams();
-    const { pathname, state } = useLocation();
-    const from = pathname.includes('/payment/consumer') ? 'consumer' : 'provider';
+    const { state } = useLocation();
+    const from = useFrom();
     const [APPType, setAPPType] = useState(type);
 
     const handleTitleClick = (type: Pick<TitleType, 'key' | 'text'>) => setAPPType(type as string);

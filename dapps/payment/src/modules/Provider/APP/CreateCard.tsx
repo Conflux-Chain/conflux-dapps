@@ -15,7 +15,7 @@ import BigNumber from 'bignumber.js';
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
     onComplete?: (data: any) => void;
     op: OP_ACTION;
-    data?: SResourceDataSourceType;
+    data?: SResourceDataSourceType & { props: [string[], string[]] };
     type?: ButtonType;
     disabled?: boolean;
 }

@@ -4,16 +4,15 @@ import Create from './Create';
 import Airdrop from './AirdropBilling';
 import { OP_ACTION } from 'payment/src/utils/constants';
 import { Row, Col } from 'antd';
-import { useLocation } from 'react-router-dom';
 import Deposit from 'payment/src/modules/Common/Deposit';
+import { useFrom } from 'payment/src/utils/hooks';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
     address: string;
 }
 
 export default ({ address }: Props) => {
-    const { pathname } = useLocation();
-    const from = pathname.includes('/payment/consumer') ? 'consumer' : 'provider';
+    const from = useFrom();
 
     return (
         <Row>

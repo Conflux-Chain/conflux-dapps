@@ -14,12 +14,13 @@ import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
 import Deposit from 'payment/src/modules/Common/Deposit';
 import { Col, Row } from 'antd';
 import Tip from 'payment/src/components/Tip';
+import { useFrom } from 'payment/src/utils/hooks';
 
 export default () => {
     const { address } = useParams();
     const account = useAccount();
-    const { pathname, state } = useLocation();
-    const from = pathname.includes('/payment/consumer') ? 'consumer' : 'provider';
+    const { state } = useLocation();
+    const from = useFrom();
     const [data, setData] = useState<APPDataSourceType>({
         name: '',
         link: '',

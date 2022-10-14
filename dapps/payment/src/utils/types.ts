@@ -18,7 +18,11 @@ export interface SResourceDataSourceType {
     price: string;
     duration: string;
     giveawayDuration: string;
-    props: [string[], string[]];
+    // props?: [string[], string[]];
+    configurations: Array<{
+        value: string;
+        description: string;
+    }>;
 }
 
 export interface APPCardResourceType {

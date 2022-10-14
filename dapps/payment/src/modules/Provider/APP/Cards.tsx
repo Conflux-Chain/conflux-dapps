@@ -10,11 +10,11 @@ interface ResourceType extends SResourceDataSourceType {
 
 interface Props {
     onChange?: () => void;
-    operable?: boolean;
     address: string;
+    from: string;
 }
 
-export default ({ onChange, operable = false, address }: Props) => {
+export default ({ onChange, from, address }: Props) => {
     const dataCacheRef = useRef<{
         list: ResourceType[];
         total: number;
@@ -57,7 +57,7 @@ export default ({ onChange, operable = false, address }: Props) => {
     const columns = useMemo(() => {
         const cols = [col.id, col.name, col.price, col.duration, col.giveawayDuration].map((c, i) => ({ ...c, width: [1, 3, 3, 3, 2][i] }));
 
-        // if (operable) {
+        // if (from === 'provider') {
         //     cols.push({
         //         ...col.action,
         //         width: 3,
@@ -74,7 +74,7 @@ export default ({ onChange, operable = false, address }: Props) => {
         // }
 
         return cols;
-    }, [operable]);
+    }, [from]);
 
     return (
         <Table
