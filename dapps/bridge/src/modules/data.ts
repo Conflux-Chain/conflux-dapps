@@ -135,8 +135,8 @@ Promise.all([
             data[chain] = {};
         }
         if (chain === 'Conflux Core') {
-            data['Conflux Core']['Conflux eSpace'] = {};
-            data['Conflux eSpace']['Conflux Core'] = {};
+            data['Conflux Core']['Conflux eSpace'] = { CFX: ['Space Bridge'] };
+            data['Conflux eSpace']['Conflux Core'] = { CFX: ['Space Bridge'] };
             map.receiveSymbol['Conflux Core'] = {};
             map.receiveSymbol['Conflux eSpace'] = {};
             map.receiveSymbol['Conflux Core']['Conflux eSpace'] = {};
