@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { getAPPCards, purchaseCard } from 'payment/src/utils/request';
 import { SResourceDataSourceType } from 'payment/src/utils/types';
 import { Row, Col, Select, InputNumber, Button } from 'antd';
+import DepositCard from 'payment/src/modules/Common/DepositCard';
 const { Option } = Select;
 
 interface ResourceType extends SResourceDataSourceType {
@@ -24,6 +25,7 @@ export default ({ onChange, address }: Props) => {
     });
     const [selected, setSelected] = useState<string | undefined>(undefined);
     const [amount, setAmount] = useState(1);
+    const selectedCard = data.list.filter((d) => d.id === selected)[0];
 
     const main = useCallback(async () => {
         try {
@@ -48,10 +50,9 @@ export default ({ onChange, address }: Props) => {
     }, []);
 
     const handlePurchase = useCallback(async () => {
-        const selectedCard = data.list.filter((d) => d.id === selected)[0];
         console.log('total price: ', amount * Number(selectedCard.price));
         const r = await purchaseCard(address, selectedCard.id, amount);
-    }, [data, amount]);
+    }, [amount, selectedCard]);
 
     if (data.list.length) {
         const d = data.list.filter((d) => d.id === selected)[0];
@@ -118,9 +119,10 @@ export default ({ onChange, address }: Props) => {
                         Total: <span className="text-lg">{amount * Number(d.price)}</span>
                     </Col>
                     <Col span={3} className="text-right">
-                        <Button type="primary" disabled={!amount} onClick={handlePurchase}>
+                        {/* <Button type="primary" disabled={!amount} onClick={handlePurchase}>
                             Purchase
-                        </Button>
+                        </Button> */}
+                        <DepositCard appAddr={address} type="primary" card={selectedCard} />
                     </Col>
                 </Row>
             </>

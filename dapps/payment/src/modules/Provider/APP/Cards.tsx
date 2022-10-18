@@ -3,6 +3,9 @@ import { getAPPCards } from 'payment/src/utils/request';
 import { SResourceDataSourceType } from 'payment/src/utils/types';
 import * as col from 'payment/src/utils/columns/resources';
 import { Table } from 'antd';
+import CreateCard from './CreateCard';
+import AirdropCard from './AirdropCard';
+import { OP_ACTION } from 'payment/src/utils/constants';
 
 interface ResourceType extends SResourceDataSourceType {
     edit?: boolean;
@@ -57,24 +60,23 @@ export default ({ onChange, from, address }: Props) => {
     const columns = useMemo(() => {
         const cols = [col.id, col.name, col.price, col.duration, col.giveawayDuration].map((c, i) => ({ ...c, width: [1, 3, 3, 3, 2][i] }));
 
-        // if (from === 'provider') {
-        //     cols.push({
-        //         ...col.action,
-        //         width: 3,
-        //         render(_: any, row: SResourceDataSourceType, i: number) {
-        //             const disabled = row.pendingOP !== '3';
-        //             return (
-        //                 <>
-        //                     <Create op={OP_ACTION.edit} data={row} onComplete={handleComplete} disabled={disabled} />
-        //                     {!!i && <Delete data={row} onComplete={handleComplete} disabled={disabled} />}
-        //                 </>
-        //             );
-        //         },
-        //     });
-        // }
+        if (from === 'provider') {
+            cols.push({
+                ...col.action,
+                width: 3,
+                render(_: any, row: SResourceDataSourceType, i: number) {
+                    return (
+                        <>
+                            <CreateCard op={OP_ACTION.edit} type="primary" data={row} />
+                            <AirdropCard address={address} templateId={row.id} />
+                        </>
+                    );
+                },
+            });
+        }
 
         return cols;
-    }, [from]);
+    }, [from, address]);
 
     return (
         <Table

@@ -5,12 +5,10 @@ import { AuthESpace } from 'common/modules/AuthConnectButton';
 import { showToast } from 'common/components/showPopup/Toast';
 import { SResourceDataSourceType } from 'payment/src/utils/types';
 import { useParams } from 'react-router-dom';
-import ModalTip from 'payment/src/components/ModalTip';
 import { OP_ACTION, ONE_DAY_SECONDS } from 'payment/src/utils/constants';
 import { formatNumber } from 'payment/src/utils';
 import { ButtonType } from 'antd/lib/button';
 import { MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons';
-import BigNumber from 'bignumber.js';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
     onComplete?: (data: any) => void;
@@ -20,7 +18,7 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
     disabled?: boolean;
 }
 
-export default ({ onComplete, op, data = {}, className, type = 'default', disabled = false }: Props) => {
+export default ({ onComplete, op, data, className, type = 'default', disabled = false }: Props) => {
     const { address } = useParams();
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
@@ -28,33 +26,9 @@ export default ({ onComplete, op, data = {}, className, type = 'default', disabl
 
     useEffect(() => {
         if (op === OP_ACTION.edit && !form.getFieldValue('resource')) {
-            form.setFieldsValue({
-                // resource: data.resourceId,
-                // weight: data.weight,
-                ...data,
-                duration: new BigNumber(data.duration).dividedBy(ONE_DAY_SECONDS).toNumber(),
-                giveaways: new BigNumber(data.giveawayDuration).dividedBy(ONE_DAY_SECONDS).toNumber(),
-                configurations: data.props.reduce((prev, curr) => {
-                    // @ts-ignore
-                    prev.push({
-                        value: curr[0],
-                        description: curr[1],
-                    });
-                    return prev;
-                }, []),
-            });
+            form.setFieldsValue(data);
         }
     });
-
-    const TIPs = useMemo(() => {
-        if (op === OP_ACTION.add) {
-            return [
-                'You are adding API resource. If the new API service resource billing is included in the default resource, please modify the default resource weight to avoid double billing. And the newly added resources and default resource weightswill take effect after 7 days.',
-            ];
-        } else {
-            return ['The updated information is expected to take effect in 7 days.'];
-        }
-    }, [op]);
 
     const showModal = useCallback(() => setIsModalVisible(true), []);
 
@@ -62,15 +36,15 @@ export default ({ onComplete, op, data = {}, className, type = 'default', disabl
     const title = `${action} Resource`;
 
     const handleOk = useCallback(() => {
-        form.validateFields().then(async function ({ name, price, duration, giveaways, configurations }) {
+        form.validateFields().then(async function ({ name, price, duration, giveawayDuration, configurations }) {
             try {
                 setLoading(true);
                 const d = await configAPPCard(address, {
-                    id: op === OP_ACTION.add ? 0 : data.id,
+                    id: op === OP_ACTION.add ? 0 : data?.id,
                     name,
                     price,
                     duration: duration * ONE_DAY_SECONDS,
-                    giveawayDuration: giveaways * ONE_DAY_SECONDS,
+                    giveawayDuration: giveawayDuration * ONE_DAY_SECONDS,
                     props: configurations.reduce(
                         // @ts-ignore
                         (prev, curr) => {
@@ -199,7 +173,7 @@ export default ({ onComplete, op, data = {}, className, type = 'default', disabl
                                 Giveaways<small> (Extension of the basic days)</small>
                             </span>
                         }
-                        name="giveaways"
+                        name="giveawayDuration"
                         validateFirst={true}
                         rules={[]}
                     >
@@ -261,8 +235,6 @@ export default ({ onComplete, op, data = {}, className, type = 'default', disabl
                         )}
                     </Form.List>
                 </Form>
-
-                {/* <ModalTip tips={TIPs} /> */}
             </Modal>
         </>
     );

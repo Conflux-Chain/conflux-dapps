@@ -87,7 +87,7 @@ export const effectTime: ColumnType<ResourceDataSourceType> = {
     },
 };
 
-export const action: ColumnType<ResourceDataSourceType> = {
+export const action = {
     title: 'Operation',
     dataIndex: 'operation',
     key: 'operation',

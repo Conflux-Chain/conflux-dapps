@@ -48,11 +48,11 @@ const noticeError = (e: unknown) => {
     if (typeof e === 'string') {
         msg = e;
     } else if (typeof (e as ErrorType).message === 'string') {
-        console.log((e as ErrorType).message);
         msg = (e as ErrorType).message;
     } else {
         msg = e as any;
     }
+    console.log(msg);
     showToast(`Request failed, details: ${msg}`, { type: 'failed' });
 };
 
@@ -556,19 +556,19 @@ export const getAPPCards = async (address: RequestProps['address']): Promise<APP
             list: cards[0].map((c: any) => ({
                 id: c.id.toString(),
                 name: c.name,
+                // price: ethers.utils.formatUnits(c.price.toString()),
                 price: c.price.toString(),
                 duration: c.duration.div(ONE_DAY_SECONDS).toString(),
                 giveawayDuration: c.giveawayDuration.div(ONE_DAY_SECONDS).toString(),
                 description: c.description,
                 configurations: c.props[0].map((_: any, i: number) => ({
-                    value: [c.props[0][i]],
-                    description: [c.props[1][i]],
+                    value: c.props[0][i],
+                    description: c.props[1][i],
                 })),
             })),
             total: cards.total,
         };
     } catch (error) {
-        console.log('getAPPCards error: ', error);
         noticeError(error);
         return {
             list: [],
@@ -579,29 +579,97 @@ export const getAPPCards = async (address: RequestProps['address']): Promise<APP
 
 export const configAPPCard = async (address: RequestProps['address'], data: any): Promise<any> => {
     try {
-        // console.log('configAPPCard: ', address, data);
         const contracts = await getAPPsRelatedContract([address].map((app: any) => app));
         const cardTemplate = await getContract('cardShop', contracts[0].cardShop).connect(signer).template();
-        // console.log(cardTemplate);
-        return await (await getContract('cardShopTemplate', cardTemplate).connect(signer).config(data)).wait();
+        return await (
+            await getContract('cardShopTemplate', cardTemplate)
+                .connect(signer)
+                .config({
+                    ...data,
+                    price: data.price,
+                    // price: ethers.utils.parseUnits(String(data.price)),
+                })
+        ).wait();
     } catch (error) {
-        console.log('configAPPCard: ', error);
         noticeError(error);
         throw error;
     }
 };
 
-export const purchaseCard = async (appAddr: RequestProps['address'], templateId: string, amount: number) => {
+export const purchaseCard = async (appAddr: RequestProps['address'], templateId: string, amount: number | string) => {
     try {
         const contracts = await getAPPsRelatedContract([appAddr].map((app: any) => app));
-        const r = await getContract('cardShop', contracts[0].cardShop)
-            .connect(signer)
-            .buyWithAsset(await signer.getAddress(), templateId, amount);
-        console.log('purchaseCard r: ', r);
+        const r = await (
+            await getContract('cardShop', contracts[0].cardShop)
+                .connect(signer)
+                .buyWithAsset(await signer.getAddress(), templateId, amount)
+        ).wait();
         return r;
     } catch (error) {
-        console.log('purchaseCard error: ', error);
         noticeError(error);
         return {};
+    }
+};
+
+export const getAllowanceCard = async ({ tokenAddr, appAddr }: { tokenAddr: string; appAddr: string }) => {
+    try {
+        const contracts = await getAPPsRelatedContract([appAddr].map((app: any) => app));
+        const contract = getContract('erc20', tokenAddr);
+        return await contract.allowance(await signer.getAddress(), contracts[0].cardShop);
+    } catch (error) {
+        noticeError(error);
+        throw error;
+    }
+};
+
+export const approveCard = async ({
+    tokenAddr,
+    amount = (1e50).toLocaleString('fullwide', { useGrouping: false }),
+    appAddr,
+}: {
+    tokenAddr: string;
+    amount?: string;
+    appAddr: string;
+}) => {
+    try {
+        const contracts = await getAPPsRelatedContract([appAddr].map((app: any) => app));
+        const contract = getContract('erc20', tokenAddr);
+        return (
+            await contract.connect(signer).approve(contracts[0].cardShop, amount, {
+                type: 0,
+            })
+        ).wait();
+    } catch (error) {
+        noticeError(error);
+        throw error;
+    }
+};
+
+export const airdropCard = async (list: CSVType, appAddr: string, templateId: string) => {
+    try {
+        const params = list.reduce(
+            (prev, curr) => {
+                if (ethers.utils.isAddress(curr[0])) {
+                    prev[0].push(curr[0]);
+                    prev[1].push(ethers.utils.parseUnits(String(curr[1]), 18));
+                }
+                return prev;
+            },
+            [[], []] as Array<(string | ethers.BigNumber | number)[]>
+        );
+
+        const contracts = await getAPPsRelatedContract([appAddr].map((app: any) => app));
+
+        return (
+            await getContract('cardShop', contracts[0].cardShop)
+                .connect(signer)
+                .giveCardBatch(...params, templateId, {
+                    type: 0,
+                })
+        ).wait();
+    } catch (error) {
+        console.log('airdropCard error: ', error);
+        noticeError(error);
+        throw error;
     }
 };

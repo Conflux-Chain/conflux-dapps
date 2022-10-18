@@ -1,18 +1,19 @@
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import Title from 'payment/src/components/Title';
 import * as col from 'payment/src/utils/columns/APPs';
-import { DataSourceType } from 'payment/src/utils/types';
 import { getAPPs } from 'payment/src/utils/request';
 import { Table, Row, Col, Input, Button } from 'antd';
 import { Link } from 'react-router-dom';
 import Deposit from 'payment/src/modules/Common/Deposit';
 import { PAYMENT_TYPE } from 'payment/src/utils/constants';
+// import DepositCard from 'payment/src/modules/Common/DepositCard';
 
 const { Search } = Input;
+type DataType = any;
 
 export default () => {
-    const dataCacheRef = useRef<DataSourceType[]>([]);
-    const [data, setData] = useState<DataSourceType[]>([]);
+    const dataCacheRef = useRef<DataType[]>([]);
+    const [data, setData] = useState<DataType[]>([]);
     const [filter, setFilter] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
 
@@ -38,7 +39,7 @@ export default () => {
                 col.pType,
                 {
                     ...col.action(),
-                    render(_: string, row: DataSourceType) {
+                    render(_: string, row: DataType) {
                         return (
                             <div className="flex align-middle">
                                 <Button id="button_detail" className="mr-2">
@@ -51,7 +52,8 @@ export default () => {
                                         Details
                                     </Link>
                                 </Button>
-                                <Deposit appAddr={row.address} onComplete={main} />
+                                {row.type === 1 && <Deposit appAddr={row.address} onComplete={main} />}
+                                {/* TODO add card deposit entry */}
                             </div>
                         );
                     },
@@ -78,7 +80,7 @@ export default () => {
         main();
     }, []);
 
-    const onFilter = useCallback((data: DataSourceType[], f: string) => {
+    const onFilter = useCallback((data: DataType[], f: string) => {
         return data.filter(
             (d) =>
                 d.name.includes(f) || d.link.includes(f) || d.address.toLowerCase().includes(f.toLowerCase()) || d.owner.toLowerCase().includes(f.toLowerCase())
