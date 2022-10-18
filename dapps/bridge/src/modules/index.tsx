@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import cx from 'clsx';
 import {
     map,
@@ -18,6 +19,7 @@ import {
 } from './data';
 import Select from '../components/Select';
 import TurnPage from 'cross-space/src/assets/turn-page.svg';
+import ArrowLeft from 'cross-space/src/assets/arrow-left.svg';
 import Button from 'common/components/Button';
 
 const renderToken = (token: string) => (
@@ -47,24 +49,42 @@ const Index: React.FC = () => {
 
     if (!sourceChain) return <div>loading...</div>;
     return (
-        <div className="cross-space-module mx-auto mt-[16px] mb-[24px]">
-            <Chain title="Source" current={sourceChain} chains={sourceChains} handleSelect={handleSourceChainChange} />
-            <Chain title="Destination" current={destinationChain} chains={destinationChains} handleSelect={handleDestinationChainChange} />
+        <>
+            <div className="cross-space-module mx-auto mt-[16px] mb-[24px]">
+                <Chain title="Source" current={sourceChain} chains={sourceChains} handleSelect={handleSourceChainChange} />
+                <Chain title="Destination" current={destinationChain} chains={destinationChains} handleSelect={handleDestinationChainChange} />
 
-            <div className="mb-[6px] text-[13px] text-[#898D9A]">Asset</div>
-            <Select className="bg-[#F7F8FA]" current={token} data={tokens} renderItem={renderToken} onSelect={handleTokenChange} useSearch />
+                <div className="mb-[6px] text-[13px] text-[#898D9A]">Asset</div>
+                <Select className="bg-[#F7F8FA]" current={token} data={tokens} renderItem={renderToken} onSelect={handleTokenChange} useSearch />
 
-            <button
-                id="bridge-reverse"
-                className="absolute left-1/2 top-[100px] -translate-x-1/2 rotate-90 turn-page flex justify-center items-center w-[32px] h-[32px] rounded-full bg-white cursor-pointer transition-transform hover:scale-105"
-                onClick={handleReverse}
-                type="button"
-            >
-                <img src={TurnPage} alt="turn page" className="w-[14px] h-[14px]" draggable="false" />
-            </button>
+                <button
+                    id="bridge-reverse"
+                    className="absolute left-1/2 top-[100px] -translate-x-1/2 rotate-90 turn-page flex justify-center items-center w-[32px] h-[32px] rounded-full bg-white cursor-pointer transition-transform hover:scale-105"
+                    onClick={handleReverse}
+                    type="button"
+                >
+                    <img src={TurnPage} alt="turn page" className="w-[14px] h-[14px]" draggable="false" />
+                </button>
 
-            {sourceChain && <Routes />}
-        </div>
+                {sourceChain && <Routes />}
+            </div>
+            <div className="cross-space-module mx-auto mt-[16px] mb-[24px] text-[14px] text-[#898D9A] leading-[18px] font-normal">
+                <div>
+                    Assets directly across between Conflux and other chain.{' '}
+                    <Link className="group text-[#808BE7] hover:text-[#808BE7] hover:underline" to="/shuttle-flow">
+                        ShuttleFlow
+                        <img src={ArrowLeft} alt="go to shuttle flow" className="inline-block w-[12px] h-[12px] ml-[2px] rotate-180 -translate-y-[1px] group-hover:translate-x-1 transition-all" />
+                    </Link>
+                </div>
+                <div className="mt-[4px]">
+                    Assets across Conflux space.{' '}
+                    <Link className="group text-[#808BE7] hover:text-[#808BE7] hover:underline" to="/espace-bridge">
+                        eSpace Bridge
+                        <img src={ArrowLeft} alt="go to shuttle flow" className="inline-block w-[12px] h-[12px] ml-[2px] rotate-180 -translate-y-[1px] group-hover:translate-x-1 transition-all" />
+                    </Link>
+                </div>
+            </div>
+        </>
     );
 };
 
@@ -108,11 +128,9 @@ const Routes: React.FC = () => {
                             </span>
                         )}
                         {(Array.isArray(route) ? route : [route])?.map((eachRoute, index) => {
-                            const _sourceChain =
-                                Array.isArray(route) && index !== 0 ? afterSpaceBridge({ sourceChain, destinationChain }) : sourceChain;
-                            const _destinationChain = Array.isArray(route) && index !== route.length - 1
-                                ? afterSpaceBridge({ sourceChain, destinationChain })
-                                : destinationChain;
+                            const _sourceChain = Array.isArray(route) && index !== 0 ? afterSpaceBridge({ sourceChain, destinationChain }) : sourceChain;
+                            const _destinationChain =
+                                Array.isArray(route) && index !== route.length - 1 ? afterSpaceBridge({ sourceChain, destinationChain }) : destinationChain;
                             const href = createHref({ sourceChain: _sourceChain, destinationChain: _destinationChain, token, route: eachRoute });
                             return (
                                 <div className="flex items-center whitespace-nowrap" key={eachRoute}>
@@ -138,14 +156,7 @@ const Routes: React.FC = () => {
                                         {_destinationChain}
                                     </div>
 
-                                    <Button
-                                        className="ml-auto min-w-[100px]"
-                                        size="small"
-                                        href={href}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        disabled={!href}
-                                    >
+                                    <Button className="ml-auto min-w-[100px]" size="small" href={href} target="_blank" rel="noreferrer" disabled={!href}>
                                         {eachRoute}
                                     </Button>
                                 </div>

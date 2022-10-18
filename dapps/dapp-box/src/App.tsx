@@ -56,22 +56,7 @@ export const dapps = [
         name: 'Bridge',
         icon: BridgeIcon,
         path: 'bridge',
-    },
-    {
-        name: 'eSpace Bridge',
-        icon: CrossSpaceIcon,
-        path: 'espace-bridge',
-        element: <ESpaceBridgeEnter />,
         index: true,
-    },
-    {
-        name: 'ShuttleFlow',
-        icon: ShuttleFlowIcon,
-        path: 'shuttle-flow',
-        NavbarEnhance: {
-            type: 'childRoutes' as 'childRoutes',
-            Content: <ShuttleFlowNavbarEnhance />,
-        },
     },
     {
         name: 'eSpace Airdrop',
@@ -200,7 +185,7 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                             <Route key="payment" path="payment/*" element={<Payment />} />
                         </>
                     )}
-                    <Route path="*" element={<Navigate to="espace-bridge" />} />
+                    <Route path="*" element={<Navigate to="bridge" />} />
                 </Routes>
             </ErrorBoundary>
         </CustomScrollbar>
