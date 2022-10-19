@@ -70,17 +70,17 @@ const Index: React.FC = () => {
             </div>
             <div className="cross-space-module mx-auto mt-[16px] mb-[24px] text-[14px] text-[#898D9A] leading-[18px] font-normal">
                 <div>
-                    Assets directly across between Conflux and other chain.{' '}
+                    Assets directly across between Conflux and other chains.{' '}
                     <Link className="group text-[#808BE7] hover:text-[#808BE7] hover:underline" to="/shuttle-flow">
                         ShuttleFlow
-                        <img src={ArrowLeft} alt="go to shuttle flow" className="inline-block w-[12px] h-[12px] ml-[2px] rotate-180 -translate-y-[1px] group-hover:translate-x-1 transition-all" />
+                        <img src={ArrowLeft} alt="go to ShuttleFlow" className="inline-block w-[12px] h-[12px] ml-[2px] rotate-180 -translate-y-[1px] group-hover:translate-x-1 transition-all" />
                     </Link>
                 </div>
                 <div className="mt-[4px]">
                     Assets across Conflux space.{' '}
                     <Link className="group text-[#808BE7] hover:text-[#808BE7] hover:underline" to="/espace-bridge">
                         eSpace Bridge
-                        <img src={ArrowLeft} alt="go to shuttle flow" className="inline-block w-[12px] h-[12px] ml-[2px] rotate-180 -translate-y-[1px] group-hover:translate-x-1 transition-all" />
+                        <img src={ArrowLeft} alt="go to ShuttleFlow" className="inline-block w-[12px] h-[12px] ml-[2px] rotate-180 -translate-y-[1px] group-hover:translate-x-1 transition-all" />
                     </Link>
                 </div>
             </div>

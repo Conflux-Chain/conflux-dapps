@@ -83,13 +83,13 @@ Promise.all([
     const data: any = {
         'Conflux eSpace': {
             Ethereum: {
-                CFX: [['Space Bridge', 'Shuttle Flow']],
-                ETH: [['Space Bridge', 'Shuttle Flow'], 'Multichain'],
+                CFX: [['Space Bridge', 'ShuttleFlow']],
+                ETH: [['Space Bridge', 'ShuttleFlow'], 'Multichain'],
                 WETH: ['cBridge'],
-                USDT: [['Space Bridge', 'Shuttle Flow'], 'Multichain', 'cBridge'],
-                USDC: [['Space Bridge', 'Shuttle Flow'], 'Multichain', 'cBridge'],
-                WBTC: [['Space Bridge', 'Shuttle Flow'], 'Multichain', 'cBridge'],
-                DAI: [['Space Bridge', 'Shuttle Flow'], 'cBridge'],
+                USDT: [['Space Bridge', 'ShuttleFlow'], 'Multichain', 'cBridge'],
+                USDC: [['Space Bridge', 'ShuttleFlow'], 'Multichain', 'cBridge'],
+                WBTC: [['Space Bridge', 'ShuttleFlow'], 'Multichain', 'cBridge'],
+                DAI: [['Space Bridge', 'ShuttleFlow'], 'cBridge'],
                 BNB: ['Multichain'],
                 BUSD: ['Multichain'],
             },
@@ -118,13 +118,13 @@ Promise.all([
         },
         Ethereum: {
             'Conflux eSpace': {
-                CFX: [['Shuttle Flow', 'Space Bridge']],
-                ETH: [['Shuttle Flow', 'Space Bridge'], 'Multichain'],
+                CFX: [['ShuttleFlow', 'Space Bridge']],
+                ETH: [['ShuttleFlow', 'Space Bridge'], 'Multichain'],
                 WETH: ['cBridge'],
-                USDT: [['Shuttle Flow', 'Space Bridge'], 'Multichain', 'cBridge'],
-                USDC: [['Shuttle Flow', 'Space Bridge'], 'Multichain', 'cBridge'],
-                WBTC: [['Shuttle Flow', 'Space Bridge'], 'Multichain', 'cBridge'],
-                DAI: [['Shuttle Flow', 'Space Bridge'], 'cBridge'],
+                USDT: [['ShuttleFlow', 'Space Bridge'], 'Multichain', 'cBridge'],
+                USDC: [['ShuttleFlow', 'Space Bridge'], 'Multichain', 'cBridge'],
+                WBTC: [['ShuttleFlow', 'Space Bridge'], 'Multichain', 'cBridge'],
+                DAI: [['ShuttleFlow', 'Space Bridge'], 'cBridge'],
                 BNB: ['Multichain'],
                 BUSD: ['Multichain'],
             },
@@ -158,7 +158,7 @@ Promise.all([
                 if (!data[chain]['Conflux Core']) {
                     data[chain]['Conflux Core'] = {};
                 }
-                data[chain]['Conflux Core'][token.reference_symbol] = ['Shuttle Flow'];
+                data[chain]['Conflux Core'][token.reference_symbol] = ['ShuttleFlow'];
                 if (!map.shuttleFlowFromTokenAddress[chain]) {
                     map.shuttleFlowFromTokenAddress[chain] = {};
                 }
@@ -176,7 +176,7 @@ Promise.all([
                 if (!data['Conflux Core'][chain]) {
                     data['Conflux Core'][chain] = {};
                 }
-                data['Conflux Core'][chain][token.symbol] = ['Shuttle Flow'];
+                data['Conflux Core'][chain][token.symbol] = ['ShuttleFlow'];
 
                 if (!map.shuttleFlowFromTokenAddress['Conflux Core']) {
                     map.shuttleFlowFromTokenAddress['Conflux Core'] = {};
@@ -344,7 +344,7 @@ export const createHref = ({
             destinationChain === 'Conflux eSpace' ? '1030' : '1'
         }/${token}`;
     }
-    if (route === 'Shuttle Flow') {
+    if (route === 'ShuttleFlow') {
         let fromTokenAddress = map.shuttleFlowFromTokenAddress?.[sourceChain]?.[token];
         if (!fromTokenAddress) {
             const allKeys = Object.keys(map.shuttleFlowFromTokenAddress?.[sourceChain]);
