@@ -174,7 +174,7 @@ export default ({ address }: Props) => {
     return (
         <>
             <Detail address={address} />
-            <Settings address={address} />
+            {/* <Settings address={address} /> */}
         </>
     );
 };

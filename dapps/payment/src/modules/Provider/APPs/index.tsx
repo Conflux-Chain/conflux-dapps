@@ -1,34 +1,26 @@
-import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import Title from 'payment/src/components/Title';
 import * as col from 'payment/src/utils/columns/APPs';
-import { DataSourceType } from 'payment/src/utils/types';
-import { getAPPs } from 'payment/src/utils/request';
-import CreateAPP from './Create';
+import Create from './Create';
 import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
 import { Table, Row, Col, Input } from 'antd';
+import { useBoundProviderStore } from 'payment/src/store';
 
 const { Search } = Input;
 
 export default () => {
-    const dataCacheRef = useRef<DataSourceType[]>([]);
     const account = useAccount();
-    const [data, setData] = useState<DataSourceType[]>([]);
-    const [filter, setFilter] = useState<string>('');
-    const [loading, setLoading] = useState<boolean>(false);
+    const [filterV, setFilterV] = useState<string>('');
 
-    const main = useCallback(async () => {
-        try {
-            if (account) {
-                setLoading(true);
-                const data = await getAPPs(account);
-                dataCacheRef.current = data;
-                setData(onFilter(data, filter));
-            }
-        } catch (error) {
-            console.log(error);
-        }
-        setLoading(false);
-    }, [account, filter]);
+    const {
+        loading,
+        data: { list },
+        fetch,
+    } = useBoundProviderStore((state) => state.provider);
+
+    useEffect(() => {
+        account && fetch(account);
+    }, [account]);
 
     const columns = useMemo(
         () =>
@@ -36,25 +28,14 @@ export default () => {
                 ...c,
                 width: [3, 3, 2, 3, 3, 2, 2][i],
             })),
-        [main]
+        []
     );
 
-    useEffect(() => {
-        if (account) {
-            main();
-        } else {
-            setData([]);
-        }
-    }, [account]);
+    const onSearch = useCallback((v: string) => setFilterV(v), []);
 
-    const onFilter = useCallback((data: DataSourceType[], f: string) => {
-        return data.filter((d) => d.name.includes(f) || d.symbol.includes(f) || d.link.includes(f) || d.address.toLowerCase().includes(f.toLowerCase()));
-    }, []);
-
-    const onSearch = useCallback((value: string) => {
-        setData(onFilter(dataCacheRef.current, value));
-        setFilter(value);
-    }, []);
+    const filteredList = list.filter(
+        (d) => d.name.includes(filterV) || d.symbol.includes(filterV) || d.link.includes(filterV) || d.address.toLowerCase().includes(filterV.toLowerCase())
+    );
 
     return (
         <>
@@ -63,17 +44,23 @@ export default () => {
             <Row gutter={12}>
                 <Col span="8">
                     <div id="search_container">
-                        <Search placeholder="Search APP Name, Symbol, Link, APP Address" allowClear enterButton="Search" onSearch={onSearch} />
+                        <Search
+                            placeholder="Search APP Name, Symbol, Link, APP Address"
+                            allowClear
+                            enterButton="Search"
+                            onSearch={onSearch}
+                            id="input_providerAPP_search"
+                        />
                     </div>
                 </Col>
                 <Col span="16">
-                    <CreateAPP onComplete={main} key={`createAPP-${filter}`} />
+                    <Create />
                 </Col>
             </Row>
 
             <div className="mt-4"></div>
 
-            <Table id="table" dataSource={data} columns={columns} rowKey="address" scroll={{ x: 800 }} pagination={false} loading={loading} />
+            <Table id="table" dataSource={filteredList} columns={columns} rowKey="address" scroll={{ x: 800 }} pagination={false} loading={loading} />
         </>
     );
 };

@@ -6,24 +6,24 @@ import { AuthESpace } from 'common/modules/AuthConnectButton';
 import { showToast } from 'common/components/showPopup/Toast';
 import Tip from 'payment/src/components/Tip';
 import { formatNumber } from 'payment/src/utils';
+import { useBoundProviderStore } from 'payment/src/store';
 
-interface Props extends React.HTMLAttributes<HTMLDivElement> {
-    onComplete?: (data: any) => void;
-}
+interface Props extends React.HTMLAttributes<HTMLDivElement> {}
 
-export default ({ onComplete }: Props) => {
+export default ({}: Props) => {
     const account = useAccount();
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
     const showModal = useCallback(() => setIsModalVisible(true), []);
     const [type, setType] = useState('1');
+    const { fetch } = useBoundProviderStore((state) => state.provider);
 
     const handleOk = useCallback(() => {
         form.validateFields().then(async function ({ name, url, weight, symbol, description, type }) {
             try {
                 setLoading(true);
-                const data = await postAPP({
+                await postAPP({
                     name,
                     url,
                     weight,
@@ -35,7 +35,7 @@ export default ({ onComplete }: Props) => {
                 });
                 setLoading(false);
                 setIsModalVisible(false);
-                onComplete && onComplete(data);
+                account && fetch(account);
                 showToast('Create APP success', { type: 'success' });
             } catch (e) {
                 console.log(e);
@@ -196,7 +196,7 @@ export default ({ onComplete }: Props) => {
                             ]}
                         >
                             <InputNumber
-                                id="input_ResourceWeight"
+                                id="input_APPWeight"
                                 style={{ width: '100%' }}
                                 min={0}
                                 precision={5}
@@ -222,7 +222,7 @@ export default ({ onComplete }: Props) => {
                             },
                         ]}
                     >
-                        <Input id="input_APPName" placeholder="Description to project." />
+                        <Input id="input_APPDescription" placeholder="Description to project." />
                     </Form.Item>
                 </Form>
             </Modal>

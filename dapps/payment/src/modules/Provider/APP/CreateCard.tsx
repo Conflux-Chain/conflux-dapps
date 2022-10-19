@@ -9,16 +9,17 @@ import { OP_ACTION, ONE_DAY_SECONDS } from 'payment/src/utils/constants';
 import { formatNumber } from 'payment/src/utils';
 import { ButtonType } from 'antd/lib/button';
 import { MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons';
+import { useBoundProviderStore } from 'payment/src/store';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
-    onComplete?: (data: any) => void;
     op: OP_ACTION;
     data?: SResourceDataSourceType & { props: [string[], string[]] };
     type?: ButtonType;
     disabled?: boolean;
 }
 
-export default ({ onComplete, op, data, className, type = 'default', disabled = false }: Props) => {
+export default ({ op, data, className, type = 'default', disabled = false }: Props) => {
+    const { fetch } = useBoundProviderStore((state) => state.subscription);
     const { address } = useParams();
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
@@ -57,7 +58,7 @@ export default ({ onComplete, op, data, className, type = 'default', disabled = 
                     description: '',
                 });
                 setIsModalVisible(false);
-                onComplete && onComplete(d);
+                address && fetch(address);
                 showToast(`${title} success`, { type: 'success' });
             } catch (e) {
                 console.log(e);
@@ -109,7 +110,7 @@ export default ({ onComplete, op, data, className, type = 'default', disabled = 
                 destroyOnClose
                 afterClose={resetFields}
             >
-                <Form form={form} name="card" autoComplete="off" layout="vertical">
+                <Form form={form} name="card" autoComplete="off" layout="vertical" id="form_addCard">
                     <Form.Item
                         label="Resource Name"
                         name="name"
@@ -121,8 +122,8 @@ export default ({ onComplete, op, data, className, type = 'default', disabled = 
                             },
                             {
                                 min: 1,
-                                max: 50,
-                                message: 'Please input resource name with 1-50 character',
+                                max: 15,
+                                message: 'Please input resource name with 1-15 character',
                             },
                         ]}
                     >
@@ -209,7 +210,7 @@ export default ({ onComplete, op, data, className, type = 'default', disabled = 
                                                     },
                                                 ]}
                                             >
-                                                <Input placeholder="Value" />
+                                                <Input placeholder="Value" id="input_CardConfigurationValue" />
                                             </Form.Item>
                                             <Form.Item
                                                 className="!mb-2"
@@ -224,7 +225,7 @@ export default ({ onComplete, op, data, className, type = 'default', disabled = 
                                                     },
                                                 ]}
                                             >
-                                                <Input placeholder="Description" />
+                                                <Input placeholder="Description" id="input_CardConfigurationDescription" />
                                             </Form.Item>
                                             {fields.length > 1 && <MinusCircleOutlined onClick={() => remove(name)} />}
                                             {i === fields.length - 1 && <PlusCircleOutlined onClick={() => add(name)} />}

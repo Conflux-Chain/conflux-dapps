@@ -1,3 +1,5 @@
+import create from 'zustand';
+
 import { store } from '@cfxjs/use-wallet-react/ethereum';
 import { createBalanceTracker } from '@cfxjs/use-wallet-enhance-react';
 import CRC20TokenABI from 'common/contracts/ERC20.json';
@@ -6,6 +8,9 @@ import { isProduction } from 'common/conf/Networks';
 import Networks from 'common/conf/Networks';
 import { validateHexAddress } from 'common/utils/addressUtils';
 import tokenListConfig from '../utils/tokens';
+
+import { createProvider } from './provider';
+import { immer } from 'zustand/middleware/immer';
 
 export interface Token {
     eSpace_address: string;
@@ -62,3 +67,9 @@ export const useTokenList = () => {
         trackChangeOnce: tokenBalanceStore[index].trackChangeOnce,
     }));
 };
+
+export const useBoundProviderStore = create(
+    immer((...a) => ({
+        ...createProvider(...a),
+    }))
+);

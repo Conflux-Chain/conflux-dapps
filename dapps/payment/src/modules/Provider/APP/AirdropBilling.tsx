@@ -5,13 +5,14 @@ import { useCallback, useRef, useState } from 'react';
 import { CSVType } from 'payment/src/utils/types';
 import { airdropBiiling } from 'payment/src/utils/request';
 import { AuthESpace } from 'common/modules/AuthConnectButton';
+import { useBoundProviderStore } from 'payment/src/store';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
-    onComplete?: () => void;
     address: string;
 }
 
-export default ({ onComplete, address }: Props) => {
+export default ({ address }: Props) => {
+    const { fetch } = useBoundProviderStore((state) => state.billing);
     const inputRef = useRef<HTMLInputElement>(null);
     const [loading, setLoading] = useState<boolean>(false);
 
@@ -30,7 +31,7 @@ export default ({ onComplete, address }: Props) => {
                         await airdropBiiling(results.data as CSVType, address as string);
                         setLoading(false);
                         showToast(`Airdrop success`, { type: 'success' });
-                        onComplete && onComplete();
+                        address && fetch(address);
                     } catch (error) {
                         console.log('airdrop error: ', error);
                         setLoading(false);
