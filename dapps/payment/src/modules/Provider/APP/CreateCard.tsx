@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Button, Input, Modal, Form, InputNumber, Space } from 'antd';
 import { configAPPCard } from 'payment/src/utils/request';
 import { AuthESpace } from 'common/modules/AuthConnectButton';

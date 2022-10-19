@@ -8,8 +8,7 @@ import { isProduction } from 'common/conf/Networks';
 import Networks from 'common/conf/Networks';
 import { validateHexAddress } from 'common/utils/addressUtils';
 import tokenListConfig from '../utils/tokens';
-
-import { createProvider } from './provider';
+import { getAPPs, getAPPCards, getAPPAPIs } from 'payment/src/utils/request';
 import { immer } from 'zustand/middleware/immer';
 
 export interface Token {
@@ -69,7 +68,90 @@ export const useTokenList = () => {
 };
 
 export const useBoundProviderStore = create(
-    immer((...a) => ({
-        ...createProvider(...a),
+    immer((set, get) => ({
+        provider: {
+            loading: false,
+            error: null,
+            data: {
+                list: [],
+                total: 0,
+            },
+            fetch: async (owner: string) => {
+                set((state) => {
+                    state.provider.loading = true;
+                });
+                const data = await getAPPs(owner);
+                set((state) => {
+                    state.provider.data.list = data;
+                    state.provider.data.total = data.length;
+                });
+                set((state) => {
+                    state.provider.loading = false;
+                });
+            },
+        },
+        subscription: {
+            loading: false,
+            error: null,
+            data: {
+                list: [],
+                total: 0,
+            },
+            fetch: async (owner: string) => {
+                set((state) => {
+                    state.subscription.loading = true;
+                });
+                const data = await getAPPCards(owner);
+                set((state) => {
+                    state.subscription.data.list = data.list;
+                    state.subscription.data.total = data.total;
+                });
+                set((state) => {
+                    state.subscription.loading = false;
+                });
+            },
+        },
+        billing: {
+            loading: false,
+            error: null,
+            data: {
+                list: [],
+                total: 0,
+            },
+            fetch: async (owner: string) => {
+                set((state) => {
+                    state.billing.loading = true;
+                });
+                const data = await getAPPAPIs(owner);
+                set((state) => {
+                    state.billing.data.list = data.list;
+                    state.billing.data.total = data.total;
+                });
+                set((state) => {
+                    state.billing.loading = false;
+                });
+            },
+        },
+        consumerAPPs: {
+            loading: false,
+            error: null,
+            data: {
+                list: [],
+                total: 0,
+            },
+            fetch: async () => {
+                set((state) => {
+                    state.consumerAPPs.loading = true;
+                });
+                const data = await getAPPs();
+                set((state) => {
+                    state.consumerAPPs.data.list = data;
+                    state.consumerAPPs.data.total = data.length;
+                });
+                set((state) => {
+                    state.consumerAPPs.loading = false;
+                });
+            },
+        },
     }))
 );

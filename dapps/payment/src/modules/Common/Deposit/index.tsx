@@ -7,18 +7,29 @@ import { showToast } from 'common/components/showPopup/Toast';
 import { startTrack, useTokenList } from 'payment/src/store';
 import { ethers } from 'ethers';
 import { ButtonType } from 'antd/es/button';
+import { useBoundProviderStore } from 'payment/src/store';
+import shallow from 'zustand/shallow';
+import { useParams } from 'react-router-dom';
 
 const { Option } = Select;
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
-    onComplete?: (data: any) => void;
     appAddr: string;
     disabled?: boolean;
     type?: ButtonType;
 }
 
-export default ({ appAddr, onComplete, disabled, type: buttonType, className }: Props) => {
+export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
     useEffect(startTrack, []);
+
+    const { fetchAPPs, fetchBillingResource } = useBoundProviderStore(
+        (state) => ({
+            fetchAPPs: state.consumerAPPs.fetch,
+            fetchBillingResource: state.billing.fetch,
+        }),
+        shallow
+    );
+
     const TIPs = useMemo(
         () => [
             '1. APP coin will be used as the recharge points deducted when the interface is used.',
@@ -27,6 +38,7 @@ export default ({ appAddr, onComplete, disabled, type: buttonType, className }: 
         ],
         []
     );
+    const { type: appType } = useParams();
     const account = useAccount();
     const TOKENs = useTokenList();
     const [loading, setLoading] = useState(false);
@@ -93,7 +105,11 @@ export default ({ appAddr, onComplete, disabled, type: buttonType, className }: 
 
             setLoading(false);
             setIsModalVisible(false);
-            onComplete && onComplete(appAddr);
+            if (appType) {
+                fetchBillingResource(appAddr);
+            } else {
+                fetchAPPs();
+            }
             showToast('Deposit success', { type: 'success' });
         } catch (e) {
             console.log(e);

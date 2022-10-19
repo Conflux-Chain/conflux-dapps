@@ -1,33 +1,28 @@
-import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import Title from 'payment/src/components/Title';
 import * as col from 'payment/src/utils/columns/APPs';
-import { getAPPs } from 'payment/src/utils/request';
 import { Table, Row, Col, Input, Button } from 'antd';
 import { Link } from 'react-router-dom';
 import Deposit from 'payment/src/modules/Common/Deposit';
 import { PAYMENT_TYPE } from 'payment/src/utils/constants';
 // import DepositCard from 'payment/src/modules/Common/DepositCard';
+import { useBoundProviderStore } from 'payment/src/store';
 
 const { Search } = Input;
 type DataType = any;
 
 export default () => {
-    const dataCacheRef = useRef<DataType[]>([]);
-    const [data, setData] = useState<DataType[]>([]);
-    const [filter, setFilter] = useState<string>('');
-    const [loading, setLoading] = useState<boolean>(false);
+    const [filterV, setFilterV] = useState<string>('');
 
-    const main = useCallback(async () => {
-        try {
-            setLoading(true);
-            const data = await getAPPs();
-            dataCacheRef.current = data;
-            setData(onFilter(data, filter));
-        } catch (error) {
-            console.log(error);
-        }
-        setLoading(false);
-    }, [filter]);
+    const {
+        loading,
+        data: { list },
+        fetch,
+    } = useBoundProviderStore((state) => state.consumerAPPs);
+
+    useEffect(() => {
+        fetch();
+    }, []);
 
     const columns = useMemo(
         () =>
@@ -52,14 +47,14 @@ export default () => {
                                         Details
                                     </Link>
                                 </Button>
-                                {row.type === 1 && <Deposit appAddr={row.address} onComplete={main} />}
+                                {row.type === 1 && <Deposit appAddr={row.address} />}
                                 {/* TODO add card deposit entry */}
                             </div>
                         );
                     },
                 },
             ].map((c, i) => ({ ...c, width: [3, 4, 3, 3, 3, 3][i] })),
-        [main]
+        []
     );
 
     const config = useMemo(
@@ -76,21 +71,11 @@ export default () => {
         []
     );
 
-    useEffect(() => {
-        main();
-    }, []);
+    const onSearch = useCallback((v: string) => setFilterV(v), []);
 
-    const onFilter = useCallback((data: DataType[], f: string) => {
-        return data.filter(
-            (d) =>
-                d.name.includes(f) || d.link.includes(f) || d.address.toLowerCase().includes(f.toLowerCase()) || d.owner.toLowerCase().includes(f.toLowerCase())
-        );
-    }, []);
-
-    const onSearch = useCallback((value: string) => {
-        setData(onFilter(dataCacheRef.current, value));
-        setFilter(value);
-    }, []);
+    const filteredList = list.filter(
+        (d) => d.name.includes(filterV) || d.symbol.includes(filterV) || d.link.includes(filterV) || d.address.toLowerCase().includes(filterV.toLowerCase())
+    );
 
     return (
         <>
@@ -106,7 +91,7 @@ export default () => {
 
             <div className="mt-4"></div>
 
-            <Table id="table" dataSource={data} columns={columns} rowKey="address" scroll={{ x: 800 }} pagination={false} loading={loading} />
+            <Table id="table" dataSource={filteredList} columns={columns} rowKey="address" scroll={{ x: 800 }} pagination={false} loading={loading} />
         </>
     );
 };
