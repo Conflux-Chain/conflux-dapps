@@ -1,4 +1,4 @@
-import { useRef, useEffect, type MutableRefObject } from 'react';
+import { useRef, useEffect } from 'react';
 
 const useClickOutside = <T extends Element | SVGSVGElement = any>(callback: Function) => {
     const domRef = useRef<T>(null!);

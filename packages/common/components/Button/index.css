@@ -1,6 +1,6 @@
 /** common **/
 .fui-button {
-  @apply relative inline-flex justify-center items-center rounded-[4px] font-normal whitespace-nowrap outline-none;
+  @apply relative inline-flex justify-center items-center rounded-[4px] font-normal whitespace-nowrap outline-none transition-colors;
 }
 
 button.absolute {

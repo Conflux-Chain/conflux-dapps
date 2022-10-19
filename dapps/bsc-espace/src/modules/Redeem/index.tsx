@@ -57,14 +57,14 @@ const Pool: React.FC<{
 
     return (
         <div className="w-full px-[12px] pt-[16px] pb-[24px] rounded-[4px] bg-[#FAFBFD]" id={`bsc-espace-${network.chainName}-pool`}>
-            <p className="mb-[16px] leading-[28px] text-center text-[20px] text-[#3D3F4C] ">{`${network.chainName} Pool`}</p>
+            <div className="mb-[16px] leading-[28px] text-center text-[20px] text-[#3D3F4C] ">{`${network.chainName} Pool`}</div>
             <div className="mb-[24px] flex justify-between">
                 {maximumLiquidity &&
                     peggedBalance &&
                     sections.map((section) => (
                         <div className="inline-block text-center flex-col justify-center" key={section.title}>
                             <img className="inline-block mb-[12px] w-[32px] h-[32px]" src={section.icon} alt="icon" />
-                            <p className="leading-[16px] text-[12px] text-[#898D9A]">{section.title}</p>
+                            <div className="leading-[16px] text-[12px] text-[#898D9A]">{section.title}</div>
                             <div className="leading-[22px] text-[16px] text-[#3D3F4C]">
                                 {numFormat(
                                     section.title === 'Pool'

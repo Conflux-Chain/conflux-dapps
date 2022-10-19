@@ -10,7 +10,9 @@
         "build": "turbo run build --scope=cross-space --scope=hub --scope=shuttle-flow",
         "lint": "turbo run lint",
         "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-        "dev": "turbo run dev --scope=hub --scope=shuttle-flow",
+        "preinstall": "npx only-allow yarn",
+        "dev": "turbo run dev --scope=hub",
+        "dev:hub-shuttle-flow": "turbo run dev --scope=hub --scope=shuttle-flow",
         "dev:dapp-box": "turbo run dev --scope=hub",
         "build:dapp-box": "turbo run build --scope=hub",
         "dev:cross-space": "turbo run dev --scope=cross-space",
@@ -19,6 +21,10 @@
         "build:bsc-espace": "turbo run build --scope=bsc-espace",
         "dev:airdrop": "turbo run dev --scope=airdrop",
         "build:airdrop": "turbo run build --scope=airdrop",
+        "dev:governance": "turbo run dev --scope=governance",
+        "build:governance": "turbo run build --scope=governance",
+        "dev:payment": "turbo run dev --scope=payment",
+        "build:payment": "turbo run build --scope=payment",
         "dev:shuttle-flow": "turbo run dev --scope=shuttle-flow",
         "build:shuttle-flow": "turbo run build --scope=shuttle-flow"
     },
@@ -26,7 +32,8 @@
         "prettier": "latest",
         "turbo": "latest",
         "typescript": "latest",
-        "@types/node": "latest"
+        "@types/node": "latest",
+        "only-allow": "latest"
     },
     "engines": {
         "npm": ">=7.0.0",
