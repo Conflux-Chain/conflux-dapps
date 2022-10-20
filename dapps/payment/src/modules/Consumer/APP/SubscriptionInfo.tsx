@@ -1,8 +1,8 @@
-import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
-import { getAPPCards, purchaseCard } from 'payment/src/utils/request';
+import { useEffect, useState, useCallback } from 'react';
+import { getAPPCards } from 'payment/src/utils/request';
 import { SResourceDataSourceType } from 'payment/src/utils/types';
-import { Row, Col, Select, InputNumber, Button } from 'antd';
-import DepositCard from 'payment/src/modules/Common/DepositCard';
+import { Row, Col, Select, InputNumber } from 'antd';
+import PurchaseSubscription from 'payment/src/modules/Common/PurchaseSubscription';
 const { Option } = Select;
 
 interface ResourceType extends SResourceDataSourceType {
@@ -117,7 +117,14 @@ export default ({ onChange, address }: Props) => {
                         </span>
                     </Col>
                     <Col span={3} className="text-right">
-                        <DepositCard appAddr={address} type="primary" card={selectedCard} />
+                        <PurchaseSubscription
+                            appAddr={address}
+                            type="primary"
+                            subscriptions={data.list}
+                            selectedSubscriptionId={selected as string}
+                            lock={true}
+                            amount={amount}
+                        />
                     </Col>
                 </Row>
             </>

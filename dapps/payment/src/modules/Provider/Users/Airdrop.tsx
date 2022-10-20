@@ -4,7 +4,6 @@ import Papa from 'papaparse';
 import { useCallback, useRef, useState } from 'react';
 import { CSVType } from 'payment/src/utils/types';
 import { airdropBiiling } from 'payment/src/utils/request';
-import { useParams } from 'react-router-dom';
 import { AuthESpace } from 'common/modules/AuthConnectButton';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {

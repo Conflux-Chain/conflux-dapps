@@ -98,29 +98,26 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
             if (type === 1) {
                 await approve({ tokenAddr: token.eSpace_address, appAddr });
                 await checkAllowance();
+                showToast('Approve success', { type: 'success' });
             } else {
                 await deposit({
                     appAddr: appAddr,
                     amount: toValue,
                 });
+                setIsModalVisible(false);
+                showToast('Deposit success', { type: 'success' });
+                if (pathname.includes('/consumer/paid-apps')) {
+                    fetchPaidAPPs(account);
+                } else if (pathname.includes('/consumer/apps')) {
+                    fetchAPPs();
+                } else if (appType) {
+                    fetchBillingResource(appAddr);
+                }
             }
-
-            setLoading(false);
-            setIsModalVisible(false);
-
-            if (pathname.includes('/consumer/paid-apps')) {
-                fetchPaidAPPs(account);
-            } else if (pathname.includes('/consumer/apps')) {
-                fetchAPPs();
-            } else if (appType) {
-                fetchBillingResource(appAddr);
-            }
-
-            showToast('Deposit success', { type: 'success' });
         } catch (e) {
             console.log(e);
-            setLoading(false);
         }
+        setLoading(false);
     };
 
     const handleCancel = useCallback(() => {

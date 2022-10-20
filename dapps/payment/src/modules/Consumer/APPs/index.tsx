@@ -5,8 +5,8 @@ import { Table, Row, Col, Input, Button } from 'antd';
 import { Link } from 'react-router-dom';
 import Deposit from 'payment/src/modules/Common/Deposit';
 import { PAYMENT_TYPE } from 'payment/src/utils/constants';
-// import DepositCard from 'payment/src/modules/Common/DepositCard';
 import { useBoundProviderStore } from 'payment/src/store';
+import PurchaseSubscription from 'payment/src/modules/Common/PurchaseSubscription';
 
 const { Search } = Input;
 type DataType = any;
@@ -21,6 +21,10 @@ export default () => {
     } = useBoundProviderStore((state) => state.consumerAPPs);
 
     useEffect(() => {
+        fetch();
+    }, []);
+
+    const handleComplate = useCallback(() => {
         fetch();
     }, []);
 
@@ -47,8 +51,8 @@ export default () => {
                                         Details
                                     </Link>
                                 </Button>
-                                {row.type === 1 && <Deposit appAddr={row.address} />}
-                                {/* TODO add card deposit entry */}
+                                {row.type === PAYMENT_TYPE.billing && <Deposit appAddr={row.address} />}
+                                {row.type === PAYMENT_TYPE.subscription && <PurchaseSubscription appAddr={row.address} onComplete={handleComplate} />}
                             </div>
                         );
                     },

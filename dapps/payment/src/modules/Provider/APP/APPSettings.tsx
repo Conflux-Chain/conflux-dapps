@@ -19,7 +19,6 @@ const Settings = ({ address }: Props) => {
         formAdmin.validateFields().then(async function ({ admin }) {
             try {
                 setLoadingAdmin(true);
-                console.log('admin addresses: ', admin);
                 // const d = await configAPPCard(address, {
                 //     props: admin.reduce(
                 //         // @ts-ignore
@@ -43,7 +42,6 @@ const Settings = ({ address }: Props) => {
         formRecipient.validateFields().then(async function ({ recipient }) {
             try {
                 setLoadingRecipient(true);
-                console.log('recipient addresses: ', recipient);
                 // const d = await configAPPCard(address, {
                 //     props: admin.reduce(
                 //         // @ts-ignore
