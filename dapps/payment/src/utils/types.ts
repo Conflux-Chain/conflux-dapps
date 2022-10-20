@@ -50,8 +50,8 @@ export interface DataSourceType {
     earnings: string | number;
     balance: string | number;
     airdrop: string | number;
-    frozen: string;
-    forceWithdrawDelay: string;
+    forceWithdraw: string;
+    withdrawSchedule: string;
     symbol: string;
     link: string;
     type: APPType;

@@ -4,6 +4,9 @@ import { AuthESpace } from 'common/modules/AuthConnectButton';
 import { showToast } from 'common/components/showPopup/Toast';
 import { useTokenList } from 'payment/src/store';
 import { ButtonProps } from 'antd/es/button';
+import { forceWithdraw } from 'payment/src/utils/request';
+import { useBoundProviderStore } from 'payment/src/store';
+import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
 
 const { Option } = Select;
 
@@ -14,13 +17,20 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
     onComplete?: () => void;
     disabled?: boolean;
     value: string | number;
-    tips?: string[];
-    onConfirm: () => {};
     title: string;
     buttonProps?: BottonType;
+    appAddr: string;
 }
 
-export default ({ disabled, value, tips = [], onConfirm, title, buttonProps }: Props) => {
+const TIPs = [
+    '1. After you apply for a refund or your account is frozen by the provider, the refund settlement will be entered. During the settlement period, if you use the provider service, balance may will be continuously charged.',
+    '2. The estimated amount received based on the withdrawable token type you specified.',
+    // '3. You can use the allowed cryptocurrencies to withdraw, the platform will obtain the dex quotation to calculate the estimated payment amount, or go Swappi to learn more.',
+];
+
+export default ({ disabled, value, title, buttonProps, appAddr }: Props) => {
+    const account = useAccount();
+    const { fetch } = useBoundProviderStore((state) => state.consumerPaidAPPs);
     const TOKENs = useTokenList();
     const [loading, setLoading] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
@@ -37,7 +47,8 @@ export default ({ disabled, value, tips = [], onConfirm, title, buttonProps }: P
     const handleOk = async () => {
         try {
             setLoading(true);
-            await onConfirm();
+            await forceWithdraw(appAddr);
+            account && fetch(account);
             setIsModalVisible(false);
             showToast('Withdraw success', { type: 'success' });
         } catch (e) {
@@ -145,9 +156,9 @@ export default ({ disabled, value, tips = [], onConfirm, title, buttonProps }: P
                         </Col> */}
                     </Row>
 
-                    {tips.length && (
+                    {TIPs.length && (
                         <ul id="ul_tips" className="mt-4 mb-0 p-4 bg-red-100 text-gray-600 rounded-sm">
-                            {tips.map((t, i) => (
+                            {TIPs.map((t, i) => (
                                 <li key={i}>{t}</li>
                             ))}
                         </ul>

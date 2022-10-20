@@ -149,6 +149,45 @@ export const getAPPs = async (creator?: string): Promise<DataSourceType[]> => {
     }
 };
 
+export const getPaidAPPs = async (account: string) => {
+    try {
+        const r = await getContract('util').listAppByUser(account, 0, 1e8, {
+            type: 0,
+        });
+
+        return {
+            list: r.apps.map((a) => ({
+                address: a.app,
+                name: a.name,
+                symbol: a.symbol,
+                link: a.link,
+                type: a.paymentType_,
+                billing: {
+                    airdrop: formatNumber(a.airdrop, {
+                        limit: 0,
+                        decimal: 18,
+                    }),
+                    balance: formatNumber(a.balance, {
+                        limit: 0,
+                        decimal: 18,
+                    }),
+                    deferTimeSecs: a.deferTimeSecs.toString(),
+                    withdrawSchedule: a.withdrawSchedule.toString(),
+                },
+                subscription: {
+                    name: a.vipCardName,
+                    expired: a.vipExpireAt.toNumber(),
+                },
+            })),
+            total: r.total,
+        };
+    } catch (error) {
+        console.log('getPaidAPPs error: ', error);
+        noticeError(error);
+        throw error;
+    }
+};
+
 export const postAPP = async ({ name, url, weight, description, symbol, account, type }: PostAPPType) => {
     try {
         await (
@@ -432,7 +471,7 @@ export const deposit = async ({ amount, appAddr }: { amount: string; appAddr: st
     }
 };
 
-export const getPaidAPPs = async (account: string) => {
+export const getPaidAPPs_bak = async (account: string) => {
     try {
         const apps = await CONTRACT_APPREGISTRY.listByUser(account, 0, 1e8);
         const appContracts = apps[1];
@@ -517,9 +556,9 @@ export const getAPIKey = async (appAddr: string) => {
 
 export const withdrawRequest = async (appAddr: string) => {
     try {
-        return (await getContract('app', appAddr).connect(signer).withdrawRequest()).wait();
+        return (await getContract('appv2', appAddr).connect(signer).requestForceWithdraw()).wait();
     } catch (error) {
-        console.log('withdrawRequest error: ', error);
+        console.log('requestForceWithdraw error: ', error);
         noticeError(error);
         throw error;
     }
@@ -527,7 +566,11 @@ export const withdrawRequest = async (appAddr: string) => {
 
 export const forceWithdraw = async (appAddr: string) => {
     try {
-        return (await getContract('app', appAddr).connect(signer).forceWithdraw()).wait();
+        return (
+            await getContract('appv2', appAddr)
+                .connect(signer)
+                .forceWithdraw(await signer.getAddress(), true)
+        ).wait();
     } catch (error) {
         console.log('forceWithdraw error: ', error);
         noticeError(error);

@@ -8,7 +8,7 @@ import { isProduction } from 'common/conf/Networks';
 import Networks from 'common/conf/Networks';
 import { validateHexAddress } from 'common/utils/addressUtils';
 import tokenListConfig from '../utils/tokens';
-import { getAPPs, getAPPCards, getAPPAPIs } from 'payment/src/utils/request';
+import { getAPPs, getAPPCards, getAPPAPIs, getPaidAPPs } from 'payment/src/utils/request';
 import { immer } from 'zustand/middleware/immer';
 
 export interface Token {
@@ -103,8 +103,7 @@ export const useBoundProviderStore = create(
                 });
                 const data = await getAPPCards(owner);
                 set((state) => {
-                    state.subscription.data.list = data.list;
-                    state.subscription.data.total = data.total;
+                    state.subscription.data = data;
                 });
                 set((state) => {
                     state.subscription.loading = false;
@@ -124,8 +123,7 @@ export const useBoundProviderStore = create(
                 });
                 const data = await getAPPAPIs(owner);
                 set((state) => {
-                    state.billing.data.list = data.list;
-                    state.billing.data.total = data.total;
+                    state.billing.data = data;
                 });
                 set((state) => {
                     state.billing.loading = false;
@@ -150,6 +148,26 @@ export const useBoundProviderStore = create(
                 });
                 set((state) => {
                     state.consumerAPPs.loading = false;
+                });
+            },
+        },
+        consumerPaidAPPs: {
+            loading: false,
+            error: null,
+            data: {
+                list: [],
+                total: 0,
+            },
+            fetch: async (account: string) => {
+                set((state) => {
+                    state.consumerPaidAPPs.loading = true;
+                });
+                const data = await getPaidAPPs(account);
+                set((state) => {
+                    state.consumerPaidAPPs.data = data;
+                });
+                set((state) => {
+                    state.consumerPaidAPPs.loading = false;
                 });
             },
         },

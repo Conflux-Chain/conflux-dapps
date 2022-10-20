@@ -112,7 +112,7 @@ export default ({ appAddr, onComplete, disabled, type: buttonType, className, ca
         <>
             <AuthESpace
                 className={`!rounded-sm !h-[32px] mr-2 mb-2 ${className}`}
-                id="createAPP_authConnect"
+                id="deposit_authConnect"
                 size="small"
                 connectTextType="concise"
                 checkChainMatch={true}
@@ -126,7 +126,7 @@ export default ({ appAddr, onComplete, disabled, type: buttonType, className, ca
                         disabled={disabled}
                         type={buttonType}
                     >
-                        Deposit
+                        Purchase
                     </Button>
                 )}
             />
@@ -151,12 +151,12 @@ export default ({ appAddr, onComplete, disabled, type: buttonType, className, ca
                     <Row gutter={24} className="mb-4">
                         <Col span={12}>
                             <div className="text-gray-400">Resource Name</div>
-                            <div id="cardName">{card.name}</div>
+                            <div id="span_cardName">{card.name}</div>
                         </Col>
                         <Col span={12}>
                             <div className="text-gray-400">Amount</div>
                             <InputNumber<number>
-                                id="cardAmount"
+                                id="input_cardAmount"
                                 value={amount}
                                 onChange={handleAmountChange}
                                 style={{ width: '100%' }}
@@ -170,7 +170,7 @@ export default ({ appAddr, onComplete, disabled, type: buttonType, className, ca
                     <Row gutter={24}>
                         <Col span={12}>
                             <div className="text-gray-400">From</div>
-                            <Select id="select_token" defaultValue={fromValue} style={{ width: '100%' }} onChange={handleFromChange} disabled>
+                            <Select id="select_tokenName" defaultValue={fromValue} style={{ width: '100%' }} onChange={handleFromChange} disabled>
                                 {TOKENs.map((t) => (
                                     <Option key={t.eSpace_address} value={t.eSpace_address}>
                                         {t.name}
@@ -181,7 +181,7 @@ export default ({ appAddr, onComplete, disabled, type: buttonType, className, ca
                         <Col span={12}>
                             <div className="text-gray-400">To</div>
                             <InputNumber<string>
-                                id="input_APPCoin_value"
+                                id="input_APPCoinValue"
                                 stringMode
                                 value={appCoinAmount}
                                 addonAfter="APP Coin"

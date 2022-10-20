@@ -9,7 +9,7 @@ import { ethers } from 'ethers';
 import { ButtonType } from 'antd/es/button';
 import { useBoundProviderStore } from 'payment/src/store';
 import shallow from 'zustand/shallow';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 
 const { Option } = Select;
 
@@ -22,8 +22,9 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
 export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
     useEffect(startTrack, []);
 
-    const { fetchAPPs, fetchBillingResource } = useBoundProviderStore(
+    const { fetchAPPs, fetchBillingResource, fetchPaidAPPs } = useBoundProviderStore(
         (state) => ({
+            fetchPaidAPPs: state.consumerPaidAPPs.fetch,
             fetchAPPs: state.consumerAPPs.fetch,
             fetchBillingResource: state.billing.fetch,
         }),
@@ -39,6 +40,7 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
         []
     );
     const { type: appType } = useParams();
+    const { pathname } = useLocation();
     const account = useAccount();
     const TOKENs = useTokenList();
     const [loading, setLoading] = useState(false);
@@ -105,11 +107,15 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
 
             setLoading(false);
             setIsModalVisible(false);
-            if (appType) {
-                fetchBillingResource(appAddr);
-            } else {
+
+            if (pathname.includes('/consumer/paid-apps')) {
+                fetchPaidAPPs(account);
+            } else if (pathname.includes('/consumer/apps')) {
                 fetchAPPs();
+            } else if (appType) {
+                fetchBillingResource(appAddr);
             }
+
             showToast('Deposit success', { type: 'success' });
         } catch (e) {
             console.log(e);

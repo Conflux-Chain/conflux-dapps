@@ -12,6 +12,7 @@ import apiWeightTokenABI from './apiWeightToken.json';
 import vipCoinABI from './vipCoin.json';
 import cardShopABI from './cardShop.json';
 import cardShopTemplateABI from './cardShopTemplate.json';
+import utilABI from './util.json';
 
 // TODO to add mainnet controller contract address
 export const CONTRACT_ADDRESSES = {
@@ -20,6 +21,7 @@ export const CONTRACT_ADDRESSES = {
     multicall: Networks.eSpace.chainId === '71' ? '0xd59149a01f910c3c448e41718134baeae55fa784' : '',
 
     appRegistry: Networks.eSpace.chainId === '71' ? '0xD24B98Ed55B46d69f8f1918E1EeAFd7DB5E6Ee4E' : '',
+    util: Networks.eSpace.chainId === '71' ? '0xb4611cfb227379702fc2565f156051c8913292d2' : '',
 };
 
 export const CONTRACT_ABI = {
@@ -36,6 +38,7 @@ export const CONTRACT_ABI = {
     vipCoin: vipCoinABI,
     cardShop: cardShopABI,
     cardShopTemplate: cardShopTemplateABI,
+    util: utilABI,
 };
 
 export const DECIMALS = {

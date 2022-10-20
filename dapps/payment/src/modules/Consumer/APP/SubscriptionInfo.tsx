@@ -49,11 +49,6 @@ export default ({ onChange, address }: Props) => {
         setSelected(value);
     }, []);
 
-    const handlePurchase = useCallback(async () => {
-        console.log('total price: ', amount * Number(selectedCard.price));
-        const r = await purchaseCard(address, selectedCard.id, amount);
-    }, [amount, selectedCard]);
-
     if (data.list.length) {
         const d = data.list.filter((d) => d.id === selected)[0];
 
@@ -62,7 +57,7 @@ export default ({ onChange, address }: Props) => {
                 <Row>
                     <Col span={3}>Resource Name</Col>
                     <Col span={20} className="text-gray-600">
-                        <Select value={selected} style={{ width: 240 }} onChange={handleChange} placeholder="--- 请选择 ---">
+                        <Select value={selected} style={{ width: 240 }} onChange={handleChange} placeholder="--- 请选择 ---" id="select_SubscriptionResource">
                             {data.list.map((l) => (
                                 <Option value={l.id} key={l.id}>
                                     {l.name}
@@ -73,19 +68,19 @@ export default ({ onChange, address }: Props) => {
                 </Row>
                 <Row className="mt-2">
                     <Col span={3}>Price</Col>
-                    <Col span={20} className="text-gray-600">
+                    <Col span={20} className="text-gray-600" id="span_SubscriptionPrice">
                         {d.price || '--'}
                     </Col>
                 </Row>
                 <Row className="mt-3">
                     <Col span={3}>Basic Days</Col>
-                    <Col span={20} className="text-gray-600">
+                    <Col span={20} className="text-gray-600" id="span_SubscriptionDuration">
                         {d.duration || '--'}
                     </Col>
                 </Row>
                 <Row className="mt-3">
                     <Col span={3}>Giveaways</Col>
-                    <Col span={20} className="text-gray-600">
+                    <Col span={20} className="text-gray-600" id="span_SubscriptionGiveaways">
                         {d.giveawayDuration || '--'}
                     </Col>
                 </Row>
@@ -93,7 +88,7 @@ export default ({ onChange, address }: Props) => {
                     <Col span={3}>Configuration</Col>
                     <Col span={20} className="text-gray-600">
                         {d.configurations.map((d, i) => (
-                            <div className={!!i ? 'mt-2' : ''} key={d.value}>
+                            <div className={!!i ? 'mt-2' : ''} key={d.value} id="span_SubscriptionDescription">
                                 {d.description}
                             </div>
                         ))}
@@ -116,12 +111,12 @@ export default ({ onChange, address }: Props) => {
                 </Row>
                 <Row className="mt-6">
                     <Col span={21} className="text-right">
-                        Total: <span className="text-lg">{amount * Number(d.price)}</span>
+                        Total:{' '}
+                        <span className="text-lg" id="span_SubscriptionTotal">
+                            {amount * Number(d.price)}
+                        </span>
                     </Col>
                     <Col span={3} className="text-right">
-                        {/* <Button type="primary" disabled={!amount} onClick={handlePurchase}>
-                            Purchase
-                        </Button> */}
                         <DepositCard appAddr={address} type="primary" card={selectedCard} />
                     </Col>
                 </Row>

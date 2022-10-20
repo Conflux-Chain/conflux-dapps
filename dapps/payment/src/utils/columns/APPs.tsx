@@ -52,6 +52,47 @@ export const APPAddress = {
     },
 };
 
+export const resourceName = {
+    title: 'Resource Name',
+    dataIndex: 'subscription',
+    key: 'resourceName',
+    render(val, row) {
+        return row.type === PAYMENT_TYPE.subscription ? val.name : '--';
+    },
+};
+
+export const resourceExpiredTime = {
+    title: 'Expired Time',
+    dataIndex: 'subscription',
+    key: 'expiredTime',
+    render(val, row) {
+        if (row.type === PAYMENT_TYPE.subscription) {
+            const d = new Date(val.expired * 1000);
+            return `${d.toLocaleDateString()} ${d.toLocaleTimeString()}`;
+        } else {
+            return '--';
+        }
+    },
+};
+
+export const billingAirdrop = {
+    title: 'Billing Airdrop',
+    dataIndex: 'billing',
+    key: 'billingAirdrop',
+    render(val, row) {
+        return row.type === PAYMENT_TYPE.billing ? <NumberWithLimit>{val.airdrop}</NumberWithLimit> : '--';
+    },
+};
+
+export const billingBalance = {
+    title: 'Billing Balance',
+    dataIndex: 'billing',
+    key: 'billingBalance',
+    render(val, row) {
+        return row.type === PAYMENT_TYPE.billing ? <NumberWithLimit>{val.balance}</NumberWithLimit> : '--';
+    },
+};
+
 export const owner = {
     title: 'Owner',
     dataIndex: 'owner',
