@@ -1,0 +1,83 @@
+[
+    { "inputs": [], "stateMutability": "nonpayable", "type": "constructor" },
+    {
+        "anonymous": false,
+        "inputs": [{ "indexed": false, "internalType": "uint8", "name": "version", "type": "uint8" }],
+        "name": "Initialized",
+        "type": "event"
+    },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "user", "type": "address" },
+            { "internalType": "address", "name": "app", "type": "address" }
+        ],
+        "name": "getUserAppInfo",
+        "outputs": [
+            {
+                "components": [
+                    { "internalType": "address", "name": "app", "type": "address" },
+                    { "internalType": "string", "name": "name", "type": "string" },
+                    { "internalType": "string", "name": "symbol", "type": "string" },
+                    { "internalType": "string", "name": "link", "type": "string" },
+                    { "internalType": "enum IApp.PaymentType", "name": "paymentType_", "type": "uint8" },
+                    { "internalType": "string", "name": "vipCardName", "type": "string" },
+                    { "internalType": "uint256", "name": "vipExpireAt", "type": "uint256" },
+                    { "internalType": "uint256", "name": "balance", "type": "uint256" },
+                    { "internalType": "uint256", "name": "airdrop", "type": "uint256" },
+                    { "internalType": "uint256", "name": "deferTimeSecs", "type": "uint256" },
+                    { "internalType": "uint256", "name": "withdrawSchedule", "type": "uint256" }
+                ],
+                "internalType": "struct ReadFunctions.UserApp",
+                "name": "userApp",
+                "type": "tuple"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [{ "internalType": "contract IAppRegistry", "name": "reg_", "type": "address" }],
+        "name": "initialize",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "user", "type": "address" },
+            { "internalType": "uint256", "name": "offset", "type": "uint256" },
+            { "internalType": "uint256", "name": "limit", "type": "uint256" }
+        ],
+        "name": "listAppByUser",
+        "outputs": [
+            { "internalType": "uint256", "name": "total", "type": "uint256" },
+            {
+                "components": [
+                    { "internalType": "address", "name": "app", "type": "address" },
+                    { "internalType": "string", "name": "name", "type": "string" },
+                    { "internalType": "string", "name": "symbol", "type": "string" },
+                    { "internalType": "string", "name": "link", "type": "string" },
+                    { "internalType": "enum IApp.PaymentType", "name": "paymentType_", "type": "uint8" },
+                    { "internalType": "string", "name": "vipCardName", "type": "string" },
+                    { "internalType": "uint256", "name": "vipExpireAt", "type": "uint256" },
+                    { "internalType": "uint256", "name": "balance", "type": "uint256" },
+                    { "internalType": "uint256", "name": "airdrop", "type": "uint256" },
+                    { "internalType": "uint256", "name": "deferTimeSecs", "type": "uint256" },
+                    { "internalType": "uint256", "name": "withdrawSchedule", "type": "uint256" }
+                ],
+                "internalType": "struct ReadFunctions.UserApp[]",
+                "name": "apps",
+                "type": "tuple[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "registry",
+        "outputs": [{ "internalType": "contract IAppRegistry", "name": "", "type": "address" }],
+        "stateMutability": "view",
+        "type": "function"
+    }
+]

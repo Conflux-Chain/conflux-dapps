@@ -7,18 +7,30 @@ import { showToast } from 'common/components/showPopup/Toast';
 import { startTrack, useTokenList } from 'payment/src/store';
 import { ethers } from 'ethers';
 import { ButtonType } from 'antd/es/button';
+import { useBoundProviderStore } from 'payment/src/store';
+import shallow from 'zustand/shallow';
+import { useParams, useLocation } from 'react-router-dom';
 
 const { Option } = Select;
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
-    onComplete?: (data: any) => void;
     appAddr: string;
     disabled?: boolean;
     type?: ButtonType;
 }
 
-export default ({ appAddr, onComplete, disabled, type: buttonType, className }: Props) => {
+export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
     useEffect(startTrack, []);
+
+    const { fetchAPPs, fetchBillingResource, fetchPaidAPPs } = useBoundProviderStore(
+        (state) => ({
+            fetchPaidAPPs: state.consumerPaidAPPs.fetch,
+            fetchAPPs: state.consumerAPPs.fetch,
+            fetchBillingResource: state.billing.fetch,
+        }),
+        shallow
+    );
+
     const TIPs = useMemo(
         () => [
             '1. APP coin will be used as the recharge points deducted when the interface is used.',
@@ -27,6 +39,8 @@ export default ({ appAddr, onComplete, disabled, type: buttonType, className }: 
         ],
         []
     );
+    const { type: appType } = useParams();
+    const { pathname } = useLocation();
     const account = useAccount();
     const TOKENs = useTokenList();
     const [loading, setLoading] = useState(false);
@@ -52,8 +66,8 @@ export default ({ appAddr, onComplete, disabled, type: buttonType, className }: 
     const checkAllowance = useCallback(
         async function main() {
             const allowance = await getAllowance({
-                account: account as string,
                 tokenAddr: token.eSpace_address,
+                appAddr: appAddr,
             });
 
             if (allowance.lt(ethers.utils.parseUnits(toValue || '0'))) {
@@ -82,25 +96,28 @@ export default ({ appAddr, onComplete, disabled, type: buttonType, className }: 
 
             // need approve first
             if (type === 1) {
-                await approve({ tokenAddr: token.eSpace_address });
+                await approve({ tokenAddr: token.eSpace_address, appAddr });
                 await checkAllowance();
+                showToast('Approve success', { type: 'success' });
             } else {
                 await deposit({
-                    account: account as string,
-                    tokenAddr: token.eSpace_address,
                     appAddr: appAddr,
                     amount: toValue,
                 });
+                setIsModalVisible(false);
+                showToast('Deposit success', { type: 'success' });
+                if (pathname.includes('/consumer/paid-apps')) {
+                    fetchPaidAPPs(account);
+                } else if (pathname.includes('/consumer/apps')) {
+                    fetchAPPs();
+                } else if (appType) {
+                    fetchBillingResource(appAddr);
+                }
             }
-
-            setLoading(false);
-            setIsModalVisible(false);
-            onComplete && onComplete(appAddr);
-            showToast('Deposit success', { type: 'success' });
         } catch (e) {
             console.log(e);
-            setLoading(false);
         }
+        setLoading(false);
     };
 
     const handleCancel = useCallback(() => {

@@ -1,47 +1,49 @@
-import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import Title from 'payment/src/components/Title';
 import * as col from 'payment/src/utils/columns/APPs';
-import { DataSourceType } from 'payment/src/utils/types';
-import { getAPPs } from 'payment/src/utils/request';
 import { Table, Row, Col, Input, Button } from 'antd';
 import { Link } from 'react-router-dom';
 import Deposit from 'payment/src/modules/Common/Deposit';
+import { PAYMENT_TYPE } from 'payment/src/utils/constants';
+import { useBoundProviderStore } from 'payment/src/store';
+import PurchaseSubscription from 'payment/src/modules/Common/PurchaseSubscription';
 
 const { Search } = Input;
+type DataType = any;
 
 export default () => {
-    const dataCacheRef = useRef<DataSourceType[]>([]);
-    const [data, setData] = useState<DataSourceType[]>([]);
-    const [filter, setFilter] = useState<string>('');
-    const [loading, setLoading] = useState<boolean>(false);
+    const [filterV, setFilterV] = useState<string>('');
 
-    const main = useCallback(async () => {
-        try {
-            setLoading(true);
-            const data = await getAPPs();
-            dataCacheRef.current = data;
-            setData(onFilter(data, filter));
-        } catch (error) {
-            console.log(error);
-        }
-        setLoading(false);
-    }, [filter]);
+    const {
+        loading,
+        data: { list },
+        fetch,
+    } = useBoundProviderStore((state) => state.consumerAPPs);
+
+    useEffect(() => {
+        fetch();
+    }, []);
+
+    const handleComplate = useCallback(() => {
+        fetch();
+    }, []);
 
     const columns = useMemo(
         () =>
             [
-                col.APPName,
-                col.baseURL,
                 col.APPAddress,
-                col.owner,
+                col.APPName,
+                col.APPSymbol,
+                col.link,
+                col.pType,
                 {
                     ...col.action(),
-                    render(_: string, row: DataSourceType) {
+                    render(_: string, row: DataType) {
                         return (
                             <div className="flex align-middle">
                                 <Button id="button_detail" className="mr-2">
                                     <Link
-                                        to={`/payment/consumer/app/${row.address}`}
+                                        to={`/payment/consumer/app/${PAYMENT_TYPE[row.type]}/${row.address}`}
                                         state={{
                                             from: 'apps',
                                         }}
@@ -49,13 +51,14 @@ export default () => {
                                         Details
                                     </Link>
                                 </Button>
-                                <Deposit appAddr={row.address} onComplete={main} />
+                                {row.type === PAYMENT_TYPE.billing && <Deposit appAddr={row.address} />}
+                                {row.type === PAYMENT_TYPE.subscription && <PurchaseSubscription appAddr={row.address} onComplete={handleComplate} />}
                             </div>
                         );
                     },
                 },
-            ].map((c, i) => ({ ...c, width: [3, 4, 3, 3, 3][i] })),
-        [main]
+            ].map((c, i) => ({ ...c, width: [3, 4, 3, 3, 3, 3][i] })),
+        []
     );
 
     const config = useMemo(
@@ -72,24 +75,11 @@ export default () => {
         []
     );
 
-    useEffect(() => {
-        main();
-    }, []);
+    const onSearch = useCallback((v: string) => setFilterV(v), []);
 
-    const onFilter = useCallback((data: DataSourceType[], f: string) => {
-        return data.filter(
-            (d) =>
-                d.name.includes(f) ||
-                d.baseURL.includes(f) ||
-                d.address.toLowerCase().includes(f.toLowerCase()) ||
-                d.owner.toLowerCase().includes(f.toLowerCase())
-        );
-    }, []);
-
-    const onSearch = useCallback((value: string) => {
-        setData(onFilter(dataCacheRef.current, value));
-        setFilter(value);
-    }, []);
+    const filteredList = list.filter(
+        (d) => d.name.includes(filterV) || d.symbol.includes(filterV) || d.link.includes(filterV) || d.address.toLowerCase().includes(filterV.toLowerCase())
+    );
 
     return (
         <>
@@ -98,14 +88,14 @@ export default () => {
             <Row gutter={12}>
                 <Col span="8">
                     <div className="search_container">
-                        <Search placeholder="Search APP name, BaseURL, APP Address, Owner" allowClear enterButton="Search" onSearch={onSearch} />
+                        <Search placeholder="Search APP name, Link, APP Address, Owner" allowClear enterButton="Search" onSearch={onSearch} />
                     </div>
                 </Col>
             </Row>
 
             <div className="mt-4"></div>
 
-            <Table id="table" dataSource={data} columns={columns} rowKey="address" scroll={{ x: 800 }} pagination={false} loading={loading} />
+            <Table id="table" dataSource={filteredList} columns={columns} rowKey="address" scroll={{ x: 800 }} pagination={false} loading={loading} />
         </>
     );
 };

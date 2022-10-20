@@ -8,11 +8,12 @@ interface APPDetailProps extends React.HTMLAttributes<HTMLDivElement> {
         content: React.ReactNode;
         tip?: string;
     }>;
+    column?: number;
 }
 
-export const APPDetailRow = ({ details = [] }: APPDetailProps): React.ReactElement => (
+export const APPDetailRow = ({ details = [], column = 2 }: APPDetailProps): React.ReactElement => (
     <div id="APPDetailRow_container">
-        <Descriptions title="" layout="vertical" column={2}>
+        <Descriptions title="" layout="horizontal" column={column}>
             {details.map((d, i) => (
                 <Descriptions.Item key={i} label={<span className="text-gray-400">{d.label}</span>}>
                     {d.content}

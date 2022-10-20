@@ -5,15 +5,16 @@ import { AuthESpace } from 'common/modules/AuthConnectButton';
 import { showToast } from 'common/components/showPopup/Toast';
 import { ResourceDataSourceType } from 'payment/src/utils/types';
 import { useParams } from 'react-router-dom';
+import { useBoundProviderStore } from 'payment/src/store';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
-    onComplete?: (data: any) => void;
     data: ResourceDataSourceType;
     type?: string;
     disabled?: boolean;
 }
 
-export default ({ onComplete, data, disabled = false }: Props) => {
+export default ({ data, disabled = false }: Props) => {
+    const { fetch } = useBoundProviderStore((state) => state.billing);
     const { address } = useParams();
     const [loading, setLoading] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
@@ -31,7 +32,7 @@ export default ({ onComplete, data, disabled = false }: Props) => {
                 resourceId: data.resourceId,
                 weight: data.weight,
             });
-            onComplete && onComplete(d);
+            address && fetch(address);
             showToast('Delete API success', { type: 'success' });
             setIsModalVisible(false);
         } catch (e) {
@@ -55,7 +56,7 @@ export default ({ onComplete, data, disabled = false }: Props) => {
                 color="primary"
                 shape="rect"
                 authContent={() => (
-                    <Button className="mr-1" onClick={() => handleClick()} disabled={disabled}>
+                    <Button id="button_DeleteAPI" className="mr-1" onClick={() => handleClick()} disabled={disabled}>
                         Delete
                     </Button>
                 )}

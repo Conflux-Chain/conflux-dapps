@@ -9,3 +9,11 @@ export enum OP_ACTION {
     'delete',
     '-',
 }
+
+export enum PAYMENT_TYPE {
+    none,
+    billing,
+    subscription,
+}
+
+export const ONE_DAY_SECONDS = 86400; // 24 * 60 * 60

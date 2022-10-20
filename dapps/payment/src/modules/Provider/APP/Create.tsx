@@ -9,29 +9,30 @@ import ModalTip from 'payment/src/components/ModalTip';
 import { OP_ACTION } from 'payment/src/utils/constants';
 import { formatNumber } from 'payment/src/utils';
 import { ButtonType } from 'antd/lib/button';
+import { useBoundProviderStore } from 'payment/src/store';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
-    onComplete?: (data: any) => void;
     op: OP_ACTION;
     data?: Partial<ResourceDataSourceType>;
     type?: ButtonType;
     disabled?: boolean;
 }
 
-export default ({ onComplete, op, data = {}, className, type = 'default', disabled = false }: Props) => {
+export default ({ op, data = {}, className, type = 'default', disabled = false }: Props) => {
+    const { fetch } = useBoundProviderStore((state) => state.billing);
     const { address } = useParams();
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
     useEffect(() => {
-        if (op === OP_ACTION.edit) {
+        if (op === OP_ACTION.edit && !form.getFieldValue('resource')) {
             form.setFieldsValue({
                 resource: data.resourceId,
                 weight: data.weight,
             });
         }
-    }, [op, data]);
+    });
 
     const TIPs = useMemo(() => {
         if (op === OP_ACTION.add) {
@@ -59,19 +60,21 @@ export default ({ onComplete, op, data = {}, className, type = 'default', disabl
                     weight: weight,
                 });
                 setIsModalVisible(false);
-                onComplete && onComplete(d);
+                address && fetch(address);
                 showToast(`${title} success`, { type: 'success' });
             } catch (e) {
                 console.log(e);
             }
             setLoading(false);
-            form.resetFields();
         });
     }, []);
 
     const handleCancel = useCallback(() => {
         setIsModalVisible(false);
         setLoading(false);
+    }, []);
+
+    const resetFields = useCallback(() => {
         form.resetFields();
     }, []);
 
@@ -107,6 +110,7 @@ export default ({ onComplete, op, data = {}, className, type = 'default', disabl
                     id: 'button_cancel',
                 }}
                 destroyOnClose
+                afterClose={resetFields}
             >
                 <Form form={form} name="api" autoComplete="off" layout="vertical">
                     <Form.Item
