@@ -474,8 +474,7 @@ export const getAPPCards = async (address: RequestProps['address']): Promise<APP
             list: cards[0].map((c: any) => ({
                 id: c.id.toString(),
                 name: c.name,
-                // price: ethers.utils.formatUnits(c.price.toString()),
-                price: c.price.toString(),
+                price: ethers.utils.formatUnits(c.price),
                 duration: c.duration.div(ONE_DAY_SECONDS).toString(),
                 giveawayDuration: c.giveawayDuration.div(ONE_DAY_SECONDS).toString(),
                 description: c.description,
@@ -499,13 +498,13 @@ export const configAPPCard = async (address: RequestProps['address'], data: any)
     try {
         const contracts = await getAPPsRelatedContract([address].map((app: any) => app));
         const cardTemplate = await getContract('cardShop', contracts[0].cardShop).connect(signer).template();
+
         return await (
             await getContract('cardShopTemplate', cardTemplate)
                 .connect(signer)
                 .config({
                     ...data,
-                    price: data.price,
-                    // price: ethers.utils.parseUnits(String(data.price)),
+                    price: ethers.utils.parseUnits(String(data.price)),
                 })
         ).wait();
     } catch (error) {
