@@ -7,6 +7,7 @@ import { showToast } from 'common/components/showPopup/Toast';
 import Tip from 'payment/src/components/Tip';
 import { formatNumber } from 'payment/src/utils';
 import { useBoundProviderStore } from 'payment/src/store';
+import { PAYMENT_TYPE } from 'payment/src/utils/constants';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -16,7 +17,7 @@ export default ({}: Props) => {
     const [loading, setLoading] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
     const showModal = useCallback(() => setIsModalVisible(true), []);
-    const [type, setType] = useState('1');
+    const [type, setType] = useState(String(PAYMENT_TYPE.subscription));
     const { fetch } = useBoundProviderStore((state) => state.provider);
 
     const handleOk = useCallback(() => {
@@ -94,7 +95,7 @@ export default ({}: Props) => {
                     layout="vertical"
                     onValuesChange={handleValuesChange}
                     initialValues={{
-                        type: '1',
+                        type: type,
                     }}
                 >
                     <Form.Item
