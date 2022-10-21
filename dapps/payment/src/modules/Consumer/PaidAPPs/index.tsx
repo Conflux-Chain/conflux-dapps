@@ -12,7 +12,7 @@ import Withdraw from 'payment/src/modules/Common/Withdraw';
 import { useBoundProviderStore } from 'payment/src/store';
 import { PAYMENT_TYPE } from 'payment/src/utils/constants';
 import BigNumber from 'bignumber.js';
-// import PurchaseSubscription from 'payment/src/modules/Common/PurchaseSubscription';
+import PurchaseSubscription from 'payment/src/modules/Common/PurchaseSubscription';
 
 const { Search } = Input;
 
@@ -44,9 +44,9 @@ export default () => {
         account && fetch(account);
     }, [account]);
 
-    // const handleComplate = useCallback(() => {
-    //     account && fetch(account);
-    // }, []);
+    const handleComplate = useCallback(() => {
+        account && fetch(account);
+    }, []);
 
     const columns = useMemo(
         () =>
@@ -109,7 +109,7 @@ export default () => {
                                             Details
                                         </Link>
                                     </Button>
-                                    {/* <PurchaseSubscription appAddr={row.address} onComplete={handleComplate} /> */}
+                                    <PurchaseSubscription appAddr={row.address} onComplete={handleComplate} />
                                 </div>
                             );
                         }
