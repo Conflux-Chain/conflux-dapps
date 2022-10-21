@@ -109,6 +109,7 @@ export default () => {
                                             Details
                                         </Link>
                                     </Button>
+                                    <APIKey appAddr={row.address} />
                                     <PurchaseSubscription appAddr={row.address} onComplete={handleComplate} />
                                 </div>
                             );
