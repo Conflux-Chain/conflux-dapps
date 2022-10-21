@@ -7,6 +7,7 @@ import { showToast } from 'common/components/showPopup/Toast';
 import { startTrack, useTokenList } from 'payment/src/store';
 import { ethers } from 'ethers';
 import { ButtonType } from 'antd/es/button';
+import BigNumber from 'bignumber.js';
 
 const { Option } = Select;
 
@@ -56,7 +57,7 @@ export default ({
     const subscription = subscriptions.filter((c) => c.id === selectedSubscriptionId)[0];
     const token = TOKENs.filter((t) => t.eSpace_address === fromValue)[0];
     const tokenBalance = token.balance?.toDecimalStandardUnit();
-    const appCoinAmount = String(amount * Number(subscription?.price || 0));
+    const appCoinAmount = new BigNumber(subscription?.price || 0).multipliedBy(amount).toFixed();
 
     useEffect(() => {
         outerSelectedSubscriptionId && setSelectedSubscriptionId(outerSelectedSubscriptionId);
@@ -129,7 +130,7 @@ export default ({
                 await checkAllowance();
                 showToast('Approve success', { type: 'success' });
             } else {
-                await purchaseSubscription(appAddr, subscription.id, appCoinAmount);
+                await purchaseSubscription(appAddr, subscription.id, amount);
                 showToast('Purchase success', { type: 'success' });
                 onComplete && onComplete(appAddr);
                 setIsModalVisible(false);

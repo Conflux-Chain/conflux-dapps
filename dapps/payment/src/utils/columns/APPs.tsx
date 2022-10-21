@@ -68,7 +68,16 @@ export const resourceExpiredTime = {
     render(val, row) {
         if (row.type === PAYMENT_TYPE.subscription) {
             const d = new Date(val.expired * 1000);
-            return `${d.toLocaleDateString()} ${d.toLocaleTimeString()}`;
+            const isExpired = +new Date() > +d;
+
+            return (
+                <div>
+                    <div>
+                        {d.toLocaleDateString()} {d.toLocaleTimeString()}
+                    </div>
+                    {isExpired && <div className="text-red-500">Expired</div>}
+                </div>
+            );
         } else {
             return '--';
         }
