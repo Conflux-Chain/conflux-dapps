@@ -97,6 +97,9 @@ export default () => {
                                 </div>
                             );
                         } else {
+                            const d = new Date(row.subscription.expired * 1000);
+                            const isExpired = +new Date() > +d;
+
                             return (
                                 <div className="flex align-middle flex-wrap">
                                     <Button id="button_detail" className="mr-2 mb-2">
@@ -109,7 +112,7 @@ export default () => {
                                             Details
                                         </Link>
                                     </Button>
-                                    <APIKey appAddr={row.address} />
+                                    {!isExpired && <APIKey appAddr={row.address} />}
                                     <PurchaseSubscription appAddr={row.address} onComplete={handleComplate} />
                                 </div>
                             );
