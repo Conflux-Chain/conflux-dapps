@@ -101,7 +101,7 @@ export const id: ColumnType<SResourceDataSourceType> = {
 };
 
 export const name: ColumnType<SResourceDataSourceType> = {
-    title: 'Name',
+    title: 'Resource',
     dataIndex: 'name',
     key: 'name',
 };
@@ -113,13 +113,13 @@ export const price: ColumnType<SResourceDataSourceType> = {
 };
 
 export const duration: ColumnType<SResourceDataSourceType> = {
-    title: 'Duration',
+    title: 'Basic Days',
     dataIndex: 'duration',
     key: 'duration',
 };
 
 export const giveawayDuration: ColumnType<SResourceDataSourceType> = {
-    title: 'Diveaways',
+    title: 'Giveaways',
     dataIndex: 'giveawayDuration',
     key: 'giveawayDuration',
 };

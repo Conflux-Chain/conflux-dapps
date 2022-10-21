@@ -12,7 +12,7 @@ import Withdraw from 'payment/src/modules/Common/Withdraw';
 import { useBoundProviderStore } from 'payment/src/store';
 import { PAYMENT_TYPE } from 'payment/src/utils/constants';
 import BigNumber from 'bignumber.js';
-// import PurchaseSubscription from 'payment/src/modules/Common/PurchaseSubscription';
+import PurchaseSubscription from 'payment/src/modules/Common/PurchaseSubscription';
 
 const { Search } = Input;
 
@@ -44,9 +44,9 @@ export default () => {
         account && fetch(account);
     }, [account]);
 
-    // const handleComplate = useCallback(() => {
-    //     account && fetch(account);
-    // }, []);
+    const handleComplate = useCallback(() => {
+        account && fetch(account);
+    }, []);
 
     const columns = useMemo(
         () =>
@@ -97,6 +97,9 @@ export default () => {
                                 </div>
                             );
                         } else {
+                            const d = new Date(row.subscription.expired * 1000);
+                            const isExpired = +new Date() > +d;
+
                             return (
                                 <div className="flex align-middle flex-wrap">
                                     <Button id="button_detail" className="mr-2 mb-2">
@@ -109,7 +112,8 @@ export default () => {
                                             Details
                                         </Link>
                                     </Button>
-                                    {/* <PurchaseSubscription appAddr={row.address} onComplete={handleComplate} /> */}
+                                    {!isExpired && <APIKey appAddr={row.address} />}
+                                    <PurchaseSubscription appAddr={row.address} onComplete={handleComplate} />
                                 </div>
                             );
                         }
