@@ -84,7 +84,7 @@ export const getAPPsDetail = async (apps: string[]) => {
         // console.table(appInfos);
 
         // get APP link and payment type
-        const callsAPP: ContractCall[] = [['link'], ['paymentType'], ['totalCharged'], ['totalTakenProfit']];
+        const callsAPP: ContractCall[] = [['link'], ['paymentType'], ['totalCharged'], ['totalTakenProfit'], ['description']];
         const promisesAPP = lodash.flattenDepth(
             apps.map((a: string) => callsAPP.map((c) => [a, INTERFACE_APPV2.encodeFunctionData(...c)])),
             1
@@ -111,6 +111,7 @@ export const getAPPsDetail = async (apps: string[]) => {
                     limit: 0,
                     decimal: 18,
                 }),
+                description: d[4][0],
             }));
 
         const rVIPCoin: any = lodash
