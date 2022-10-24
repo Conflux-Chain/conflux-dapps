@@ -17,3 +17,7 @@ export enum PAYMENT_TYPE {
 }
 
 export const ONE_DAY_SECONDS = 86400; // 24 * 60 * 60
+
+export const CONTRACT_ERRORS = {
+    rNameIsRepeated: 'Resource name cannot be repeated.',
+};
