@@ -143,7 +143,7 @@ export default ({ op, data, className, type = 'default', disabled = false }: Pro
                         <InputNumber
                             id="input_CardPrice"
                             style={{ width: '100%' }}
-                            min={0}
+                            min={0.01}
                             maxLength={50}
                             precision={2}
                             formatter={(val) => {
