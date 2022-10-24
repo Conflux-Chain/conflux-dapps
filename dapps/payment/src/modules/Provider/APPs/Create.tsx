@@ -136,7 +136,7 @@ export default ({}: Props) => {
                                 message: 'Please input APP Symbol with 1-5 character',
                             },
                             {
-                                pattern: /[A-Z]+/,
+                                pattern: /^[A-Z]+$/,
                                 message: 'Please input APP Symbol with capital letters',
                             },
                         ]}

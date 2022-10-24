@@ -571,7 +571,7 @@ export const airdropCard = async (list: CSVType, appAddr: string, templateId: st
             (prev, curr) => {
                 if (ethers.utils.isAddress(curr[0])) {
                     prev[0].push(curr[0]);
-                    prev[1].push(ethers.utils.parseUnits(String(curr[1]), 18));
+                    prev[1].push(ethers.BigNumber.from(curr[1]));
                 }
                 return prev;
             },

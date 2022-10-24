@@ -40,7 +40,7 @@ export default ({ op, data, className, type = 'default', disabled = false }: Pro
         form.validateFields().then(async function ({ name, price, duration, giveawayDuration, configurations }) {
             try {
                 setLoading(true);
-                const d = await configAPPCard(address, {
+                await configAPPCard(address, {
                     id: op === OP_ACTION.add ? 0 : data?.id,
                     name,
                     price,
