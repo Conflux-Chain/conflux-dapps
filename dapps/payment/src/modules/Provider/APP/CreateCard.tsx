@@ -26,7 +26,7 @@ export default ({ op, data, className, type = 'default', disabled = false }: Pro
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
     useEffect(() => {
-        if (op === OP_ACTION.edit && !form.getFieldValue('resource')) {
+        if (op === OP_ACTION.edit && !form.getFieldValue('name')) {
             form.setFieldsValue(data);
         }
     });
@@ -195,42 +195,40 @@ export default ({ op, data, className, type = 'default', disabled = false }: Pro
                         {(fields, { add, remove }) => (
                             <>
                                 {fields.map(({ key, name, ...restField }, i) => (
-                                    <>
-                                        <Space key={key + i} style={{ display: 'flex', marginBottom: 0 }} align="baseline">
-                                            <Form.Item
-                                                className="!mb-2"
-                                                {...restField}
-                                                name={[name, 'value']}
-                                                rules={[
-                                                    { required: true, message: 'Please input value' },
-                                                    {
-                                                        min: 0,
-                                                        max: 5,
-                                                        message: 'Please input configuration value with 1-5 character',
-                                                    },
-                                                ]}
-                                            >
-                                                <Input placeholder="Value" id="input_CardConfigurationValue" />
-                                            </Form.Item>
-                                            <Form.Item
-                                                className="!mb-2"
-                                                {...restField}
-                                                name={[name, 'description']}
-                                                rules={[
-                                                    { required: true, message: 'Please input description' },
-                                                    {
-                                                        min: 0,
-                                                        max: 50,
-                                                        message: 'Please input configuration description with 1-50 character',
-                                                    },
-                                                ]}
-                                            >
-                                                <Input placeholder="Description" id="input_CardConfigurationDescription" />
-                                            </Form.Item>
-                                            {fields.length > 1 && <MinusCircleOutlined onClick={() => remove(name)} />}
-                                            {i === fields.length - 1 && <PlusCircleOutlined onClick={() => add(name)} />}
-                                        </Space>
-                                    </>
+                                    <Space key={key + i} style={{ display: 'flex', marginBottom: 0 }} align="baseline">
+                                        <Form.Item
+                                            className="!mb-2"
+                                            {...restField}
+                                            name={[name, 'value']}
+                                            rules={[
+                                                { required: true, message: 'Please input value' },
+                                                {
+                                                    min: 0,
+                                                    max: 5,
+                                                    message: 'Please input configuration value with 1-5 character',
+                                                },
+                                            ]}
+                                        >
+                                            <Input placeholder="Value" id="input_CardConfigurationValue" />
+                                        </Form.Item>
+                                        <Form.Item
+                                            className="!mb-2"
+                                            {...restField}
+                                            name={[name, 'description']}
+                                            rules={[
+                                                { required: true, message: 'Please input description' },
+                                                {
+                                                    min: 0,
+                                                    max: 50,
+                                                    message: 'Please input configuration description with 1-50 character',
+                                                },
+                                            ]}
+                                        >
+                                            <Input placeholder="Description" id="input_CardConfigurationDescription" />
+                                        </Form.Item>
+                                        {fields.length > 1 && <MinusCircleOutlined onClick={() => remove(name)} />}
+                                        {i === fields.length - 1 && <PlusCircleOutlined onClick={() => add(name)} />}
+                                    </Space>
                                 ))}
                             </>
                         )}
