@@ -1,4 +1,4 @@
-import { RPC } from './constants';
+import { RPC, CONTRACT_ERRORS } from './constants';
 import { CONTRACT_ADDRESSES, CONTRACT_ABI } from 'payment/src/contracts/constants';
 import { DefinedContractNamesType } from './types';
 import { ethers } from 'ethers';
@@ -53,4 +53,11 @@ export const formatNumber = (number: string | number | BigNumber, _opt?: Object)
 
     // @ts-ignore
     return bn.toFixed(opt.dp);
+};
+
+export const processErrorMsg = (msg: string) => {
+    if (msg.includes(CONTRACT_ERRORS.rNameIsRepeated)) {
+        return CONTRACT_ERRORS.rNameIsRepeated;
+    }
+    return msg;
 };

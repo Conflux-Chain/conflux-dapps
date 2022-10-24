@@ -19,6 +19,7 @@ import { personalSign } from '@cfxjs/use-wallet-react/ethereum';
 // @ts-ignore
 import { binary_to_base58 } from 'base58-js';
 import { ONE_DAY_SECONDS } from './constants';
+import { processErrorMsg } from './index';
 
 interface RequestProps {
     name: DefinedContractNamesType;
@@ -49,6 +50,7 @@ const noticeError = (e: unknown) => {
     } else {
         msg = e as any;
     }
+    msg = processErrorMsg(msg);
     console.log(msg);
     showToast(`Request failed, details: ${msg}`, { type: 'failed' });
 };
