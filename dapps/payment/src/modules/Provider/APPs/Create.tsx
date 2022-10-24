@@ -133,7 +133,11 @@ export default ({}: Props) => {
                             {
                                 min: 1,
                                 max: 5,
-                                message: 'Please input Symbol with 1-5 character',
+                                message: 'Please input APP Symbol with 1-5 character',
+                            },
+                            {
+                                pattern: /[A-Z]+/,
+                                message: 'Please input APP Symbol with capital letters',
                             },
                         ]}
                     >
