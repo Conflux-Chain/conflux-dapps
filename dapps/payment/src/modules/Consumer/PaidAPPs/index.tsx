@@ -107,7 +107,7 @@ export default () => {
                                     {!isFrozen && (
                                         <>
                                             <Deposit appAddr={row.address} />
-                                            <APIKey appAddr={row.address} />
+                                            {(row.billing.balance !== '0' || row.billing.airdrop !== '0') && <APIKey appAddr={row.address} />}
                                             {isRefundable && <Refund appAddr={row.address} />}
                                         </>
                                     )}
