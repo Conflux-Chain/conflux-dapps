@@ -88,7 +88,7 @@ export default () => {
             <Row gutter={12}>
                 <Col span="8">
                     <div className="search_container">
-                        <Search placeholder="Search APP name, Link, APP Address, Owner" allowClear enterButton="Search" onSearch={onSearch} />
+                        <Search placeholder="Search APP Address, APP name, Symbol, Link" allowClear enterButton="Search" onSearch={onSearch} />
                     </div>
                 </Col>
             </Row>
