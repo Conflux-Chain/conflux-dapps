@@ -458,7 +458,7 @@ export const forceWithdraw = async (appAddr: string) => {
 
 export const takeEarnings = async (appAddr: string, to: string, amount: string) => {
     try {
-        return (await getContract('app', appAddr).connect(signer).takeProfit(to, ethers.utils.parseUnits(amount))).wait();
+        return (await getContract('appv2', appAddr).connect(signer).takeProfit(to, ethers.utils.parseUnits(amount))).wait();
     } catch (error) {
         console.log('takeEarnings error: ', error);
         noticeError(error);

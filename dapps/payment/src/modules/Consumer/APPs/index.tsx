@@ -37,7 +37,7 @@ export default () => {
                 col.link,
                 col.pType,
                 {
-                    ...col.action(),
+                    ...col.action,
                     render(_: string, row: DataType) {
                         return (
                             <div className="flex align-middle">
