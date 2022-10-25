@@ -14,13 +14,13 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
     onComplete?: () => void;
     disabled?: boolean;
     value: string | number;
-    tips?: string[];
-    onConfirm: () => {};
     title: string;
     buttonProps?: BottonType;
+    tips?: string[];
+    onWithdraw: () => void;
 }
 
-export default ({ disabled, value, tips = [], onConfirm, title, buttonProps }: Props) => {
+export default ({ disabled, value, title, buttonProps, tips = [], onComplete, onWithdraw }: Props) => {
     const TOKENs = useTokenList();
     const [loading, setLoading] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
@@ -37,7 +37,8 @@ export default ({ disabled, value, tips = [], onConfirm, title, buttonProps }: P
     const handleOk = async () => {
         try {
             setLoading(true);
-            await onConfirm();
+            await onWithdraw();
+            onComplete && onComplete();
             setIsModalVisible(false);
             showToast('Withdraw success', { type: 'success' });
         } catch (e) {

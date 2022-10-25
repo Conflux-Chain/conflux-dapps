@@ -1,4 +1,5 @@
-// clone from /airdrop/src/store/index.ts, modify to ajust eSpace tokens
+import create from 'zustand';
+
 import { store } from '@cfxjs/use-wallet-react/ethereum';
 import { createBalanceTracker } from '@cfxjs/use-wallet-enhance-react';
 import CRC20TokenABI from 'common/contracts/ERC20.json';
@@ -7,6 +8,8 @@ import { isProduction } from 'common/conf/Networks';
 import Networks from 'common/conf/Networks';
 import { validateHexAddress } from 'common/utils/addressUtils';
 import tokenListConfig from '../utils/tokens';
+import { getAPPs, getAPPCards, getAPPAPIs, getPaidAPPs } from 'payment/src/utils/request';
+import { immer } from 'zustand/middleware/immer';
 
 export interface Token {
     eSpace_address: string;
@@ -63,3 +66,110 @@ export const useTokenList = () => {
         trackChangeOnce: tokenBalanceStore[index].trackChangeOnce,
     }));
 };
+
+export const useBoundProviderStore = create(
+    immer((set, get) => ({
+        provider: {
+            loading: false,
+            error: null,
+            data: {
+                list: [],
+                total: 0,
+            },
+            fetch: async (owner: string) => {
+                set((state) => {
+                    state.provider.loading = true;
+                });
+                const data = await getAPPs(owner);
+                set((state) => {
+                    state.provider.data.list = data;
+                    state.provider.data.total = data.length;
+                });
+                set((state) => {
+                    state.provider.loading = false;
+                });
+            },
+        },
+        subscription: {
+            loading: false,
+            error: null,
+            data: {
+                list: [],
+                total: 0,
+            },
+            fetch: async (owner: string) => {
+                set((state) => {
+                    state.subscription.loading = true;
+                });
+                const data = await getAPPCards(owner);
+                set((state) => {
+                    state.subscription.data = data;
+                });
+                set((state) => {
+                    state.subscription.loading = false;
+                });
+            },
+        },
+        billing: {
+            loading: false,
+            error: null,
+            data: {
+                list: [],
+                total: 0,
+            },
+            fetch: async (owner: string) => {
+                set((state) => {
+                    state.billing.loading = true;
+                });
+                const data = await getAPPAPIs(owner);
+                set((state) => {
+                    state.billing.data = data;
+                });
+                set((state) => {
+                    state.billing.loading = false;
+                });
+            },
+        },
+        consumerAPPs: {
+            loading: false,
+            error: null,
+            data: {
+                list: [],
+                total: 0,
+            },
+            fetch: async () => {
+                set((state) => {
+                    state.consumerAPPs.loading = true;
+                });
+                const data = await getAPPs();
+                set((state) => {
+                    state.consumerAPPs.data.list = data;
+                    state.consumerAPPs.data.total = data.length;
+                });
+                set((state) => {
+                    state.consumerAPPs.loading = false;
+                });
+            },
+        },
+        consumerPaidAPPs: {
+            loading: false,
+            error: null,
+            data: {
+                list: [],
+                total: 0,
+            },
+            fetch: async (account: string) => {
+                set((state) => {
+                    state.consumerPaidAPPs.loading = true;
+                });
+                const data = await getPaidAPPs(account);
+                set((state) => {
+                    state.consumerPaidAPPs.data = data;
+                });
+                set((state) => {
+                    state.consumerPaidAPPs.loading = false;
+                });
+            },
+        },
+    }))
+);

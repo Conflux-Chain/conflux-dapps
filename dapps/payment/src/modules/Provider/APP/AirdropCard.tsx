@@ -3,15 +3,17 @@ import { showToast } from 'common/components/showPopup/Toast';
 import Papa from 'papaparse';
 import { useCallback, useRef, useState } from 'react';
 import { CSVType } from 'payment/src/utils/types';
-import { airdropBiiling } from 'payment/src/utils/request';
+import { airdropCard } from 'payment/src/utils/request';
 import { AuthESpace } from 'common/modules/AuthConnectButton';
+import { useBoundProviderStore } from 'payment/src/store';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
-    onComplete?: () => void;
     address: string;
+    templateId: string;
 }
 
-export default ({ onComplete, address }: Props) => {
+export default ({ address, templateId }: Props) => {
+    const { fetch } = useBoundProviderStore((state) => state.subscription);
     const inputRef = useRef<HTMLInputElement>(null);
     const [loading, setLoading] = useState<boolean>(false);
 
@@ -27,10 +29,10 @@ export default ({ onComplete, address }: Props) => {
                 complete: async (results) => {
                     try {
                         setLoading(true);
-                        await airdropBiiling(results.data as CSVType, address);
+                        await airdropCard(results.data as CSVType, address as string, templateId);
                         setLoading(false);
                         showToast(`Airdrop success`, { type: 'success' });
-                        onComplete && onComplete();
+                        address && fetch(address);
                     } catch (error) {
                         console.log('airdrop error: ', error);
                         setLoading(false);
@@ -48,7 +50,7 @@ export default ({ onComplete, address }: Props) => {
     }, []);
 
     return (
-        <div>
+        <>
             <AuthESpace
                 className="!rounded-sm"
                 id="createAPP_authConnect"
@@ -58,13 +60,13 @@ export default ({ onComplete, address }: Props) => {
                 color="primary"
                 shape="rect"
                 authContent={() => (
-                    <Button id="button_createAPP" type="primary" onClick={handleClick} loading={loading}>
+                    <Button id="button_CardAirdrop" type="primary" onClick={handleClick} loading={loading}>
                         Airdrop
                     </Button>
                 )}
             />
 
-            <input id="input_airdrop" className="hidden" accept=".csv" type="file" onChange={handleChange} ref={inputRef}></input>
-        </div>
+            <input id="input_CardAirdrop" className="hidden" accept=".csv" type="file" onChange={handleChange} ref={inputRef}></input>
+        </>
     );
 };

@@ -19,7 +19,7 @@ const dateConfigs = {
         duration: Unit.fromMinUnit('10368000'),
     },
     '1029': {
-        start: Unit.fromMinUnit('112400000'),
+        start: Unit.fromMinUnit('133800000'),
         duration: Unit.fromMinUnit('10368000'),
     },
 } as const;
