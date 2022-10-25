@@ -59,5 +59,8 @@ export const processErrorMsg = (msg: string) => {
     if (msg.includes(CONTRACT_ERRORS.rNameIsRepeated)) {
         return CONTRACT_ERRORS.rNameIsRepeated;
     }
+    if (msg.includes(CONTRACT_ERRORS.exceedDuration)) {
+        return CONTRACT_ERRORS.exceedDuration;
+    }
     return msg;
 };
