@@ -57,7 +57,7 @@ export default ({
     const subscription = subscriptions.filter((c) => c.id === selectedSubscriptionId)[0];
     const token = TOKENs.filter((t) => t.eSpace_address === fromValue)[0];
     const tokenBalance = token.balance?.toDecimalStandardUnit();
-    const appCoinAmount = new BigNumber(subscription?.price || 0).multipliedBy(amount).toFixed();
+    const appCoinAmount = new BigNumber(subscription?.price || 0).multipliedBy(amount || 0).toFixed();
 
     useEffect(() => {
         outerSelectedSubscriptionId && setSelectedSubscriptionId(outerSelectedSubscriptionId);

@@ -1,7 +1,5 @@
 import { DataSourceType } from '../types';
 import Address from 'payment/src/components/Address';
-import { Link } from 'react-router-dom';
-import { Button } from 'antd';
 import Networks from 'common/conf/Networks';
 import { NumberWithLimit } from 'payment/src/components/Number';
 import Tip from 'payment/src/components/Tip';
@@ -154,15 +152,8 @@ export const airdrop = {
     },
 };
 
-export const action = (type = 'provider') => ({
+export const action = {
     title: 'Operation',
     dataIndex: 'operation',
     key: 'operation',
-    render(_: string, row: DataSourceType) {
-        return (
-            <Button id="button_detail">
-                <Link to={`/payment/${type}/app/${PAYMENT_TYPE[row.type]}/${row.address}`}>Details</Link>
-            </Button>
-        );
-    },
-});
+};

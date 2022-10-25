@@ -13,8 +13,14 @@ import { useBoundProviderStore } from 'payment/src/store';
 import { PAYMENT_TYPE } from 'payment/src/utils/constants';
 import BigNumber from 'bignumber.js';
 import PurchaseSubscription from 'payment/src/modules/Common/PurchaseSubscription';
+import { forceWithdraw } from 'payment/src/utils/request';
 
 const { Search } = Input;
+const TIPs = [
+    '1. After you apply for a refund or your account is frozen by the provider, the refund settlement will be entered. During the settlement period, if you use the provider service, balance may will be continuously charged.',
+    '2. The estimated amount received based on the withdrawable token type you specified.',
+    // '3. You can use the allowed cryptocurrencies to withdraw, the platform will obtain the dex quotation to calculate the estimated payment amount, or go Swappi to learn more.',
+];
 
 export default () => {
     const config = useMemo(
@@ -40,12 +46,17 @@ export default () => {
         fetch,
     } = useBoundProviderStore((state) => state.consumerPaidAPPs);
 
-    useEffect(() => {
-        account && fetch(account);
+    const handleComplate = useCallback(async () => {
+        await (account && fetch(account));
     }, [account]);
 
-    const handleComplate = useCallback(() => {
-        account && fetch(account);
+    useEffect(() => {
+        handleComplate();
+    }, [account]);
+
+    const handleWithdraw = useCallback(async (appAddr: string) => {
+        await forceWithdraw(appAddr);
+        await handleComplate();
     }, []);
 
     const columns = useMemo(
@@ -61,7 +72,7 @@ export default () => {
                 col.billingAirdrop,
                 col.billingBalance,
                 {
-                    ...col.action('consumer'),
+                    ...col.action,
                     render(_: string, row: DataSourceType) {
                         if (Number(row.type) === PAYMENT_TYPE.billing) {
                             const isWithdrawable =
@@ -84,13 +95,19 @@ export default () => {
                                     </Button>
 
                                     {isFrozen && (
-                                        <Withdraw title="Withdraw Refund" disabled={!isWithdrawable} value={row.billing.balance} appAddr={row.address} />
+                                        <Withdraw
+                                            title="Withdraw Refund"
+                                            disabled={!isWithdrawable}
+                                            value={row.billing.balance}
+                                            tips={TIPs}
+                                            onWithdraw={async () => handleWithdraw(row.address)}
+                                        />
                                     )}
 
                                     {!isFrozen && (
                                         <>
                                             <Deposit appAddr={row.address} />
-                                            <APIKey appAddr={row.address} />
+                                            {(row.billing.balance !== '0' || row.billing.airdrop !== '0') && <APIKey appAddr={row.address} />}
                                             {isRefundable && <Refund appAddr={row.address} />}
                                         </>
                                     )}
