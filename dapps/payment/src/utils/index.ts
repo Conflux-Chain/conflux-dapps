@@ -13,8 +13,12 @@ export let providerEthereum: ethers.providers.Web3Provider;
 export let signer: ethers.providers.JsonRpcSigner;
 
 try {
-    providerEthereum = new ethers.providers.Web3Provider(window.ethereum);
+    providerEthereum = new ethers.providers.Web3Provider(window.ethereum, 'any');
     signer = providerEthereum.getSigner();
+
+    providerEthereum.on('network', (newNetwork, oldNetwork) => {
+        signer = providerEthereum.getSigner();
+    });
 } catch (error) {}
 
 export const provider = new ethers.providers.JsonRpcBatchProvider({
