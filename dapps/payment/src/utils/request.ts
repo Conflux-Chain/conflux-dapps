@@ -176,6 +176,7 @@ export const getPaidAPPs = async (account: string) => {
                 subscription: {
                     name: a.vipCardName,
                     expired: Number(a.vipExpireAt.toString()),
+                    cardShop: a.cardShop,
                 },
             })),
             total: r.total,

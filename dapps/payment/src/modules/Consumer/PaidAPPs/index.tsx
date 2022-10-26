@@ -14,6 +14,8 @@ import { PAYMENT_TYPE } from 'payment/src/utils/constants';
 import BigNumber from 'bignumber.js';
 import PurchaseSubscription from 'payment/src/modules/Common/PurchaseSubscription';
 import { forceWithdraw } from 'payment/src/utils/request';
+import { getToken } from 'payment/src/utils/tokens';
+import Networks from 'common/conf/Networks';
 
 const { Search } = Input;
 const TIPs = [
@@ -21,6 +23,7 @@ const TIPs = [
     '2. The estimated amount received based on the withdrawable token type you specified.',
     // '3. You can use the allowed cryptocurrencies to withdraw, the platform will obtain the dex quotation to calculate the estimated payment amount, or go Swappi to learn more.',
 ];
+const USDT = getToken('USDT');
 
 export default () => {
     const config = useMemo(
@@ -111,6 +114,17 @@ export default () => {
                                             {isRefundable && <Refund appAddr={row.address} />}
                                         </>
                                     )}
+
+                                    <Button id="button_detail" className="mr-2 mb-2">
+                                        <a
+                                            href={`${
+                                                Networks.eSpace.blockExplorerUrls
+                                            }/address/${row.address.toLowerCase()}?from=${account.toLowerCase()}&skip=0&tab=transfers-ERC20&tokenArray=${USDT.eSpace_address.toLowerCase()}`}
+                                            target="_blank"
+                                        >
+                                            History
+                                        </a>
+                                    </Button>
                                 </div>
                             );
                         } else {
@@ -131,6 +145,16 @@ export default () => {
                                     </Button>
                                     {!isExpired && <APIKey appAddr={row.address} />}
                                     <PurchaseSubscription appAddr={row.address} onComplete={handleComplate} />
+                                    <Button id="button_detail" className="mr-2 mb-2">
+                                        <a
+                                            href={`${
+                                                Networks.eSpace.blockExplorerUrls
+                                            }/address/${row.subscription.cardShop.toLowerCase()}?from=${account.toLowerCase()}&skip=0&tab=transfers-ERC20&tokenArray=${USDT.eSpace_address.toLowerCase()}`}
+                                            target="_blank"
+                                        >
+                                            History
+                                        </a>
+                                    </Button>
                                 </div>
                             );
                         }

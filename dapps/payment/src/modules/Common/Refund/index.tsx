@@ -49,7 +49,7 @@ export default ({ appAddr, disabled }: Props) => {
                 color="primary"
                 shape="rect"
                 authContent={() => (
-                    <Button id="button_refund" className="cursor-pointer mr-2" onClick={handleClick} disabled={disabled}>
+                    <Button id="button_refund" className="cursor-pointer mr-2 mb-2" onClick={handleClick} disabled={disabled}>
                         Refund
                     </Button>
                 )}
