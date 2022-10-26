@@ -7,7 +7,7 @@ import Config from 'bsc-espace/config';
 interface TokenInfo {
     name: string;
     symbol: string;
-    decimals: string;
+    decimals: number;
     icon: string;
     isNative?: boolean;
     address: string;

@@ -227,7 +227,7 @@ const DropdownContent: React.FC<{ fromSpace: 'core' | 'eSpace'; visible: boolean
                     tabIndex={-1}
                 />
 
-                <p className="mt-[12px] mb-[8px] text-[14px] text-[#A9ABB2]">{i18n.common_tokens}</p>
+                <div className="mt-[12px] mb-[8px] text-[14px] text-[#A9ABB2]">{i18n.common_tokens}</div>
                 
                 <CustomScrollbar contentClassName="items-center pb-[16px] gap-[12px]" direction='horizontal'>
                     {commonTokens.map(commonToken => 
@@ -249,7 +249,7 @@ const DropdownContent: React.FC<{ fromSpace: 'core' | 'eSpace'; visible: boolean
             </div>
 
 
-            <p className='flex items-center justify-between mt-[12px] mb-[4px] px-[16px]'>
+            <div className='flex items-center justify-between mt-[12px] mb-[4px] px-[16px]'>
                 {i18n.token_list}
                 <span className='flex items-center group text-[14px] text-[#A9ABB2] cursor-pointer' onClick={handleSwitchSpace}>
                     <img src={Switch} alt="switch img" className='mr-[6px] w-[12px] h-[12px]' />
@@ -257,7 +257,7 @@ const DropdownContent: React.FC<{ fromSpace: 'core' | 'eSpace'; visible: boolean
                     <span className={cx('mx-[4px] group-hover:underline', space === 'eSpace' ? 'text-[#15C184]' : 'text-[#2959B4]')}>{space === 'core' ? 'eSpace' : 'Core'}</span>
                     info
                 </span>
-            </p>
+            </div>
             <CustomScrollbar className='token-list'>
                 {searchToken === 'searching' &&
                     <div className={"flex justify-center items-center h-[56px] pl-[16px] pr-[20px] bg-white text-[24px]"} >
@@ -374,8 +374,8 @@ const TokenItem = memo<TokenItemProps>(({
                 <img src={token.icon} alt="token img" className="w-[28px] h-[28px] mr-[8px]" />
 
                 <div className='h-[36px]'>
-                    <p className='text-[14px] text-[#3D3F4C]'>{symbol}</p>
-                    <p className='text-[12px] text-[#A9ABB2]'>{name}</p>
+                    <div className='text-[14px] text-[#3D3F4C]'>{symbol}</div>
+                    <div className='text-[12px] text-[#A9ABB2]'>{name}</div>
                 </div>
             </div>
 
@@ -400,7 +400,7 @@ const TokenItem = memo<TokenItemProps>(({
                 </div>
             }
             {!token.isNative && !token.nativeSpace &&
-                <p className='text-[12px] text-[#A9ABB2]'>This token can't cross space</p>
+                <div className='text-[12px] text-[#A9ABB2]'>This token can't cross space</div>
             }
         </div>
     );

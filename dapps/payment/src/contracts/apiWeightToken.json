@@ -1,0 +1,389 @@
+[
+    {
+        "inputs": [
+            { "internalType": "contract IApp", "name": "belongsTo", "type": "address" },
+            { "internalType": "string", "name": "name", "type": "string" },
+            { "internalType": "string", "name": "symbol", "type": "string" },
+            { "internalType": "string", "name": "uri", "type": "string" }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            { "indexed": true, "internalType": "address", "name": "account", "type": "address" },
+            { "indexed": true, "internalType": "address", "name": "operator", "type": "address" },
+            { "indexed": false, "internalType": "bool", "name": "approved", "type": "bool" }
+        ],
+        "name": "ApprovalForAll",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            { "indexed": true, "internalType": "uint32", "name": "id", "type": "uint32" },
+            { "indexed": true, "internalType": "uint256", "name": "weight", "type": "uint256" },
+            { "indexed": true, "internalType": "enum IAppConfig.OP", "name": "op", "type": "uint8" }
+        ],
+        "name": "ResourceChanged",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            { "indexed": true, "internalType": "uint32", "name": "id", "type": "uint32" },
+            { "indexed": true, "internalType": "uint256", "name": "newWeight", "type": "uint256" },
+            { "indexed": true, "internalType": "enum IAppConfig.OP", "name": "op", "type": "uint8" }
+        ],
+        "name": "ResourcePending",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            { "indexed": true, "internalType": "address", "name": "operator", "type": "address" },
+            { "indexed": true, "internalType": "address", "name": "from", "type": "address" },
+            { "indexed": true, "internalType": "address", "name": "to", "type": "address" },
+            { "indexed": false, "internalType": "uint256[]", "name": "ids", "type": "uint256[]" },
+            { "indexed": false, "internalType": "uint256[]", "name": "values", "type": "uint256[]" }
+        ],
+        "name": "TransferBatch",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            { "indexed": true, "internalType": "address", "name": "operator", "type": "address" },
+            { "indexed": true, "internalType": "address", "name": "from", "type": "address" },
+            { "indexed": true, "internalType": "address", "name": "to", "type": "address" },
+            { "indexed": false, "internalType": "uint256", "name": "id", "type": "uint256" },
+            { "indexed": false, "internalType": "uint256", "name": "value", "type": "uint256" }
+        ],
+        "name": "TransferSingle",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            { "indexed": false, "internalType": "string", "name": "value", "type": "string" },
+            { "indexed": true, "internalType": "uint256", "name": "id", "type": "uint256" }
+        ],
+        "name": "URI",
+        "type": "event"
+    },
+    {
+        "inputs": [],
+        "name": "AIRDROP_ID",
+        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "BILLING_ID",
+        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "FIRST_CONFIG_ID",
+        "outputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    { "inputs": [], "name": "FT_ID", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
+    {
+        "inputs": [],
+        "name": "TAKE_PROFIT_ID",
+        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "TOKEN_AIRDROP_ID",
+        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "account", "type": "address" },
+            {
+                "components": [
+                    { "internalType": "uint32", "name": "id", "type": "uint32" },
+                    { "internalType": "uint256", "name": "times", "type": "uint256" }
+                ],
+                "internalType": "struct IAppConfig.ResourceUseDetail[]",
+                "name": "useDetail",
+                "type": "tuple[]"
+            }
+        ],
+        "name": "addRequestTimes",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "account", "type": "address" },
+            { "internalType": "uint256", "name": "id", "type": "uint256" }
+        ],
+        "name": "balanceOf",
+        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "address[]", "name": "accounts", "type": "address[]" },
+            { "internalType": "uint256[]", "name": "ids", "type": "uint256[]" }
+        ],
+        "name": "balanceOfBatch",
+        "outputs": [{ "internalType": "uint256[]", "name": "", "type": "uint256[]" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "belongsToApp",
+        "outputs": [{ "internalType": "contract IApp", "name": "", "type": "address" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "components": [
+                    { "internalType": "uint32", "name": "id", "type": "uint32" },
+                    { "internalType": "string", "name": "resourceId", "type": "string" },
+                    { "internalType": "uint256", "name": "weight", "type": "uint256" },
+                    { "internalType": "enum IAppConfig.OP", "name": "op", "type": "uint8" }
+                ],
+                "internalType": "struct AppConfig.ConfigRequest",
+                "name": "entry",
+                "type": "tuple"
+            }
+        ],
+        "name": "configResource",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "components": [
+                    { "internalType": "uint32", "name": "id", "type": "uint32" },
+                    { "internalType": "string", "name": "resourceId", "type": "string" },
+                    { "internalType": "uint256", "name": "weight", "type": "uint256" },
+                    { "internalType": "enum IAppConfig.OP", "name": "op", "type": "uint8" }
+                ],
+                "internalType": "struct AppConfig.ConfigRequest[]",
+                "name": "entries",
+                "type": "tuple[]"
+            }
+        ],
+        "name": "configResourceBatch",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    { "inputs": [], "name": "flushPendingConfig", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+    {
+        "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+        "name": "indexArray",
+        "outputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "contract IApp", "name": "belongsTo", "type": "address" },
+            { "internalType": "string", "name": "name", "type": "string" },
+            { "internalType": "string", "name": "symbol", "type": "string" },
+            { "internalType": "string", "name": "uri", "type": "string" },
+            { "internalType": "uint256", "name": "defaultWeight", "type": "uint256" }
+        ],
+        "name": "initialize",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "account", "type": "address" },
+            { "internalType": "address", "name": "operator", "type": "address" }
+        ],
+        "name": "isApprovedForAll",
+        "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "uint256", "name": "offset", "type": "uint256" },
+            { "internalType": "uint256", "name": "limit", "type": "uint256" }
+        ],
+        "name": "listResources",
+        "outputs": [
+            {
+                "components": [
+                    { "internalType": "string", "name": "resourceId", "type": "string" },
+                    { "internalType": "uint256", "name": "weight", "type": "uint256" },
+                    { "internalType": "uint32", "name": "index", "type": "uint32" },
+                    { "internalType": "enum IAppConfig.OP", "name": "pendingOP", "type": "uint8" },
+                    { "internalType": "uint256", "name": "pendingWeight", "type": "uint256" },
+                    { "internalType": "uint256", "name": "submitSeconds", "type": "uint256" },
+                    { "internalType": "uint256", "name": "requestTimes", "type": "uint256" }
+                ],
+                "internalType": "struct IAppConfig.ConfigEntry[]",
+                "name": "",
+                "type": "tuple[]"
+            },
+            { "internalType": "uint256", "name": "total", "type": "uint256" }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "user", "type": "address" },
+            { "internalType": "uint32[]", "name": "ids", "type": "uint32[]" }
+        ],
+        "name": "listUserRequestCounter",
+        "outputs": [{ "internalType": "uint256[]", "name": "times", "type": "uint256[]" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    { "inputs": [], "name": "name", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "view", "type": "function" },
+    {
+        "inputs": [],
+        "name": "nextConfigId",
+        "outputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "", "type": "address" },
+            { "internalType": "address", "name": "", "type": "address" },
+            { "internalType": "uint256[]", "name": "", "type": "uint256[]" },
+            { "internalType": "uint256[]", "name": "", "type": "uint256[]" },
+            { "internalType": "bytes", "name": "", "type": "bytes" }
+        ],
+        "name": "onERC1155BatchReceived",
+        "outputs": [{ "internalType": "bytes4", "name": "", "type": "bytes4" }],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "", "type": "address" },
+            { "internalType": "address", "name": "", "type": "address" },
+            { "internalType": "uint256", "name": "", "type": "uint256" },
+            { "internalType": "uint256", "name": "", "type": "uint256" },
+            { "internalType": "bytes", "name": "", "type": "bytes" }
+        ],
+        "name": "onERC1155Received",
+        "outputs": [{ "internalType": "bytes4", "name": "", "type": "bytes4" }],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+        "name": "pendingIdArray",
+        "outputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "pendingSeconds",
+        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }],
+        "name": "resourceConfigures",
+        "outputs": [
+            { "internalType": "string", "name": "resourceId", "type": "string" },
+            { "internalType": "uint256", "name": "weight", "type": "uint256" },
+            { "internalType": "uint32", "name": "index", "type": "uint32" },
+            { "internalType": "enum IAppConfig.OP", "name": "pendingOP", "type": "uint8" },
+            { "internalType": "uint256", "name": "pendingWeight", "type": "uint256" },
+            { "internalType": "uint256", "name": "submitSeconds", "type": "uint256" },
+            { "internalType": "uint256", "name": "requestTimes", "type": "uint256" }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "from", "type": "address" },
+            { "internalType": "address", "name": "to", "type": "address" },
+            { "internalType": "uint256[]", "name": "ids", "type": "uint256[]" },
+            { "internalType": "uint256[]", "name": "amounts", "type": "uint256[]" },
+            { "internalType": "bytes", "name": "data", "type": "bytes" }
+        ],
+        "name": "safeBatchTransferFrom",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "from", "type": "address" },
+            { "internalType": "address", "name": "to", "type": "address" },
+            { "internalType": "uint256", "name": "id", "type": "uint256" },
+            { "internalType": "uint256", "name": "amount", "type": "uint256" },
+            { "internalType": "bytes", "name": "data", "type": "bytes" }
+        ],
+        "name": "safeTransferFrom",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "operator", "type": "address" },
+            { "internalType": "bool", "name": "approved", "type": "bool" }
+        ],
+        "name": "setApprovalForAll",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [{ "internalType": "uint256", "name": "seconds_", "type": "uint256" }],
+        "name": "setPendingSeconds",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [{ "internalType": "bytes4", "name": "interfaceId", "type": "bytes4" }],
+        "name": "supportsInterface",
+        "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    { "inputs": [], "name": "symbol", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "view", "type": "function" },
+    {
+        "inputs": [],
+        "name": "totalRequests",
+        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+        "name": "uri",
+        "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+        "stateMutability": "view",
+        "type": "function"
+    }
+]

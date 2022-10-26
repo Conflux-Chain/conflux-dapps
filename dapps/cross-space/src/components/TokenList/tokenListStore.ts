@@ -3,7 +3,7 @@ import LocalStorage from 'localstorage-enhance';
 import { nativeToken, type Token } from 'cross-space/src/store/index';
 import { isProduction } from 'common/conf/Networks';
 
-const innerTokenListUrl = isProduction
+export const innerTokenListUrl = isProduction
     ? 'https://raw.githubusercontent.com/Conflux-Chain/conflux-evm-bridge/main/native_token_list_mainnet.json'
     : 'https://raw.githubusercontent.com/Conflux-Chain/conflux-evm-bridge/main/native_token_list_testnet.json';
 

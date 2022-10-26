@@ -12,7 +12,9 @@
     "@fluent-wallet/estimate-tx": "^0.2.0",
     "@tippyjs/react": "^4.2.6",
     "clsx": "^1.1.1",
+    "custom-keyboard": "^0.0.0",
     "custom-react-scrollbar": "^0.0.2",
+    "dayjs": "^1.11.3",
     "decimal.js": "^10.3.1",
     "jsbi": "^4.3.0",
     "localstorage-enhance": "^1.0.1",
@@ -24,11 +26,9 @@
     "react-spring": "^9.4.5",
     "tippy.js": "^6.3.7",
     "web3": "^1.7.3",
-    "zustand": "^4.0.0-rc.1"
+    "zustand": "^4.0.0"
   },
   "devDependencies": {
-    "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
-    "@esbuild-plugins/node-modules-polyfill": "^0.1.4",
     "@types/lodash-es": "^4.17.6",
     "@types/react": "^18.0.12",
     "@types/react-dom": "^18.0.5",

@@ -47,7 +47,7 @@ const AppRouter = () => {
     return (
         <ModeContext.Provider value={mode}>
             <LocaleContext.Provider value={locale}>
-                <Navbar handleSwitchLocale={handleSwitchLocale} handleSwitchMode={handleSwitchMode} dappIcon={CrossSpaceIcon} dappName="Cross Space" />
+                <Navbar handleSwitchLocale={handleSwitchLocale} handleSwitchMode={handleSwitchMode} dappIcon={CrossSpaceIcon} dappName="BSC - eSpace" />
                 <CustomScrollbar contentClassName='main-scroll'>
                     <Modules />
                 </CustomScrollbar>

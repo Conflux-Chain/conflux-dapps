@@ -10,7 +10,7 @@ export interface Network {
     },
 }
 
-export const isProduction = !location.host.startsWith('test') && !location.host.startsWith('localhost');
+export const isProduction = !location.host.startsWith('net8888') && !location.host.startsWith('test') && !location.host.startsWith('localhost') && !location.host.startsWith('172.16') && !location.host.startsWith('127.0') && !location.host.startsWith('192.168');
 
 const AllNetworks: Record<string, Network> = {
     "1029": {
@@ -78,12 +78,22 @@ const AllNetworks: Record<string, Network> = {
             symbol: 'BNB',
             decimals: 18,
         }
+    },
+    "8888": {
+        chainId: "8888",
+        chainName: "Conflux 8888",
+        rpcUrls: ["https://net8888cfx.confluxrpc.com"],
+        blockExplorerUrls: ["https://net8888cfx.confluxscan.net"],
+        nativeCurrency: {
+            name: 'Conflux',
+            symbol: 'CFX',
+            decimals: 18,
+        }
     }
 };
 
-
 const Networks = {
-    core: AllNetworks[isProduction ? '1029' : '1'],
+    core: AllNetworks[isProduction ? '1029' : (location.host.startsWith('net8888') ? '8888' : (import.meta.env.VITE_CORE_NETWORK || '1'))],
     eSpace: AllNetworks[isProduction ? '1030' : '71'],
     bsc: AllNetworks[isProduction ? '56' : '97'],
 } as const;

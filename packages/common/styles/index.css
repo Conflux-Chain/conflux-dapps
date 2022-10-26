@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
 @font-face {
     font-family: 'SF Pro Display';
     src: url('../assets/fonts/SF-Pro-Display-Regular.woff2') format('woff2');
@@ -52,4 +51,13 @@ button:not(:hover):not(.button-contained):not(.button-outlined) {
 
 button > img {
     @apply pointer-events-none;
+}
+
+.text-indent {
+    text-indent: 1em;
+}
+
+button.ant-btn:not(:hover):not(.button-contained):not(.button-outlined) {
+    outline: none;
+    outline-offset: 0;
 }
