@@ -83,7 +83,6 @@ export const getAPPsDetail = async (apps: string[]) => {
     try {
         // get APP related contract address
         const appInfos = await getAPPsRelatedContract(apps);
-        // console.table(appInfos);
 
         // get APP link and payment type
         const callsAPP: ContractCall[] = [['link'], ['paymentType'], ['totalCharged'], ['totalTakenProfit'], ['description']];
@@ -276,7 +275,7 @@ export const configAPPAPI = async (address: RequestProps['address'], data: Edita
                 .configResource([data.index, data.resourceId, ethers.utils.parseUnits(String(data.weight)), data.op])
         ).wait();
     } catch (error) {
-        console.log(error);
+        console.log('configAPPAPI: ', error);
         noticeError(error);
         throw error;
     }
@@ -291,7 +290,7 @@ export const deleteAPPAPI = async (address: RequestProps['address'], data: Edita
                 .configResource([data.index, data.resourceId, ethers.utils.parseUnits(data.weight), data.op])
         ).wait();
     } catch (error) {
-        console.log(error);
+        console.log('deleteAPPAPI: ', error);
         noticeError(error);
         throw error;
     }
@@ -470,7 +469,7 @@ export const takeEarnings = async (appAddr: string, to: string, amount: string) 
 export const getAPPCards = async (address: RequestProps['address']): Promise<APPCardResourceType> => {
     try {
         const contracts = await getAPPsRelatedContract([address].map((app: any) => app));
-        const cardTemplate = await getContract('cardShop', contracts[0].cardShop).connect(signer).template();
+        const cardTemplate = await getContract('cardShop', contracts[0].cardShop).template();
         const cards = await getContract('cardShopTemplate', cardTemplate).list(0, 1e8);
 
         return {
@@ -489,6 +488,7 @@ export const getAPPCards = async (address: RequestProps['address']): Promise<APP
             total: cards.total,
         };
     } catch (error) {
+        console.log('getAPPCards error: ', error);
         noticeError(error);
         return {
             list: [],
@@ -511,6 +511,7 @@ export const configAPPCard = async (address: RequestProps['address'], data: any)
                 })
         ).wait();
     } catch (error) {
+        console.log('configAPPCard error: ', error);
         noticeError(error);
         throw error;
     }
@@ -526,6 +527,7 @@ export const purchaseSubscription = async (appAddr: RequestProps['address'], tem
         ).wait();
         return r;
     } catch (error) {
+        console.log('purchaseSubscription error: ', error);
         noticeError(error);
         throw error;
     }
@@ -537,6 +539,7 @@ export const getAllowanceCard = async ({ tokenAddr, appAddr }: { tokenAddr: stri
         const contract = getContract('erc20', tokenAddr);
         return await contract.allowance(await signer.getAddress(), contracts[0].cardShop);
     } catch (error) {
+        console.log('getAllowanceCard error: ', error);
         noticeError(error);
         throw error;
     }
@@ -560,6 +563,7 @@ export const approveCard = async ({
             })
         ).wait();
     } catch (error) {
+        console.log('approveCard error: ', error);
         noticeError(error);
         throw error;
     }
