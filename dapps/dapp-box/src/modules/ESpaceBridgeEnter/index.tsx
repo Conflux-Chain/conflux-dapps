@@ -30,8 +30,8 @@ export const ESpaceBridgeEnter: React.FC = () => {
                 >
                     <img src={dapp.bg} className='absolute -left-[16px] -top-[8px] max-w-none w-[378px] h-[430px] z-0 select-none' alt={dapp.title} draggable={false} />
 
-                    <p className='mt-[216px] text-[20px] leading-[28px] text-[#3D3F4C] font-medium translate-x-0'>{dapp.title}</p>
-                    <p className='mt-[12px] text-[16px] leading-[22px] text-[#808BE7] translate-x-0'>{dapp.tip}</p>
+                    <div className='mt-[216px] text-[20px] leading-[28px] text-[#3D3F4C] font-medium translate-x-0'>{dapp.title}</div>
+                    <div className='mt-[12px] text-[16px] leading-[22px] text-[#808BE7] translate-x-0'>{dapp.tip}</div>
 
                     <Link
                         className='mt-[48px] fui-button fui-button--contained fui-button--primary fui-button--medium w-[164px] translate-x-0'

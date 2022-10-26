@@ -1,0 +1,17 @@
+.proposal-itemWrapper {
+    contain: content style layout;
+}
+.proposal-itemWrapper + .proposal-itemWrapper::before {
+    @apply absolute top-0 left-[24px] translate-x-0 w-[1094px] h-[1px] bg-[#EAECEF] z-10 pointer-events-none;
+    content: '';
+}
+
+.pagination-arrow {
+    mask: url("../../../assets/Arrow.svg") no-repeat;
+    mask-size: 100% 100%;
+    background-color: #808BE7;
+}
+
+.pagination-arrow.disabled {
+    background-color: #A9ABB2;
+}

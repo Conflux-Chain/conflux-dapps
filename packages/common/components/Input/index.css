@@ -1,12 +1,36 @@
+.input-wrapper {
+    @apply relative w-full h-fit;
+}
+
 .input {
-    @apply w-full h-[48px] pl-[12px] overflow-ellipsis bg-white border-[1px] border-[#EAECEF] rounded-[2px] text-[16px] transition-colors placeholder-[#979797]
+    @apply w-full overflow-ellipsis border-[1px] border-[#EAECEF] bg-white rounded-[2px] transition-colors placeholder-[#979797]
     focus:outline-none focus:border-[#808BE7] focus:ring-1 focus:ring-[#808BE7]
     invalid:border-[#E96170] invalid:text-[#E96170]
     focus:invalid:border-[#E96170] focus:invalid:ring-[#E96170];
 }
 
+.input-wrapper.input--normal {
+    @apply text-[16px];
+}
+
+.input-wrapper.input--small {
+    @apply text-[12px];
+}
+
+.input-wrapper.input--normal > input {
+    @apply pl-[12px] h-[48px];
+}
+
+.input-wrapper.input--small > input {
+    @apply pl-[8px] h-[32px];
+}
+
 .input-error {
     @apply absolute right-[2px] -top-[20px] text-[12px] text-[#E96170] opacity-0 transition-opacity duration-100; 
+}
+
+.input:invalid {
+    @apply border-[#E96170]
 }
 
 .input:invalid ~ .input-error{
@@ -26,11 +50,11 @@
 }
 
 .prefix-icon ~ .input {
-    @apply px-[35px];
+    @apply !px-[36px];
 }
 
 .prefix-icon ~ .input.outer-placeholder + * {
-    @apply left-[37px];
+    @apply left-[36px];
 }
 
 input::-webkit-outer-spin-button,

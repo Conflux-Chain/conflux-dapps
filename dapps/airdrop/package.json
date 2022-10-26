@@ -7,7 +7,7 @@
         "build": "vite build"
     },
     "dependencies": {
-        "@cfxjs/use-wallet-enhance-react": "latest",
+        "@cfxjs/use-wallet-enhance-react": "0.0.1-13",
         "@cfxjs/use-wallet-react": "latest",
         "@fluent-wallet/estimate-tx": "^0.2.0",
         "@react-spring/web": "^9.4.5",
@@ -20,12 +20,10 @@
         "react": "^18.1.0",
         "react-dom": "^18.1.0",
         "tippy.js": "^6.3.7",
-        "zustand": "^4.0.0-rc.1",
+        "zustand": "^4.0.0",
         "web3": "^1.7.3"
     },
     "devDependencies": {
-        "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
-        "@esbuild-plugins/node-modules-polyfill": "^0.1.4",
         "@types/lodash-es": "^4.17.6",
         "@types/react": "^18.0.12",
         "@types/react-dom": "^18.0.5",

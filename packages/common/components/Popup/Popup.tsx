@@ -10,12 +10,13 @@ type PartialOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 export interface PopupProps extends ItemProps {
     Content: React.ReactNode | Function;
     duration?: number;
-    preventDuplicate?: boolean,
+    preventDuplicate?: boolean;
     maximum?: number;
     unique?: boolean;
     queue?: boolean;
     showMask?: boolean;
     onClose?: Function;
+    pressEscToClose?: boolean;
 }
 
 export interface PopupMethods {
@@ -32,7 +33,7 @@ export interface PopupMethods {
     setAnimatedSize(animatedSize: boolean): void;
 }
 
-const PopupItem = forwardRef<HTMLDivElement, PopupProps & { handleClose: () => void; }>(({ handleClose, Content, duration }, ref) => {
+const PopupItem = forwardRef<HTMLDivElement, PopupProps & { handleClose: () => void }>(({ handleClose, Content, duration }, ref) => {
     useEffect(() => {
         let timer: number;
         if (duration !== 0) timer = setTimeout(handleClose, duration) as unknown as number;
@@ -41,18 +42,15 @@ const PopupItem = forwardRef<HTMLDivElement, PopupProps & { handleClose: () => v
 
     if (isValidElement(Content) || typeof Content === 'function')
         return (
-            <div
-                className="flex flex-col w-fit bg-transparent backface-visible overflow-hidden contain-content"
-                ref={ref}
-            >
+            <div className="flex flex-col w-fit bg-transparent backface-visible overflow-hidden contain-content" ref={ref}>
                 {typeof Content === 'function' ? <Content /> : Content}
             </div>
         );
-        return (
-            <div ref={ref} className="w-fit px-[5px] py-[8px] bg-black bg-opacity-70 text-white rounded backface-visible">
-                {Content}
-            </div>
-        );
+    return (
+        <div ref={ref} className="w-fit px-[5px] py-[8px] bg-black bg-opacity-70 text-white rounded backface-visible">
+            {Content}
+        </div>
+    );
 });
 
 const PopupContainer = forwardRef<PopupMethods>((_, ref) => {
@@ -67,53 +65,92 @@ const PopupContainer = forwardRef<PopupMethods>((_, ref) => {
     const [itemWrapperStyle, setItemWrapperStyle] = useState<CSSProperties | undefined>(undefined);
     const [itemWrapperClassName, setItemWrapperClassName] = useState<string | undefined>(undefined);
     const [animatedSize, setAnimatedSize] = useState(true);
+    const popupListRef = useRef<PopupProps[]>([]);
+    useEffect(() => {
+        popupListRef.current = popupList;
+    }, [popupList]);
 
-    const pushPopup = useCallback(({ Content, duration = 3000, showMask = false, key, preventDuplicate, maximum, unique, queue, ...props }: PartialOptional<PopupProps, 'key'>) => {
-        const usedKey = key ?? uniqueId('popup');
+    const pushPopup = useCallback(
+        ({ Content, duration = 3000, showMask = false, key, preventDuplicate, maximum, unique, queue, ...props }: PartialOptional<PopupProps, 'key'>) => {
+            const usedKey = key ?? uniqueId('popup');
 
-        setPopupList(curList => {
-            if (key && curList.find((item: PopupProps) => item.key === key)) return curList;
-            if (queue && curList.length) {
-                listQueue.current.push({ Content, duration, showMask, key: usedKey, preventDuplicate, maximum, unique, ...props });
-                return curList;
-            }
-            if (preventDuplicate && curList.find((item: PopupProps) => item.Content === Content)) return curList;
-            if (maximum && curList.length > 0 && curList.length >= maximum) curList = curList.slice(0, maximum - 1);
-            return ([
-                    { key: usedKey, Content, duration, showMask, ...props }, 
-                    ...(unique && curList.length >= 1 ? [] : curList)
-            ]);
-        });
-        runAsync(() => { if (showMask) setOpenMask(true); });
-        return usedKey;
-    }, []);
+            setPopupList((curList) => {
+                if (key && curList.find((item: PopupProps) => item.key === key)) return curList;
+                if (queue && curList.length) {
+                    listQueue.current.push({ Content, duration, showMask, key: usedKey, preventDuplicate, maximum, unique, ...props });
+                    return curList;
+                }
+                if (preventDuplicate && curList.find((item: PopupProps) => item.Content === Content)) return curList;
+                if (maximum && curList.length > 0 && curList.length >= maximum) curList = curList.slice(0, maximum - 1);
+                return [{ key: usedKey, Content, duration, showMask, ...props }, ...(unique && curList.length >= 1 ? [] : curList)];
+            });
+            runAsync(() => {
+                if (showMask) setOpenMask(true);
+            });
+            return usedKey;
+        },
+        []
+    );
 
     const popPopup = useCallback((key: PopupProps['key']) => {
-        let isListEmpty = false;
-        setPopupList(curList => {
-            const newList = curList.filter((item: PopupProps) => item.key !== key);
-            if (!newList.find(item => item.showMask)) setOpenMask(false);
-            if (!newList.length && listQueue.current.length) isListEmpty = true;
-            return newList;
+        setTimeout(() => {
+            let isListEmpty = false;
+            setPopupList((curList) => {
+                const newList = curList.filter((item: PopupProps) => item.key !== key);
+                if (!newList.find((item) => item.showMask)) setOpenMask(false);
+                if (!newList.length && listQueue.current.length) isListEmpty = true;
+                return newList;
+            });
+            runAsync(() => {
+                if (isListEmpty) pushPopup(listQueue.current.shift() as PopupProps);
+            });
         });
-        runAsync(() => { if (isListEmpty) pushPopup(listQueue.current.shift() as PopupProps); });
     }, []);
 
     const popAllPopup = useCallback(() => {
-        listQueue.current = [];
-        setPopupList([]);
-        setOpenMask(false);
+        setTimeout(() => {
+            listQueue.current = [];
+            setPopupList([]);
+            setOpenMask(false);
+        });
     }, []);
 
     const setMaskClick = useCallback((func: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void): void => {
         setMaskClickHandler(() => func);
     }, []);
 
-    useImperativeHandle(ref, () => ({ show: pushPopup, hide: popPopup, hideAll: popAllPopup, setMaskStyle, setMaskClassName, setListStyle, setListClassName, setItemWrapperStyle, setItemWrapperClassName, setMaskClickHandler: setMaskClick, setAnimatedSize }));
+    useEffect(() => {
+        const handleKeypress = (evt: KeyboardEvent) => {
+            if (evt?.key !== 'Escape') return;
+            popupListRef.current.forEach((popup) => {
+                if (popup.pressEscToClose) {
+                    popPopup(popup.key);
+                    popup?.onClose?.();
+                }
+            });
+        };
+        document.addEventListener('keydown', handleKeypress);
+
+        return () => document.removeEventListener('keydown', handleKeypress);
+    }, []);
+
+    useImperativeHandle(ref, () => ({
+        show: pushPopup,
+        hide: popPopup,
+        hideAll: popAllPopup,
+        setMaskStyle,
+        setMaskClassName,
+        setListStyle,
+        setListClassName,
+        setItemWrapperStyle,
+        setItemWrapperClassName,
+        setMaskClickHandler: setMaskClick,
+        setAnimatedSize,
+    }));
 
     return (
         <div>
-            <Mask open={openMask} className={maskClassName} style={maskStyle} onClick={maskClickHandler}/>
+            <Mask open={openMask} className={maskClassName} style={maskStyle} onClick={maskClickHandler} />
             <List
                 className={classNames('fixed flex flex-col items-center w-fit left-[50%] top-[30%] translate-x-[-50%] z-[201]', listClassName)}
                 list={popupList}
@@ -122,7 +159,15 @@ const PopupContainer = forwardRef<PopupMethods>((_, ref) => {
                 ItemWrapperClassName={itemWrapperClassName}
                 ItemWrapperStyle={{ marginBottom: 12, ...itemWrapperStyle }}
             >
-                {popup => <PopupItem handleClose={() => { popPopup(popup.key); popup?.onClose?.(); }} {...popup} />}
+                {(popup) => (
+                    <PopupItem
+                        handleClose={() => {
+                            popPopup(popup.key);
+                            popup?.onClose?.();
+                        }}
+                        {...popup}
+                    />
+                )}
             </List>
         </div>
     );

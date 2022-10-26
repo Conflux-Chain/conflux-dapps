@@ -72,8 +72,8 @@ const App: React.FC = () => {
 
     return (
         <div className="relative w-[480px] mx-auto pt-[16px] mb-24px">
-            <p className="pl-[32px] font-medium	text-[28px] leading-[36px] text-[#3D3F4C]">{i18n.transfer_assets}</p>
-            <p className="pl-[32px] text-[16px] leading-[22px] mt-[4px] text-[#A9ABB2]">{i18n.between_space}</p>
+            <div className="pl-[32px] font-medium	text-[28px] leading-[36px] text-[#3D3F4C]">{i18n.transfer_assets}</div>
+            <div className="pl-[32px] text-[16px] leading-[22px] mt-[4px] text-[#A9ABB2]">{i18n.between_space}</div>
 
             <div className={cx('mt-[24px] bsc-espace-module', currentStep === 2 && 'min-h-[372px]')}>
                 <Steps currentStep={currentStep} changeCurrentStep={changeCurrentStep} hasPeggedCFX={hasPeggedCFX} />
@@ -131,9 +131,9 @@ const Steps: React.FC<{ currentStep: 0 | 1 | 2; changeCurrentStep: (step: 0 | 1 
                     </React.Fragment>
                 ))}
             </div>
-            <p className={cx('mt-[24px] mb-[16px] text-[14px] text-[#898D9A] transition-opacity', !hasPeggedCFX && currentStep === 2 && 'opacity-0')}>
+            <div className={cx('mt-[24px] mb-[16px] text-[14px] text-[#898D9A] transition-opacity', !hasPeggedCFX && currentStep === 2 && 'opacity-0')}>
                 {steps[currentStep].desc}
-            </p>
+            </div>
         </>
     );
 };

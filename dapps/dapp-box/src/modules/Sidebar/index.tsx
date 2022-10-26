@@ -8,17 +8,15 @@ import ConfluxHub from 'hub/src/assets/ConfluxHub.svg';
 import ConfluxHubText from 'hub/src/assets/ConfluxHub-text.svg';
 import Expand from 'hub/src/assets/expand.svg';
 import { dapps } from 'hub/src/App';
-import AdvertBg from 'hub/src/assets/advert.png';
-import ArrowRight from 'hub/src/assets/arrow-right.svg';
-import Explore from 'hub/src/assets/explore.svg';
-import Close from 'common/assets/icons/close.svg';
 import { useNotSupportMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFluent';
 import './index.css';
+
+const dappsSupportMetaMaskHostedByFluent = ['eSpace Bridge', 'Governance', 'Web3 Paywall', 'Bridge'];
 
 const Sidebar: React.FC = () => {
     const navigate = useNavigate();
     const currentDapp = useCurrentDapp();
-    useNotSupportMetaMaskHostedByFluent(currentDapp.name === 'eSpace Bridge' ? undefined : currentDapp.name);
+    useNotSupportMetaMaskHostedByFluent(dappsSupportMetaMaskHostedByFluent.includes(currentDapp?.name) ? undefined : currentDapp?.name);
 
     const [expand, setExpand] = useState(() => {
         const last = (localStorage.getItem('ConfluxHub-drawer-expand') as 'true') || 'false';
@@ -50,31 +48,6 @@ const Sidebar: React.FC = () => {
         opacity: expand ? 1 : 0,
     });
 
-    const [isExploreOpen, setExploreOpen] = useState(() => {
-        const last = (localStorage.getItem('ConfluxHub-explore-open') as 'true') || 'true';
-        if (last === 'true' || last === 'false') return last === 'true';
-        return true;
-    });
-    const triggerExploreOpen = useCallback<React.MouseEventHandler>(() => {
-        setExploreOpen((pre) => {
-            localStorage.setItem('ConfluxHub-explore-open', !pre ? 'true' : 'false');
-            return !pre;
-        });
-    }, []);
-
-    const exploreStyle = useSpring({
-        config: config.stiff,
-        scale: expand ? 0 : 1,
-        x: '-50%',
-        opacity: expand ? 0 : 1,
-    });
-
-    const advertStyle = useSpring({
-        config: config.stiff,
-        x: expand ? 12 : isExploreOpen ? 80 : 0,
-        scale: expand ? 1 : isExploreOpen ? 1 : 0.3,
-        opacity: expand ? 1 : isExploreOpen ? 1 : 0
-    });
 
     return (
         <a.div className={'leftbar-container relative flex-shrink-0 flex flex-col px-[8px] pb-[36px] bg-white z-10 select-none'} style={drawerStyle}>
@@ -97,11 +70,16 @@ const Sidebar: React.FC = () => {
                     )}
                     onClick={triggerExpand}
                 >
-                    <img className={cx("w-[14px] h-[14px] transition-transform", expand ? 'rotate-180' : 'rotate-0')} alt="expand button" src={Expand} draggable="false" />
+                    <img
+                        className={cx('w-[14px] h-[14px] transition-transform', expand ? 'rotate-180' : 'rotate-0')}
+                        alt="expand button"
+                        src={Expand}
+                        draggable="false"
+                    />
                 </div>
             </div>
 
-            <p className="mt-[32px] mb-[8px] ml-[17.62px] text-[12px] leading-[16px] text-[#A9ABB2]">APP</p>
+            <div className="mt-[32px] mb-[8px] ml-[17.62px] text-[12px] leading-[16px] text-[#A9ABB2]">APP</div>
 
             <div className="flex flex-col gap-[12px]">
                 {dapps.map((dapp, index) => (
@@ -122,7 +100,7 @@ const Sidebar: React.FC = () => {
                                     currentDapp.path === dapp.path && 'bg-[#F8F9FE]',
                                     expand && currentDapp.path !== dapp.path && 'hover:bg-[#F8F9FE] cursor-pointer'
                                 )}
-                                onClick={() => navigate(dapp.path)}
+                                onClick={() => navigate(dapp?.link ?? dapp.path)}
                             >
                                 <div
                                     className={cx(
@@ -154,58 +132,6 @@ const Sidebar: React.FC = () => {
                     </Popper>
                 ))}
             </div>
-
-            <a.div
-                className='advert absolute bottom-[32px] w-[182px] h-[182px] rounded-[24px] pt-[60px] px-[6px] font-normal text-center overflow-hidden contain-strict origin-bottom-left'
-                style={advertStyle}
-            >
-                <img className="absolute -top-[2.5%] left-0 w-full" src={AdvertBg} alt="background image" draggable="false" />
-                <img
-                    className={cx(
-                        'absolute top-[8px] right-[8px] w-[20px] h-[20px] cursor-pointer hover:scale-110 transition-all duration-200',
-                        expand ? 'opacity-0 pointer-events-none' : 'opacity-100'
-                    )}
-                    src={Close}
-                    alt="close icon"
-                    draggable="false"
-                    onClick={triggerExploreOpen}
-                />
-                <p className="text-[14px] leading-[18px] text-[#4D71FF] translate-x-0">Directly from Ethereum to Conflux eSpace, Multichain is recommended</p>
-                <a
-                    className="mt-[16px] group inline-flex items-center justify-center w-[120px] h-[32px] rounded-[48px] leading-[32px] text-[12px] text-white bg-[#4D71FF] translate-x-0"
-                    href="https://app.multichain.org/#/router"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    learn more
-                    <img
-                        className="ml-[4px] inline-block w-[18px] h-[18px] translate-y-[3px] group-hover:translate-x-[4px] transition-transform"
-                        src={ArrowRight}
-                        alt="arrow"
-                    />
-                </a>
-            </a.div>
-
-            <a.div
-                className={cx(
-                    'absolute bottom-[32px] w-[40px] h-[40px] rounded-[8px] flex justify-center items-center left-[50%] cursor-pointer contain-strict transition-colors',
-                    expand && 'pointer-events-none',
-                    isExploreOpen && 'bg-[#F8F9FE]'
-                )}
-                style={exploreStyle}
-                onClick={triggerExploreOpen}
-            >
-                <span
-                    className={cx(
-                        'absolute left-[30px] top-[6px] flex w-[6px] h-[6px] transition-opacity duration-300',
-                        isExploreOpen ? 'opacity-0' : 'opacity-100'
-                    )}
-                >
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#E96170] opacity-75"></span>
-                    <span className="relative inline-flex rounded-full w-[6px] h-[6px] bg-[#E96170]"></span>
-                </span>
-                <img className="w-[24px] h-[24px]" src={Explore} alt="explore" draggable="false" />
-            </a.div>
         </a.div>
     );
 };

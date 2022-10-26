@@ -8,14 +8,14 @@ import App from './App';
 
 Promise.all([completeDetectConflux(), completeDetectEthereum()]).then(() => {
     ReactDOM.createRoot(document.getElementById('conflux-hub-root')!).render(<App />);
-    
+
     let entry = 'shuttleflow.io';
     if (location.host.startsWith('test')) {
         entry = 'test-rigel.confluxhub.io';
     } else if (location.host.startsWith('localhost')) {
         entry = 'localhost:3002';
-    }  else if (location.host.startsWith('stage')) {
-        entry = 'stage-rigel.confluxhub.io'
+    } else if (location.host.startsWith('stage')) {
+        entry = 'stage-rigel.confluxhub.io';
     }
 
     registerMicroApps([
@@ -26,5 +26,5 @@ Promise.all([completeDetectConflux(), completeDetectEthereum()]).then(() => {
             activeRule: 'shuttle-flow',
         },
     ]);
-    startQianKun({  });
+    startQianKun({});
 });

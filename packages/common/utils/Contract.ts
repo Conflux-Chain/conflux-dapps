@@ -28,9 +28,13 @@ interface AbiItem {
     gas?: number;
 }
 
-const  createContract = <T>(abi: Array<AbiItem>): T => {
+const createContract = <T>(abi: Array<AbiItem>): T => {
     const contract = new web3.eth.Contract(abi as any);
     return contract.methods;
+}
+
+export const decodeHexResult = (outputs: any, hexResult: string) => {
+    return web3.eth.abi.decodeParameters(outputs, hexResult);
 }
 
 export default createContract;

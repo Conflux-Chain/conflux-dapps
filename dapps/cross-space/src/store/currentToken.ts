@@ -60,6 +60,16 @@ export const startSubToken = () => {
 }
 
 
+export const setCurrentToken = (currentToken: Token) => {
+    currentTokenStore.setState({ currentToken });
+    LocalStorage.setItem({ key: 'currentToken', data: currentToken, namespace: 'cross-space' });
+
+    if (!currentToken.isNative) {
+        commonTokensCache.set(currentToken.native_address, currentToken);
+        currentTokenStore.setState({ commonTokens: [nativeToken, ...commonTokensCache.toArr()] });
+    }
+}
+
 export const useToken = () => {
     const currentToken = currentTokenStore(selectors.token);
     const commonTokens = currentTokenStore(selectors.commonTokens);
@@ -67,16 +77,6 @@ export const useToken = () => {
     const deleteFromCommonTokens = useCallback((deleteToken: Token) => {
         if (!commonTokensCache.delete(deleteToken.native_address)) return;
         currentTokenStore.setState({ commonTokens: [nativeToken, ...commonTokensCache.toArr()] });
-    }, []);
-
-    const setCurrentToken = useCallback((currentToken: Token) => {
-        currentTokenStore.setState({ currentToken });
-        LocalStorage.setItem({ key: 'currentToken', data: currentToken, namespace: 'cross-space' });
-
-        if (!currentToken.isNative) {
-            commonTokensCache.set(currentToken.native_address, currentToken);
-            currentTokenStore.setState({ commonTokens: [nativeToken, ...commonTokensCache.toArr()] });
-        }
     }, []);
 
     return { currentToken, setCurrentToken, commonTokens, deleteFromCommonTokens };
