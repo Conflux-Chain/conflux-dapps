@@ -68,5 +68,8 @@ export const processErrorMsg = (msg: string) => {
     if (msg.includes(CONTRACT_ERRORS.exceedDuration)) {
         return CONTRACT_ERRORS.exceedDuration;
     }
+    if (msg.includes(CONTRACT_ERRORS.expirationExceed)) {
+        return CONTRACT_ERRORS.exceedDuration;
+    }
     return msg;
 };
