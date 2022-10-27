@@ -63,7 +63,7 @@ export default () => {
                     render(_: string, row: DataSourceType) {
                         return (
                             <>
-                                <Button id="button_detail">
+                                <Button id="button_detail" className="mt-2">
                                     <Link to={`/payment/provider/app/${PAYMENT_TYPE[row.type]}/${row.address}`}>Details</Link>
                                 </Button>
                                 {row.earnings !== '0' && (
