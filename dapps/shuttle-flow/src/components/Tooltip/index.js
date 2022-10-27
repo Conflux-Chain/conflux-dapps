@@ -1,7 +1,6 @@
 import * as React from 'react'
 import PropTypes from 'prop-types'
 import RcTooltip from 'rc-tooltip'
-import useMergedState from 'rc-util/lib/hooks/useMergedState'
 import classNames from 'classnames'
 import getPlacements from './Placements'
 import './index.css'
@@ -69,6 +68,13 @@ function getDisabledCompatibleChildren(element, prefixCls) {
     )
   }
   return element
+}
+
+
+const useMergedState = (_state, { value, defaultValue }) => {
+  const [state, setState] = React.useState(() => defaultValue ?? _state);
+
+  return [value ?? state, setState];
 }
 
 const Tooltip = React.forwardRef((props, ref) => {
