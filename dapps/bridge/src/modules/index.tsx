@@ -68,7 +68,7 @@ const Index: React.FC = () => {
 
                 {sourceChain && <Routes />}
             </div>
-            <div className="cross-space-module mx-auto mt-[16px] mb-[24px] text-[14px] text-[#898D9A] leading-[18px] font-normal">
+            <div className="cross-space-module mx-auto mt-[16px] mb-[24px] text-[14px] text-[#898D9A] leading-[18px] font-normal whitespace-nowrap">
                 <div>
                     Assets directly across between Conflux and other chains.{' '}
                     <Link className="group text-[#808BE7] hover:text-[#808BE7] hover:underline" to="/shuttle-flow">
