@@ -25,7 +25,7 @@ export default () => {
 
     return (
         <div>
-            <Title backTo={`/payment/consumer/${(state as { from: string })?.from || 'apps'}`}>Detail</Title>
+            <Title backTo={`/payment/consumer/${(state as { from: string })?.from || 'apps'}`}>Details</Title>
             <Detail address={address as string} />
             {info}
         </div>

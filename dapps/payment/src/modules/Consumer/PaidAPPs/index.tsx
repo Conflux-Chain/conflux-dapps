@@ -14,6 +14,8 @@ import { PAYMENT_TYPE } from 'payment/src/utils/constants';
 import BigNumber from 'bignumber.js';
 import PurchaseSubscription from 'payment/src/modules/Common/PurchaseSubscription';
 import { forceWithdraw } from 'payment/src/utils/request';
+import { getToken } from 'payment/src/utils/tokens';
+import Networks from 'common/conf/Networks';
 
 const { Search } = Input;
 const TIPs = [
@@ -21,6 +23,7 @@ const TIPs = [
     '2. The estimated amount received based on the withdrawable token type you specified.',
     // '3. You can use the allowed cryptocurrencies to withdraw, the platform will obtain the dex quotation to calculate the estimated payment amount, or go Swappi to learn more.',
 ];
+const USDT = getToken('USDT');
 
 export default () => {
     const config = useMemo(
@@ -47,7 +50,7 @@ export default () => {
     } = useBoundProviderStore((state) => state.consumerPaidAPPs);
 
     const handleComplate = useCallback(async () => {
-        await (account && fetch(account));
+        await fetch(account);
     }, [account]);
 
     useEffect(() => {
@@ -78,12 +81,12 @@ export default () => {
                             const isWithdrawable =
                                 row.billing.withdrawSchedule !== '0' &&
                                 new BigNumber(row.billing.deferTimeSecs).plus(row.billing.withdrawSchedule).lt(+new Date() / 1000);
-                            const isFrozen = row.billing.deferTimeSecs !== '0' || isWithdrawable;
+                            const isFrozen = row.billing.withdrawSchedule !== '0';
                             const isRefundable = row.billing.balance !== '0' && !isWithdrawable;
 
                             return (
                                 <div className="flex align-middle flex-wrap">
-                                    <Button id="button_detail" className="mr-2 mb-2">
+                                    <Button id="button_detail" className="mr-2 mt-2">
                                         <Link
                                             to={`/payment/consumer/app/${PAYMENT_TYPE[row.type]}/${row.address}`}
                                             state={{
@@ -95,13 +98,16 @@ export default () => {
                                     </Button>
 
                                     {isFrozen && (
-                                        <Withdraw
-                                            title="Withdraw Refund"
-                                            disabled={!isWithdrawable}
-                                            value={row.billing.balance}
-                                            tips={TIPs}
-                                            onWithdraw={async () => handleWithdraw(row.address)}
-                                        />
+                                        <>
+                                            <Withdraw
+                                                title="Withdraw Refund"
+                                                disabled={!isWithdrawable}
+                                                value={row.billing.balance}
+                                                tips={TIPs}
+                                                onWithdraw={async () => handleWithdraw(row.address)}
+                                            />
+                                            {(row.billing.balance !== '0' || row.billing.airdrop !== '0') && <APIKey appAddr={row.address} />}
+                                        </>
                                     )}
 
                                     {!isFrozen && (
@@ -111,6 +117,17 @@ export default () => {
                                             {isRefundable && <Refund appAddr={row.address} />}
                                         </>
                                     )}
+
+                                    <Button id="button_detail" className="mr-2 mt-2">
+                                        <a
+                                            href={`${
+                                                Networks.eSpace.blockExplorerUrls
+                                            }/address/${row.address.toLowerCase()}?from=${account?.toLowerCase()}&skip=0&tab=transfers-ERC20&tokenArray=${USDT.eSpace_address.toLowerCase()}`}
+                                            target="_blank"
+                                        >
+                                            History
+                                        </a>
+                                    </Button>
                                 </div>
                             );
                         } else {
@@ -119,7 +136,7 @@ export default () => {
 
                             return (
                                 <div className="flex align-middle flex-wrap">
-                                    <Button id="button_detail" className="mr-2 mb-2">
+                                    <Button id="button_detail" className="mr-2 mt-2">
                                         <Link
                                             to={`/payment/consumer/app/${PAYMENT_TYPE[row.type]}/${row.address}`}
                                             state={{
@@ -131,6 +148,16 @@ export default () => {
                                     </Button>
                                     {!isExpired && <APIKey appAddr={row.address} />}
                                     <PurchaseSubscription appAddr={row.address} onComplete={handleComplate} />
+                                    <Button id="button_detail" className="mr-2 mt-2">
+                                        <a
+                                            href={`${
+                                                Networks.eSpace.blockExplorerUrls
+                                            }/address/${row.subscription.cardShop.toLowerCase()}?from=${account?.toLowerCase()}&skip=0&tab=transfers-ERC20&tokenArray=${USDT.eSpace_address.toLowerCase()}`}
+                                            target="_blank"
+                                        >
+                                            History
+                                        </a>
+                                    </Button>
                                 </div>
                             );
                         }

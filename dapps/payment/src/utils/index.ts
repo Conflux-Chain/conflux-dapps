@@ -13,8 +13,15 @@ export let providerEthereum: ethers.providers.Web3Provider;
 export let signer: ethers.providers.JsonRpcSigner;
 
 try {
-    providerEthereum = new ethers.providers.Web3Provider(window.ethereum);
+    providerEthereum = new ethers.providers.Web3Provider(window.ethereum, 'any');
     signer = providerEthereum.getSigner();
+
+    providerEthereum.on('network', (newNetwork, oldNetwork) => {
+        signer = providerEthereum.getSigner();
+        if (oldNetwork) {
+            window.location.reload();
+        }
+    });
 } catch (error) {}
 
 export const provider = new ethers.providers.JsonRpcBatchProvider({
@@ -60,6 +67,9 @@ export const processErrorMsg = (msg: string) => {
         return CONTRACT_ERRORS.rNameIsRepeated;
     }
     if (msg.includes(CONTRACT_ERRORS.exceedDuration)) {
+        return CONTRACT_ERRORS.exceedDuration;
+    }
+    if (msg.includes(CONTRACT_ERRORS.expirationExceed)) {
         return CONTRACT_ERRORS.exceedDuration;
     }
     return msg;

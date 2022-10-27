@@ -131,7 +131,7 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
     return (
         <>
             <AuthESpace
-                className={`!rounded-sm !h-[32px] mr-2 mb-2 ${className}`}
+                className={`!rounded-sm !h-[32px] mr-2 mt-2 ${className}`}
                 id="createAPP_authConnect"
                 size="small"
                 connectTextType="concise"
@@ -141,7 +141,7 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
                 authContent={() => (
                     <Button
                         id="button_deposit"
-                        className={`cursor-pointer mr-2 mb-2 ${className}`}
+                        className={`cursor-pointer mr-2 mt-2 ${className}`}
                         onClick={handleShowModal}
                         disabled={disabled}
                         type={buttonType}

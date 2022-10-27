@@ -63,7 +63,7 @@ export default ({ disabled, value, title, buttonProps, tips = [], onComplete, on
     return (
         <>
             <AuthESpace
-                className="!rounded-sm !h-[32px] mr-2 mb-2"
+                className="!rounded-sm !h-[32px] mr-2 mt-2"
                 id="createAPP_authConnect"
                 size="small"
                 connectTextType="concise"
@@ -73,7 +73,7 @@ export default ({ disabled, value, title, buttonProps, tips = [], onComplete, on
                 authContent={() => (
                     <Button
                         id="button_withdraw"
-                        className={`cursor-pointer mr-2 ${buttonProps?.className}`}
+                        className={`cursor-pointer mr-2 mt-2 ${buttonProps?.className}`}
                         onClick={handleShowModal}
                         disabled={disabled}
                         {...buttonProps}
