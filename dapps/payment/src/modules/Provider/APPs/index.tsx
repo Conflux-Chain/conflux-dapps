@@ -33,7 +33,8 @@ export default () => {
     } = useBoundProviderStore((state) => state.provider);
 
     const fetchList = useCallback(() => {
-        account && fetch(account);
+        // account && fetch(account);
+        fetch(account);
     }, [account]);
 
     useEffect(() => {
@@ -76,7 +77,7 @@ export default () => {
                                     <a
                                         href={`${
                                             Networks.eSpace.blockExplorerUrls
-                                        }/address/${row.address.toLowerCase()}?to=${account.toLowerCase()}&skip=0&tab=transfers-ERC20&tokenArray=${USDT.eSpace_address.toLowerCase()}`}
+                                        }/address/${row.address.toLowerCase()}?to=${account?.toLowerCase()}&skip=0&tab=transfers-ERC20&tokenArray=${USDT.eSpace_address.toLowerCase()}`}
                                         target="_blank"
                                     >
                                         History

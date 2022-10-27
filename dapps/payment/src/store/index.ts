@@ -68,7 +68,7 @@ export const useTokenList = () => {
 };
 
 export const useBoundProviderStore = create(
-    immer((set, get) => ({
+    immer((set) => ({
         provider: {
             loading: false,
             error: null,
@@ -77,17 +77,24 @@ export const useBoundProviderStore = create(
                 total: 0,
             },
             fetch: async (owner: string) => {
-                set((state) => {
-                    state.provider.loading = true;
-                });
-                const data = await getAPPs(owner);
-                set((state) => {
-                    state.provider.data.list = data;
-                    state.provider.data.total = data.length;
-                });
-                set((state) => {
-                    state.provider.loading = false;
-                });
+                if (owner) {
+                    set((state) => {
+                        state.provider.loading = true;
+                    });
+                    const data = await getAPPs(owner);
+                    set((state) => {
+                        state.provider.data.list = data;
+                        state.provider.data.total = data.length;
+                    });
+                    set((state) => {
+                        state.provider.loading = false;
+                    });
+                } else {
+                    set((state) => {
+                        state.provider.data.list = [];
+                        state.provider.data.total = 0;
+                    });
+                }
             },
         },
         subscription: {
@@ -159,16 +166,25 @@ export const useBoundProviderStore = create(
                 total: 0,
             },
             fetch: async (account: string) => {
-                set((state) => {
-                    state.consumerPaidAPPs.loading = true;
-                });
-                const data = await getPaidAPPs(account);
-                set((state) => {
-                    state.consumerPaidAPPs.data = data;
-                });
-                set((state) => {
-                    state.consumerPaidAPPs.loading = false;
-                });
+                if (account) {
+                    set((state) => {
+                        state.consumerPaidAPPs.loading = true;
+                    });
+                    const data = await getPaidAPPs(account);
+                    set((state) => {
+                        state.consumerPaidAPPs.data = data;
+                    });
+                    set((state) => {
+                        state.consumerPaidAPPs.loading = false;
+                    });
+                } else {
+                    set((state) => {
+                        state.consumerPaidAPPs.data = {
+                            list: [],
+                            total: 0,
+                        };
+                    });
+                }
             },
         },
     }))

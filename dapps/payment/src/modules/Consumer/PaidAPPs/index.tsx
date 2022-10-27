@@ -50,7 +50,7 @@ export default () => {
     } = useBoundProviderStore((state) => state.consumerPaidAPPs);
 
     const handleComplate = useCallback(async () => {
-        await (account && fetch(account));
+        await fetch(account);
     }, [account]);
 
     useEffect(() => {
@@ -122,7 +122,7 @@ export default () => {
                                         <a
                                             href={`${
                                                 Networks.eSpace.blockExplorerUrls
-                                            }/address/${row.address.toLowerCase()}?from=${account.toLowerCase()}&skip=0&tab=transfers-ERC20&tokenArray=${USDT.eSpace_address.toLowerCase()}`}
+                                            }/address/${row.address.toLowerCase()}?from=${account?.toLowerCase()}&skip=0&tab=transfers-ERC20&tokenArray=${USDT.eSpace_address.toLowerCase()}`}
                                             target="_blank"
                                         >
                                             History
@@ -152,7 +152,7 @@ export default () => {
                                         <a
                                             href={`${
                                                 Networks.eSpace.blockExplorerUrls
-                                            }/address/${row.subscription.cardShop.toLowerCase()}?from=${account.toLowerCase()}&skip=0&tab=transfers-ERC20&tokenArray=${USDT.eSpace_address.toLowerCase()}`}
+                                            }/address/${row.subscription.cardShop.toLowerCase()}?from=${account?.toLowerCase()}&skip=0&tab=transfers-ERC20&tokenArray=${USDT.eSpace_address.toLowerCase()}`}
                                             target="_blank"
                                         >
                                             History
