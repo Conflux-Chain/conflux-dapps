@@ -86,7 +86,7 @@ export default () => {
 
                             return (
                                 <div className="flex align-middle flex-wrap">
-                                    <Button id="button_detail" className="mr-2 mb-2">
+                                    <Button id="button_detail" className="mr-2">
                                         <Link
                                             to={`/payment/consumer/app/${PAYMENT_TYPE[row.type]}/${row.address}`}
                                             state={{
@@ -118,7 +118,7 @@ export default () => {
                                         </>
                                     )}
 
-                                    <Button id="button_detail" className="mr-2 mb-2">
+                                    <Button id="button_detail" className="mr-2 mt-2">
                                         <a
                                             href={`${
                                                 Networks.eSpace.blockExplorerUrls
@@ -136,7 +136,7 @@ export default () => {
 
                             return (
                                 <div className="flex align-middle flex-wrap">
-                                    <Button id="button_detail" className="mr-2 mb-2">
+                                    <Button id="button_detail" className="mr-2">
                                         <Link
                                             to={`/payment/consumer/app/${PAYMENT_TYPE[row.type]}/${row.address}`}
                                             state={{
@@ -148,7 +148,7 @@ export default () => {
                                     </Button>
                                     {!isExpired && <APIKey appAddr={row.address} />}
                                     <PurchaseSubscription appAddr={row.address} onComplete={handleComplate} />
-                                    <Button id="button_detail" className="mr-2 mb-2">
+                                    <Button id="button_detail" className="mr-2 mt-2">
                                         <a
                                             href={`${
                                                 Networks.eSpace.blockExplorerUrls

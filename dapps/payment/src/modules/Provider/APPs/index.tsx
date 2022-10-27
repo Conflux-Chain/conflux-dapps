@@ -63,16 +63,18 @@ export default () => {
                     render(_: string, row: DataSourceType) {
                         return (
                             <>
-                                <Button id="button_detail" className="mb-2">
+                                <Button id="button_detail">
                                     <Link to={`/payment/provider/app/${PAYMENT_TYPE[row.type]}/${row.address}`}>Details</Link>
                                 </Button>
-                                <Withdraw
-                                    title="Withdraw Refund"
-                                    disabled={row.earnings === '0'}
-                                    value={row.earnings}
-                                    tips={TIPs}
-                                    onWithdraw={() => handleWithdraw(row.address, String(row.earnings))}
-                                />
+                                {row.earnings !== '0' && (
+                                    <Withdraw
+                                        title="Withdraw Refund"
+                                        // disabled={row.earnings === '0'}
+                                        value={row.earnings}
+                                        tips={TIPs}
+                                        onWithdraw={() => handleWithdraw(row.address, String(row.earnings))}
+                                    />
+                                )}
                                 <Button id="button_detail" className="mr-2 mt-2">
                                     <a
                                         href={`${
