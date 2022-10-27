@@ -73,7 +73,7 @@ export default ({ disabled, value, title, buttonProps, tips = [], onComplete, on
                 authContent={() => (
                     <Button
                         id="button_withdraw"
-                        className={`cursor-pointer mr-2 ${buttonProps?.className}`}
+                        className={`cursor-pointer mr-2 mb-2 ${buttonProps?.className}`}
                         onClick={handleShowModal}
                         disabled={disabled}
                         {...buttonProps}

@@ -11,6 +11,8 @@ import { Button } from 'antd';
 import Withdraw from 'payment/src/modules/Common/Withdraw';
 import { DataSourceType } from 'payment/src/utils/types';
 import { takeEarnings } from 'payment/src/utils/request';
+import { getToken } from 'payment/src/utils/tokens';
+import Networks from 'common/conf/Networks';
 
 const { Search } = Input;
 const TIPs = [
@@ -18,6 +20,7 @@ const TIPs = [
     '2. The estimated amount received based on the withdrawable token type you specified.',
     '3. If you want to withdraw your CFX assets to Confluxcore to experience other projects, you can fill in the Bridge address, send the assets to the Bridge address, and then go to the Space Bridge to withdraw.',
 ];
+const USDT = getToken('USDT');
 
 export default () => {
     const account = useAccount();
@@ -30,7 +33,8 @@ export default () => {
     } = useBoundProviderStore((state) => state.provider);
 
     const fetchList = useCallback(() => {
-        account && fetch(account);
+        // account && fetch(account);
+        fetch(account);
     }, [account]);
 
     useEffect(() => {
@@ -69,6 +73,16 @@ export default () => {
                                     tips={TIPs}
                                     onWithdraw={() => handleWithdraw(row.address, String(row.earnings))}
                                 />
+                                <Button id="button_detail" className="mr-2 mt-2">
+                                    <a
+                                        href={`${
+                                            Networks.eSpace.blockExplorerUrls
+                                        }/address/${row.address.toLowerCase()}?to=${account?.toLowerCase()}&skip=0&tab=transfers-ERC20&tokenArray=${USDT.eSpace_address.toLowerCase()}`}
+                                        target="_blank"
+                                    >
+                                        History
+                                    </a>
+                                </Button>
                             </>
                         );
                     },

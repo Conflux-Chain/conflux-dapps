@@ -31,7 +31,7 @@ import { showToast } from 'common/components/showPopup/Toast';
 import Payment from 'payment/src/modules';
 import PaymentNavbarEnhance from 'hub/src/modules/NavbarEnhance/Payment';
 // TODO just for temporary, need to replace with real
-import PaymentIcon from 'payment/src/assets/Payment.png';
+import PaymentIcon from 'payment/src/assets/logo-light.png';
 import Keyboard from 'custom-keyboard';
 import './App.css';
 
@@ -177,7 +177,7 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                     <Route path="governance/" element={<Navigate to="/governance/dashboard" />} />
                     <Route path="governance/*" element={<Navigate to="/governance/dashboard" />} />
                     <Route path="bridge" element={<Bridge />} />
-                    
+
                     <Route key="shuttle-flow" path="shuttle-flow/*" element={<div id="shuttle-flow" />} />
                     {localStorage.getItem('payment') == '1' && !isProduction && (
                         <>

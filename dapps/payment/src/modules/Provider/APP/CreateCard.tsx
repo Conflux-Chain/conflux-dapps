@@ -37,7 +37,7 @@ export default ({ op, data, className, type = 'default', disabled = false }: Pro
     const title = `${action} Resource`;
 
     const handleOk = useCallback(() => {
-        form.validateFields().then(async function ({ name, price, duration, giveawayDuration, configurations }) {
+        form.validateFields().then(async function ({ name, price, duration, giveawayDuration = 0, configurations }) {
             try {
                 setLoading(true);
                 await configAPPCard(address, {
