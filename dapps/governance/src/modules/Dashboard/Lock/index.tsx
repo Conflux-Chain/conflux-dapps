@@ -58,13 +58,13 @@ const Lock: React.FC = () => {
             {!unlockBlockNumber && (
                 <AuthCoreSpace
                     id="governance-lock-auth"
-                    className="mt-[140px]"
+                    className="mt-[147px]"
                     size="large"
                     fullWidth
                     type="button"
                     authContent={
                         <Button
-                            className="mt-[140px]"
+                            className="mt-[147px]"
                             size="large"
                             fullWidth
                             disabled={!isAvailableStakedBalanceGreaterThan0}
