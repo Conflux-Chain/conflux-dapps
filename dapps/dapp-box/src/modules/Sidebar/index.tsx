@@ -82,7 +82,7 @@ const Sidebar: React.FC = () => {
             <div className="mt-[32px] mb-[8px] ml-[17.62px] text-[12px] leading-[16px] text-[#A9ABB2]">APP</div>
 
             <div className="flex flex-col gap-[12px]">
-                {dapps.map((dapp, index) => (
+                {dapps.filter(dapp => dapp.name !== 'ShuttleFlow').map((dapp, index) => (
                     <Popper
                         key={dapp.name}
                         Content={<DappTooltip name={dapp.name} />}

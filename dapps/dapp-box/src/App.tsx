@@ -65,6 +65,15 @@ export const dapps = [
         element: <Airdrop />,
     },
     {
+        name: 'ShuttleFlow',
+        icon: ShuttleFlowIcon,
+        path: 'shuttle-flow',
+        NavbarEnhance: {
+            type: 'childRoutes' as 'childRoutes',
+            Content: <ShuttleFlowNavbarEnhance />,
+        },
+    },
+    {
         name: 'Governance',
         icon: GovernanceIcon,
         path: 'governance',
