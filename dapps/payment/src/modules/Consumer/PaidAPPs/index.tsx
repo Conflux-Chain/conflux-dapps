@@ -86,7 +86,7 @@ export default () => {
 
                             return (
                                 <div className="flex align-middle flex-wrap">
-                                    <Button id="button_detail" className="mr-2">
+                                    <Button id="button_detail" className="mr-2 mt-2">
                                         <Link
                                             to={`/payment/consumer/app/${PAYMENT_TYPE[row.type]}/${row.address}`}
                                             state={{
@@ -136,7 +136,7 @@ export default () => {
 
                             return (
                                 <div className="flex align-middle flex-wrap">
-                                    <Button id="button_detail" className="mr-2">
+                                    <Button id="button_detail" className="mr-2 mt-2">
                                         <Link
                                             to={`/payment/consumer/app/${PAYMENT_TYPE[row.type]}/${row.address}`}
                                             state={{
