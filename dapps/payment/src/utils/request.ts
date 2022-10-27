@@ -83,7 +83,6 @@ export const getAPPsDetail = async (apps: string[]) => {
     try {
         // get APP related contract address
         const appInfos = await getAPPsRelatedContract(apps);
-        // console.table(appInfos);
 
         // get APP link and payment type
         const callsAPP: ContractCall[] = [['link'], ['paymentType'], ['totalCharged'], ['totalTakenProfit'], ['description']];
@@ -177,6 +176,7 @@ export const getPaidAPPs = async (account: string) => {
                 subscription: {
                     name: a.vipCardName,
                     expired: Number(a.vipExpireAt.toString()),
+                    cardShop: a.cardShop,
                 },
             })),
             total: r.total,
@@ -197,7 +197,7 @@ export const postAPP = async ({ name, url, weight, description = '', symbol, acc
                 url,
                 description,
                 type,
-                '0',
+                '60', // 3600 in production, 60 in dev
                 ethers.utils.parseUnits(String(weight || 0)),
                 account,
                 {
@@ -276,7 +276,7 @@ export const configAPPAPI = async (address: RequestProps['address'], data: Edita
                 .configResource([data.index, data.resourceId, ethers.utils.parseUnits(String(data.weight)), data.op])
         ).wait();
     } catch (error) {
-        console.log(error);
+        console.log('configAPPAPI: ', error);
         noticeError(error);
         throw error;
     }
@@ -291,7 +291,7 @@ export const deleteAPPAPI = async (address: RequestProps['address'], data: Edita
                 .configResource([data.index, data.resourceId, ethers.utils.parseUnits(data.weight), data.op])
         ).wait();
     } catch (error) {
-        console.log(error);
+        console.log('deleteAPPAPI: ', error);
         noticeError(error);
         throw error;
     }
@@ -470,7 +470,7 @@ export const takeEarnings = async (appAddr: string, to: string, amount: string) 
 export const getAPPCards = async (address: RequestProps['address']): Promise<APPCardResourceType> => {
     try {
         const contracts = await getAPPsRelatedContract([address].map((app: any) => app));
-        const cardTemplate = await getContract('cardShop', contracts[0].cardShop).connect(signer).template();
+        const cardTemplate = await getContract('cardShop', contracts[0].cardShop).template();
         const cards = await getContract('cardShopTemplate', cardTemplate).list(0, 1e8);
 
         return {
@@ -489,6 +489,7 @@ export const getAPPCards = async (address: RequestProps['address']): Promise<APP
             total: cards.total,
         };
     } catch (error) {
+        console.log('getAPPCards error: ', error);
         noticeError(error);
         return {
             list: [],
@@ -511,6 +512,7 @@ export const configAPPCard = async (address: RequestProps['address'], data: any)
                 })
         ).wait();
     } catch (error) {
+        console.log('configAPPCard error: ', error);
         noticeError(error);
         throw error;
     }
@@ -526,6 +528,7 @@ export const purchaseSubscription = async (appAddr: RequestProps['address'], tem
         ).wait();
         return r;
     } catch (error) {
+        console.log('purchaseSubscription error: ', error);
         noticeError(error);
         throw error;
     }
@@ -537,6 +540,7 @@ export const getAllowanceCard = async ({ tokenAddr, appAddr }: { tokenAddr: stri
         const contract = getContract('erc20', tokenAddr);
         return await contract.allowance(await signer.getAddress(), contracts[0].cardShop);
     } catch (error) {
+        console.log('getAllowanceCard error: ', error);
         noticeError(error);
         throw error;
     }
@@ -560,6 +564,7 @@ export const approveCard = async ({
             })
         ).wait();
     } catch (error) {
+        console.log('approveCard error: ', error);
         noticeError(error);
         throw error;
     }
@@ -593,3 +598,27 @@ export const airdropCard = async (list: CSVType, appAddr: string, templateId: st
         throw error;
     }
 };
+
+export const getAPPRefundStatus = async (appAddr: string, account: string) => {
+    try {
+        const calls = [['deferTimeSecs'], ['withdrawSchedules', [account]]];
+
+        // @ts-ignore
+        const results: { returnData: ethers.utils.Result } = await MULTICALL.callStatic.aggregate(
+            calls.map((c) => [appAddr, INTERFACE_APPV2.encodeFunctionData(...c)])
+        );
+
+        const rAPP: any = results.returnData.map((r, i) => INTERFACE_APPV2.decodeFunctionResult(calls[i][0], r)).map((d) => d.toString());
+
+        return {
+            deferTimeSecs: rAPP[0].toString(),
+            withdrawSchedules: rAPP[1].toString(),
+        };
+    } catch (error) {
+        console.log('getAPPDetail error: ', error);
+        noticeError(error);
+        throw error;
+    }
+};
+
+getAPPRefundStatus('0xCfc702058005e1d7d8910DDA0575a29c0D6EeCD4', '0x84db95F0C1A529a0Fd1cBfeFE987b7D3Dc60a25D');

@@ -1,6 +1,6 @@
 // TODO should split to provider and consumer
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import APIs from 'payment/src/modules/Common/APP/APIs';
 import Create from './Create';
 import Airdrop from './AirdropBilling';
@@ -8,6 +8,9 @@ import { OP_ACTION } from 'payment/src/utils/constants';
 import { Row, Col } from 'antd';
 import Deposit from 'payment/src/modules/Common/Deposit';
 import { useFrom } from 'payment/src/utils/hooks';
+import { useBoundProviderStore } from 'payment/src/store';
+import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
+import BigNumber from 'bignumber.js';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
     address: string;
@@ -15,6 +18,16 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
 
 export default ({ address }: Props) => {
     const from = useFrom();
+    const account = useAccount();
+    const { data, fetch } = useBoundProviderStore((state) => state.APPRefundStatus);
+
+    useEffect(() => {
+        if (address && account) {
+            fetch(address, account);
+        }
+    }, [address, account]);
+
+    const isFrozen = data.withdrawSchedules !== '0';
 
     return (
         <Row>
@@ -31,7 +44,7 @@ export default ({ address }: Props) => {
                         <Create op={OP_ACTION.add} type="primary" />
                     </>
                 ) : (
-                    <Deposit appAddr={address} type="primary" />
+                    !isFrozen && <Deposit appAddr={address} type="primary" />
                 )}
             </Col>
 

@@ -8,7 +8,7 @@ import { isProduction } from 'common/conf/Networks';
 import Networks from 'common/conf/Networks';
 import { validateHexAddress } from 'common/utils/addressUtils';
 import tokenListConfig from '../utils/tokens';
-import { getAPPs, getAPPCards, getAPPAPIs, getPaidAPPs } from 'payment/src/utils/request';
+import { getAPPs, getAPPCards, getAPPAPIs, getPaidAPPs, getAPPRefundStatus } from 'payment/src/utils/request';
 import { immer } from 'zustand/middleware/immer';
 
 export interface Token {
@@ -68,7 +68,7 @@ export const useTokenList = () => {
 };
 
 export const useBoundProviderStore = create(
-    immer((set, get) => ({
+    immer((set) => ({
         provider: {
             loading: false,
             error: null,
@@ -77,17 +77,24 @@ export const useBoundProviderStore = create(
                 total: 0,
             },
             fetch: async (owner: string) => {
-                set((state) => {
-                    state.provider.loading = true;
-                });
-                const data = await getAPPs(owner);
-                set((state) => {
-                    state.provider.data.list = data;
-                    state.provider.data.total = data.length;
-                });
-                set((state) => {
-                    state.provider.loading = false;
-                });
+                if (owner) {
+                    set((state) => {
+                        state.provider.loading = true;
+                    });
+                    const data = await getAPPs(owner);
+                    set((state) => {
+                        state.provider.data.list = data;
+                        state.provider.data.total = data.length;
+                    });
+                    set((state) => {
+                        state.provider.loading = false;
+                    });
+                } else {
+                    set((state) => {
+                        state.provider.data.list = [];
+                        state.provider.data.total = 0;
+                    });
+                }
             },
         },
         subscription: {
@@ -159,16 +166,54 @@ export const useBoundProviderStore = create(
                 total: 0,
             },
             fetch: async (account: string) => {
-                set((state) => {
-                    state.consumerPaidAPPs.loading = true;
-                });
-                const data = await getPaidAPPs(account);
-                set((state) => {
-                    state.consumerPaidAPPs.data = data;
-                });
-                set((state) => {
-                    state.consumerPaidAPPs.loading = false;
-                });
+                if (account) {
+                    set((state) => {
+                        state.consumerPaidAPPs.loading = true;
+                    });
+                    const data = await getPaidAPPs(account);
+                    set((state) => {
+                        state.consumerPaidAPPs.data = data;
+                    });
+                    set((state) => {
+                        state.consumerPaidAPPs.loading = false;
+                    });
+                } else {
+                    set((state) => {
+                        state.consumerPaidAPPs.data = {
+                            list: [],
+                            total: 0,
+                        };
+                    });
+                }
+            },
+        },
+        APPRefundStatus: {
+            loading: false,
+            error: null,
+            data: {
+                deferTimeSecs: '0',
+                withdrawSchedules: '0',
+            },
+            fetch: async (appAddr: string, account: string) => {
+                if (account) {
+                    set((state) => {
+                        state.APPRefundStatus.loading = true;
+                    });
+                    const data = await getAPPRefundStatus(appAddr, account);
+                    set((state) => {
+                        state.APPRefundStatus.data = data;
+                    });
+                    set((state) => {
+                        state.APPRefundStatus.loading = false;
+                    });
+                } else {
+                    set((state) => {
+                        state.APPRefundStatus.data = {
+                            deferTimeSecs: '0',
+                            withdrawSchedules: '0',
+                        };
+                    });
+                }
             },
         },
     }))

@@ -51,8 +51,10 @@ export default () => {
                                         Details
                                     </Link>
                                 </Button>
-                                {row.type === PAYMENT_TYPE.billing && <Deposit appAddr={row.address} />}
-                                {row.type === PAYMENT_TYPE.subscription && <PurchaseSubscription appAddr={row.address} onComplete={handleComplate} />}
+                                {row.type === PAYMENT_TYPE.billing && <Deposit className="mt-0" appAddr={row.address} />}
+                                {row.type === PAYMENT_TYPE.subscription && (
+                                    <PurchaseSubscription className="mt-0" appAddr={row.address} onComplete={handleComplate} />
+                                )}
                             </div>
                         );
                     },
