@@ -82,8 +82,8 @@ export default ({
             }
             setModalLoading(false);
         };
-        main();
-    }, [appAddr]);
+        isModalVisible && main();
+    }, [appAddr, isModalVisible]);
 
     useEffect(() => {
         if (tokenBalance && appCoinAmount) {
