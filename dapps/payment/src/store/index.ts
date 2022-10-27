@@ -8,7 +8,7 @@ import { isProduction } from 'common/conf/Networks';
 import Networks from 'common/conf/Networks';
 import { validateHexAddress } from 'common/utils/addressUtils';
 import tokenListConfig from '../utils/tokens';
-import { getAPPs, getAPPCards, getAPPAPIs, getPaidAPPs } from 'payment/src/utils/request';
+import { getAPPs, getAPPCards, getAPPAPIs, getPaidAPPs, getAPPRefundStatus } from 'payment/src/utils/request';
 import { immer } from 'zustand/middleware/immer';
 
 export interface Token {
@@ -182,6 +182,35 @@ export const useBoundProviderStore = create(
                         state.consumerPaidAPPs.data = {
                             list: [],
                             total: 0,
+                        };
+                    });
+                }
+            },
+        },
+        APPRefundStatus: {
+            loading: false,
+            error: null,
+            data: {
+                deferTimeSecs: '0',
+                withdrawSchedules: '0',
+            },
+            fetch: async (appAddr: string, account: string) => {
+                if (account) {
+                    set((state) => {
+                        state.APPRefundStatus.loading = true;
+                    });
+                    const data = await getAPPRefundStatus(appAddr, account);
+                    set((state) => {
+                        state.APPRefundStatus.data = data;
+                    });
+                    set((state) => {
+                        state.APPRefundStatus.loading = false;
+                    });
+                } else {
+                    set((state) => {
+                        state.APPRefundStatus.data = {
+                            deferTimeSecs: '0',
+                            withdrawSchedules: '0',
                         };
                     });
                 }

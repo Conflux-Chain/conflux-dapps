@@ -598,3 +598,27 @@ export const airdropCard = async (list: CSVType, appAddr: string, templateId: st
         throw error;
     }
 };
+
+export const getAPPRefundStatus = async (appAddr: string, account: string) => {
+    try {
+        const calls = [['deferTimeSecs'], ['withdrawSchedules', [account]]];
+
+        // @ts-ignore
+        const results: { returnData: ethers.utils.Result } = await MULTICALL.callStatic.aggregate(
+            calls.map((c) => [appAddr, INTERFACE_APPV2.encodeFunctionData(...c)])
+        );
+
+        const rAPP: any = results.returnData.map((r, i) => INTERFACE_APPV2.decodeFunctionResult(calls[i][0], r)).map((d) => d.toString());
+
+        return {
+            deferTimeSecs: rAPP[0].toString(),
+            withdrawSchedules: rAPP[1].toString(),
+        };
+    } catch (error) {
+        console.log('getAPPDetail error: ', error);
+        noticeError(error);
+        throw error;
+    }
+};
+
+getAPPRefundStatus('0xCfc702058005e1d7d8910DDA0575a29c0D6EeCD4', '0x84db95F0C1A529a0Fd1cBfeFE987b7D3Dc60a25D');

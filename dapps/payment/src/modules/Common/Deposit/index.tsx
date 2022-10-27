@@ -10,6 +10,7 @@ import { ButtonType } from 'antd/es/button';
 import { useBoundProviderStore } from 'payment/src/store';
 import shallow from 'zustand/shallow';
 import { useParams, useLocation } from 'react-router-dom';
+import BigNumber from 'bignumber.js';
 
 const { Option } = Select;
 
@@ -22,11 +23,13 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
 export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
     useEffect(startTrack, []);
 
-    const { fetchAPPs, fetchBillingResource, fetchPaidAPPs } = useBoundProviderStore(
+    const { fetchAPPs, fetchBillingResource, fetchPaidAPPs, fetchAPPRefundStatus, APPRefundStatus } = useBoundProviderStore(
         (state) => ({
             fetchPaidAPPs: state.consumerPaidAPPs.fetch,
             fetchAPPs: state.consumerAPPs.fetch,
             fetchBillingResource: state.billing.fetch,
+            fetchAPPRefundStatus: state.APPRefundStatus.fetch,
+            APPRefundStatus: state.APPRefundStatus,
         }),
         shallow
     );
@@ -52,6 +55,16 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
 
     const token = TOKENs.filter((t) => t.eSpace_address === fromValue)[0];
     const tokenBalance = token.balance?.toDecimalStandardUnit();
+    const isWithdrawable =
+        APPRefundStatus.data.withdrawSchedules !== '0' &&
+        new BigNumber(APPRefundStatus.data.deferTimeSecs).plus(APPRefundStatus.data.withdrawSchedules).lt(+new Date() / 1000);
+    const isFrozen = APPRefundStatus.data.deferTimeSecs !== '0' || isWithdrawable;
+
+    useEffect(() => {
+        if (appAddr && account) {
+            fetchAPPRefundStatus(appAddr, account);
+        }
+    }, [appAddr, account]);
 
     useEffect(() => {
         if (tokenBalance && toValue) {
@@ -128,98 +141,102 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
     const isDisabled = toValue === '0' || toValue === null || !!errMsg;
     const okText = type === 0 ? 'Confirm' : 'Approve';
 
-    return (
-        <>
-            <AuthESpace
-                className={`!rounded-sm !h-[32px] mr-2 mb-2 ${className}`}
-                id="createAPP_authConnect"
-                size="small"
-                connectTextType="concise"
-                checkChainMatch={true}
-                color="primary"
-                shape="rect"
-                authContent={() => (
-                    <Button
-                        id="button_deposit"
-                        className={`cursor-pointer mr-2 mb-2 ${className}`}
-                        onClick={handleShowModal}
-                        disabled={disabled}
-                        type={buttonType}
+    if (isFrozen) {
+        return null;
+    } else {
+        return (
+            <>
+                <AuthESpace
+                    className={`!rounded-sm !h-[32px] mr-2 mb-2 ${className}`}
+                    id="createAPP_authConnect"
+                    size="small"
+                    connectTextType="concise"
+                    checkChainMatch={true}
+                    color="primary"
+                    shape="rect"
+                    authContent={() => (
+                        <Button
+                            id="button_deposit"
+                            className={`cursor-pointer mr-2 mb-2 ${className}`}
+                            onClick={handleShowModal}
+                            disabled={disabled}
+                            type={buttonType}
+                        >
+                            Deposit
+                        </Button>
+                    )}
+                />
+                {isModalVisible && (
+                    <Modal
+                        title="Deposit Plan"
+                        visible={isModalVisible}
+                        onOk={handleOk}
+                        onCancel={handleCancel}
+                        okText={okText}
+                        cancelText="Cancel"
+                        confirmLoading={loading}
+                        wrapClassName="createAPP_modal"
+                        okButtonProps={{
+                            id: 'button_ok',
+                            disabled: isDisabled,
+                        }}
+                        cancelButtonProps={{
+                            id: 'button_cancel',
+                        }}
                     >
-                        Deposit
-                    </Button>
-                )}
-            />
-            {isModalVisible && (
-                <Modal
-                    title="Deposit Plan"
-                    visible={isModalVisible}
-                    onOk={handleOk}
-                    onCancel={handleCancel}
-                    okText={okText}
-                    cancelText="Cancel"
-                    confirmLoading={loading}
-                    wrapClassName="createAPP_modal"
-                    okButtonProps={{
-                        id: 'button_ok',
-                        disabled: isDisabled,
-                    }}
-                    cancelButtonProps={{
-                        id: 'button_cancel',
-                    }}
-                >
-                    <Row gutter={24}>
-                        <Col span={8}>
-                            <div>From</div>
-                            <Select id="select_token" defaultValue={fromValue} style={{ width: '100%' }} onChange={handleFromChange} disabled>
-                                {TOKENs.map((t) => (
-                                    <Option key={t.eSpace_address} value={t.eSpace_address}>
-                                        {t.name}
-                                    </Option>
-                                ))}
-                            </Select>
-                        </Col>
-                        <Col span={16}>
-                            <div>To</div>
-                            <InputNumber<string>
-                                id="input_APPCoin_value"
-                                stringMode
-                                value={toValue}
-                                addonAfter="APP Coin"
-                                onChange={handleToChange}
-                                style={{ width: '100%' }}
-                                min="0"
-                            ></InputNumber>
-                        </Col>
-                    </Row>
-
-                    <div className="text-white bg-blue-500 p-2 mt-6 rounded-sm">
                         <Row gutter={24}>
-                            <Col span={12} className="!flex items-center">
-                                <span>Expected amount in</span>
+                            <Col span={8}>
+                                <div>From</div>
+                                <Select id="select_token" defaultValue={fromValue} style={{ width: '100%' }} onChange={handleFromChange} disabled>
+                                    {TOKENs.map((t) => (
+                                        <Option key={t.eSpace_address} value={t.eSpace_address}>
+                                            {t.name}
+                                        </Option>
+                                    ))}
+                                </Select>
                             </Col>
-                            <Col span={12} className="text-end text-lg">
-                                <span id="span_expectedAmountIn">{toValue || 0} USDT</span>
+                            <Col span={16}>
+                                <div>To</div>
+                                <InputNumber<string>
+                                    id="input_APPCoin_value"
+                                    stringMode
+                                    value={toValue}
+                                    addonAfter="APP Coin"
+                                    onChange={handleToChange}
+                                    style={{ width: '100%' }}
+                                    min="0"
+                                ></InputNumber>
                             </Col>
                         </Row>
-                    </div>
-                    <div className="text-red-500 text-end min-h-[22px]">{errMsg}</div>
-                    <Row gutter={24} className="">
-                        <Col span={12}>
-                            <span>1 APPCoin = 1 USDT</span>
-                        </Col>
-                        {/* <Col span={12} className="text-end">
+
+                        <div className="text-white bg-blue-500 p-2 mt-6 rounded-sm">
+                            <Row gutter={24}>
+                                <Col span={12} className="!flex items-center">
+                                    <span>Expected amount in</span>
+                                </Col>
+                                <Col span={12} className="text-end text-lg">
+                                    <span id="span_expectedAmountIn">{toValue || 0} USDT</span>
+                                </Col>
+                            </Row>
+                        </div>
+                        <div className="text-red-500 text-end min-h-[22px]">{errMsg}</div>
+                        <Row gutter={24} className="">
+                            <Col span={12}>
+                                <span>1 APPCoin = 1 USDT</span>
+                            </Col>
+                            {/* <Col span={12} className="text-end">
                         <span>~ 1USDT ($1)</span>
                     </Col> */}
-                    </Row>
+                        </Row>
 
-                    <ul id="ul_tips" className="mt-4 mb-0 p-4 bg-red-100 text-gray-600 rounded-sm">
-                        {TIPs.map((t, i) => (
-                            <li key={i}>{t}</li>
-                        ))}
-                    </ul>
-                </Modal>
-            )}
-        </>
-    );
+                        <ul id="ul_tips" className="mt-4 mb-0 p-4 bg-red-100 text-gray-600 rounded-sm">
+                            {TIPs.map((t, i) => (
+                                <li key={i}>{t}</li>
+                            ))}
+                        </ul>
+                    </Modal>
+                )}
+            </>
+        );
+    }
 };
