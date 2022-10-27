@@ -81,7 +81,7 @@ export default () => {
                             const isWithdrawable =
                                 row.billing.withdrawSchedule !== '0' &&
                                 new BigNumber(row.billing.deferTimeSecs).plus(row.billing.withdrawSchedule).lt(+new Date() / 1000);
-                            const isFrozen = row.billing.deferTimeSecs !== '0' || isWithdrawable;
+                            const isFrozen = row.billing.withdrawSchedule !== '0';
                             const isRefundable = row.billing.balance !== '0' && !isWithdrawable;
 
                             return (

@@ -197,7 +197,7 @@ export const postAPP = async ({ name, url, weight, description = '', symbol, acc
                 url,
                 description,
                 type,
-                '0',
+                '60', // 3600 in production, 60 in dev
                 ethers.utils.parseUnits(String(weight || 0)),
                 account,
                 {
