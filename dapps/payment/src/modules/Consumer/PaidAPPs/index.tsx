@@ -98,13 +98,16 @@ export default () => {
                                     </Button>
 
                                     {isFrozen && (
-                                        <Withdraw
-                                            title="Withdraw Refund"
-                                            disabled={!isWithdrawable}
-                                            value={row.billing.balance}
-                                            tips={TIPs}
-                                            onWithdraw={async () => handleWithdraw(row.address)}
-                                        />
+                                        <>
+                                            <Withdraw
+                                                title="Withdraw Refund"
+                                                disabled={!isWithdrawable}
+                                                value={row.billing.balance}
+                                                tips={TIPs}
+                                                onWithdraw={async () => handleWithdraw(row.address)}
+                                            />
+                                            {(row.billing.balance !== '0' || row.billing.airdrop !== '0') && <APIKey appAddr={row.address} />}
+                                        </>
                                     )}
 
                                     {!isFrozen && (
