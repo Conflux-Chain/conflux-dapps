@@ -11,13 +11,15 @@ import { PAYMENT_TYPE } from 'payment/src/utils/constants';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {}
 
+const subType = String(PAYMENT_TYPE.subscription);
+
 export default ({}: Props) => {
     const account = useAccount();
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
     const showModal = useCallback(() => setIsModalVisible(true), []);
-    const [type, setType] = useState(String(PAYMENT_TYPE.subscription));
+    const [type, setType] = useState(subType);
     const { fetch } = useBoundProviderStore((state) => state.provider);
 
     const handleOk = useCallback(() => {
@@ -43,10 +45,9 @@ export default ({}: Props) => {
                 setLoading(false);
             }
         });
-    }, []);
+    }, [account]);
 
     const handleCancel = useCallback(() => {
-        form.resetFields();
         setIsModalVisible(false);
     }, []);
 
@@ -54,6 +55,11 @@ export default ({}: Props) => {
         if (changedValues.type) {
             setType(changedValues.type);
         }
+    }, []);
+
+    const resetFields = useCallback(() => {
+        form.resetFields();
+        setType(subType);
     }, []);
 
     return (
@@ -87,17 +93,10 @@ export default ({}: Props) => {
                 cancelButtonProps={{
                     id: 'button_cancel',
                 }}
+                destroyOnClose
+                afterClose={resetFields}
             >
-                <Form
-                    form={form}
-                    name="basic"
-                    autoComplete="off"
-                    layout="vertical"
-                    onValuesChange={handleValuesChange}
-                    initialValues={{
-                        type: type,
-                    }}
-                >
+                <Form form={form} name="basic" autoComplete="off" layout="vertical" onValuesChange={handleValuesChange}>
                     <Form.Item
                         label={
                             <>
@@ -171,6 +170,7 @@ export default ({}: Props) => {
                                 message: 'Please select APP payment type',
                             },
                         ]}
+                        initialValue={subType}
                     >
                         <Radio.Group id="radio_PaymentType">
                             <Radio value="1"> Billing </Radio>

@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import Title from 'payment/src/components/Title';
 import * as col from 'payment/src/utils/columns/APPs';
-import Create from './Create';
+// import Create from './Create';
 import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
 import { Table, Row, Col, Input } from 'antd';
 import { useBoundProviderStore } from 'payment/src/store';
@@ -15,11 +15,7 @@ import { getToken } from 'payment/src/utils/tokens';
 import Networks from 'common/conf/Networks';
 
 const { Search } = Input;
-const TIPs = [
-    '1. The earning anchor value is: 1 income = 1usdt.',
-    '2. The estimated amount received based on the withdrawable token type you specified.',
-    '3. If you want to withdraw your CFX assets to Confluxcore to experience other projects, you can fill in the Bridge address, send the assets to the Bridge address, and then go to the Space Bridge to withdraw.',
-];
+const TIPs = ['1. The earning anchor value is: 1 APP coin = 1 USDT.', '2. The estimated amount received based on the withdrawable token type you specified.'];
 const USDT = getToken('USDT');
 
 export default () => {
@@ -33,7 +29,6 @@ export default () => {
     } = useBoundProviderStore((state) => state.provider);
 
     const fetchList = useCallback(() => {
-        // account && fetch(account);
         fetch(account);
     }, [account]);
 
@@ -68,8 +63,7 @@ export default () => {
                                 </Button>
                                 {row.earnings !== '0' && (
                                     <Withdraw
-                                        title="Withdraw Refund"
-                                        // disabled={row.earnings === '0'}
+                                        title="Withdraw Earnings"
                                         value={row.earnings}
                                         tips={TIPs}
                                         onWithdraw={() => handleWithdraw(row.address, String(row.earnings))}
@@ -118,9 +112,9 @@ export default () => {
                         />
                     </div>
                 </Col>
-                <Col span="16">
+                {/* <Col span="16">
                     <Create />
-                </Col>
+                </Col> */}
             </Row>
 
             <div className="mt-4"></div>
