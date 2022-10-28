@@ -36,9 +36,9 @@ export default ({
     useEffect(startTrack, []);
     const TIPs = useMemo(
         () => [
-            '1. APP coin will be used as the recharge points deducted when the interface is used.',
-            '2. The API provider will notify the platform of the number of calls you have made to the interface, and the platform will calculate the interface usage fee and deduct the APP deposit balance. The calculation is according to: number of calls * interface billing weight.',
-            '3. You can use the allowed cryptocurrencies to deposit to APP, the platform will obtain the dex quotation to calculate the estimated payment amount, or go Swappi to learn more.',
+            '1. APP coins will be used as points when redeeming for subscription payment.',
+            '2. The resource provider will provide corresponding resources based on the content of the subscription service you pay.',
+            '3. You can use the allowed cryptocurrencies to exchange for APP coins, the platform will obtain the Dex quotation to calculate the estimated payment amount, or go to <a href="https://app.swappi.io/#/swap" target="_blank">https://app.swappi.io/#/swap</a> to learn more.',
         ],
         []
     );
@@ -278,7 +278,12 @@ export default ({
 
                         <ul id="ul_tips" className="mt-4 mb-0 p-4 bg-red-100 text-gray-400 rounded-sm">
                             {TIPs.map((t, i) => (
-                                <li key={i}>{t}</li>
+                                <li
+                                    key={i}
+                                    dangerouslySetInnerHTML={{
+                                        __html: t,
+                                    }}
+                                ></li>
                             ))}
                         </ul>
                     </Spin>
