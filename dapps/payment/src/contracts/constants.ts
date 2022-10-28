@@ -15,9 +15,12 @@ import utilABI from './util.json';
 // TODO to add mainnet controller contract address
 export const CONTRACT_ADDRESSES = {
     multicall: Networks.eSpace.chainId === '71' ? '0xd59149a01f910c3c448e41718134baeae55fa784' : '',
-    appRegistry: Networks.eSpace.chainId === '71' ? '0xD24B98Ed55B46d69f8f1918E1EeAFd7DB5E6Ee4E' : '',
-    util: Networks.eSpace.chainId === '71' ? '0xb4611cfb227379702fc2565f156051c8913292d2' : '',
+    appRegistry: Networks.eSpace.chainId === '71' ? '0x1B31A3AB02F74b7c340B6d2772a7e0B1A3108721' : '',
+    // read functions contract
+    util: Networks.eSpace.chainId === '71' ? '0x27D2DF0f5cc75C690647f9A05EF989F57c10614B' : '',
 };
+
+// TODO add devnet contract address config
 
 export const CONTRACT_ABI = {
     app: appABI,
