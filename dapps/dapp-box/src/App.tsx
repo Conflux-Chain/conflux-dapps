@@ -26,30 +26,29 @@ import AirdropIcon from 'hub/src/assets/Airdrop.svg';
 import { hideAllToast } from 'common/components/showPopup/Toast';
 import LocalStorage from 'localstorage-enhance';
 import { isProduction } from 'common/conf/Networks';
-import { showToast } from 'common/components/showPopup/Toast';
 
 import Payment from 'payment/src/modules';
 import PaymentNavbarEnhance from 'hub/src/modules/NavbarEnhance/Payment';
-// TODO just for temporary, need to replace with real
 import PaymentIcon from 'payment/src/assets/logo-light.png';
-import Keyboard from 'custom-keyboard';
 import './App.css';
+// import Keyboard from 'custom-keyboard';
+// import { showToast } from 'common/components/showPopup/Toast';
 
-Keyboard.mount();
+// Keyboard.mount();
 
-Keyboard.bind('p -> a -> y -> m -> e -> n -> t', () => {
-    const pre = localStorage.getItem('payment');
-    showToast(
-        {
-            text: `Page will auto refresh after 3s to ${pre === '1' ? 'unload' : 'load'} Web3 Paywall Dapp.`,
-            onClickOk: () => location.reload(),
-            okButtonText: `${pre === '1' ? 'Unload' : 'Load'} Now`,
-        },
-        { type: 'success', duration: 3333 }
-    );
-    setTimeout(() => location.reload(), 3333);
-    localStorage.setItem('payment', pre === '1' ? '0' : '1');
-});
+// Keyboard.bind('p -> a -> y -> m -> e -> n -> t', () => {
+//     const pre = localStorage.getItem('payment');
+//     showToast(
+//         {
+//             text: `Page will auto refresh after 3s to ${pre === '1' ? 'unload' : 'load'} Web3 Paywall Dapp.`,
+//             onClickOk: () => location.reload(),
+//             okButtonText: `${pre === '1' ? 'Unload' : 'Load'} Now`,
+//         },
+//         { type: 'success', duration: 3333 }
+//     );
+//     setTimeout(() => location.reload(), 3333);
+//     localStorage.setItem('payment', pre === '1' ? '0' : '1');
+// });
 
 export const dapps = [
     {
@@ -86,7 +85,7 @@ export const dapps = [
     },
 ];
 
-if (localStorage.getItem('payment') == '1' && !isProduction) {
+if (!isProduction) {
     dapps.push({
         name: 'Web3 Paywall',
         icon: PaymentIcon,
@@ -188,12 +187,7 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                     <Route path="bridge" element={<Bridge />} />
 
                     <Route key="shuttle-flow" path="shuttle-flow/*" element={<div id="shuttle-flow" />} />
-                    {localStorage.getItem('payment') == '1' && !isProduction && (
-                        <>
-                            {/* <Route key="payment" path="payment" element={<Payment />} /> */}
-                            <Route key="payment" path="payment/*" element={<Payment />} />
-                        </>
-                    )}
+                    {!isProduction && <Route key="payment" path="payment/*" element={<Payment />} />}
                     <Route path="*" element={<Navigate to="bridge" />} />
                 </Routes>
             </ErrorBoundary>
