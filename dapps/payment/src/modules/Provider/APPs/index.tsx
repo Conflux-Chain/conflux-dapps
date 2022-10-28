@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import Title from 'payment/src/components/Title';
 import * as col from 'payment/src/utils/columns/APPs';
-import Create from './Create';
+// import Create from './Create';
 import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
 import { Table, Row, Col, Input } from 'antd';
 import { useBoundProviderStore } from 'payment/src/store';
@@ -112,9 +112,9 @@ export default () => {
                         />
                     </div>
                 </Col>
-                <Col span="16">
+                {/* <Col span="16">
                     <Create />
-                </Col>
+                </Col> */}
             </Row>
 
             <div className="mt-4"></div>
