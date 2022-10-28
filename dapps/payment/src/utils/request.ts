@@ -615,10 +615,8 @@ export const getAPPRefundStatus = async (appAddr: string, account: string) => {
             withdrawSchedules: rAPP[1].toString(),
         };
     } catch (error) {
-        console.log('getAPPDetail error: ', error);
+        console.log('getAPPRefundStatus error: ', error);
         noticeError(error);
         throw error;
     }
 };
-
-getAPPRefundStatus('0xCfc702058005e1d7d8910DDA0575a29c0D6EeCD4', '0x84db95F0C1A529a0Fd1cBfeFE987b7D3Dc60a25D');
