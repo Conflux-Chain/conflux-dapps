@@ -32,7 +32,7 @@ export default ({ appAddr, disabled }: Props) => {
             console.log(error);
         }
         setLoading(false);
-    }, [appAddr]);
+    }, [appAddr, account]);
 
     const handleCancel = useCallback(() => {
         setIsModalVisible(false);

@@ -16,11 +16,8 @@ try {
     providerEthereum = new ethers.providers.Web3Provider(window.ethereum, 'any');
     signer = providerEthereum.getSigner();
 
-    providerEthereum.on('network', (newNetwork, oldNetwork) => {
+    providerEthereum.on('network', () => {
         signer = providerEthereum.getSigner();
-        if (oldNetwork) {
-            window.location.reload();
-        }
     });
 } catch (error) {}
 

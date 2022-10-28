@@ -33,7 +33,6 @@ export default () => {
     } = useBoundProviderStore((state) => state.provider);
 
     const fetchList = useCallback(() => {
-        // account && fetch(account);
         fetch(account);
     }, [account]);
 

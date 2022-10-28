@@ -43,7 +43,7 @@ export default ({}: Props) => {
                 setLoading(false);
             }
         });
-    }, []);
+    }, [account]);
 
     const handleCancel = useCallback(() => {
         form.resetFields();
