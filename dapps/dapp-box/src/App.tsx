@@ -25,30 +25,12 @@ import CrossSpaceIcon from 'hub/src/assets/cross-space.svg';
 import AirdropIcon from 'hub/src/assets/Airdrop.svg';
 import { hideAllToast } from 'common/components/showPopup/Toast';
 import LocalStorage from 'localstorage-enhance';
-import { isProduction } from 'common/conf/Networks';
 
 import Payment from 'payment/src/modules';
+import { showWeb3PaywallEntry } from 'payment/src/utils/constants';
 import PaymentNavbarEnhance from 'hub/src/modules/NavbarEnhance/Payment';
 import PaymentIcon from 'payment/src/assets/logo-light.png';
 import './App.css';
-// import Keyboard from 'custom-keyboard';
-// import { showToast } from 'common/components/showPopup/Toast';
-
-// Keyboard.mount();
-
-// Keyboard.bind('p -> a -> y -> m -> e -> n -> t', () => {
-//     const pre = localStorage.getItem('payment');
-//     showToast(
-//         {
-//             text: `Page will auto refresh after 3s to ${pre === '1' ? 'unload' : 'load'} Web3 Paywall Dapp.`,
-//             onClickOk: () => location.reload(),
-//             okButtonText: `${pre === '1' ? 'Unload' : 'Load'} Now`,
-//         },
-//         { type: 'success', duration: 3333 }
-//     );
-//     setTimeout(() => location.reload(), 3333);
-//     localStorage.setItem('payment', pre === '1' ? '0' : '1');
-// });
 
 export const dapps = [
     {
@@ -85,7 +67,7 @@ export const dapps = [
     },
 ];
 
-if (!isProduction) {
+if (showWeb3PaywallEntry) {
     dapps.push({
         name: 'Web3 Paywall',
         icon: PaymentIcon,
@@ -187,7 +169,7 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                     <Route path="bridge" element={<Bridge />} />
 
                     <Route key="shuttle-flow" path="shuttle-flow/*" element={<div id="shuttle-flow" />} />
-                    {!isProduction && <Route key="payment" path="payment/*" element={<Payment />} />}
+                    {showWeb3PaywallEntry && <Route key="payment" path="payment/*" element={<Payment />} />}
                     <Route path="*" element={<Navigate to="bridge" />} />
                 </Routes>
             </ErrorBoundary>
