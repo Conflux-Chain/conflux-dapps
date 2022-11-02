@@ -1,15 +1,17 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Modal, InputNumber, Select, Row, Col, Button } from 'antd';
-import { deposit, getAllowance, approve } from 'payment/src/utils/request';
+import { deposit, getAllowance, approve, getMinCFXOfExactAPPCoin, depositCFX } from 'payment/src/utils/request';
 import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
 import { AuthESpace } from 'common/modules/AuthConnectButton';
 import { showToast } from 'common/components/showPopup/Toast';
-import { startTrack, useTokenList } from 'payment/src/store';
 import { ethers } from 'ethers';
 import { ButtonType } from 'antd/es/button';
 import { useBoundProviderStore } from 'payment/src/store';
 import shallow from 'zustand/shallow';
 import { useParams, useLocation } from 'react-router-dom';
+import { useTokens } from 'payment/src/utils/hooks';
+import lodash from 'lodash';
+import BigNumber from 'bignumber.js';
 
 const { Option } = Select;
 
@@ -20,8 +22,6 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
-    useEffect(startTrack, []);
-
     const { fetchAPPs, fetchBillingResource, fetchPaidAPPs } = useBoundProviderStore(
         (state) => ({
             fetchPaidAPPs: state.consumerPaidAPPs.fetch,
@@ -39,29 +39,42 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
         ],
         []
     );
+    const [fromValue, setFromValue] = useState<string>('cfx'); // use cfx default
+    const { tokens, token } = useTokens(fromValue);
     const { type: appType } = useParams();
     const { pathname } = useLocation();
     const account = useAccount();
-    const TOKENs = useTokenList();
     const [loading, setLoading] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
     const [errMsg, setErrMsg] = useState<string>('');
-    const [toValue, setToValue] = useState<string>('10');
-    const [fromValue, setFromValue] = useState<string>(TOKENs[0].eSpace_address);
+    const [appcoinValue, setAppcoinValue] = useState<string>('10');
+    const [tokenValue, setTokenValue] = useState('0');
     const [type, setType] = useState(0); // ok button type, 0 - confirm, 1 - approve
 
-    const token = TOKENs.filter((t) => t.eSpace_address === fromValue)[0];
-    const tokenBalance = token.balance?.toDecimalStandardUnit();
+    const tokenBalance = token.balance?.toDecimalStandardUnit() || '0';
+    const isCFX = token.symbol.toLowerCase() === 'cfx';
+    const tokenPriceOfPerAPPCoin = new BigNumber(tokenValue).dividedBy(appcoinValue).toFixed();
 
+    // get CFX or ERC20 token amount
     useEffect(() => {
-        if (tokenBalance && toValue) {
-            if (ethers.utils.parseUnits(toValue, 18).gt(ethers.utils.parseUnits(tokenBalance, 18))) {
-                setErrMsg('Insufficient Balance');
-            } else {
-                setErrMsg('');
-            }
+        // if support other tokens except USDT, need additional transform fn
+        if (isCFX) {
+            getMinCFXOfExactAPPCoin(appcoinValue).then((a) => {
+                setTokenValue(a);
+            });
+        } else {
+            setTokenValue(appcoinValue);
         }
-    }, [tokenBalance, toValue]);
+    }, [isCFX, appcoinValue]);
+
+    // check CFX or ERC20 token balance is enough or not
+    useEffect(() => {
+        if (ethers.utils.parseUnits(tokenBalance, 18).lt(ethers.utils.parseUnits(tokenValue, 18))) {
+            setErrMsg('Insufficient Balance');
+        } else {
+            setErrMsg('');
+        }
+    }, [tokenValue, tokenBalance]);
 
     const checkAllowance = useCallback(
         async function main() {
@@ -70,23 +83,26 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
                 appAddr: appAddr,
             });
 
-            if (allowance.lt(ethers.utils.parseUnits(toValue || '0'))) {
+            if (allowance.lt(ethers.utils.parseUnits(appcoinValue || '0'))) {
                 setType(1);
             } else {
                 setType(0);
             }
         },
-        [account, token.eSpace_address, appAddr, toValue]
+        [account, token.eSpace_address, appAddr, appcoinValue]
     );
 
-    // check selected token allowance
+    // check allowance
     useEffect(() => {
-        isModalVisible && checkAllowance();
-    }, [isModalVisible]);
+        isModalVisible && !isCFX && checkAllowance();
+    }, [isModalVisible, token.symbol]);
 
     const handleShowModal = useCallback(() => setIsModalVisible(true), []);
 
-    const handleToChange = useCallback((v: string) => setToValue(v), []);
+    const handleToChange = useCallback(
+        lodash.debounce((v: string) => setAppcoinValue(v || '0'), 200),
+        []
+    );
 
     const handleFromChange = useCallback((v: string) => setFromValue(v), []);
 
@@ -100,10 +116,19 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
                 await checkAllowance();
                 showToast('Approve success', { type: 'success' });
             } else {
-                await deposit({
-                    appAddr: appAddr,
-                    amount: toValue,
-                });
+                if (isCFX) {
+                    await depositCFX({
+                        appAddr: appAddr,
+                        amount: appcoinValue,
+                        value: tokenValue,
+                    });
+                } else {
+                    await deposit({
+                        appAddr: appAddr,
+                        amount: appcoinValue,
+                    });
+                }
+
                 setIsModalVisible(false);
                 showToast('Deposit success', { type: 'success' });
                 if (pathname.includes('/consumer/paid-apps')) {
@@ -125,7 +150,7 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
     }, []);
 
     // control confirm button status
-    const isDisabled = toValue === '0' || toValue === null || !!errMsg;
+    const isDisabled = appcoinValue === '0' || appcoinValue === null || !!errMsg;
     const okText = type === 0 ? 'Confirm' : 'Approve';
 
     return (
@@ -171,9 +196,9 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
                     <Row gutter={24}>
                         <Col span={8}>
                             <div>From</div>
-                            <Select id="select_token" defaultValue={fromValue} style={{ width: '100%' }} onChange={handleFromChange} disabled>
-                                {TOKENs.map((t) => (
-                                    <Option key={t.eSpace_address} value={t.eSpace_address}>
+                            <Select id="select_token" defaultValue={fromValue.toUpperCase()} style={{ width: '100%' }} onChange={handleFromChange}>
+                                {tokens.map((t) => (
+                                    <Option key={t.symbol + t.eSpace_address} value={t.symbol}>
                                         {t.name}
                                     </Option>
                                 ))}
@@ -184,7 +209,7 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
                             <InputNumber<string>
                                 id="input_APPCoin_value"
                                 stringMode
-                                value={toValue}
+                                value={appcoinValue}
                                 addonAfter="APP Coin"
                                 onChange={handleToChange}
                                 style={{ width: '100%' }}
@@ -199,14 +224,18 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
                                 <span>Expected amount in</span>
                             </Col>
                             <Col span={12} className="text-end text-lg">
-                                <span id="span_expectedAmountIn">{toValue || 0} USDT</span>
+                                <span id="span_expectedAmountIn">
+                                    {tokenValue || 0} {fromValue.toUpperCase()}
+                                </span>
                             </Col>
                         </Row>
                     </div>
                     <div className="text-red-500 text-end min-h-[22px]">{errMsg}</div>
                     <Row gutter={24} className="">
-                        <Col span={12}>
-                            <span>1 APPCoin = 1 USDT</span>
+                        <Col span={24}>
+                            <span>
+                                1 APPCoin = {tokenPriceOfPerAPPCoin} {fromValue.toUpperCase()}
+                            </span>
                         </Col>
                         {/* <Col span={12} className="text-end">
                         <span>~ 1USDT ($1)</span>

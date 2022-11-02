@@ -5,7 +5,7 @@ import {
     DefinedContractNamesType,
     APPCardResourceType,
     APPDetailType,
-    UsersDataSourceType,
+    // UsersDataSourceType,
     CSVType,
     ContractCall,
     APPResourceType,
@@ -403,21 +403,6 @@ export const approve = async ({
     }
 };
 
-export const deposit = async ({ amount, appAddr }: { amount: string; appAddr: string }) => {
-    try {
-        const contract = getContract('appv2', appAddr);
-        return (
-            await contract.connect(signer).depositAsset(ethers.utils.parseUnits(amount), await signer.getAddress(), {
-                type: 0,
-            })
-        ).wait();
-    } catch (error) {
-        console.log('deposit error: ', error);
-        noticeError(error);
-        throw error;
-    }
-};
-
 export const getAPIKey = async (appAddr: string) => {
     try {
         const msg = { domain: 'web3pay', contract: appAddr };
@@ -614,6 +599,53 @@ export const getAPPRefundStatus = async (appAddr: string, account: string) => {
         };
     } catch (error) {
         console.log('getAPPRefundStatus error: ', error);
+        noticeError(error);
+        throw error;
+    }
+};
+
+export const getMinCFXOfExactAPPCoin = async (amount: number | string) => {
+    try {
+        const exchange = await CONTRACT_APPREGISTRY.getExchanger();
+        const CFXAmount = await getContract('exchange', exchange).previewDepositETH(ethers.utils.parseUnits(String(amount)));
+        return ethers.utils.formatUnits(CFXAmount);
+    } catch (error) {
+        console.log('getMinCFXOfExactAPPCoin error: ', error);
+        noticeError(error);
+        throw error;
+    }
+};
+
+// deposit billing app with USDT
+export const deposit = async ({ amount, appAddr }: { amount: string; appAddr: string }) => {
+    try {
+        const contract = getContract('appv2', appAddr);
+        return (
+            await contract.connect(signer).depositAsset(ethers.utils.parseUnits(amount), await signer.getAddress(), {
+                type: 0,
+            })
+        ).wait();
+    } catch (error) {
+        console.log('deposit error: ', error);
+        noticeError(error);
+        throw error;
+    }
+};
+
+// deposit billing app with CFX
+export const depositCFX = async ({ amount, appAddr, value }: { amount: string; value: string; appAddr: string }) => {
+    try {
+        const exchange = await CONTRACT_APPREGISTRY.getExchanger();
+        return (
+            await getContract('exchange', exchange)
+                .connect(signer)
+                .depositAppETH(appAddr, ethers.utils.parseUnits(amount), await signer.getAddress(), {
+                    type: 0,
+                    value: ethers.utils.parseUnits(value),
+                })
+        ).wait();
+    } catch (error) {
+        console.log('depositCFX error: ', error);
         noticeError(error);
         throw error;
     }

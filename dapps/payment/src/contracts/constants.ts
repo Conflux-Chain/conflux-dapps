@@ -8,6 +8,7 @@ import vipCoinABI from './vipCoin.json';
 import cardShopABI from './cardShop.json';
 import cardShopTemplateABI from './cardShopTemplate.json';
 import utilABI from './util.json';
+import exchangeABI from './exchange.json';
 
 export const CONTRACT_ABI = {
     erc20: erc20ABI,
@@ -20,4 +21,5 @@ export const CONTRACT_ABI = {
     cardShop: cardShopABI,
     cardShopTemplate: cardShopTemplateABI,
     util: utilABI,
+    exchange: exchangeABI,
 };
