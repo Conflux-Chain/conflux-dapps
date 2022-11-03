@@ -425,30 +425,6 @@ export const withdrawRequest = async (appAddr: string) => {
     }
 };
 
-export const forceWithdraw = async (appAddr: string) => {
-    try {
-        return (
-            await getContract('appv2', appAddr)
-                .connect(signer)
-                .forceWithdraw(await signer.getAddress(), true)
-        ).wait();
-    } catch (error) {
-        console.log('forceWithdraw error: ', error);
-        noticeError(error);
-        throw error;
-    }
-};
-
-export const takeEarnings = async (appAddr: string, to: string, amount: string) => {
-    try {
-        return (await getContract('appv2', appAddr).connect(signer).takeProfit(to, ethers.utils.parseUnits(amount))).wait();
-    } catch (error) {
-        console.log('takeEarnings error: ', error);
-        noticeError(error);
-        throw error;
-    }
-};
-
 // card operation
 export const getAPPCards = async (address: RequestProps['address']): Promise<APPCardResourceType> => {
     try {
@@ -677,6 +653,71 @@ export const purchaseSubscriptionCFX = async ({
         return r;
     } catch (error) {
         console.log('purchaseSubscriptionCFX error: ', error);
+        noticeError(error);
+        throw error;
+    }
+};
+
+// provider take earnings with USDT
+export const takeEarnings = async ({ appAddr, receiver, amount }: { appAddr: string; receiver: string; amount: string }) => {
+    try {
+        return (await getContract('appv2', appAddr).connect(signer).takeProfit(receiver, ethers.utils.parseUnits(amount))).wait();
+    } catch (error) {
+        console.log('takeEarnings error: ', error);
+        noticeError(error);
+        throw error;
+    }
+};
+
+// provider take earnings with CFX
+export const takeEarningsCFX = async ({ appAddr, receiver, amount, value }: { appAddr: string; receiver: string; amount: string; value: string }) => {
+    try {
+        return (
+            await getContract('appv2', appAddr).connect(signer).takeProfitAsEth(ethers.utils.parseUnits(amount), ethers.utils.parseUnits(value), {
+                type: 0,
+            })
+        ).wait();
+    } catch (error) {
+        console.log('takeEarningsCFX error: ', error);
+        noticeError(error);
+        throw error;
+    }
+};
+
+// consumer withdraw with USDT
+export const forceWithdraw = async (appAddr: string) => {
+    try {
+        return (
+            await getContract('appv2', appAddr)
+                .connect(signer)
+                .forceWithdraw(await signer.getAddress(), true)
+        ).wait();
+    } catch (error) {
+        console.log('forceWithdraw error: ', error);
+        noticeError(error);
+        throw error;
+    }
+};
+
+// consumer withdraw with CFX
+export const forceWithdrawCFX = async ({ appAddr, amount, value }: { appAddr: string; amount: string; value: string }) => {
+    try {
+        const appv2 = getContract('appv2', appAddr).connect(signer);
+        const account = await signer.getAddress();
+        const exchange = await CONTRACT_APPREGISTRY.getExchanger();
+        const balance = (await appv2.balanceOf(account)).coins;
+        const minCFXValue = await getMinCFXOfExactAPPCoin(ethers.utils.formatUnits(balance));
+
+        return (
+            // TODO mul slip rate
+            (
+                await getContract('appv2', appAddr).connect(signer).forceWithdrawEth(account, exchange, ethers.utils.parseUnits(minCFXValue).mul(99).div(100), {
+                    type: 0,
+                })
+            ).wait()
+        );
+    } catch (error) {
+        console.log('forceWithdraw error: ', error);
         noticeError(error);
         throw error;
     }

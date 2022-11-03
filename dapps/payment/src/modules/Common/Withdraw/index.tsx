@@ -2,8 +2,10 @@ import { useState, useCallback, useEffect } from 'react';
 import { Modal, InputNumber, Select, Row, Col, Button } from 'antd';
 import { AuthESpace } from 'common/modules/AuthConnectButton';
 import { showToast } from 'common/components/showPopup/Toast';
-import { useTokenList } from 'payment/src/store';
 import { ButtonProps } from 'antd/es/button';
+import { getMinCFXOfExactAPPCoin } from 'payment/src/utils/request';
+import { useTokens } from 'payment/src/utils/hooks';
+import BigNumber from 'bignumber.js';
 
 const { Option } = Select;
 
@@ -17,16 +19,34 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
     title: string;
     buttonProps?: BottonType;
     tips?: string[];
-    onWithdraw: () => void;
+    onWithdraw: (tokenValue: string, isCFX: boolean) => void;
 }
 
 export default ({ disabled, value, title, buttonProps, tips = [], onComplete, onWithdraw }: Props) => {
-    const TOKENs = useTokenList();
+    const [toValue, setToValue] = useState<string>('cfx');
+    const { tokens, token } = useTokens(toValue);
     const [loading, setLoading] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
     const [errMsg /*, setErrMsg */] = useState<string>('');
     const [fromValue, setFromValue] = useState<string>(String(value));
-    const [toValue, setToValue] = useState<string>(TOKENs[0].eSpace_address);
+    const [tokenValue, setTokenValue] = useState('0');
+
+    const isCFX = token.symbol.toLowerCase() === 'cfx';
+    const tokenPriceOfPerAPPCoin = new BigNumber(tokenValue).dividedBy(fromValue).toFixed();
+
+    // get CFX or ERC20 token amount
+    useEffect(() => {
+        if (isModalVisible) {
+            // if support other tokens except USDT, need additional transform fn
+            if (isCFX) {
+                getMinCFXOfExactAPPCoin(fromValue).then((a) => {
+                    setTokenValue(a);
+                });
+            } else {
+                setTokenValue(fromValue);
+            }
+        }
+    }, [isCFX, fromValue, isModalVisible]);
 
     const handleShowModal = useCallback(() => setIsModalVisible(true), []);
 
@@ -37,7 +57,7 @@ export default ({ disabled, value, title, buttonProps, tips = [], onComplete, on
     const handleOk = async () => {
         try {
             setLoading(true);
-            await onWithdraw();
+            await onWithdraw(tokenValue, isCFX);
             onComplete && onComplete();
             setIsModalVisible(false);
             showToast('Withdraw success', { type: 'success' });
@@ -116,9 +136,9 @@ export default ({ disabled, value, title, buttonProps, tips = [], onComplete, on
                         </Col>
                         <Col span={8}>
                             <div>To</div>
-                            <Select id="select_token" defaultValue={toValue} style={{ width: '100%' }} onChange={handleFromChange} disabled>
-                                {TOKENs.map((t) => (
-                                    <Option key={t.eSpace_address} value={t.eSpace_address}>
+                            <Select id="select_token" defaultValue={toValue.toUpperCase()} style={{ width: '100%' }} onChange={handleFromChange}>
+                                {tokens.map((t) => (
+                                    <Option key={t.symbol} value={t.symbol}>
                                         {t.name}
                                     </Option>
                                 ))}
@@ -132,14 +152,16 @@ export default ({ disabled, value, title, buttonProps, tips = [], onComplete, on
                                 <span>You will receive</span>
                             </Col>
                             <Col span={12} className="text-end text-lg">
-                                <span id="span_expectedAmountIn">{fromValue || 0} USDT</span>
+                                <span id="span_expectedAmountIn">
+                                    {tokenValue || 0} {toValue.toUpperCase()}
+                                </span>
                             </Col>
                         </Row>
                     </div>
                     <div className="text-red-500 text-end min-h-[22px]">{errMsg}</div>
                     <Row gutter={24} className="">
-                        <Col span={12}>
-                            <span>1 APPCoin = 1 USDT</span>
+                        <Col span={24}>
+                            1 APPCoin = {tokenPriceOfPerAPPCoin} {toValue.toUpperCase()}
                         </Col>
                         {/* <Col span={12} className="text-end">
                             <span>~ 1USDT ($1)</span>

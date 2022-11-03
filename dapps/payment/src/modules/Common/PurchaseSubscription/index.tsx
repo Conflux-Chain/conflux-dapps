@@ -111,18 +111,22 @@ export default ({
 
     const checkAllowance = useCallback(
         async function main() {
-            const allowance = await getAllowanceCard({
-                tokenAddr: token.eSpace_address,
-                appAddr: appAddr,
-            });
-
-            if (allowance.lt(ethers.utils.parseUnits(appcoinValue || '0'))) {
-                setType(1);
-            } else {
+            if (isCFX) {
                 setType(0);
+            } else {
+                const allowance = await getAllowanceCard({
+                    tokenAddr: token.eSpace_address,
+                    appAddr: appAddr,
+                });
+
+                if (allowance.lt(ethers.utils.parseUnits(appcoinValue || '0'))) {
+                    setType(1);
+                } else {
+                    setType(0);
+                }
             }
         },
-        [account, token.eSpace_address, appAddr, appcoinValue]
+        [account, token.eSpace_address, appAddr, appcoinValue, isCFX]
     );
 
     // check selected token allowance

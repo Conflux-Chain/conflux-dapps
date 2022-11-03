@@ -80,23 +80,27 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
 
     const checkAllowance = useCallback(
         async function main() {
-            const allowance = await getAllowance({
-                tokenAddr: token.eSpace_address,
-                appAddr: appAddr,
-            });
-
-            if (allowance.lt(ethers.utils.parseUnits(appcoinValue || '0'))) {
-                setType(1);
-            } else {
+            if (isCFX) {
                 setType(0);
+            } else {
+                const allowance = await getAllowance({
+                    tokenAddr: token.eSpace_address,
+                    appAddr: appAddr,
+                });
+
+                if (allowance.lt(ethers.utils.parseUnits(appcoinValue || '0'))) {
+                    setType(1);
+                } else {
+                    setType(0);
+                }
             }
         },
-        [account, token.eSpace_address, appAddr, appcoinValue]
+        [account, token.eSpace_address, appAddr, appcoinValue, isCFX]
     );
 
     // check allowance
     useEffect(() => {
-        isModalVisible && !isCFX && checkAllowance();
+        isModalVisible && checkAllowance();
     }, [isModalVisible, token.symbol]);
 
     const handleShowModal = useCallback(() => setIsModalVisible(true), []);

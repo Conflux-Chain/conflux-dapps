@@ -10,7 +10,7 @@ import { Link } from 'react-router-dom';
 import { Button } from 'antd';
 import Withdraw from 'payment/src/modules/Common/Withdraw';
 import { DataSourceType } from 'payment/src/utils/types';
-import { takeEarnings } from 'payment/src/utils/request';
+import { takeEarnings, takeEarningsCFX } from 'payment/src/utils/request';
 import { getToken } from 'payment/src/utils/tokens';
 import Networks from 'common/conf/Networks';
 
@@ -37,8 +37,23 @@ export default () => {
     }, [account]);
 
     const handleWithdraw = useCallback(
-        async (appAddr: string, amount: string) => {
-            await (account && takeEarnings(appAddr, account, amount));
+        async ({ appAddr, earnings, tokenValue, isCFX }: { appAddr: string; earnings: string; tokenValue: string; isCFX: boolean }) => {
+            if (isCFX) {
+                await (account &&
+                    takeEarningsCFX({
+                        appAddr,
+                        receiver: account,
+                        amount: earnings,
+                        value: tokenValue,
+                    }));
+            } else {
+                await (account &&
+                    takeEarnings({
+                        appAddr,
+                        receiver: account,
+                        amount: earnings,
+                    }));
+            }
             await (account && fetch(account));
         },
         [account]
@@ -66,7 +81,14 @@ export default () => {
                                         title="Withdraw Earnings"
                                         value={row.earnings}
                                         tips={TIPs}
-                                        onWithdraw={() => handleWithdraw(row.address, String(row.earnings))}
+                                        onWithdraw={(tokenValue, isCFX) =>
+                                            handleWithdraw({
+                                                appAddr: row.address,
+                                                earnings: String(row.earnings),
+                                                tokenValue,
+                                                isCFX,
+                                            })
+                                        }
                                     />
                                 )}
                                 <Button id="button_detail" className="mr-2 mt-2">
