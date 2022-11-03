@@ -57,15 +57,17 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
 
     // get CFX or ERC20 token amount
     useEffect(() => {
-        // if support other tokens except USDT, need additional transform fn
-        if (isCFX) {
-            getMinCFXOfExactAPPCoin(appcoinValue).then((a) => {
-                setTokenValue(a);
-            });
-        } else {
-            setTokenValue(appcoinValue);
+        if (isModalVisible) {
+            // if support other tokens except USDT, need additional transform fn
+            if (isCFX) {
+                getMinCFXOfExactAPPCoin(appcoinValue).then((a) => {
+                    setTokenValue(a);
+                });
+            } else {
+                setTokenValue(appcoinValue);
+            }
         }
-    }, [isCFX, appcoinValue]);
+    }, [isCFX, appcoinValue, isModalVisible]);
 
     // check CFX or ERC20 token balance is enough or not
     useEffect(() => {

@@ -501,22 +501,6 @@ export const configAPPCard = async (address: RequestProps['address'], data: any)
     }
 };
 
-export const purchaseSubscription = async (appAddr: RequestProps['address'], templateId: string, amount: number | string) => {
-    try {
-        const contracts = await getAPPsRelatedContract([appAddr].map((app: any) => app));
-        const r = await (
-            await getContract('cardShop', contracts[0].cardShop)
-                .connect(signer)
-                .buyWithAsset(await signer.getAddress(), templateId, amount)
-        ).wait();
-        return r;
-    } catch (error) {
-        console.log('purchaseSubscription error: ', error);
-        noticeError(error);
-        throw error;
-    }
-};
-
 export const getAllowanceCard = async ({ tokenAddr, appAddr }: { tokenAddr: string; appAddr: string }) => {
     try {
         const contracts = await getAPPsRelatedContract([appAddr].map((app: any) => app));
@@ -646,6 +630,53 @@ export const depositCFX = async ({ amount, appAddr, value }: { amount: string; v
         ).wait();
     } catch (error) {
         console.log('depositCFX error: ', error);
+        noticeError(error);
+        throw error;
+    }
+};
+
+// purchase subscription app with USDT
+export const purchaseSubscription = async ({ amount, appAddr, templateId }: { amount: string | number; appAddr: string; templateId: string }) => {
+    try {
+        const contracts = await getAPPsRelatedContract([appAddr].map((app: any) => app));
+        const r = await (
+            await getContract('cardShop', contracts[0].cardShop)
+                .connect(signer)
+                .buyWithAsset(await signer.getAddress(), templateId, amount)
+        ).wait();
+        return r;
+    } catch (error) {
+        console.log('purchaseSubscription error: ', error);
+        noticeError(error);
+        throw error;
+    }
+};
+
+// purchase subscription app with CFX
+export const purchaseSubscriptionCFX = async ({
+    amount,
+    appAddr,
+    value,
+    templateId,
+}: {
+    amount: string | number;
+    value: string;
+    appAddr: string;
+    templateId: string;
+}) => {
+    try {
+        const contracts = await getAPPsRelatedContract([appAddr].map((app: any) => app));
+        const r = await (
+            await getContract('cardShop', contracts[0].cardShop)
+                .connect(signer)
+                .buyWithEth(await signer.getAddress(), templateId, amount, {
+                    type: 0,
+                    value: ethers.utils.parseUnits(value),
+                })
+        ).wait();
+        return r;
+    } catch (error) {
+        console.log('purchaseSubscriptionCFX error: ', error);
         noticeError(error);
         throw error;
     }
