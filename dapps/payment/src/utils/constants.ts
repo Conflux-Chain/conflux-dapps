@@ -36,14 +36,14 @@ export const showWeb3PaywallEntry = ENV === 'dev' || ENV === 'test';
 
 export const CONTRACT_ADDRESSES = {
     prod: {
-        multicall: '',
-        appRegistry: '',
-        util: '', // read functions contract
+        multicall: '0x9f208d7226f05b4f43d0d36eb21d8545c3143685',
+        appRegistry: '0x15426B4831c4Aed6B367Ff1a8E9435e485679604',
+        util: '0x9Ab28c22666628be536D4FaeF60A477dd3Eafea7', // read functions contract
     },
     stage: {
-        multicall: '',
-        appRegistry: '',
-        util: '',
+        multicall: '0x9f208d7226f05b4f43d0d36eb21d8545c3143685',
+        appRegistry: '0x15426B4831c4Aed6B367Ff1a8E9435e485679604',
+        util: '0x9Ab28c22666628be536D4FaeF60A477dd3Eafea7',
     },
     test: {
         multicall: '0xd59149a01f910c3c448e41718134baeae55fa784',
