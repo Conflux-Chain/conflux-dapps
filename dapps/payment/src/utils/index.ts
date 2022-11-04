@@ -1,5 +1,5 @@
-import { RPC, CONTRACT_ERRORS } from './constants';
-import { CONTRACT_ADDRESSES, CONTRACT_ABI } from 'payment/src/contracts/constants';
+import { RPC, CONTRACT_ERRORS, CONTRACT_ADDRESSES } from './constants';
+import { CONTRACT_ABI } from 'payment/src/contracts/constants';
 import { DefinedContractNamesType } from './types';
 import { ethers } from 'ethers';
 import BigNumber from 'bignumber.js';
