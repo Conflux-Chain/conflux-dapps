@@ -37,8 +37,6 @@ type EditableAPI = Pick<ResourceDataSourceType, 'resourceId' | 'index' | 'op' | 
 const INTERFACE_APPV2 = new ethers.utils.Interface(CONTRACT_ABI['appv2']);
 const INTERFACE_VIPCoin = new ethers.utils.Interface(CONTRACT_ABI['vipCoin']);
 const CONTRACT_APPREGISTRY = getContract('appRegistry');
-
-const INTERFACE_APP = new ethers.utils.Interface(CONTRACT_ABI['app']);
 const MULTICALL = getContract('multicall');
 
 const noticeError = (e: unknown) => {
@@ -297,51 +295,51 @@ export const deleteAPPAPI = async (address: RequestProps['address'], data: Edita
     }
 };
 
-export const getAPPUsers = async (
-    address: RequestProps['address']
-): Promise<{
-    list: UsersDataSourceType[];
-    total: 0;
-}> => {
-    try {
-        const data = await getContract('app', address).listUser(0, 1e8);
+// export const getAPPUsers = async (
+//     address: RequestProps['address']
+// ): Promise<{
+//     list: UsersDataSourceType[];
+//     total: 0;
+// }> => {
+//     try {
+//         const data = await getContract('appv2', address).listUser(0, 1e8);
 
-        let list = [];
-        const users = data[0];
-        const total = data[1];
+//         let list = [];
+//         const users = data[0];
+//         const total = data[1];
 
-        if (users.length) {
-            const calls: ContractCall[] = users.map((u: { user: string }) => ['balanceOfWithAirdrop', [u.user]]);
-            const promises = calls.map((c) => [address, INTERFACE_APP.encodeFunctionData(...c)]);
-            const results: { returnData: ethers.utils.Result } = await MULTICALL.callStatic.aggregate(promises);
-            const r = results.returnData.map((d, i) => INTERFACE_APP.decodeFunctionResult(calls[i][0], d));
+//         if (users.length) {
+//             const calls: ContractCall[] = users.map((u: { user: string }) => ['balanceOfWithAirdrop', [u.user]]);
+//             const promises = calls.map((c) => [address, INTERFACE_APPV2.encodeFunctionData(...c)]);
+//             const results: { returnData: ethers.utils.Result } = await MULTICALL.callStatic.aggregate(promises);
+//             const r = results.returnData.map((d, i) => INTERFACE_APPV2.decodeFunctionResult(calls[i][0], d));
 
-            list = users.map((u: any, i: number) => ({
-                address: u.user,
-                balance: formatNumber(r[i].total.sub(r[i].airdrop_), {
-                    limit: 0,
-                    decimal: 18,
-                }),
-                airdrop: formatNumber(r[i].airdrop_, {
-                    limit: 0,
-                    decimal: 18,
-                }),
-            }));
-        }
+//             list = users.map((u: any, i: number) => ({
+//                 address: u.user,
+//                 balance: formatNumber(r[i].total.sub(r[i].airdrop_), {
+//                     limit: 0,
+//                     decimal: 18,
+//                 }),
+//                 airdrop: formatNumber(r[i].airdrop_, {
+//                     limit: 0,
+//                     decimal: 18,
+//                 }),
+//             }));
+//         }
 
-        return {
-            list,
-            total,
-        };
-    } catch (error) {
-        console.log('getAPPUsers error: ', error);
-        noticeError(error);
-        return {
-            list: [],
-            total: 0,
-        };
-    }
-};
+//         return {
+//             list,
+//             total,
+//         };
+//     } catch (error) {
+//         console.log('getAPPUsers error: ', error);
+//         noticeError(error);
+//         return {
+//             list: [],
+//             total: 0,
+//         };
+//     }
+// };
 
 export const airdropBiiling = async (list: CSVType, address: string) => {
     try {
