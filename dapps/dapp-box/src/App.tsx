@@ -27,7 +27,6 @@ import { hideAllToast } from 'common/components/showPopup/Toast';
 import LocalStorage from 'localstorage-enhance';
 
 import Payment from 'payment/src/modules';
-import { showWeb3PaywallEntry } from 'payment/src/utils/constants';
 import PaymentNavbarEnhance from 'hub/src/modules/NavbarEnhance/Payment';
 import PaymentIcon from 'payment/src/assets/logo-light.png';
 import './App.css';
@@ -65,10 +64,7 @@ export const dapps = [
             Content: <GovernanceNavbarEnhance />,
         },
     },
-];
-
-if (showWeb3PaywallEntry) {
-    dapps.push({
+    {
         name: 'Web3 Paywall',
         icon: PaymentIcon,
         path: 'payment',
@@ -78,8 +74,8 @@ if (showWeb3PaywallEntry) {
             type: 'childRoutes' as 'childRoutes',
             Content: <PaymentNavbarEnhance />,
         },
-    } as any);
-}
+    },
+];
 
 const App = () => {
     const [mode, setMode] = useState<'light' | 'dark'>(() => {
@@ -169,7 +165,7 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                     <Route path="bridge" element={<Bridge />} />
 
                     <Route key="shuttle-flow" path="shuttle-flow/*" element={<div id="shuttle-flow" />} />
-                    {showWeb3PaywallEntry && <Route key="payment" path="payment/*" element={<Payment />} />}
+                    <Route key="payment" path="payment/*" element={<Payment />} />
                     <Route path="*" element={<Navigate to="bridge" />} />
                 </Routes>
             </ErrorBoundary>
