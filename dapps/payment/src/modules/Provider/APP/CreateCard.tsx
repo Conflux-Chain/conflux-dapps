@@ -122,12 +122,12 @@ export default ({ op, data, className, type = 'default', disabled = false }: Pro
                             },
                             {
                                 min: 1,
-                                max: 15,
-                                message: 'Please input resource name with 1-15 character',
+                                max: 50,
+                                message: 'Please input resource name with 1-50 character',
                             },
                         ]}
                     >
-                        <Input id="input_CardResource" disabled={op !== OP_ACTION.add} placeholder="Less than 15 characters and cannot be repeated." />
+                        <Input id="input_CardResource" disabled={op !== OP_ACTION.add} placeholder="Less than 50 characters and cannot be repeated." />
                     </Form.Item>
                     <Form.Item
                         label="Price"
