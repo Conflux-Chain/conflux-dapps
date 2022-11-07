@@ -95,6 +95,7 @@ export default ({ op, data = {}, className, type = 'default', disabled = false }
                 )}
             />
             <Modal
+                centered
                 title={title}
                 visible={isModalVisible}
                 onOk={handleOk}
@@ -158,7 +159,7 @@ export default ({ op, data = {}, className, type = 'default', disabled = false }
                     </Form.Item>
                 </Form>
 
-                <ModalTip tips={TIPs} />
+                <Modal centeredTip tips={TIPs} />
             </Modal>
         </>
     );

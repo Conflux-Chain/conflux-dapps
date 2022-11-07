@@ -20,6 +20,7 @@ import { personalSign } from '@cfxjs/use-wallet-react/ethereum';
 import { binary_to_base58 } from 'base58-js';
 import { ONE_DAY_SECONDS } from './constants';
 import { processErrorMsg } from './index';
+import BigNumber from 'bignumber.js';
 
 interface RequestProps {
     name: DefinedContractNamesType;
@@ -564,13 +565,25 @@ export const getAPPRefundStatus = async (appAddr: string, account: string) => {
     }
 };
 
-export const getMinCFXOfExactAPPCoin = async (amount: number | string) => {
+export const getMaxCFXInOfExactAPPCoin = async (amount: number | string) => {
     try {
         const exchange = await CONTRACT_APPREGISTRY.getExchanger();
         const CFXAmount = await getContract('exchange', exchange).previewDepositETH(ethers.utils.parseUnits(String(amount)));
         return ethers.utils.formatUnits(CFXAmount);
     } catch (error) {
-        console.log('getMinCFXOfExactAPPCoin error: ', error);
+        console.log('getMaxCFXInOfExactAPPCoin error: ', error);
+        noticeError(error);
+        throw error;
+    }
+};
+
+export const getMinCFXOutOfExactAPPCoin = async (amount: number | string) => {
+    try {
+        const exchange = await CONTRACT_APPREGISTRY.getExchanger();
+        const CFXAmount = await getContract('exchange', exchange).previewWithdrawETH(ethers.utils.parseUnits(String(amount)));
+        return ethers.utils.formatUnits(CFXAmount);
+    } catch (error) {
+        console.log('getMinCFXOutOfExactAPPCoin error: ', error);
         noticeError(error);
         throw error;
     }
@@ -593,15 +606,16 @@ export const deposit = async ({ amount, appAddr }: { amount: string; appAddr: st
 };
 
 // deposit billing app with CFX
-export const depositCFX = async ({ amount, appAddr, value }: { amount: string; value: string; appAddr: string }) => {
+export const depositCFX = async ({ amount, appAddr, value, tolerance }: { amount: string; value: string; appAddr: string; tolerance: number }) => {
     try {
         const exchange = await CONTRACT_APPREGISTRY.getExchanger();
+        const maxValue = new BigNumber(value).multipliedBy(1 + tolerance).toFixed(18);
         return (
             await getContract('exchange', exchange)
                 .connect(signer)
                 .depositAppETH(appAddr, ethers.utils.parseUnits(amount), await signer.getAddress(), {
                     type: 0,
-                    value: ethers.utils.parseUnits(value),
+                    value: ethers.utils.parseUnits(maxValue),
                 })
         ).wait();
     } catch (error) {
@@ -634,20 +648,23 @@ export const purchaseSubscriptionCFX = async ({
     appAddr,
     value,
     templateId,
+    tolerance,
 }: {
     amount: string | number;
     value: string;
     appAddr: string;
     templateId: string;
+    tolerance: number;
 }) => {
     try {
         const contracts = await getAPPsRelatedContract([appAddr].map((app: any) => app));
+        const maxValue = new BigNumber(value).multipliedBy(1 + tolerance).toFixed(18);
         const r = await (
             await getContract('cardShop', contracts[0].cardShop)
                 .connect(signer)
                 .buyWithEth(await signer.getAddress(), templateId, amount, {
                     type: 0,
-                    value: ethers.utils.parseUnits(value),
+                    value: ethers.utils.parseUnits(maxValue),
                 })
         ).wait();
         return r;
@@ -670,10 +687,26 @@ export const takeEarnings = async ({ appAddr, receiver, amount }: { appAddr: str
 };
 
 // provider take earnings with CFX
-export const takeEarningsCFX = async ({ appAddr, receiver, amount, value }: { appAddr: string; receiver: string; amount: string; value: string }) => {
+export const takeEarningsCFX = async ({
+    appAddr,
+    receiver,
+    amount,
+    value,
+    tolerance,
+}: {
+    appAddr: string;
+    receiver: string;
+    amount: string;
+    value: string;
+    tolerance: number;
+}) => {
     try {
+        // use latest calculation result
+        const cfxValue = await getMinCFXOutOfExactAPPCoin(amount);
+        const minValue = new BigNumber(cfxValue).multipliedBy(1 - tolerance).toFixed(18); // need params 18, otherwise will ocurr exceeds decimal error
+
         return (
-            await getContract('appv2', appAddr).connect(signer).takeProfitAsEth(ethers.utils.parseUnits(amount), ethers.utils.parseUnits(value), {
+            await getContract('appv2', appAddr).connect(signer).takeProfitAsEth(ethers.utils.parseUnits(amount), ethers.utils.parseUnits(minValue), {
                 type: 0,
             })
         ).wait();
@@ -700,22 +733,21 @@ export const forceWithdraw = async (appAddr: string) => {
 };
 
 // consumer withdraw with CFX
-export const forceWithdrawCFX = async ({ appAddr, amount, value }: { appAddr: string; amount: string; value: string }) => {
+export const forceWithdrawCFX = async ({ appAddr, amount, value, tolerance }: { appAddr: string; amount: string; value: string; tolerance: number }) => {
     try {
         const appv2 = getContract('appv2', appAddr).connect(signer);
         const account = await signer.getAddress();
         const exchange = await CONTRACT_APPREGISTRY.getExchanger();
+        // use latest appcoin balance of account
         const balance = (await appv2.balanceOf(account)).coins;
-        const minCFXValue = await getMinCFXOfExactAPPCoin(ethers.utils.formatUnits(balance));
+        const cfxValue = await getMinCFXOutOfExactAPPCoin(ethers.utils.formatUnits(balance));
+        const minValue = new BigNumber(cfxValue).multipliedBy(1 - tolerance).toFixed(18);
 
         return (
-            // TODO mul slip rate
-            (
-                await getContract('appv2', appAddr).connect(signer).forceWithdrawEth(account, exchange, ethers.utils.parseUnits(minCFXValue).mul(99).div(100), {
-                    type: 0,
-                })
-            ).wait()
-        );
+            await getContract('appv2', appAddr).connect(signer).forceWithdrawEth(account, exchange, ethers.utils.parseUnits(minValue), {
+                type: 0,
+            })
+        ).wait();
     } catch (error) {
         console.log('forceWithdraw error: ', error);
         noticeError(error);

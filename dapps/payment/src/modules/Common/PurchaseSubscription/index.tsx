@@ -1,6 +1,13 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Modal, InputNumber, Select, Row, Col, Button, Spin } from 'antd';
-import { purchaseSubscription, approveCard, getAllowanceCard, getAPPCards, getMinCFXOfExactAPPCoin, purchaseSubscriptionCFX } from 'payment/src/utils/request';
+import {
+    purchaseSubscription,
+    approveCard,
+    getAllowanceCard,
+    getAPPCards,
+    getMaxCFXInOfExactAPPCoin,
+    purchaseSubscriptionCFX,
+} from 'payment/src/utils/request';
 import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
 import { AuthESpace } from 'common/modules/AuthConnectButton';
 import { showToast } from 'common/components/showPopup/Toast';
@@ -8,6 +15,7 @@ import { ethers } from 'ethers';
 import { ButtonType } from 'antd/es/button';
 import BigNumber from 'bignumber.js';
 import { useTokens } from 'payment/src/utils/hooks';
+import SwapSetting from '../SwapSetting';
 
 const { Option } = Select;
 
@@ -43,7 +51,6 @@ export default ({
     );
     const account = useAccount();
     const [modalLoading, setModalLoading] = useState(false);
-    const [confirmLoading, setConfirmLoading] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
     const [errMsg, setErrMsg] = useState<string>('');
     const [fromValue, setFromValue] = useState<string>('cfx');
@@ -53,6 +60,9 @@ export default ({
     const [selectedSubscriptionId, setSelectedSubscriptionId] = useState(outerSelectedSubscriptionId);
     const { tokens, token } = useTokens(fromValue);
     const [tokenValue, setTokenValue] = useState('0');
+    const [tolerance, setTolerance] = useState(0.05); // 0.05 is default value
+    const [confirmLoading, setConfirmLoading] = useState(false);
+    const [loadingPrice, setLoadingPrice] = useState(false);
 
     const subscription = subscriptions.filter((c) => c.id === selectedSubscriptionId)[0];
     const appcoinValue = new BigNumber(subscription?.price || 1).multipliedBy(amount || 1).toFixed();
@@ -91,9 +101,14 @@ export default ({
         // if support other tokens except USDT, need additional transform fn
         if (isModalVisible) {
             if (isCFX) {
-                getMinCFXOfExactAPPCoin(appcoinValue).then((a) => {
-                    setTokenValue(a);
-                });
+                setLoadingPrice(true);
+                getMaxCFXInOfExactAPPCoin(appcoinValue)
+                    .then((a) => {
+                        setTokenValue(a);
+                    })
+                    .finally(() => {
+                        setLoadingPrice(false);
+                    });
             } else {
                 setTokenValue(appcoinValue);
             }
@@ -154,6 +169,7 @@ export default ({
                         templateId: subscription.id,
                         amount,
                         value: tokenValue,
+                        tolerance,
                     });
                 } else {
                     await purchaseSubscription({
@@ -183,9 +199,14 @@ export default ({
         setSelectedSubscriptionId(v);
     }, []);
 
+    const handleChange = (tolerance: number) => {
+        setTolerance(tolerance);
+    };
+
     // control confirm button status
     const isDisabled = appcoinValue === '0' || appcoinValue === null || !!errMsg || modalLoading;
     const okText = type === 0 ? 'Confirm' : 'Approve';
+    const expectedTokenValue = isCFX ? new BigNumber(tokenValue || 0).multipliedBy(1 + tolerance).toFixed() : new BigNumber(tokenValue || 0).toFixed();
 
     return (
         <>
@@ -211,6 +232,7 @@ export default ({
             />
             {isModalVisible && (
                 <Modal
+                    centered
                     title="Subscription Plan"
                     visible={isModalVisible}
                     onOk={handleOk}
@@ -228,6 +250,7 @@ export default ({
                     }}
                 >
                     <Spin spinning={modalLoading}>
+                        <SwapSetting onChange={handleChange} className="-mr-6" />
                         <Row gutter={24} className="mb-4">
                             <Col span={12}>
                                 <div className="text-gray-400">Resource Name</div>
@@ -288,29 +311,30 @@ export default ({
                             </Col>
                         </Row>
 
-                        <div className="text-white bg-blue-500 p-2 mt-6 rounded-sm">
-                            <Row gutter={24}>
-                                <Col span={12} className="!flex items-center">
-                                    <span>Expected amount in</span>
-                                </Col>
-                                <Col span={12} className="text-end text-lg">
-                                    <span id="span_expectedAmountIn">
-                                        {tokenValue || 0} {fromValue.toUpperCase()}
+                        <Spin spinning={loadingPrice} size="small">
+                            <div className="text-white bg-blue-500 p-2 mt-6 rounded-sm">
+                                <Row gutter={24}>
+                                    <Col span={8} className="!flex items-center">
+                                        <span>Expected amount in</span>
+                                    </Col>
+                                    <Col span={16} className="text-end text-lg">
+                                        <span id="span_expectedAmountIn">
+                                            {expectedTokenValue} {fromValue.toUpperCase()}
+                                        </span>
+                                    </Col>
+                                </Row>
+                            </div>
+                        </Spin>
+                        <div className="text-red-500 text-end min-h-[22px]">{errMsg}</div>
+                        <Spin spinning={loadingPrice} size="small">
+                            <Row gutter={24} className="">
+                                <Col span={24}>
+                                    <span>
+                                        1 APPCoin = {tokenPriceOfPerAPPCoin} {fromValue.toUpperCase()}
                                     </span>
                                 </Col>
                             </Row>
-                        </div>
-                        <div className="text-red-500 text-end min-h-[22px]">{errMsg}</div>
-                        <Row gutter={24} className="">
-                            <Col span={24}>
-                                <span>
-                                    1 APPCoin = {tokenPriceOfPerAPPCoin} {fromValue.toUpperCase()}
-                                </span>
-                            </Col>
-                            {/* <Col span={12} className="text-end">
-                        <span>~ 1USDT ($1)</span>
-                    </Col> */}
-                        </Row>
+                        </Spin>
 
                         <ul id="ul_tips" className="mt-4 mb-0 p-4 bg-red-100 text-gray-400 rounded-sm">
                             {TIPs.map((t, i) => (

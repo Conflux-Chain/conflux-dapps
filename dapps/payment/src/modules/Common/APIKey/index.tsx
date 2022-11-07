@@ -51,6 +51,7 @@ export default ({ appAddr }: Props) => {
             />
             {isModalVisible && (
                 <Modal
+                    centered
                     title="API Key"
                     visible={isModalVisible}
                     onOk={handleOk}

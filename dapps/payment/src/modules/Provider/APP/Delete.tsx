@@ -64,6 +64,7 @@ export default ({ data, disabled = false }: Props) => {
             />
             {isModalVisible && (
                 <Modal
+                    centered
                     title={<span className="text-red-500">Delete API</span>}
                     visible={isModalVisible}
                     confirmLoading={loading}

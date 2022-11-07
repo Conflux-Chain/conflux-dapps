@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
-import { Modal, InputNumber, Select, Row, Col, Button } from 'antd';
-import { deposit, getAllowance, approve, getMinCFXOfExactAPPCoin, depositCFX } from 'payment/src/utils/request';
+import { Modal, InputNumber, Select, Row, Col, Button, Spin } from 'antd';
+import { deposit, getAllowance, approve, getMaxCFXInOfExactAPPCoin, depositCFX } from 'payment/src/utils/request';
 import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
 import { AuthESpace } from 'common/modules/AuthConnectButton';
 import { showToast } from 'common/components/showPopup/Toast';
@@ -12,6 +12,8 @@ import { useParams, useLocation } from 'react-router-dom';
 import { useTokens } from 'payment/src/utils/hooks';
 import lodash from 'lodash';
 import BigNumber from 'bignumber.js';
+import SwapSetting from '../SwapSetting';
+import Tips from '../Tips';
 
 const { Option } = Select;
 
@@ -35,7 +37,7 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
         () => [
             '1. APP coins will be used as recharge points that are deducted when using resources.',
             '2. The resource provider will notify the platform of the number of resources you use, and the platform will calculate the resource usage fee and deduct the APP currency balance. The calculation method is: usage times * resource billing weight.',
-            '3. You can use the allowed cryptocurrencies to exchange for APP coins, the platform will obtain the Dex quotation to calculate the estimated payment amount, or go to https://app.swappi.io/#/swap to learn more.',
+            '3. You can use the allowed cryptocurrencies to exchange for APP coins, the platform will obtain the Dex quotation to calculate the estimated payment amount, or go to <a href="https://app.swappi.io/#/swap" target="_blank">https://app.swappi.io/#/swap</a> to learn more.',
         ],
         []
     );
@@ -44,12 +46,14 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
     const { type: appType } = useParams();
     const { pathname } = useLocation();
     const account = useAccount();
-    const [loading, setLoading] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
     const [errMsg, setErrMsg] = useState<string>('');
     const [appcoinValue, setAppcoinValue] = useState<string>('10');
     const [tokenValue, setTokenValue] = useState('0');
     const [type, setType] = useState(0); // ok button type, 0 - confirm, 1 - approve
+    const [tolerance, setTolerance] = useState(0.05); // 0.05 is default value
+    const [loading, setLoading] = useState(false);
+    const [loadingPrice, setLoadingPrice] = useState(false);
 
     const tokenBalance = token.balance?.toDecimalStandardUnit() || '0';
     const isCFX = token.symbol.toLowerCase() === 'cfx';
@@ -60,9 +64,14 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
         if (isModalVisible) {
             // if support other tokens except USDT, need additional transform fn
             if (isCFX) {
-                getMinCFXOfExactAPPCoin(appcoinValue).then((a) => {
-                    setTokenValue(a);
-                });
+                setLoadingPrice(true);
+                getMaxCFXInOfExactAPPCoin(appcoinValue)
+                    .then((a) => {
+                        setTokenValue(a);
+                    })
+                    .finally(() => {
+                        setLoadingPrice(false);
+                    });
             } else {
                 setTokenValue(appcoinValue);
             }
@@ -106,7 +115,7 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
     const handleShowModal = useCallback(() => setIsModalVisible(true), []);
 
     const handleToChange = useCallback(
-        lodash.debounce((v: string) => setAppcoinValue(v || '0'), 200),
+        lodash.debounce((v: string) => setAppcoinValue(v || '1'), 200),
         []
     );
 
@@ -127,6 +136,7 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
                         appAddr: appAddr,
                         amount: appcoinValue,
                         value: tokenValue,
+                        tolerance,
                     });
                 } else {
                     await deposit({
@@ -137,6 +147,7 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
 
                 setIsModalVisible(false);
                 showToast('Deposit success', { type: 'success' });
+                // TODO should move to outside, use callback instead
                 if (pathname.includes('/consumer/paid-apps')) {
                     fetchPaidAPPs(account);
                 } else if (pathname.includes('/consumer/apps')) {
@@ -155,9 +166,14 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
         setIsModalVisible(false);
     }, []);
 
+    const handleChange = (tolerance: number) => {
+        setTolerance(tolerance);
+    };
+
     // control confirm button status
     const isDisabled = appcoinValue === '0' || appcoinValue === null || !!errMsg;
     const okText = type === 0 ? 'Confirm' : 'Approve';
+    let expectedTokenValue = isCFX ? new BigNumber(tokenValue || 0).multipliedBy(1 + tolerance).toFixed() : new BigNumber(tokenValue || 0).toFixed();
 
     return (
         <>
@@ -183,6 +199,7 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
             />
             {isModalVisible && (
                 <Modal
+                    centered
                     title="Deposit Plan"
                     visible={isModalVisible}
                     onOk={handleOk}
@@ -199,6 +216,7 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
                         id: 'button_cancel',
                     }}
                 >
+                    <SwapSetting onChange={handleChange} />
                     <Row gutter={24}>
                         <Col span={8}>
                             <div>From</div>
@@ -219,45 +237,37 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
                                 addonAfter="APP Coin"
                                 onChange={handleToChange}
                                 style={{ width: '100%' }}
-                                min="0"
+                                min="1"
                             ></InputNumber>
                         </Col>
                     </Row>
 
-                    <div className="text-white bg-blue-500 p-2 mt-6 rounded-sm">
-                        <Row gutter={24}>
-                            <Col span={12} className="!flex items-center">
-                                <span>Expected amount in</span>
-                            </Col>
-                            <Col span={12} className="text-end text-lg">
-                                <span id="span_expectedAmountIn">
-                                    {tokenValue || 0} {fromValue.toUpperCase()}
+                    <Spin spinning={loadingPrice} size="small">
+                        <div className="text-white bg-blue-500 p-2 mt-6 rounded-sm">
+                            <Row gutter={24}>
+                                <Col span={8} className="!flex items-center">
+                                    <span>Expected amount in</span>
+                                </Col>
+                                <Col span={16} className="text-end text-lg">
+                                    <span id="span_expectedAmountIn">
+                                        {expectedTokenValue} {fromValue.toUpperCase()}
+                                    </span>
+                                </Col>
+                            </Row>
+                        </div>
+                    </Spin>
+                    <div className="text-red-500 text-end min-h-[22px]">{errMsg}</div>
+                    <Spin spinning={loadingPrice} size="small">
+                        <Row gutter={24} className="">
+                            <Col span={24}>
+                                <span>
+                                    1 APPCoin = {tokenPriceOfPerAPPCoin} {fromValue.toUpperCase()}
                                 </span>
                             </Col>
                         </Row>
-                    </div>
-                    <div className="text-red-500 text-end min-h-[22px]">{errMsg}</div>
-                    <Row gutter={24} className="">
-                        <Col span={24}>
-                            <span>
-                                1 APPCoin = {tokenPriceOfPerAPPCoin} {fromValue.toUpperCase()}
-                            </span>
-                        </Col>
-                        {/* <Col span={12} className="text-end">
-                        <span>~ 1USDT ($1)</span>
-                    </Col> */}
-                    </Row>
+                    </Spin>
 
-                    <ul id="ul_tips" className="mt-4 mb-0 p-4 bg-red-100 text-gray-600 rounded-sm">
-                        {TIPs.map((t, i) => (
-                            <li
-                                key={i}
-                                dangerouslySetInnerHTML={{
-                                    __html: t,
-                                }}
-                            ></li>
-                        ))}
-                    </ul>
+                    <Tips items={TIPs} />
                 </Modal>
             )}
         </>

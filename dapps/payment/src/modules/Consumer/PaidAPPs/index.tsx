@@ -58,12 +58,25 @@ export default () => {
     }, [account]);
 
     const handleWithdraw = useCallback(
-        async ({ appAddr, balance, tokenValue, isCFX }: { appAddr: string; balance: string; tokenValue: string; isCFX: boolean }) => {
+        async ({
+            appAddr,
+            balance,
+            tokenValue,
+            isCFX,
+            tolerance,
+        }: {
+            appAddr: string;
+            balance: string;
+            tokenValue: string;
+            isCFX: boolean;
+            tolerance: number;
+        }) => {
             if (isCFX) {
                 await forceWithdrawCFX({
                     appAddr,
                     amount: balance,
                     value: tokenValue,
+                    tolerance,
                 });
             } else {
                 await forceWithdraw(appAddr);
@@ -115,12 +128,13 @@ export default () => {
                                                 disabled={!isWithdrawable}
                                                 value={row.billing.balance}
                                                 tips={TIPs}
-                                                onWithdraw={async (tokenValue, isCFX) =>
+                                                onWithdraw={async (tokenValue, isCFX, tolerance) =>
                                                     handleWithdraw({
                                                         appAddr: row.address,
                                                         tokenValue,
                                                         isCFX,
                                                         balance: row.billing.balance,
+                                                        tolerance,
                                                     })
                                                 }
                                             />

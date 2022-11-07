@@ -93,6 +93,7 @@ export default ({ op, data, className, type = 'default', disabled = false }: Pro
                 )}
             />
             <Modal
+                centered
                 title={title}
                 visible={isModalVisible}
                 onOk={handleOk}

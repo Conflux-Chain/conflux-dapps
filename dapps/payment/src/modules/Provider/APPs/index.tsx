@@ -37,7 +37,19 @@ export default () => {
     }, [account]);
 
     const handleWithdraw = useCallback(
-        async ({ appAddr, earnings, tokenValue, isCFX }: { appAddr: string; earnings: string; tokenValue: string; isCFX: boolean }) => {
+        async ({
+            appAddr,
+            earnings,
+            tokenValue,
+            isCFX,
+            tolerance,
+        }: {
+            appAddr: string;
+            earnings: string;
+            tokenValue: string;
+            isCFX: boolean;
+            tolerance: number;
+        }) => {
             if (isCFX) {
                 await (account &&
                     takeEarningsCFX({
@@ -45,6 +57,7 @@ export default () => {
                         receiver: account,
                         amount: earnings,
                         value: tokenValue,
+                        tolerance,
                     }));
             } else {
                 await (account &&
@@ -81,12 +94,13 @@ export default () => {
                                         title="Withdraw Earnings"
                                         value={row.earnings}
                                         tips={TIPs}
-                                        onWithdraw={(tokenValue, isCFX) =>
+                                        onWithdraw={(tokenValue, isCFX, tolerance) =>
                                             handleWithdraw({
                                                 appAddr: row.address,
                                                 earnings: String(row.earnings),
                                                 tokenValue,
                                                 isCFX,
+                                                tolerance,
                                             })
                                         }
                                     />
