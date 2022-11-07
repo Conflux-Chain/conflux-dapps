@@ -79,6 +79,7 @@ export default ({}: Props) => {
                 )}
             />
             <Modal
+                centered
                 title="Create New APP"
                 visible={isModalVisible}
                 onOk={handleOk}
@@ -113,12 +114,12 @@ export default ({}: Props) => {
                             },
                             {
                                 min: 1,
-                                max: 15,
-                                message: 'Please input APP name with 1-15 character',
+                                max: 50,
+                                message: 'Please input APP name with 1-50 character',
                             },
                         ]}
                     >
-                        <Input id="input_APPName" placeholder="Less than 15 characters." />
+                        <Input id="input_APPName" placeholder="Less than 50 characters." />
                     </Form.Item>
                     <Form.Item
                         label={<>Symbol</>}
@@ -131,8 +132,8 @@ export default ({}: Props) => {
                             },
                             {
                                 min: 1,
-                                max: 5,
-                                message: 'Please input APP Symbol with 1-5 character',
+                                max: 15,
+                                message: 'Please input APP Symbol with 1-15 character',
                             },
                             {
                                 pattern: /^[A-Z]+$/,
@@ -140,7 +141,7 @@ export default ({}: Props) => {
                             },
                         ]}
                     >
-                        <Input id="input_symbol" placeholder="Limited here to 5 alphanumeric characters." />
+                        <Input id="input_symbol" placeholder="Limited here to 15 alphanumeric characters." />
                     </Form.Item>
                     <Form.Item
                         label={<>Link</>}

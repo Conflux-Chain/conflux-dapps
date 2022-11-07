@@ -60,14 +60,14 @@ export const formatNumber = (number: string | number | BigNumber, _opt?: Object)
 };
 
 export const processErrorMsg = (msg: string) => {
-    if (msg.includes(CONTRACT_ERRORS.rNameIsRepeated)) {
-        return CONTRACT_ERRORS.rNameIsRepeated;
+    let pMsg = msg;
+
+    for (let i = 0; i < CONTRACT_ERRORS.length; i++) {
+        if (msg.includes(CONTRACT_ERRORS[i].key)) {
+            pMsg = CONTRACT_ERRORS[i].msg;
+            break;
+        }
     }
-    if (msg.includes(CONTRACT_ERRORS.exceedDuration)) {
-        return CONTRACT_ERRORS.exceedDuration;
-    }
-    if (msg.includes(CONTRACT_ERRORS.expirationExceed)) {
-        return CONTRACT_ERRORS.exceedDuration;
-    }
-    return msg;
+
+    return pMsg;
 };

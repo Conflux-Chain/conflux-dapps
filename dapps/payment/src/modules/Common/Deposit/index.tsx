@@ -1,15 +1,19 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
-import { Modal, InputNumber, Select, Row, Col, Button } from 'antd';
-import { deposit, getAllowance, approve } from 'payment/src/utils/request';
+import { Modal, InputNumber, Select, Row, Col, Button, Spin } from 'antd';
+import { deposit, getAllowance, approve, getMaxCFXInOfExactAPPCoin, depositCFX } from 'payment/src/utils/request';
 import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
 import { AuthESpace } from 'common/modules/AuthConnectButton';
 import { showToast } from 'common/components/showPopup/Toast';
-import { startTrack, useTokenList } from 'payment/src/store';
 import { ethers } from 'ethers';
 import { ButtonType } from 'antd/es/button';
 import { useBoundProviderStore } from 'payment/src/store';
 import shallow from 'zustand/shallow';
 import { useParams, useLocation } from 'react-router-dom';
+import { useTokens } from 'payment/src/utils/hooks';
+import lodash from 'lodash';
+import BigNumber from 'bignumber.js';
+import SwapSetting from '../SwapSetting';
+import Tips from '../Tips';
 
 const { Option } = Select;
 
@@ -20,8 +24,6 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
-    useEffect(startTrack, []);
-
     const { fetchAPPs, fetchBillingResource, fetchPaidAPPs } = useBoundProviderStore(
         (state) => ({
             fetchPaidAPPs: state.consumerPaidAPPs.fetch,
@@ -35,58 +37,87 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
         () => [
             '1. APP coins will be used as recharge points that are deducted when using resources.',
             '2. The resource provider will notify the platform of the number of resources you use, and the platform will calculate the resource usage fee and deduct the APP currency balance. The calculation method is: usage times * resource billing weight.',
-            '3. You can use the allowed cryptocurrencies to exchange for APP coins, the platform will obtain the Dex quotation to calculate the estimated payment amount, or go to https://app.swappi.io/#/swap to learn more.',
+            '3. You can use the allowed cryptocurrencies to exchange for APP coins, the platform will obtain the Dex quotation to calculate the estimated payment amount, or go to <a href="https://app.swappi.io/#/swap" target="_blank">https://app.swappi.io/#/swap</a> to learn more.',
         ],
         []
     );
+    const [fromValue, setFromValue] = useState<string>('usdt'); // use cfx default
+    const { tokens, token } = useTokens(fromValue);
     const { type: appType } = useParams();
     const { pathname } = useLocation();
     const account = useAccount();
-    const TOKENs = useTokenList();
-    const [loading, setLoading] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
     const [errMsg, setErrMsg] = useState<string>('');
-    const [toValue, setToValue] = useState<string>('10');
-    const [fromValue, setFromValue] = useState<string>(TOKENs[0].eSpace_address);
+    const [appcoinValue, setAppcoinValue] = useState<string>('10');
+    const [tokenValue, setTokenValue] = useState('0');
     const [type, setType] = useState(0); // ok button type, 0 - confirm, 1 - approve
+    const [tolerance, setTolerance] = useState(0.05); // 0.05 is default value
+    const [loading, setLoading] = useState(false);
+    const [loadingPrice, setLoadingPrice] = useState(false);
 
-    const token = TOKENs.filter((t) => t.eSpace_address === fromValue)[0];
-    const tokenBalance = token.balance?.toDecimalStandardUnit();
+    const tokenBalance = token.balance?.toDecimalStandardUnit() || '0';
+    const isCFX = token.symbol.toLowerCase() === 'cfx';
+    const tokenPriceOfPerAPPCoin = new BigNumber(tokenValue).dividedBy(appcoinValue).toFixed();
 
+    // get CFX or ERC20 token amount
     useEffect(() => {
-        if (tokenBalance && toValue) {
-            if (ethers.utils.parseUnits(toValue, 18).gt(ethers.utils.parseUnits(tokenBalance, 18))) {
-                setErrMsg('Insufficient Balance');
+        if (isModalVisible) {
+            // if support other tokens except USDT, need additional transform fn
+            if (isCFX) {
+                setLoadingPrice(true);
+                getMaxCFXInOfExactAPPCoin(appcoinValue)
+                    .then((a) => {
+                        setTokenValue(a);
+                    })
+                    .finally(() => {
+                        setLoadingPrice(false);
+                    });
             } else {
-                setErrMsg('');
+                setTokenValue(appcoinValue);
             }
         }
-    }, [tokenBalance, toValue]);
+    }, [isCFX, appcoinValue, isModalVisible]);
+
+    // check CFX or ERC20 token balance is enough or not
+    useEffect(() => {
+        if (ethers.utils.parseUnits(tokenBalance, 18).lt(ethers.utils.parseUnits(tokenValue, 18))) {
+            setErrMsg('Insufficient Balance');
+        } else {
+            setErrMsg('');
+        }
+    }, [tokenValue, tokenBalance]);
 
     const checkAllowance = useCallback(
         async function main() {
-            const allowance = await getAllowance({
-                tokenAddr: token.eSpace_address,
-                appAddr: appAddr,
-            });
-
-            if (allowance.lt(ethers.utils.parseUnits(toValue || '0'))) {
-                setType(1);
-            } else {
+            if (isCFX) {
                 setType(0);
+            } else {
+                const allowance = await getAllowance({
+                    tokenAddr: token.eSpace_address,
+                    appAddr: appAddr,
+                });
+
+                if (allowance.lt(ethers.utils.parseUnits(appcoinValue || '0'))) {
+                    setType(1);
+                } else {
+                    setType(0);
+                }
             }
         },
-        [account, token.eSpace_address, appAddr, toValue]
+        [account, token.eSpace_address, appAddr, appcoinValue, isCFX]
     );
 
-    // check selected token allowance
+    // check allowance
     useEffect(() => {
         isModalVisible && checkAllowance();
-    }, [isModalVisible]);
+    }, [isModalVisible, token.symbol]);
 
     const handleShowModal = useCallback(() => setIsModalVisible(true), []);
 
-    const handleToChange = useCallback((v: string) => setToValue(v), []);
+    const handleToChange = useCallback(
+        lodash.debounce((v: string) => setAppcoinValue(v || '1'), 200),
+        []
+    );
 
     const handleFromChange = useCallback((v: string) => setFromValue(v), []);
 
@@ -100,12 +131,23 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
                 await checkAllowance();
                 showToast('Approve success', { type: 'success' });
             } else {
-                await deposit({
-                    appAddr: appAddr,
-                    amount: toValue,
-                });
+                if (isCFX) {
+                    await depositCFX({
+                        appAddr: appAddr,
+                        amount: appcoinValue,
+                        value: tokenValue,
+                        tolerance,
+                    });
+                } else {
+                    await deposit({
+                        appAddr: appAddr,
+                        amount: appcoinValue,
+                    });
+                }
+
                 setIsModalVisible(false);
                 showToast('Deposit success', { type: 'success' });
+                // TODO should move to outside, use callback instead
                 if (pathname.includes('/consumer/paid-apps')) {
                     fetchPaidAPPs(account);
                 } else if (pathname.includes('/consumer/apps')) {
@@ -124,9 +166,14 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
         setIsModalVisible(false);
     }, []);
 
+    const handleChange = (tolerance: number) => {
+        setTolerance(tolerance);
+    };
+
     // control confirm button status
-    const isDisabled = toValue === '0' || toValue === null || !!errMsg;
+    const isDisabled = appcoinValue === '0' || appcoinValue === null || !!errMsg;
     const okText = type === 0 ? 'Confirm' : 'Approve';
+    let expectedTokenValue = isCFX ? new BigNumber(tokenValue || 0).multipliedBy(1 + tolerance).toFixed() : new BigNumber(tokenValue || 0).toFixed();
 
     return (
         <>
@@ -152,6 +199,7 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
             />
             {isModalVisible && (
                 <Modal
+                    centered
                     title="Deposit Plan"
                     visible={isModalVisible}
                     onOk={handleOk}
@@ -168,12 +216,13 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
                         id: 'button_cancel',
                     }}
                 >
+                    <SwapSetting onChange={handleChange} />
                     <Row gutter={24}>
                         <Col span={8}>
                             <div>From</div>
-                            <Select id="select_token" defaultValue={fromValue} style={{ width: '100%' }} onChange={handleFromChange} disabled>
-                                {TOKENs.map((t) => (
-                                    <Option key={t.eSpace_address} value={t.eSpace_address}>
+                            <Select id="select_token" defaultValue={fromValue.toUpperCase()} style={{ width: '100%' }} onChange={handleFromChange}>
+                                {tokens.map((t) => (
+                                    <Option key={t.symbol + t.eSpace_address} value={t.symbol}>
                                         {t.name}
                                     </Option>
                                 ))}
@@ -184,45 +233,41 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
                             <InputNumber<string>
                                 id="input_APPCoin_value"
                                 stringMode
-                                value={toValue}
+                                value={appcoinValue}
                                 addonAfter="APP Coin"
                                 onChange={handleToChange}
                                 style={{ width: '100%' }}
-                                min="0"
+                                min="1"
                             ></InputNumber>
                         </Col>
                     </Row>
 
-                    <div className="text-white bg-blue-500 p-2 mt-6 rounded-sm">
-                        <Row gutter={24}>
-                            <Col span={12} className="!flex items-center">
-                                <span>Expected amount in</span>
-                            </Col>
-                            <Col span={12} className="text-end text-lg">
-                                <span id="span_expectedAmountIn">{toValue || 0} USDT</span>
+                    <Spin spinning={loadingPrice} size="small">
+                        <div className="text-white bg-blue-500 p-2 mt-6 rounded-sm">
+                            <Row gutter={24}>
+                                <Col span={8} className="!flex items-center">
+                                    <span>Expected amount in</span>
+                                </Col>
+                                <Col span={16} className="text-end text-lg">
+                                    <span id="span_expectedAmountIn">
+                                        {expectedTokenValue} {fromValue.toUpperCase()}
+                                    </span>
+                                </Col>
+                            </Row>
+                        </div>
+                    </Spin>
+                    <div className="text-red-500 text-end min-h-[22px]">{errMsg}</div>
+                    <Spin spinning={loadingPrice} size="small">
+                        <Row gutter={24} className="">
+                            <Col span={24}>
+                                <span>
+                                    1 APPCoin = {tokenPriceOfPerAPPCoin} {fromValue.toUpperCase()}
+                                </span>
                             </Col>
                         </Row>
-                    </div>
-                    <div className="text-red-500 text-end min-h-[22px]">{errMsg}</div>
-                    <Row gutter={24} className="">
-                        <Col span={12}>
-                            <span>1 APPCoin = 1 USDT</span>
-                        </Col>
-                        {/* <Col span={12} className="text-end">
-                        <span>~ 1USDT ($1)</span>
-                    </Col> */}
-                    </Row>
+                    </Spin>
 
-                    <ul id="ul_tips" className="mt-4 mb-0 p-4 bg-red-100 text-gray-600 rounded-sm">
-                        {TIPs.map((t, i) => (
-                            <li
-                                key={i}
-                                dangerouslySetInnerHTML={{
-                                    __html: t,
-                                }}
-                            ></li>
-                        ))}
-                    </ul>
+                    <Tips items={TIPs} />
                 </Modal>
             )}
         </>
