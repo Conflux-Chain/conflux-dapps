@@ -53,7 +53,7 @@ export default ({
     const [modalLoading, setModalLoading] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
     const [errMsg, setErrMsg] = useState<string>('');
-    const [fromValue, setFromValue] = useState<string>('cfx');
+    const [fromValue, setFromValue] = useState<string>('usdt');
     const [type, setType] = useState(0); // ok button type, 0 - confirm, 1 - approve
     const [amount, setAmount] = useState(outerAmount || 1);
     const [subscriptions, setSubscriptions] = useState(outerSubscriptions || []);

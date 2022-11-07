@@ -41,7 +41,7 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
         ],
         []
     );
-    const [fromValue, setFromValue] = useState<string>('cfx'); // use cfx default
+    const [fromValue, setFromValue] = useState<string>('usdt'); // use cfx default
     const { tokens, token } = useTokens(fromValue);
     const { type: appType } = useParams();
     const { pathname } = useLocation();

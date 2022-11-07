@@ -25,7 +25,7 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export default ({ disabled, value, title, buttonProps, tips = [], onComplete, onWithdraw }: Props) => {
-    const [toValue, setToValue] = useState<string>('cfx');
+    const [toValue, setToValue] = useState<string>('usdt');
     const { tokens, token } = useTokens(toValue);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
     const [errMsg /*, setErrMsg */] = useState<string>('');
