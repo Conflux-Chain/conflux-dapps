@@ -26,14 +26,6 @@ export enum PAYMENT_TYPE {
 
 export const ONE_DAY_SECONDS = 86400; // 24 * 60 * 60
 
-export const CONTRACT_ERRORS = {
-    rNameIsRepeated: 'Resource name cannot be repeated.',
-    exceedDuration: 'The duration cannot exceed 10 years.',
-    expirationExceed: 'Expiration time exceeded.',
-};
-
-export const showWeb3PaywallEntry = ENV === 'dev' || ENV === 'test';
-
 export const CONTRACT_ADDRESSES = {
     prod: {
         multicall: '0x9f208d7226f05b4f43d0d36eb21d8545c3143685',
@@ -56,3 +48,38 @@ export const CONTRACT_ADDRESSES = {
         util: '0xB4611cfB227379702FC2565f156051C8913292d2',
     },
 }[ENV];
+
+export const CONTRACT_ERRORS = [
+    {
+        key: 'Resource name cannot be repeated.',
+        msg: 'Resource name cannot be repeated.',
+    },
+    {
+        key: 'The duration cannot exceed 10 years.',
+        msg: 'The duration cannot exceed 10 years.',
+    },
+    {
+        key: 'Expiration time exceeded.',
+        msg: 'The duration cannot exceed 10 years.',
+    },
+    {
+        key: 'template not found',
+        msg: 'Template not found.',
+    },
+    {
+        key: 'insufficient input',
+        msg: 'Insufficient input',
+    },
+    {
+        key: 'INSUFFICIENT_OUTPUT_AMOUNT',
+        msg: 'Please modify the amount or set the slippage tolerance.',
+    },
+    {
+        key: 'INSUFFICIENT_INPUT_AMOUNT',
+        msg: 'Please modify the amount or set the slippage tolerance.',
+    },
+    {
+        key: 'EXCESSIVE_INPUT_AMOUNT',
+        msg: 'Please modify the amount or set the slippage tolerance.',
+    },
+];
