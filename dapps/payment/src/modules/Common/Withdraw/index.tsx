@@ -69,6 +69,7 @@ export default ({ disabled, value, title, buttonProps, tips = [], onComplete, on
             await onWithdraw(tokenValue, isCFX, tolerance);
             onComplete && onComplete();
             setIsModalVisible(false);
+            setToValue('usdt');
             showToast('Withdraw success', { type: 'success' });
         } catch (e) {
             console.log(e);
@@ -78,6 +79,7 @@ export default ({ disabled, value, title, buttonProps, tips = [], onComplete, on
 
     const handleCancel = useCallback(() => {
         setIsModalVisible(false);
+        setToValue('usdt');
     }, []);
 
     useEffect(() => {

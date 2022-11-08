@@ -146,6 +146,7 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
                 }
 
                 setIsModalVisible(false);
+                setFromValue('usdt');
                 showToast('Deposit success', { type: 'success' });
                 // TODO should move to outside, use callback instead
                 if (pathname.includes('/consumer/paid-apps')) {
@@ -164,6 +165,7 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
 
     const handleCancel = useCallback(() => {
         setIsModalVisible(false);
+        setFromValue('usdt');
     }, []);
 
     const handleChange = (tolerance: number) => {

@@ -182,6 +182,7 @@ export default ({
                 showToast('Purchase success', { type: 'success' });
                 onComplete && onComplete(appAddr);
                 setIsModalVisible(false);
+                setFromValue('usdt');
             }
         } catch (e) {
             console.log(e);
@@ -191,6 +192,7 @@ export default ({
 
     const handleCancel = useCallback(() => {
         setIsModalVisible(false);
+        setFromValue('usdt');
     }, []);
 
     const handleAmountChange = useCallback((v: number) => setAmount(v || 1), []);
