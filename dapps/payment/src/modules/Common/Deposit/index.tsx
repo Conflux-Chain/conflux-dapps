@@ -257,9 +257,7 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
                                 </Col>
                             </Row>
                         </div>
-                    </Spin>
-                    <div className="text-red-500 text-end min-h-[22px]">{errMsg}</div>
-                    <Spin spinning={loadingPrice} size="small">
+                        <div className="text-red-500 text-end min-h-[22px]">{errMsg}</div>
                         <Row gutter={24} className="">
                             <Col span={24}>
                                 <span>
