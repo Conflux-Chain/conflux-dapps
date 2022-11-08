@@ -146,6 +146,7 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
                 }
 
                 setIsModalVisible(false);
+                setFromValue('usdt');
                 showToast('Deposit success', { type: 'success' });
                 // TODO should move to outside, use callback instead
                 if (pathname.includes('/consumer/paid-apps')) {
@@ -164,6 +165,7 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
 
     const handleCancel = useCallback(() => {
         setIsModalVisible(false);
+        setFromValue('usdt');
     }, []);
 
     const handleChange = (tolerance: number) => {
@@ -216,7 +218,7 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
                         id: 'button_cancel',
                     }}
                 >
-                    <SwapSetting onChange={handleChange} />
+                    {isCFX && <SwapSetting onChange={handleChange} />}
                     <Row gutter={24}>
                         <Col span={8}>
                             <div>From</div>
@@ -255,9 +257,7 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
                                 </Col>
                             </Row>
                         </div>
-                    </Spin>
-                    <div className="text-red-500 text-end min-h-[22px]">{errMsg}</div>
-                    <Spin spinning={loadingPrice} size="small">
+                        <div className="text-red-500 text-end min-h-[22px]">{errMsg}</div>
                         <Row gutter={24} className="">
                             <Col span={24}>
                                 <span>

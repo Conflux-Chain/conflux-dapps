@@ -182,6 +182,7 @@ export default ({
                 showToast('Purchase success', { type: 'success' });
                 onComplete && onComplete(appAddr);
                 setIsModalVisible(false);
+                setFromValue('usdt');
             }
         } catch (e) {
             console.log(e);
@@ -191,6 +192,7 @@ export default ({
 
     const handleCancel = useCallback(() => {
         setIsModalVisible(false);
+        setFromValue('usdt');
     }, []);
 
     const handleAmountChange = useCallback((v: number) => setAmount(v || 1), []);
@@ -250,7 +252,7 @@ export default ({
                     }}
                 >
                     <Spin spinning={modalLoading}>
-                        <SwapSetting onChange={handleChange} className="-mr-6" />
+                        {isCFX && <SwapSetting onChange={handleChange} className="-mr-6" />}
                         <Row gutter={24} className="mb-4">
                             <Col span={12}>
                                 <div className="text-gray-400">Resource Name</div>
@@ -324,9 +326,7 @@ export default ({
                                     </Col>
                                 </Row>
                             </div>
-                        </Spin>
-                        <div className="text-red-500 text-end min-h-[22px]">{errMsg}</div>
-                        <Spin spinning={loadingPrice} size="small">
+                            <div className="text-red-500 text-end min-h-[22px]">{errMsg}</div>
                             <Row gutter={24} className="">
                                 <Col span={24}>
                                     <span>

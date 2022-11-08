@@ -69,6 +69,7 @@ export default ({ disabled, value, title, buttonProps, tips = [], onComplete, on
             await onWithdraw(tokenValue, isCFX, tolerance);
             onComplete && onComplete();
             setIsModalVisible(false);
+            setToValue('usdt');
             showToast('Withdraw success', { type: 'success' });
         } catch (e) {
             console.log(e);
@@ -78,6 +79,7 @@ export default ({ disabled, value, title, buttonProps, tips = [], onComplete, on
 
     const handleCancel = useCallback(() => {
         setIsModalVisible(false);
+        setToValue('usdt');
     }, []);
 
     useEffect(() => {
@@ -135,7 +137,7 @@ export default ({ disabled, value, title, buttonProps, tips = [], onComplete, on
                         id: 'button_cancel',
                     }}
                 >
-                    <SwapSetting onChange={handleChange} />
+                    {isCFX && <SwapSetting onChange={handleChange} />}
                     <Row gutter={24}>
                         <Col span={16}>
                             <div>From</div>
@@ -175,9 +177,7 @@ export default ({ disabled, value, title, buttonProps, tips = [], onComplete, on
                                 </Col>
                             </Row>
                         </div>
-                    </Spin>
-                    <div className="text-red-500 text-end min-h-[22px]">{errMsg}</div>
-                    <Spin spinning={loadingPrice} size="small">
+                        <div className="text-red-500 text-end min-h-[22px]">{errMsg}</div>
                         <Row gutter={24} className="">
                             <Col span={24}>
                                 1 APPCoin = {tokenPriceOfPerAPPCoin} {toValue.toUpperCase()}
