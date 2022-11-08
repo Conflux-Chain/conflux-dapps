@@ -216,7 +216,7 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
                         id: 'button_cancel',
                     }}
                 >
-                    <SwapSetting onChange={handleChange} />
+                    {isCFX && <SwapSetting onChange={handleChange} />}
                     <Row gutter={24}>
                         <Col span={8}>
                             <div>From</div>

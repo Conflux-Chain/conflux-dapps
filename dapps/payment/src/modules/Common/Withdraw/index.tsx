@@ -135,7 +135,7 @@ export default ({ disabled, value, title, buttonProps, tips = [], onComplete, on
                         id: 'button_cancel',
                     }}
                 >
-                    <SwapSetting onChange={handleChange} />
+                    {isCFX && <SwapSetting onChange={handleChange} />}
                     <Row gutter={24}>
                         <Col span={16}>
                             <div>From</div>

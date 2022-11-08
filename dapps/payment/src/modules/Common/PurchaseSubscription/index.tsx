@@ -250,7 +250,7 @@ export default ({
                     }}
                 >
                     <Spin spinning={modalLoading}>
-                        <SwapSetting onChange={handleChange} className="-mr-6" />
+                        {isCFX && <SwapSetting onChange={handleChange} className="-mr-6" />}
                         <Row gutter={24} className="mb-4">
                             <Col span={12}>
                                 <div className="text-gray-400">Resource Name</div>
