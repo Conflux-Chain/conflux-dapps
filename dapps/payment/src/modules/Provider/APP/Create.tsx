@@ -5,11 +5,11 @@ import { AuthESpace } from 'common/modules/AuthConnectButton';
 import { showToast } from 'common/components/showPopup/Toast';
 import { ResourceDataSourceType } from 'payment/src/utils/types';
 import { useParams } from 'react-router-dom';
-import ModalTip from 'payment/src/components/ModalTip';
 import { OP_ACTION } from 'payment/src/utils/constants';
 import { formatNumber } from 'payment/src/utils';
 import { ButtonType } from 'antd/lib/button';
 import { useBoundProviderStore } from 'payment/src/store';
+import Tips from 'payment/src/modules/Common/Tips';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
     op: OP_ACTION;
@@ -34,7 +34,7 @@ export default ({ op, data = {}, className, type = 'default', disabled = false }
         }
     });
 
-    const TIPs = useMemo(() => {
+    const tips = useMemo(() => {
         if (op === OP_ACTION.add) {
             return [
                 'You are adding API resource. If the new API service resource billing is included in the default resource, please modify the default resource weight to avoid double billing. And the newly added resources and default resource weightswill take effect after 7 days.',
@@ -159,7 +159,7 @@ export default ({ op, data = {}, className, type = 'default', disabled = false }
                     </Form.Item>
                 </Form>
 
-                <Modal centeredTip tips={TIPs} />
+                <Tips items={tips} />
             </Modal>
         </>
     );

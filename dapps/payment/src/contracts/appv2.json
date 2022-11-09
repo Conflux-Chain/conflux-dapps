@@ -334,6 +334,17 @@
         "type": "function"
     },
     {
+        "inputs": [
+            { "internalType": "string", "name": "link_", "type": "string" },
+            { "internalType": "string", "name": "description_", "type": "string" },
+            { "internalType": "uint256", "name": "withdrawDelay", "type": "uint256" }
+        ],
+        "name": "setAppInfo",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
         "inputs": [{ "internalType": "uint256", "name": "deferTimeSecs_", "type": "uint256" }],
         "name": "setDeferTimeSecs",
         "outputs": [],
