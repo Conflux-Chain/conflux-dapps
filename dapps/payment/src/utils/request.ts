@@ -11,7 +11,7 @@ import {
     APPResourceType,
     ResourceDataSourceType,
 } from 'payment/src/utils/types';
-import lodash from 'lodash-es';
+import lodash, { defer } from 'lodash-es';
 import { showToast } from 'common/components/showPopup/Toast';
 import { ethers } from 'ethers';
 import { CONTRACT_ABI } from 'payment/src/contracts/constants';
@@ -84,7 +84,7 @@ export const getAPPsDetail = async (apps: string[]) => {
         const appInfos = await getAPPsRelatedContract(apps);
 
         // get APP link and payment type
-        const callsAPP: ContractCall[] = [['link'], ['paymentType'], ['totalCharged'], ['totalTakenProfit'], ['description']];
+        const callsAPP: ContractCall[] = [['link'], ['paymentType'], ['totalCharged'], ['totalTakenProfit'], ['description'], ['deferTimeSecs']];
         const promisesAPP = lodash.flattenDepth(
             apps.map((a: string) => callsAPP.map((c) => [a, INTERFACE_APPV2.encodeFunctionData(...c)])),
             1
@@ -106,12 +106,13 @@ export const getAPPsDetail = async (apps: string[]) => {
             .map((d, i) => ({
                 address: apps[i],
                 link: d[0][0],
-                type: d[1][0],
+                type: d[1][0], // 1 - billing, 2 - subscription
                 earnings: formatNumber(d[2][0].sub(d[3][0]), {
                     limit: 0,
                     decimal: 18,
                 }),
                 description: d[4][0],
+                deferTimeSecs: d[5][0], // withdraw delay period
             }));
 
         const rVIPCoin: any = lodash
@@ -221,7 +222,9 @@ export const getAPP = async (address: string): Promise<APPDetailType> => {
             address,
             symbol: '',
             description: '',
+            type: 1,
             ...detail,
+            deferTimeSecs: detail?.deferTimeSecs.toNumber() || 0,
         };
     } catch (error) {
         console.log('getAPP error: ', error);
@@ -232,6 +235,8 @@ export const getAPP = async (address: string): Promise<APPDetailType> => {
             address,
             symbol: '',
             description: '',
+            type: 1,
+            deferTimeSecs: 0,
         };
     }
 };
@@ -748,6 +753,26 @@ export const forceWithdrawCFX = async ({ appAddr, amount, value, tolerance }: { 
                 type: 0,
             })
         ).wait();
+    } catch (error) {
+        console.log('forceWithdraw error: ', error);
+        noticeError(error);
+        throw error;
+    }
+};
+
+export const updateAPPInfo = async ({
+    appAddr,
+    link,
+    description,
+    deferTimeSecs,
+}: {
+    appAddr: string;
+    link: string;
+    description: string;
+    deferTimeSecs: number;
+}) => {
+    try {
+        return (await getContract('appv2', appAddr).connect(signer).setAppInfo(link, description, deferTimeSecs)).wait();
     } catch (error) {
         console.log('forceWithdraw error: ', error);
         noticeError(error);

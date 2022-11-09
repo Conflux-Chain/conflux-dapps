@@ -4,6 +4,7 @@ import Address from 'payment/src/components/Address';
 import Networks from 'common/conf/Networks';
 import { APPDetailRow } from 'payment/src/components/APPDetail';
 import { useEffect, useState, useCallback } from 'react';
+import EditInfo from './EditInfo';
 
 interface AddressSettingsProps extends React.HTMLAttributes<HTMLDivElement> {
     address: string;
@@ -16,6 +17,8 @@ export default ({ address }: AddressSettingsProps) => {
         address: '',
         symbol: '',
         description: '',
+        type: 1,
+        deferTimeSecs: 0,
     });
     const [_, setLoading] = useState<boolean>(false);
 
@@ -40,30 +43,33 @@ export default ({ address }: AddressSettingsProps) => {
     }, [address]);
 
     return (
-        <APPDetailRow
-            column={3}
-            details={[
-                {
-                    label: 'APP Name',
-                    content: data.name || '-',
-                },
-                {
-                    label: 'Symbol',
-                    content: data.symbol || '-',
-                },
-                {
-                    label: 'Link',
-                    content: data.link || '-',
-                },
-                {
-                    label: 'Description',
-                    content: data.description || '-',
-                },
-                {
-                    label: 'APP Address',
-                    content: address ? <Address link={`${Networks.eSpace.blockExplorerUrls[0]}/address/${address}`}>{address as string}</Address> : '-',
-                },
-            ]}
-        />
+        <>
+            <APPDetailRow
+                column={3}
+                details={[
+                    {
+                        label: 'APP Name',
+                        content: data.name || '-',
+                    },
+                    {
+                        label: 'Symbol',
+                        content: data.symbol || '-',
+                    },
+                    {
+                        label: 'Link',
+                        content: data.link || '-',
+                    },
+                    {
+                        label: 'APP Address',
+                        content: address ? <Address link={`${Networks.eSpace.blockExplorerUrls[0]}/address/${address}`}>{address as string}</Address> : '-',
+                    },
+                    {
+                        label: 'Description',
+                        content: data.description || '-',
+                    },
+                ]}
+            />
+            <EditInfo address={address} data={data} onComplete={() => main()} className="absolute right-4 top-4" />
+        </>
     );
 };
