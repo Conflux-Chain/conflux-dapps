@@ -146,7 +146,7 @@ export default ({
 
     // check selected token allowance
     useEffect(() => {
-        isModalVisible && !isCFX && checkAllowance();
+        isModalVisible && checkAllowance();
     }, [isModalVisible, token.symbol]);
 
     const handleShowModal = useCallback(() => setIsModalVisible(true), []);
@@ -206,7 +206,7 @@ export default ({
     };
 
     // control confirm button status
-    const isDisabled = appcoinValue === '0' || appcoinValue === null || !!errMsg || modalLoading;
+    const isDisabled = appcoinValue === '0' || appcoinValue === null || !!errMsg || modalLoading || !subscriptions.length;
     const okText = type === 0 ? 'Confirm' : 'Approve';
     const expectedTokenValue = isCFX ? new BigNumber(tokenValue || 0).multipliedBy(1 + tolerance).toFixed() : new BigNumber(tokenValue || 0).toFixed();
 
