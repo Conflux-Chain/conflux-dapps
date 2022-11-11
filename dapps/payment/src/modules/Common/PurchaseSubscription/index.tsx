@@ -18,6 +18,8 @@ import { useTokens } from 'payment/src/utils/hooks';
 import SwapSetting from '../SwapSetting';
 
 const { Option } = Select;
+const DEFAULT_COIN = 'usdt';
+const DEFAULT_AMOUNT = 1;
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
     onComplete?: (data: any) => void;
@@ -41,6 +43,7 @@ export default ({
     lock,
     amount: outerAmount,
 }: Props) => {
+    const _DEFAULT_AMOUNT = outerAmount || DEFAULT_AMOUNT;
     const TIPs = useMemo(
         () => [
             '1. APP coins will be used as points when redeeming for subscription payment.',
@@ -53,9 +56,9 @@ export default ({
     const [modalLoading, setModalLoading] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
     const [errMsg, setErrMsg] = useState<string>('');
-    const [fromValue, setFromValue] = useState<string>('usdt');
+    const [fromValue, setFromValue] = useState<string>(DEFAULT_COIN);
     const [type, setType] = useState(0); // ok button type, 0 - confirm, 1 - approve
-    const [amount, setAmount] = useState(outerAmount || 1);
+    const [amount, setAmount] = useState(_DEFAULT_AMOUNT);
     const [subscriptions, setSubscriptions] = useState(outerSubscriptions || []);
     const [selectedSubscriptionId, setSelectedSubscriptionId] = useState(outerSelectedSubscriptionId);
     const { tokens, token } = useTokens(fromValue);
@@ -182,7 +185,8 @@ export default ({
                 showToast('Purchase success', { type: 'success' });
                 onComplete && onComplete(appAddr);
                 setIsModalVisible(false);
-                setFromValue('usdt');
+                setFromValue(DEFAULT_COIN);
+                setAmount(_DEFAULT_AMOUNT);
             }
         } catch (e) {
             console.log(e);
@@ -192,7 +196,8 @@ export default ({
 
     const handleCancel = useCallback(() => {
         setIsModalVisible(false);
-        setFromValue('usdt');
+        setFromValue(DEFAULT_COIN);
+        setAmount(_DEFAULT_AMOUNT);
     }, []);
 
     const handleAmountChange = useCallback((v: number) => setAmount(v || 1), []);
