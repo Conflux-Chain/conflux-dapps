@@ -5,12 +5,14 @@ import Networks from 'common/conf/Networks';
 import { APPDetailRow } from 'payment/src/components/APPDetail';
 import { useEffect, useState, useCallback } from 'react';
 import EditInfo from './EditInfo';
+import { useFrom } from 'payment/src/utils/hooks';
 
 interface AddressSettingsProps extends React.HTMLAttributes<HTMLDivElement> {
     address: string;
 }
 
 export default ({ address }: AddressSettingsProps) => {
+    const from = useFrom();
     const [data, setData] = useState<APPDetailType>({
         name: '',
         link: '',
@@ -44,6 +46,7 @@ export default ({ address }: AddressSettingsProps) => {
 
     return (
         <>
+            {from === 'provider' && <EditInfo address={address} data={data} onComplete={() => main()} className="float-right" />}
             <APPDetailRow
                 column={3}
                 details={[
@@ -69,7 +72,6 @@ export default ({ address }: AddressSettingsProps) => {
                     },
                 ]}
             />
-            <EditInfo address={address} data={data} onComplete={() => main()} className="absolute right-4 top-4" />
         </>
     );
 };
