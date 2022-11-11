@@ -16,9 +16,16 @@ try {
     providerEthereum = new ethers.providers.Web3Provider(window.ethereum, 'any');
     signer = providerEthereum.getSigner();
 
-    providerEthereum.on('network', () => {
+    const handler = () => {
+        providerEthereum = new ethers.providers.Web3Provider(window.ethereum, 'any');
         signer = providerEthereum.getSigner();
-    });
+    };
+
+    providerEthereum.on('network', handler);
+    providerEthereum.on('connect', handler);
+
+    // try to fixed connect wallet issue: if no operation for a long time, dapp will not connect to the wallet
+    setTimeout(handler, 5000);
 } catch (error) {}
 
 export const provider = new ethers.providers.JsonRpcBatchProvider({
