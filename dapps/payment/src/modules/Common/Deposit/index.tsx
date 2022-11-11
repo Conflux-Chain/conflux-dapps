@@ -17,6 +17,9 @@ import Tips from '../Tips';
 
 const { Option } = Select;
 
+const DEFAULT_COIN = 'usdt';
+const DEFAULT_AMOUNT = '10';
+
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
     appAddr: string;
     disabled?: boolean;
@@ -41,14 +44,14 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
         ],
         []
     );
-    const [fromValue, setFromValue] = useState<string>('usdt'); // use cfx default
+    const [fromValue, setFromValue] = useState<string>(DEFAULT_COIN); // use cfx default
     const { tokens, token } = useTokens(fromValue);
     const { type: appType } = useParams();
     const { pathname } = useLocation();
     const account = useAccount();
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
     const [errMsg, setErrMsg] = useState<string>('');
-    const [appcoinValue, setAppcoinValue] = useState<string>('10');
+    const [appcoinValue, setAppcoinValue] = useState<string>(DEFAULT_AMOUNT);
     const [tokenValue, setTokenValue] = useState('0');
     const [type, setType] = useState(0); // ok button type, 0 - confirm, 1 - approve
     const [tolerance, setTolerance] = useState(0.05); // 0.05 is default value
@@ -146,7 +149,8 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
                 }
 
                 setIsModalVisible(false);
-                setFromValue('usdt');
+                setFromValue(DEFAULT_COIN);
+                setAppcoinValue(DEFAULT_AMOUNT);
                 showToast('Deposit success', { type: 'success' });
                 // TODO should move to outside, use callback instead
                 if (pathname.includes('/consumer/paid-apps')) {
@@ -165,7 +169,8 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
 
     const handleCancel = useCallback(() => {
         setIsModalVisible(false);
-        setFromValue('usdt');
+        setFromValue(DEFAULT_COIN);
+        setAppcoinValue(DEFAULT_AMOUNT);
     }, []);
 
     const handleChange = (tolerance: number) => {
