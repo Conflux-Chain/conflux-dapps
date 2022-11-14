@@ -93,7 +93,7 @@ export default ({ disabled, value, title, buttonProps, tips = [], onComplete, on
     };
 
     // control confirm button status
-    const isDisabled = fromValue === '0' || fromValue === null || !!errMsg;
+    const isDisabled = fromValue === '0' || fromValue === null || !!errMsg || loadingPrice;
     const expectedTokenValue = isCFX ? new BigNumber(tokenValue || 0).multipliedBy(1 - tolerance).toFixed() : new BigNumber(tokenValue || 0).toFixed();
 
     return (

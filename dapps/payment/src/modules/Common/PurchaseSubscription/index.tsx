@@ -211,7 +211,7 @@ export default ({
     };
 
     // control confirm button status
-    const isDisabled = appcoinValue === '0' || appcoinValue === null || !!errMsg || modalLoading || !subscriptions.length;
+    const isDisabled = appcoinValue === '0' || appcoinValue === null || !!errMsg || modalLoading || !subscriptions.length || loadingPrice;
     const okText = type === 0 ? 'Confirm' : 'Approve';
     const expectedTokenValue = isCFX ? new BigNumber(tokenValue || 0).multipliedBy(1 + tolerance).toFixed() : new BigNumber(tokenValue || 0).toFixed();
 

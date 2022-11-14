@@ -178,7 +178,7 @@ export default ({ appAddr, disabled, type: buttonType, className }: Props) => {
     };
 
     // control confirm button status
-    const isDisabled = appcoinValue === '0' || appcoinValue === null || !!errMsg;
+    const isDisabled = appcoinValue === '0' || appcoinValue === null || !!errMsg || loadingPrice;
     const okText = type === 0 ? 'Confirm' : 'Approve';
     let expectedTokenValue = isCFX ? new BigNumber(tokenValue || 0).multipliedBy(1 + tolerance).toFixed() : new BigNumber(tokenValue || 0).toFixed();
 
