@@ -81,27 +81,6 @@
     },
     {
         "inputs": [],
-        "name": "TOKEN_ID_AIRDROP",
-        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "TOKEN_ID_COIN",
-        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "TOKEN_ID_VIP",
-        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
         "name": "WITHDRAW_ROLE",
         "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
         "stateMutability": "view",
@@ -139,8 +118,8 @@
         "inputs": [{ "internalType": "address", "name": "account", "type": "address" }],
         "name": "balanceOf",
         "outputs": [
-            { "internalType": "uint256", "name": "", "type": "uint256" },
-            { "internalType": "uint256", "name": "", "type": "uint256" }
+            { "internalType": "uint256", "name": "coins", "type": "uint256" },
+            { "internalType": "uint256", "name": "airdrops", "type": "uint256" }
         ],
         "stateMutability": "view",
         "type": "function"
@@ -318,7 +297,8 @@
         "inputs": [
             { "internalType": "address", "name": "to", "type": "address" },
             { "internalType": "uint256", "name": "tokenId", "type": "uint256" },
-            { "internalType": "uint256", "name": "amount", "type": "uint256" }
+            { "internalType": "uint256", "name": "amount", "type": "uint256" },
+            { "internalType": "uint256", "name": "totalPrice", "type": "uint256" }
         ],
         "name": "makeCard",
         "outputs": [],
@@ -355,6 +335,24 @@
     },
     {
         "inputs": [
+            { "internalType": "string", "name": "link_", "type": "string" },
+            { "internalType": "string", "name": "description_", "type": "string" },
+            { "internalType": "uint256", "name": "withdrawDelay", "type": "uint256" }
+        ],
+        "name": "setAppInfo",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [{ "internalType": "uint256", "name": "deferTimeSecs_", "type": "uint256" }],
+        "name": "setDeferTimeSecs",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
             { "internalType": "address", "name": "cardShop_", "type": "address" },
             { "internalType": "string", "name": "link_", "type": "string" },
             { "internalType": "string", "name": "description_", "type": "string" },
@@ -378,6 +376,16 @@
             { "internalType": "uint256", "name": "amount", "type": "uint256" }
         ],
         "name": "takeProfit",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "uint256", "name": "amountAppCoin", "type": "uint256" },
+            { "internalType": "uint256", "name": "amountMinEth", "type": "uint256" }
+        ],
+        "name": "takeProfitAsEth",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -412,5 +420,6 @@
         "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
         "stateMutability": "view",
         "type": "function"
-    }
+    },
+    { "stateMutability": "payable", "type": "receive" }
 ]

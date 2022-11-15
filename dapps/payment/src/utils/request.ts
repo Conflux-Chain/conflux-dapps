@@ -5,13 +5,13 @@ import {
     DefinedContractNamesType,
     APPCardResourceType,
     APPDetailType,
-    UsersDataSourceType,
+    // UsersDataSourceType,
     CSVType,
     ContractCall,
     APPResourceType,
     ResourceDataSourceType,
 } from 'payment/src/utils/types';
-import lodash from 'lodash-es';
+import lodash, { defer } from 'lodash-es';
 import { showToast } from 'common/components/showPopup/Toast';
 import { ethers } from 'ethers';
 import { CONTRACT_ABI } from 'payment/src/contracts/constants';
@@ -20,6 +20,7 @@ import { personalSign } from '@cfxjs/use-wallet-react/ethereum';
 import { binary_to_base58 } from 'base58-js';
 import { ONE_DAY_SECONDS } from './constants';
 import { processErrorMsg } from './index';
+import BigNumber from 'bignumber.js';
 
 interface RequestProps {
     name: DefinedContractNamesType;
@@ -83,7 +84,7 @@ export const getAPPsDetail = async (apps: string[]) => {
         const appInfos = await getAPPsRelatedContract(apps);
 
         // get APP link and payment type
-        const callsAPP: ContractCall[] = [['link'], ['paymentType'], ['totalCharged'], ['totalTakenProfit'], ['description']];
+        const callsAPP: ContractCall[] = [['link'], ['paymentType'], ['totalCharged'], ['totalTakenProfit'], ['description'], ['deferTimeSecs']];
         const promisesAPP = lodash.flattenDepth(
             apps.map((a: string) => callsAPP.map((c) => [a, INTERFACE_APPV2.encodeFunctionData(...c)])),
             1
@@ -105,12 +106,13 @@ export const getAPPsDetail = async (apps: string[]) => {
             .map((d, i) => ({
                 address: apps[i],
                 link: d[0][0],
-                type: d[1][0],
+                type: d[1][0], // 1 - billing, 2 - subscription
                 earnings: formatNumber(d[2][0].sub(d[3][0]), {
                     limit: 0,
                     decimal: 18,
                 }),
                 description: d[4][0],
+                deferTimeSecs: d[5][0], // withdraw delay period
             }));
 
         const rVIPCoin: any = lodash
@@ -220,7 +222,9 @@ export const getAPP = async (address: string): Promise<APPDetailType> => {
             address,
             symbol: '',
             description: '',
+            type: 1,
             ...detail,
+            deferTimeSecs: detail?.deferTimeSecs.toNumber() || 0,
         };
     } catch (error) {
         console.log('getAPP error: ', error);
@@ -231,6 +235,8 @@ export const getAPP = async (address: string): Promise<APPDetailType> => {
             address,
             symbol: '',
             description: '',
+            type: 1,
+            deferTimeSecs: 0,
         };
     }
 };
@@ -403,21 +409,6 @@ export const approve = async ({
     }
 };
 
-export const deposit = async ({ amount, appAddr }: { amount: string; appAddr: string }) => {
-    try {
-        const contract = getContract('appv2', appAddr);
-        return (
-            await contract.connect(signer).depositAsset(ethers.utils.parseUnits(amount), await signer.getAddress(), {
-                type: 0,
-            })
-        ).wait();
-    } catch (error) {
-        console.log('deposit error: ', error);
-        noticeError(error);
-        throw error;
-    }
-};
-
 export const getAPIKey = async (appAddr: string) => {
     try {
         const msg = { domain: 'web3pay', contract: appAddr };
@@ -435,30 +426,6 @@ export const withdrawRequest = async (appAddr: string) => {
         return (await getContract('appv2', appAddr).connect(signer).requestForceWithdraw()).wait();
     } catch (error) {
         console.log('requestForceWithdraw error: ', error);
-        noticeError(error);
-        throw error;
-    }
-};
-
-export const forceWithdraw = async (appAddr: string) => {
-    try {
-        return (
-            await getContract('appv2', appAddr)
-                .connect(signer)
-                .forceWithdraw(await signer.getAddress(), true)
-        ).wait();
-    } catch (error) {
-        console.log('forceWithdraw error: ', error);
-        noticeError(error);
-        throw error;
-    }
-};
-
-export const takeEarnings = async (appAddr: string, to: string, amount: string) => {
-    try {
-        return (await getContract('appv2', appAddr).connect(signer).takeProfit(to, ethers.utils.parseUnits(amount))).wait();
-    } catch (error) {
-        console.log('takeEarnings error: ', error);
         noticeError(error);
         throw error;
     }
@@ -511,22 +478,6 @@ export const configAPPCard = async (address: RequestProps['address'], data: any)
         ).wait();
     } catch (error) {
         console.log('configAPPCard error: ', error);
-        noticeError(error);
-        throw error;
-    }
-};
-
-export const purchaseSubscription = async (appAddr: RequestProps['address'], templateId: string, amount: number | string) => {
-    try {
-        const contracts = await getAPPsRelatedContract([appAddr].map((app: any) => app));
-        const r = await (
-            await getContract('cardShop', contracts[0].cardShop)
-                .connect(signer)
-                .buyWithAsset(await signer.getAddress(), templateId, amount)
-        ).wait();
-        return r;
-    } catch (error) {
-        console.log('purchaseSubscription error: ', error);
         noticeError(error);
         throw error;
     }
@@ -614,6 +565,216 @@ export const getAPPRefundStatus = async (appAddr: string, account: string) => {
         };
     } catch (error) {
         console.log('getAPPRefundStatus error: ', error);
+        noticeError(error);
+        throw error;
+    }
+};
+
+export const getMaxCFXInOfExactAPPCoin = async (amount: number | string) => {
+    try {
+        const exchange = await CONTRACT_APPREGISTRY.getExchanger();
+        const CFXAmount = await getContract('exchange', exchange).previewDepositETH(ethers.utils.parseUnits(String(amount)));
+        return ethers.utils.formatUnits(CFXAmount);
+    } catch (error) {
+        console.log('getMaxCFXInOfExactAPPCoin error: ', error);
+        noticeError(error);
+        throw error;
+    }
+};
+
+export const getMinCFXOutOfExactAPPCoin = async (amount: number | string) => {
+    try {
+        const exchange = await CONTRACT_APPREGISTRY.getExchanger();
+        const CFXAmount = await getContract('exchange', exchange).previewWithdrawETH(ethers.utils.parseUnits(String(amount)));
+        return ethers.utils.formatUnits(CFXAmount);
+    } catch (error) {
+        console.log('getMinCFXOutOfExactAPPCoin error: ', error);
+        noticeError(error);
+        throw error;
+    }
+};
+
+// deposit billing app with USDT
+export const deposit = async ({ amount, appAddr }: { amount: string; appAddr: string }) => {
+    try {
+        const contract = getContract('appv2', appAddr);
+        return (
+            await contract.connect(signer).depositAsset(ethers.utils.parseUnits(amount), await signer.getAddress(), {
+                type: 0,
+            })
+        ).wait();
+    } catch (error) {
+        console.log('deposit error: ', error);
+        noticeError(error);
+        throw error;
+    }
+};
+
+// deposit billing app with CFX
+export const depositCFX = async ({ amount, appAddr, value, tolerance }: { amount: string; value: string; appAddr: string; tolerance: number }) => {
+    try {
+        const exchange = await CONTRACT_APPREGISTRY.getExchanger();
+        const maxValue = new BigNumber(value).multipliedBy(1 + tolerance).toFixed(18);
+        return (
+            await getContract('exchange', exchange)
+                .connect(signer)
+                .depositAppETH(appAddr, ethers.utils.parseUnits(amount), await signer.getAddress(), {
+                    type: 0,
+                    value: ethers.utils.parseUnits(maxValue),
+                })
+        ).wait();
+    } catch (error) {
+        console.log('depositCFX error: ', error);
+        noticeError(error);
+        throw error;
+    }
+};
+
+// purchase subscription app with USDT
+export const purchaseSubscription = async ({ amount, appAddr, templateId }: { amount: string | number; appAddr: string; templateId: string }) => {
+    try {
+        const contracts = await getAPPsRelatedContract([appAddr].map((app: any) => app));
+        const r = await (
+            await getContract('cardShop', contracts[0].cardShop)
+                .connect(signer)
+                .buyWithAsset(await signer.getAddress(), templateId, amount)
+        ).wait();
+        return r;
+    } catch (error) {
+        console.log('purchaseSubscription error: ', error);
+        noticeError(error);
+        throw error;
+    }
+};
+
+// purchase subscription app with CFX
+export const purchaseSubscriptionCFX = async ({
+    amount,
+    appAddr,
+    value,
+    templateId,
+    tolerance,
+}: {
+    amount: string | number;
+    value: string;
+    appAddr: string;
+    templateId: string;
+    tolerance: number;
+}) => {
+    try {
+        const contracts = await getAPPsRelatedContract([appAddr].map((app: any) => app));
+        const maxValue = new BigNumber(value).multipliedBy(1 + tolerance).toFixed(18);
+        const r = await (
+            await getContract('cardShop', contracts[0].cardShop)
+                .connect(signer)
+                .buyWithEth(await signer.getAddress(), templateId, amount, {
+                    type: 0,
+                    value: ethers.utils.parseUnits(maxValue),
+                })
+        ).wait();
+        return r;
+    } catch (error) {
+        console.log('purchaseSubscriptionCFX error: ', error);
+        noticeError(error);
+        throw error;
+    }
+};
+
+// provider take earnings with USDT
+export const takeEarnings = async ({ appAddr, receiver, amount }: { appAddr: string; receiver: string; amount: string }) => {
+    try {
+        return (await getContract('appv2', appAddr).connect(signer).takeProfit(receiver, ethers.utils.parseUnits(amount))).wait();
+    } catch (error) {
+        console.log('takeEarnings error: ', error);
+        noticeError(error);
+        throw error;
+    }
+};
+
+// provider take earnings with CFX
+export const takeEarningsCFX = async ({
+    appAddr,
+    receiver,
+    amount,
+    value,
+    tolerance,
+}: {
+    appAddr: string;
+    receiver: string;
+    amount: string;
+    value: string;
+    tolerance: number;
+}) => {
+    try {
+        // use latest calculation result
+        const cfxValue = await getMinCFXOutOfExactAPPCoin(amount);
+        const minValue = new BigNumber(cfxValue).multipliedBy(1 - tolerance).toFixed(18); // need params 18, otherwise will ocurr exceeds decimal error
+
+        return (
+            await getContract('appv2', appAddr).connect(signer).takeProfitAsEth(ethers.utils.parseUnits(amount), ethers.utils.parseUnits(minValue), {
+                type: 0,
+            })
+        ).wait();
+    } catch (error) {
+        console.log('takeEarningsCFX error: ', error);
+        noticeError(error);
+        throw error;
+    }
+};
+
+// consumer withdraw with USDT
+export const forceWithdraw = async (appAddr: string) => {
+    try {
+        return (
+            await getContract('appv2', appAddr)
+                .connect(signer)
+                .forceWithdraw(await signer.getAddress(), true)
+        ).wait();
+    } catch (error) {
+        console.log('forceWithdraw error: ', error);
+        noticeError(error);
+        throw error;
+    }
+};
+
+// consumer withdraw with CFX
+export const forceWithdrawCFX = async ({ appAddr, amount, value, tolerance }: { appAddr: string; amount: string; value: string; tolerance: number }) => {
+    try {
+        const appv2 = getContract('appv2', appAddr).connect(signer);
+        const account = await signer.getAddress();
+        const exchange = await CONTRACT_APPREGISTRY.getExchanger();
+        // use latest appcoin balance of account
+        const balance = (await appv2.balanceOf(account)).coins;
+        const cfxValue = await getMinCFXOutOfExactAPPCoin(ethers.utils.formatUnits(balance));
+        const minValue = new BigNumber(cfxValue).multipliedBy(1 - tolerance).toFixed(18);
+
+        return (
+            await getContract('appv2', appAddr).connect(signer).forceWithdrawEth(account, exchange, ethers.utils.parseUnits(minValue), {
+                type: 0,
+            })
+        ).wait();
+    } catch (error) {
+        console.log('forceWithdraw error: ', error);
+        noticeError(error);
+        throw error;
+    }
+};
+
+export const updateAPPInfo = async ({
+    appAddr,
+    link,
+    description,
+    deferTimeSecs,
+}: {
+    appAddr: string;
+    link: string;
+    description: string;
+    deferTimeSecs: number;
+}) => {
+    try {
+        return (await getContract('appv2', appAddr).connect(signer).setAppInfo(link, description, deferTimeSecs)).wait();
+    } catch (error) {
+        console.log('forceWithdraw error: ', error);
         noticeError(error);
         throw error;
     }

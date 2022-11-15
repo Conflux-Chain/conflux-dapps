@@ -1,5 +1,3 @@
-// TODO should split to provider and consumer
-
 import React, { useEffect } from 'react';
 import APIs from 'payment/src/modules/Common/APP/APIs';
 import Create from './Create';
@@ -10,7 +8,6 @@ import Deposit from 'payment/src/modules/Common/Deposit';
 import { useFrom } from 'payment/src/utils/hooks';
 import { useBoundProviderStore } from 'payment/src/store';
 import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
-import BigNumber from 'bignumber.js';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
     address: string;
@@ -48,7 +45,7 @@ export default ({ address }: Props) => {
                 )}
             </Col>
 
-            <Col span={24}>
+            <Col span={24} className="mt-2">
                 <APIs address={address} from={from} />
             </Col>
         </Row>
