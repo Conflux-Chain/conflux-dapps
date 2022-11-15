@@ -14,6 +14,8 @@ interface Props {
     address: string;
 }
 
+const DEFAULT_AMOUNT = 1;
+
 export default ({ onChange, address }: Props) => {
     const [loading, setLoading] = useState<boolean>(false);
     const [data, setData] = useState<{
@@ -24,7 +26,7 @@ export default ({ onChange, address }: Props) => {
         total: 0,
     });
     const [selected, setSelected] = useState<string | undefined>(undefined);
-    const [amount, setAmount] = useState(1);
+    const [amount, setAmount] = useState(DEFAULT_AMOUNT);
     const selectedCard = data.list.filter((d) => d.id === selected)[0];
 
     const main = useCallback(async () => {
@@ -101,11 +103,17 @@ export default ({ onChange, address }: Props) => {
                             value={amount}
                             id="input_amount"
                             style={{ width: '240px' }}
-                            min={0}
+                            min={1}
                             max={10000}
                             precision={0}
                             placeholder="0"
-                            onChange={(val) => setAmount(val)}
+                            onChange={(val) => {
+                                if (val) {
+                                    setAmount(val);
+                                } else {
+                                    setAmount(DEFAULT_AMOUNT);
+                                }
+                            }}
                         />
                     </Col>
                 </Row>
