@@ -56,6 +56,7 @@ export default ({ appAddr, disabled }: Props) => {
             />
             {isModalVisible && (
                 <Modal
+                    centered
                     title={<span className="text-red-500">Refund Notice</span>}
                     visible={isModalVisible}
                     confirmLoading={loading}

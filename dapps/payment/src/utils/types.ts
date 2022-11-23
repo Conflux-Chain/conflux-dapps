@@ -68,6 +68,8 @@ export interface APPDetailType {
     link: string;
     address: string;
     description: string;
+    type: number;
+    deferTimeSecs: number;
 }
 
 export interface APPDataSourceType extends Omit<DataSourceType, 'address' | 'balance' | 'airdrop' | 'forceWithdrawDelay'> {

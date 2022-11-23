@@ -7,8 +7,8 @@ const DEFAULT_ICON =
 const config = {
     '1030': [
         {
-            eSpace_address: '',
-            name: 'Faucet USDT',
+            eSpace_address: '0xfe97e85d13abd9c1c33384e796f10b73905637ce',
+            name: 'Tether USD',
             symbol: 'USDT',
             decimals: 18,
             icon: DEFAULT_ICON,

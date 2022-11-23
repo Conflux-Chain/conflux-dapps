@@ -13,7 +13,7 @@ import { useBoundProviderStore } from 'payment/src/store';
 import { PAYMENT_TYPE } from 'payment/src/utils/constants';
 import BigNumber from 'bignumber.js';
 import PurchaseSubscription from 'payment/src/modules/Common/PurchaseSubscription';
-import { forceWithdraw } from 'payment/src/utils/request';
+import { forceWithdraw, forceWithdrawCFX } from 'payment/src/utils/request';
 import { getToken } from 'payment/src/utils/tokens';
 import Networks from 'common/conf/Networks';
 
@@ -57,10 +57,34 @@ export default () => {
         handleComplate();
     }, [account]);
 
-    const handleWithdraw = useCallback(async (appAddr: string) => {
-        await forceWithdraw(appAddr);
-        await handleComplate();
-    }, []);
+    const handleWithdraw = useCallback(
+        async ({
+            appAddr,
+            balance,
+            tokenValue,
+            isCFX,
+            tolerance,
+        }: {
+            appAddr: string;
+            balance: string;
+            tokenValue: string;
+            isCFX: boolean;
+            tolerance: number;
+        }) => {
+            if (isCFX) {
+                await forceWithdrawCFX({
+                    appAddr,
+                    amount: balance,
+                    value: tokenValue,
+                    tolerance,
+                });
+            } else {
+                await forceWithdraw(appAddr);
+            }
+            await handleComplate();
+        },
+        [account]
+    );
 
     const columns = useMemo(
         () =>
@@ -104,7 +128,15 @@ export default () => {
                                                 disabled={!isWithdrawable}
                                                 value={row.billing.balance}
                                                 tips={TIPs}
-                                                onWithdraw={async () => handleWithdraw(row.address)}
+                                                onWithdraw={async (tokenValue, isCFX, tolerance) =>
+                                                    handleWithdraw({
+                                                        appAddr: row.address,
+                                                        tokenValue,
+                                                        isCFX,
+                                                        balance: row.billing.balance,
+                                                        tolerance,
+                                                    })
+                                                }
                                             />
                                             {(row.billing.balance !== '0' || row.billing.airdrop !== '0') && <APIKey appAddr={row.address} />}
                                         </>
