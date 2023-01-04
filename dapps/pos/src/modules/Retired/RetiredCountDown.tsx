@@ -1,22 +1,21 @@
 import React, { useRef, useLayoutEffect } from 'react';
-import { type Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
-import { lockDaysAndBlockNumberStore, getCurrentBlockNumber, useCurrentVotingRoundEndBlockNumber, fetchCurrentRound, BLOCK_SPEED } from 'governance/src/store';
 import timerNotifier from 'common/utils/timerNotifier';
+import { posStore, useLastestRetireHeight } from 'pos/src/store';
 import './index.css';
 
 const units = ['days', 'hours', 'minutes', 'seconds'] as const;
 
-const Countdown: React.FC = () => {
+const RetiredCountDown: React.FC = () => {
     const domRef = useRef<HTMLDivElement>(null);
-    const currentVotingRoundEndBlockNumber = useCurrentVotingRoundEndBlockNumber();
+    const lastestRetireHeight = useLastestRetireHeight();
 
     useLayoutEffect(() => {
-        if (!currentVotingRoundEndBlockNumber) return;
-        const startTimerNotifier = (currentBlockNumber: Unit) => {
-            const currentVotingRoundEndTiming = +currentVotingRoundEndBlockNumber!.sub(currentBlockNumber!).div(BLOCK_SPEED).toDecimalMinUnit();
+        if (!lastestRetireHeight) return;
+        const startTimerNotifier = (posCurrentHeight: number) => {
+            const endTime = Date.now() + (lastestRetireHeight - posCurrentHeight) * 60 * 1000;
             const unitsDOM = Object.fromEntries(units.map(unit => [unit, Array.from(domRef.current?.querySelector(`.${unit}`)?.querySelectorAll('span') as unknown as Array<HTMLSpanElement>)]));
             const timerUnit: Parameters<typeof timerNotifier.addUnit>[0] = {
-                key: 'governance-timer',
+                key: 'pos-retired-countdown',
                 type: 'second',
                 update: (remainTime) => {
                     units.forEach(unit => {
@@ -26,29 +25,28 @@ const Countdown: React.FC = () => {
                         }
                     });
                 },
-                timing: currentVotingRoundEndTiming * 1000,
-                onEnd: fetchCurrentRound
+                timing: endTime,
             }
             timerNotifier.addUnit(timerUnit);
         }
 
-        const currentBlockNumber = getCurrentBlockNumber();
-        let unsubCurrentBlockNumber: VoidFunction | null;
-        if (currentBlockNumber) {
-            startTimerNotifier(currentBlockNumber);
+        const posCurrentHeight = posStore.getState().posCurrentHeight;
+        let unsubPosCurrentHeight: VoidFunction | null = null;
+        if (posCurrentHeight) {
+            startTimerNotifier(posCurrentHeight);
         } else {
-            unsubCurrentBlockNumber = lockDaysAndBlockNumberStore.subscribe(state => state.currentBlockNumber, (currentBlockNumber) => {
-                if (!currentBlockNumber) return;
-                unsubCurrentBlockNumber?.();
-                startTimerNotifier(currentBlockNumber);
+            unsubPosCurrentHeight = posStore.subscribe(state => state.posCurrentHeight, (posCurrentHeight) => {
+                if (!posCurrentHeight) return;
+                unsubPosCurrentHeight?.();
+                startTimerNotifier(posCurrentHeight);
             });
         }
 
         return () => {
-            unsubCurrentBlockNumber?.();
-            timerNotifier.deleteUnit('governance-timer');
+            unsubPosCurrentHeight?.();
+            timerNotifier.deleteUnit('pos-retired-countdown');
         }
-    }, [currentVotingRoundEndBlockNumber]);
+    }, [lastestRetireHeight]);
 
     return (
         <div className="flex justify-center gap-[16px]" ref={domRef}>
@@ -60,7 +58,7 @@ const Countdown: React.FC = () => {
 const CountdownUnit: React.FC<{ unit: typeof units[number]; }> = ({ unit }) => {
     return (
         <div className='w-[72px] h-[72px] rounded-[8px] overflow-hidden'>
-            <div className={`flex justify-center items-center gap-[1px] governance-countdown-unit relative h-[52px] leading-[52px] text-[32px] text-white font-bold bg-[#808BE7] governance-shadow ${unit}`}>
+            <div className={`flex justify-center items-center gap-[1px] posRetired-countdown-unit relative h-[52px] leading-[52px] text-[32px] text-white font-bold bg-[#808BE7] governance-shadow ${unit}`}>
                 <span className='text-right'></span>
                 <span className='text-left'></span>
             </div>
@@ -72,4 +70,4 @@ const CountdownUnit: React.FC<{ unit: typeof units[number]; }> = ({ unit }) => {
     );
 }
 
-export default Countdown;
+export default RetiredCountDown;

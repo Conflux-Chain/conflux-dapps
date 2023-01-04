@@ -1,0 +1,17 @@
+.posRetired-countdown-unit > span {
+    flex: 1;
+}
+
+.posRetired-countdown-unit > span:first-child {
+    @apply text-right;
+}
+
+.posRetired-countdown-unit:before {
+    @apply absolute -left-[6px] top-[20px] w-[12px] h-[12px] rounded-full bg-white;
+    content: ' ';
+}
+
+.posRetired-countdown-unit::after {
+    @apply absolute -right-[6px] top-[20px] w-[12px] h-[12px] rounded-full bg-white;
+    content: ' ';
+}
