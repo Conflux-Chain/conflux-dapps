@@ -1,5 +1,5 @@
-import { RPC } from './constants';
-import { CONTRACT_ADDRESSES, CONTRACT_ABI } from 'payment/src/contracts/constants';
+import { RPC, CONTRACT_ERRORS, CONTRACT_ADDRESSES } from './constants';
+import { CONTRACT_ABI } from 'payment/src/contracts/constants';
 import { DefinedContractNamesType } from './types';
 import { ethers } from 'ethers';
 import BigNumber from 'bignumber.js';
@@ -13,8 +13,19 @@ export let providerEthereum: ethers.providers.Web3Provider;
 export let signer: ethers.providers.JsonRpcSigner;
 
 try {
-    providerEthereum = new ethers.providers.Web3Provider(window.ethereum);
+    providerEthereum = new ethers.providers.Web3Provider(window.ethereum, 'any');
     signer = providerEthereum.getSigner();
+
+    const handler = () => {
+        providerEthereum = new ethers.providers.Web3Provider(window.ethereum, 'any');
+        signer = providerEthereum.getSigner();
+    };
+
+    providerEthereum.on('network', handler);
+    providerEthereum.on('connect', handler);
+
+    // try to fixed connect wallet issue: if no operation for a long time, dapp will not connect to the wallet
+    setTimeout(handler, 5000);
 } catch (error) {}
 
 export const provider = new ethers.providers.JsonRpcBatchProvider({
@@ -53,4 +64,17 @@ export const formatNumber = (number: string | number | BigNumber, _opt?: Object)
 
     // @ts-ignore
     return bn.toFixed(opt.dp);
+};
+
+export const processErrorMsg = (msg: string) => {
+    let pMsg = msg;
+
+    for (let i = 0; i < CONTRACT_ERRORS.length; i++) {
+        if (msg.includes(CONTRACT_ERRORS[i].key)) {
+            pMsg = CONTRACT_ERRORS[i].msg;
+            break;
+        }
+    }
+
+    return pMsg;
 };

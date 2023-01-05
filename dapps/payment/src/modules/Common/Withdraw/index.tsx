@@ -1,9 +1,13 @@
 import { useState, useCallback, useEffect } from 'react';
-import { Modal, InputNumber, Select, Row, Col, Button } from 'antd';
+import { Modal, InputNumber, Select, Row, Col, Button, Spin } from 'antd';
 import { AuthESpace } from 'common/modules/AuthConnectButton';
 import { showToast } from 'common/components/showPopup/Toast';
-import { useTokenList } from 'payment/src/store';
 import { ButtonProps } from 'antd/es/button';
+import { getMinCFXOutOfExactAPPCoin } from 'payment/src/utils/request';
+import { useTokens } from 'payment/src/utils/hooks';
+import BigNumber from 'bignumber.js';
+import SwapSetting from '../SwapSetting';
+import Tips from '../Tips';
 
 const { Option } = Select;
 
@@ -14,19 +18,44 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
     onComplete?: () => void;
     disabled?: boolean;
     value: string | number;
-    tips?: string[];
-    onConfirm: () => {};
     title: string;
     buttonProps?: BottonType;
+    tips?: string[];
+    onWithdraw: (tokenValue: string, isCFX: boolean, tolerance: number) => void;
 }
 
-export default ({ disabled, value, tips = [], onConfirm, title, buttonProps }: Props) => {
-    const TOKENs = useTokenList();
-    const [loading, setLoading] = useState(false);
+export default ({ disabled, value, title, buttonProps, tips = [], onComplete, onWithdraw }: Props) => {
+    const [toValue, setToValue] = useState<string>('usdt');
+    const { tokens, token } = useTokens(toValue);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
     const [errMsg /*, setErrMsg */] = useState<string>('');
     const [fromValue, setFromValue] = useState<string>(String(value));
-    const [toValue, setToValue] = useState<string>(TOKENs[0].eSpace_address);
+    const [tokenValue, setTokenValue] = useState('0');
+    const [tolerance, setTolerance] = useState(0.05); // 0.05 is default value
+    const [loading, setLoading] = useState(false);
+    const [loadingPrice, setLoadingPrice] = useState(false);
+
+    const isCFX = token.symbol.toLowerCase() === 'cfx';
+    const tokenPriceOfPerAPPCoin = new BigNumber(tokenValue).dividedBy(fromValue).toFixed();
+
+    // get CFX or ERC20 token amount
+    useEffect(() => {
+        if (isModalVisible) {
+            // if support other tokens except USDT, need additional transform fn
+            if (isCFX) {
+                setLoadingPrice(true);
+                getMinCFXOutOfExactAPPCoin(fromValue)
+                    .then((a) => {
+                        setTokenValue(a);
+                    })
+                    .finally(() => {
+                        setLoadingPrice(false);
+                    });
+            } else {
+                setTokenValue(fromValue);
+            }
+        }
+    }, [isCFX, fromValue, isModalVisible]);
 
     const handleShowModal = useCallback(() => setIsModalVisible(true), []);
 
@@ -37,8 +66,10 @@ export default ({ disabled, value, tips = [], onConfirm, title, buttonProps }: P
     const handleOk = async () => {
         try {
             setLoading(true);
-            await onConfirm();
+            await onWithdraw(tokenValue, isCFX, tolerance);
+            onComplete && onComplete();
             setIsModalVisible(false);
+            setToValue('usdt');
             showToast('Withdraw success', { type: 'success' });
         } catch (e) {
             console.log(e);
@@ -48,6 +79,7 @@ export default ({ disabled, value, tips = [], onConfirm, title, buttonProps }: P
 
     const handleCancel = useCallback(() => {
         setIsModalVisible(false);
+        setToValue('usdt');
     }, []);
 
     useEffect(() => {
@@ -56,13 +88,18 @@ export default ({ disabled, value, tips = [], onConfirm, title, buttonProps }: P
         }
     }, [value]);
 
+    const handleChange = (tolerance: number) => {
+        setTolerance(tolerance);
+    };
+
     // control confirm button status
-    const isDisabled = fromValue === '0' || fromValue === null || !!errMsg;
+    const isDisabled = fromValue === '0' || fromValue === null || !!errMsg || loadingPrice;
+    const expectedTokenValue = isCFX ? new BigNumber(tokenValue || 0).multipliedBy(1 - tolerance).toFixed() : new BigNumber(tokenValue || 0).toFixed();
 
     return (
         <>
             <AuthESpace
-                className="!rounded-sm !h-[32px] mr-2 mb-2"
+                className="!rounded-sm !h-[32px] mr-2 mt-2"
                 id="createAPP_authConnect"
                 size="small"
                 connectTextType="concise"
@@ -72,7 +109,7 @@ export default ({ disabled, value, tips = [], onConfirm, title, buttonProps }: P
                 authContent={() => (
                     <Button
                         id="button_withdraw"
-                        className={`cursor-pointer mr-2 ${buttonProps?.className}`}
+                        className={`cursor-pointer mr-2 mt-2 ${buttonProps?.className}`}
                         onClick={handleShowModal}
                         disabled={disabled}
                         {...buttonProps}
@@ -83,6 +120,7 @@ export default ({ disabled, value, tips = [], onConfirm, title, buttonProps }: P
             />
             {isModalVisible && (
                 <Modal
+                    centered
                     title={title}
                     visible={isModalVisible}
                     onOk={handleOk}
@@ -99,6 +137,7 @@ export default ({ disabled, value, tips = [], onConfirm, title, buttonProps }: P
                         id: 'button_cancel',
                     }}
                 >
+                    {isCFX && <SwapSetting onChange={handleChange} />}
                     <Row gutter={24}>
                         <Col span={16}>
                             <div>From</div>
@@ -115,9 +154,9 @@ export default ({ disabled, value, tips = [], onConfirm, title, buttonProps }: P
                         </Col>
                         <Col span={8}>
                             <div>To</div>
-                            <Select id="select_token" defaultValue={toValue} style={{ width: '100%' }} onChange={handleFromChange} disabled>
-                                {TOKENs.map((t) => (
-                                    <Option key={t.eSpace_address} value={t.eSpace_address}>
+                            <Select id="select_token" defaultValue={toValue.toUpperCase()} style={{ width: '100%' }} onChange={handleFromChange}>
+                                {tokens.map((t) => (
+                                    <Option key={t.symbol} value={t.symbol}>
                                         {t.name}
                                     </Option>
                                 ))}
@@ -125,33 +164,28 @@ export default ({ disabled, value, tips = [], onConfirm, title, buttonProps }: P
                         </Col>
                     </Row>
 
-                    <div className="text-white bg-blue-500 p-2 mt-6 rounded-sm">
-                        <Row gutter={24}>
-                            <Col span={12} className="!flex items-center">
-                                <span>You will receive</span>
-                            </Col>
-                            <Col span={12} className="text-end text-lg">
-                                <span id="span_expectedAmountIn">{fromValue || 0} USDT</span>
+                    <Spin spinning={loadingPrice} size="small">
+                        <div className="text-white bg-blue-500 p-2 mt-6 rounded-sm">
+                            <Row gutter={24}>
+                                <Col span={8} className="!flex items-center">
+                                    <span>You will receive</span>
+                                </Col>
+                                <Col span={16} className="text-end text-lg">
+                                    <span id="span_expectedAmountIn">
+                                        {expectedTokenValue || 0} {toValue.toUpperCase()}
+                                    </span>
+                                </Col>
+                            </Row>
+                        </div>
+                        <div className="text-red-500 text-end min-h-[22px]">{errMsg}</div>
+                        <Row gutter={24} className="">
+                            <Col span={24}>
+                                1 APPCoin = {tokenPriceOfPerAPPCoin} {toValue.toUpperCase()}
                             </Col>
                         </Row>
-                    </div>
-                    <div className="text-red-500 text-end min-h-[22px]">{errMsg}</div>
-                    <Row gutter={24} className="">
-                        <Col span={12}>
-                            <span>1 APPCoin = 1 USDT</span>
-                        </Col>
-                        {/* <Col span={12} className="text-end">
-                            <span>~ 1USDT ($1)</span>
-                        </Col> */}
-                    </Row>
+                    </Spin>
 
-                    {tips.length && (
-                        <ul id="ul_tips" className="mt-4 mb-0 p-4 bg-red-100 text-gray-600 rounded-sm">
-                            {tips.map((t, i) => (
-                                <li key={i}>{t}</li>
-                            ))}
-                        </ul>
-                    )}
+                    <Tips items={tips}></Tips>
                 </Modal>
             )}
         </>

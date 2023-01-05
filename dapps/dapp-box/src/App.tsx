@@ -13,49 +13,36 @@ import GovernanceDashboard from 'governance/src/modules/Dashboard';
 import Vote from 'governance/src/modules/Vote';
 import Proposals from 'governance/src/modules/Vote/Proposals';
 import RewardInterestRate from 'governance/src/modules/Vote/RewardInterestRate';
+import Bridge from 'bridge/src/modules';
 import ESpaceBridgeEnter from 'hub/src/modules/ESpaceBridgeEnter';
 import ShuttleFlowNavbarEnhance from 'hub/src/modules/NavbarEnhance/ShuttleFlow';
 import GovernanceNavbarEnhance from 'hub/src/modules/NavbarEnhance/Governance';
 import useCurrentDapp from 'hub/src/hooks/useCurrentDapp';
+import BridgeIcon from 'hub/src/assets/Bridge.svg';
 import ShuttleFlowIcon from 'hub/src/assets/shuttle-flow.svg';
 import GovernanceIcon from 'hub/src/assets/governance.svg';
-import CrossSpaceIcon from 'hub/src/assets/cross-space.svg';
+import PosIcon from 'hub/src/assets/Pos.svg';
 import AirdropIcon from 'hub/src/assets/Airdrop.svg';
 import { hideAllToast } from 'common/components/showPopup/Toast';
 import LocalStorage from 'localstorage-enhance';
-import { isProduction } from 'common/conf/Networks';
-import { showToast } from 'common/components/showPopup/Toast';
-
+import Pos from 'pos/src/modules';
 import Payment from 'payment/src/modules';
 import PaymentNavbarEnhance from 'hub/src/modules/NavbarEnhance/Payment';
-// TODO just for temporary, need to replace with real
-import PaymentIcon from 'payment/src/assets/Payment.png';
-import Keyboard from 'custom-keyboard';
+import PaymentIcon from 'payment/src/assets/logo-light.png';
 import './App.css';
-
-Keyboard.mount();
-
-Keyboard.bind('p -> a -> y -> m -> e -> n -> t', () => {
-    const pre = localStorage.getItem('payment');
-    showToast(
-        {
-            text: `Page will auto refresh after 3s to ${pre === '1' ? 'unload' : 'load'} Web3 Paywall Dapp.`,
-            onClickOk: () => location.reload(),
-            okButtonText: `${pre === '1' ? 'Unload' : 'Load'} Now`,
-        },
-        { type: 'success', duration: 3333 }
-    );
-    setTimeout(() => location.reload(), 3333);
-    localStorage.setItem('payment', pre === '1' ? '0' : '1');
-});
 
 export const dapps = [
     {
-        name: 'eSpace Bridge',
-        icon: CrossSpaceIcon,
-        path: 'espace-bridge',
-        element: <ESpaceBridgeEnter />,
+        name: 'Bridge',
+        icon: BridgeIcon,
+        path: 'bridge',
         index: true,
+    },
+    {
+        name: 'eSpace Airdrop',
+        icon: AirdropIcon,
+        path: 'espace-airdrop',
+        element: <Airdrop />,
     },
     {
         name: 'ShuttleFlow',
@@ -65,12 +52,6 @@ export const dapps = [
             type: 'childRoutes' as 'childRoutes',
             Content: <ShuttleFlowNavbarEnhance />,
         },
-    },
-    {
-        name: 'eSpace Airdrop',
-        icon: AirdropIcon,
-        path: 'espace-airdrop',
-        element: <Airdrop />,
     },
     {
         name: 'Governance',
@@ -83,10 +64,7 @@ export const dapps = [
             Content: <GovernanceNavbarEnhance />,
         },
     },
-];
-
-if (localStorage.getItem('payment') == '1' && !isProduction) {
-    dapps.push({
+    {
         name: 'Web3 Paywall',
         icon: PaymentIcon,
         path: 'payment',
@@ -96,8 +74,15 @@ if (localStorage.getItem('payment') == '1' && !isProduction) {
             type: 'childRoutes' as 'childRoutes',
             Content: <PaymentNavbarEnhance />,
         },
-    } as any);
-}
+    },
+    {
+        name: 'Pos',
+        icon: PosIcon,
+        Advanced: true,
+        path: 'pos',
+        element: <Pos />
+    },
+];
 
 const App = () => {
     const [mode, setMode] = useState<'light' | 'dark'>(() => {
@@ -171,7 +156,7 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                     <Route key="espace-bridge" path="espace-bridge" element={<Outlet />}>
                         <Route index element={<ESpaceBridgeEnter />} />
                         <Route key="cross-space" path="cross-space" element={<CrossSpace />} />
-                        <Route key="bsc-esapce-cfx" path="bsc-esapce-cfx" element={<BscEspace />} />
+                        <Route key="bsc-espace-cfx" path="bsc-espace-cfx" element={<BscEspace />} />
                     </Route>
                     <Route key="espace-airdrop" path="espace-airdrop" element={<Airdrop />} />
                     <Route key="governance" path="governance" element={<Outlet />}>
@@ -184,14 +169,12 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                     </Route>
                     <Route path="governance/" element={<Navigate to="/governance/dashboard" />} />
                     <Route path="governance/*" element={<Navigate to="/governance/dashboard" />} />
+                    <Route path="bridge" element={<Bridge />} />
+
                     <Route key="shuttle-flow" path="shuttle-flow/*" element={<div id="shuttle-flow" />} />
-                    {localStorage.getItem('payment') == '1' && !isProduction && (
-                        <>
-                            {/* <Route key="payment" path="payment" element={<Payment />} /> */}
-                            <Route key="payment" path="payment/*" element={<Payment />} />
-                        </>
-                    )}
-                    <Route path="*" element={<Navigate to="espace-bridge" />} />
+                    <Route key="payment" path="payment/*" element={<Payment />} />
+                    <Route key="pos" path="pos/*" element={<Pos />} />
+                    <Route path="*" element={<Navigate to="bridge" />} />
                 </Routes>
             </ErrorBoundary>
         </CustomScrollbar>

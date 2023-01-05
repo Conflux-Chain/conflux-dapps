@@ -1,7 +1,7 @@
 import React, { useMemo, memo } from 'react';
 import cx from 'clsx';
 import { Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
-import { useCurrentVote, usePreVote, usePosStakeForVotes } from 'governance/src/store';
+import { useCurrentVote, usePreVote, usePosStakeForVotes, useCurrentVotingRound } from 'governance/src/store';
 import QuestionMark from 'common/assets/icons/QuestionMark.svg';
 import VoteUp from 'governance/src/assets/VoteUp.svg';
 import VoteDown from 'governance/src/assets/VoteDown.svg';
@@ -44,6 +44,8 @@ const Result: React.FC<{
 }> = ({ type, voteDetail, preVoteDetail, posStakeForVotes, onClickPreValTip, onClickVotingValTip }) => {
     const unit = type === 'Reward of block' ? ' CFX/Block' : '%';
 
+    const currentVotingRound = useCurrentVotingRound();
+
     const totalVotingRights = useMemo(() => {
         const voting = voteDetail?.voting;
         if (!voting?.length) return Unit.fromMinUnit(0);
@@ -70,21 +72,25 @@ const Result: React.FC<{
                     {type}
                 </div>
 
-                <div className="flex items-center ml-[16px] text-[12px] text-[#898D9A]">
-                    Effective voting rights
-                    <img
-                        src={QuestionMark}
-                        alt="question mark"
-                        className="ml-[4px] cursor-pointer hover:scale-110 transition-transform select-none"
-                        onClick={() =>
-                            showTipModal(<EffectiveVotingRightsContent type={type} totalVotingRights={totalVotingRights} posStakeForVotes={posStakeForVotes} />)
-                        }
-                    />
-                    <span className="ml-[8px]">
-                        {totalVotingRights ? totalVotingRights.toDecimalStandardUnit() : '--'} /{' '}
-                        {posStakeForVotes ? posStakeForVotes.mul(Unit.fromMinUnit(0.05)).toDecimalStandardUnit() : '--'}
-                    </span>
-                </div>
+                {currentVotingRound! > 1 && (
+                    <div className="flex items-center ml-[16px] text-[12px] text-[#898D9A]">
+                        Effective voting rights
+                        <img
+                            src={QuestionMark}
+                            alt="question mark"
+                            className="ml-[4px] cursor-pointer hover:scale-110 transition-transform select-none"
+                            onClick={() =>
+                                showTipModal(
+                                    <EffectiveVotingRightsContent type={type} totalVotingRights={totalVotingRights} posStakeForVotes={posStakeForVotes} />
+                                )
+                            }
+                        />
+                        <span className="ml-[8px]">
+                            {totalVotingRights ? totalVotingRights.toDecimalStandardUnit() : '--'} /{' '}
+                            {posStakeForVotes ? posStakeForVotes.mul(Unit.fromMinUnit(0.05)).toDecimalStandardUnit() : '--'}
+                        </span>
+                    </div>
+                )}
             </div>
 
             <div className="mb-[16px] flex justify-between items-center">

@@ -17,6 +17,7 @@ export interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     endIcon?: ReactNode;
     href?: string;
     target?: '_blank' | '_self' | '_parent' | '_top';
+    rel?: string;
 }
 
 const Button = forwardRef<HTMLButtonElement, PropsWithChildren<Props>>(

@@ -53,9 +53,9 @@ const ESpace2Core: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 	const isMetaMaskHostedByFluent = useIsMetaMaskHostedByFluent();
 	
 	return (
-		<a.div className="cross-space-module" style={style}>
+		<a.div className="cross-space-module absolute" style={style}>
 			<div className="p-[16px] rounded-[8px] border border-[#EAECEF] mb-[16px]">
-				<p className='relative flex items-center mb-[12px]'>
+				<div className='relative flex items-center mb-[12px]'>
 					<span className='mr-[8px] text-[14px] text-[#A9ABB2]'>To:</span>
 					<span className='mr-[8px] text-[16px] text-[#2959B4] font-medium'>Conflux Core</span>
 					
@@ -67,7 +67,7 @@ const ESpace2Core: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 					>
 						<img src={TurnPage} alt="turn page" className='w-[14px] h-[14px]' draggable="false" />
 					</button>
-				</p>
+				</div>
 
 				<FluentConnected id="eSpace2Core-auth-fluent-connectedAddress" tabIndex={isShow ? 2 : -1}  />
 			</div>
@@ -76,10 +76,10 @@ const ESpace2Core: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 
 			<Transfer2Bridge isShow={isShow} inTransfer={inTransfer} setInTransfer={setInTransfer} /> 
 
-			<p className="mt-[24px] flex items-center h-[24px] text-[16px] text-[#3D3F4C] font-medium">
+			<div className="mt-[24px] flex items-center h-[24px] text-[16px] text-[#3D3F4C] font-medium">
 				<span className="mr-[8px] px-[10px] h-[24px] leading-[24px] rounded-[4px] bg-[#F0F3FF] text-center text-[12px] text-[#808BE7]">Step 2</span>
 				Withdraw
-			</p>
+			</div>
 			{(currentToken.isNative || isMetaMaskHostedByFluent) ? 
 				<AuthCoreSpace
 					id="eSpace2Core-auth-both-withdraw"
@@ -176,10 +176,10 @@ const Transfer2Bridge: React.FC<{ isShow: boolean; inTransfer: boolean; setInTra
 					</button>
 				}
 			</div>
-			<p className="mt-[8px] text-[#A9ABB2] text-[14px] leading-[18px]">
+			<div className="mt-[8px] text-[#A9ABB2] text-[14px] leading-[18px]">
 				{mode === 'normal' && `Transfer ${currentToken.evm_space_symbol} to cross space bridge.`}
 				{mode === 'advanced' && `Self-transfer ${currentToken.evm_space_symbol} to cross space birdge on eSpace.`}
-			</p>
+			</div>
 
 			{mode === 'normal' && 
 				<>
@@ -329,7 +329,7 @@ const TransferNormalMode: React.FC<{ isShow: boolean; inTransfer: boolean; setIn
 				</Button>
 			</div>
 			
-			<p className="text-[14px] leading-[18px] text-[#3D3F4C]">
+			<div className="text-[14px] leading-[18px] text-[#3D3F4C]">
 				<span className="text-[#15C184]" id="eSpace-balance">eSpace</span> Balance:
 				{inTransfer && <span id="eSpace2Core-currentTokenBalance" className="ml-[4px]">...</span>}
 				{!inTransfer &&
@@ -351,8 +351,8 @@ const TransferNormalMode: React.FC<{ isShow: boolean; inTransfer: boolean; setIn
 						}
 					</>
 				}
-			</p>
-			<p className={cx("mt-[8px] text-[14px] leading-[18px]", isCurrentTokenHasEnoughLiquidity ? 'text-[#3D3F4C]' : 'text-[#E96170]')}>
+			</div>
+			<div className={cx("mt-[8px] text-[14px] leading-[18px]", isCurrentTokenHasEnoughLiquidity ? 'text-[#3D3F4C]' : 'text-[#E96170]')}>
 				<span className={cx(!isCurrentTokenHasEnoughLiquidity && 'absolute opacity-0')}>
 					Will receive on <span className="font-medium">bridge</span>:
 					<span className="ml-[4px]" id="eSpace2Core-willReceive" ref={bridgeReceived} />
@@ -362,7 +362,7 @@ const TransferNormalMode: React.FC<{ isShow: boolean; inTransfer: boolean; setIn
 						{`Insufficient liquidity on Core, maximum liquidity is ${numFormat(maximumLiquidity?.toDecimalStandardUnit())} ${currentToken.evm_space_symbol}`}
 					</span>
 				}
-			</p>
+			</div>
 		</form>
 	);
 }
@@ -385,10 +385,10 @@ const TransferAdvancedMode: React.FC<{ isShow: boolean; }> = ({ isShow }) => {
 				</ul>
 			</div>
 
-			<p className="mt-[16px] mb-[10px] ">
+			<div className="mt-[16px] mb-[10px] ">
 				<span className='mr-[8px] leading-[22px] text-[16px] text-[#3D3F4C] font-medium'>Transfer Address</span>
 				<span className='leading-[22px] text-[12px] text-[#898D9A]'>（Don’t save）</span>
-			</p>
+			</div>
 			<AuthCoreSpace
 				id="eSpace2Core-auth-fluent-copyMirrowAddress"
 				size="small"
@@ -457,10 +457,10 @@ const Withdraw2Core: React.FC<{ isShow: boolean; inTransfer: boolean; setInTrans
 		<>	
 			{isCurrentTokenHasEnoughLiquidity &&
 				<>
-					<p className="mt-[8px] text-[14px] leading-[20px] text-[#A9ABB2] ">
+					<div className="mt-[8px] text-[14px] leading-[20px] text-[#A9ABB2] ">
 						After Step 1, withdraw your asset on
 						<span className='text-[#2959B4] font-medium'> Core</span> here.
-					</p>
+					</div>
 					<div className='flex items-center my-[8px]'>
 						<span className='mr-[4px] text-[14px] text-[#A9ABB2]'>Current Address:</span>
 						<FluentConnected tabIndex={-1} />
@@ -468,9 +468,9 @@ const Withdraw2Core: React.FC<{ isShow: boolean; inTransfer: boolean; setInTrans
 				</>
 			}
 			{!isCurrentTokenHasEnoughLiquidity &&
-				<p className='my-[8px] text-[14px] text-[#E96170]'>
+				<div className='my-[8px] text-[14px] text-[#E96170]'>
 					{`Insufficient ${currentToken.evm_space_symbol} liquidity on Core, please back to eSpace`}
-				</p>
+				</div>
 			}
 
 			<div className='flex items-center mb-[20px]'>

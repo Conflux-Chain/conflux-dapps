@@ -1,47 +1,65 @@
 import { useState, useCallback } from 'react';
-import { Button, Input, Modal, Form, InputNumber } from 'antd';
+import { Button, Input, Modal, Form, InputNumber, Radio } from 'antd';
 import { postAPP } from 'payment/src/utils/request';
 import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
 import { AuthESpace } from 'common/modules/AuthConnectButton';
 import { showToast } from 'common/components/showPopup/Toast';
 import Tip from 'payment/src/components/Tip';
 import { formatNumber } from 'payment/src/utils';
+import { useBoundProviderStore } from 'payment/src/store';
+import { PAYMENT_TYPE } from 'payment/src/utils/constants';
 
-interface Props extends React.HTMLAttributes<HTMLDivElement> {
-    onComplete?: (data: any) => void;
-}
+interface Props extends React.HTMLAttributes<HTMLDivElement> {}
 
-export default ({ onComplete }: Props) => {
+const subType = String(PAYMENT_TYPE.subscription);
+
+export default ({}: Props) => {
     const account = useAccount();
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
     const showModal = useCallback(() => setIsModalVisible(true), []);
+    const [type, setType] = useState(subType);
+    const { fetch } = useBoundProviderStore((state) => state.provider);
 
     const handleOk = useCallback(() => {
-        form.validateFields().then(async function ({ name, url, weight }) {
+        form.validateFields().then(async function ({ name, url, weight, symbol, description, type }) {
             try {
                 setLoading(true);
-                const data = await postAPP({
+                await postAPP({
                     name,
                     url,
                     weight,
                     account: account as string,
+                    symbol,
+                    description,
+                    // type: 0 - none, 1 - billing, 2 - subscription
+                    type,
                 });
                 setLoading(false);
                 setIsModalVisible(false);
-                onComplete && onComplete(data);
+                account && fetch(account);
                 showToast('Create APP success', { type: 'success' });
             } catch (e) {
                 console.log(e);
                 setLoading(false);
             }
         });
-    }, []);
+    }, [account]);
 
     const handleCancel = useCallback(() => {
-        form.resetFields();
         setIsModalVisible(false);
+    }, []);
+
+    const handleValuesChange = useCallback((changedValues: { type: string }) => {
+        if (changedValues.type) {
+            setType(changedValues.type);
+        }
+    }, []);
+
+    const resetFields = useCallback(() => {
+        form.resetFields();
+        setType(subType);
     }, []);
 
     return (
@@ -61,6 +79,7 @@ export default ({ onComplete }: Props) => {
                 )}
             />
             <Modal
+                centered
                 title="Create New APP"
                 visible={isModalVisible}
                 onOk={handleOk}
@@ -75,8 +94,10 @@ export default ({ onComplete }: Props) => {
                 cancelButtonProps={{
                     id: 'button_cancel',
                 }}
+                destroyOnClose
+                afterClose={resetFields}
             >
-                <Form form={form} name="basic" autoComplete="off" layout="vertical">
+                <Form form={form} name="basic" autoComplete="off" layout="vertical" onValuesChange={handleValuesChange}>
                     <Form.Item
                         label={
                             <>
@@ -93,27 +114,113 @@ export default ({ onComplete }: Props) => {
                             },
                             {
                                 min: 1,
-                                max: 225,
-                                message: 'Please input APP name with 1-225 character',
+                                max: 50,
+                                message: 'Please input APP name with 1-50 character',
                             },
                         ]}
                     >
-                        <Input id="input_APPName" />
+                        <Input id="input_APPName" placeholder="Less than 50 characters." />
                     </Form.Item>
                     <Form.Item
-                        label={
-                            <>
-                                BaseURL
-                                <Tip info="It is recommended to input the interface baseURL so that consumers can know more information."></Tip>
-                            </>
-                        }
+                        label={<>Symbol</>}
+                        name="symbol"
+                        validateFirst={true}
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Please input APP Symbol',
+                            },
+                            {
+                                min: 1,
+                                max: 15,
+                                message: 'Please input APP Symbol with 1-15 character',
+                            },
+                            {
+                                pattern: /^[A-Z]+$/,
+                                message: 'Please input APP Symbol with capital letters',
+                            },
+                        ]}
+                    >
+                        <Input id="input_symbol" placeholder="Limited here to 15 alphanumeric characters." />
+                    </Form.Item>
+                    <Form.Item
+                        label={<>Link</>}
                         name="url"
                         validateFirst={true}
                         rules={[
                             {
                                 required: true,
-                                message: 'Please input APP base url',
+                                message: 'Please input APP link',
                             },
+                            {
+                                min: 1,
+                                max: 1000,
+                                message: 'Please input APP link with 1-1000 character',
+                            },
+                        ]}
+                    >
+                        <Input id="input_link" placeholder="E.g.a link to project" />
+                    </Form.Item>
+                    <Form.Item
+                        label="Payment Type"
+                        name="type"
+                        validateFirst={true}
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Please select APP payment type',
+                            },
+                        ]}
+                        initialValue={subType}
+                    >
+                        <Radio.Group id="radio_PaymentType">
+                            <Radio value="1"> Billing </Radio>
+                            <Radio value="2"> Subscription </Radio>
+                        </Radio.Group>
+                    </Form.Item>
+                    {type === '1' && (
+                        <Form.Item
+                            label={
+                                <>
+                                    Default Weight
+                                    <Tip info="Initialize billing weight for default resource usage when creating new APP."></Tip>
+                                </>
+                            }
+                            name="weight"
+                            validateFirst={true}
+                            rules={[
+                                {
+                                    required: true,
+                                    message: 'Please input APP weight',
+                                },
+                                {
+                                    type: 'string',
+                                    min: 0,
+                                    max: 40,
+                                    message: 'Please input APP weight with 1-40 character',
+                                },
+                            ]}
+                        >
+                            <InputNumber
+                                id="input_APPWeight"
+                                style={{ width: '100%' }}
+                                min={0}
+                                precision={5}
+                                stringMode={true}
+                                formatter={(val) => {
+                                    return formatNumber(val as number, {
+                                        limit: 0,
+                                        decimal: 0,
+                                    });
+                                }}
+                                placeholder="0.00000"
+                            />
+                        </Form.Item>
+                    )}
+                    <Form.Item
+                        label={<>APP Description（Optional）</>}
+                        name="description"
+                        rules={[
                             {
                                 min: 1,
                                 max: 1000,
@@ -121,43 +228,7 @@ export default ({ onComplete }: Props) => {
                             },
                         ]}
                     >
-                        <Input id="input_BaseURL" />
-                    </Form.Item>
-                    <Form.Item
-                        label={
-                            <>
-                                Default Resource Weight
-                                <Tip info="Initialize billing weight for default resource usage when creating new APP."></Tip>
-                            </>
-                        }
-                        name="weight"
-                        validateFirst={true}
-                        rules={[
-                            {
-                                required: true,
-                                message: 'Please input APP default resource weight',
-                            },
-                            {
-                                type: 'string',
-                                min: 0,
-                                max: 40,
-                                message: 'Please input APP default resource weight with 1-40 character',
-                            },
-                        ]}
-                    >
-                        <InputNumber
-                            id="input_ResourceWeight"
-                            style={{ width: '100%' }}
-                            min={0}
-                            precision={5}
-                            stringMode={true}
-                            formatter={(val) => {
-                                return formatNumber(val as number, {
-                                    limit: 0,
-                                    decimal: 0,
-                                });
-                            }}
-                        />
+                        <Input id="input_APPDescription" placeholder="Description to project." />
                     </Form.Item>
                 </Form>
             </Modal>

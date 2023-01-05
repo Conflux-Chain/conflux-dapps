@@ -1,11 +1,33 @@
 import { CONTRACT_ABI } from 'payment/src/contracts/constants';
 
+export type APPType = '1' | '2';
+
 export type ResourceMethodsType = 'name' | 'symbol' | 'appOwner' | 'totalCharged' | 'totalRequests' | 'listUser' | 'listResources';
 
 export interface UsersDataSourceType {
     address: string;
     airdrop: string;
     balance: string;
+}
+
+export interface SResourceDataSourceType {
+    index: number;
+    id: string;
+    name: string;
+    description: string;
+    price: string;
+    duration: string;
+    giveawayDuration: string;
+    // props?: [string[], string[]];
+    configurations: Array<{
+        value: string;
+        description: string;
+    }>;
+}
+
+export interface APPCardResourceType {
+    list: Array<SResourceDataSourceType>;
+    total: number;
 }
 
 export interface ResourceDataSourceType {
@@ -23,19 +45,31 @@ export interface ResourceDataSourceType {
 
 export interface DataSourceType {
     name: string;
-    baseURL: string;
     address: string;
     owner: string;
     earnings: string | number;
     balance: string | number;
     airdrop: string | number;
-    frozen: string;
-    forceWithdrawDelay: string;
+    forceWithdraw: string;
+    withdrawSchedule: string;
+    symbol: string;
+    link: string;
+    type: APPType;
 }
 
 export interface APPResourceType {
     list: Array<ResourceDataSourceType>;
     total: number;
+}
+
+export interface APPDetailType {
+    name: string;
+    symbol: string;
+    link: string;
+    address: string;
+    description: string;
+    type: number;
+    deferTimeSecs: number;
 }
 
 export interface APPDataSourceType extends Omit<DataSourceType, 'address' | 'balance' | 'airdrop' | 'forceWithdrawDelay'> {
@@ -51,14 +85,19 @@ export interface PostAPPType {
     url: string;
     weight: number;
     account: string;
+    symbol: string;
+    description?: string;
+    type: APPType;
 }
 
 export type CSVType = Array<Array<string>>;
 
 export interface TitleType {
-    text: string;
+    text?: string;
+    key?: string;
     link?: string;
     active?: boolean;
+    onClick?: (key: Pick<TitleType, 'key' | 'text'>) => void;
 }
 
 export type ContractCall = [string, any[]?];

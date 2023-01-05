@@ -7,7 +7,7 @@ import './index.css';
 
 const TokenList: React.FC<{ space: 'core' | 'eSpace'; }> = ({ space }) => {
     const { currentToken } = useToken();
-    
+
     return (
         <TokenListDropdown space={space}>
             {(triggerDropdown, visible) => 

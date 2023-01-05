@@ -35,7 +35,7 @@ class ErrorBoundary extends React.Component<any> {
                                 And we hope you can recall the operation steps and send the following error message to the official channel together.
                             </h3>
                             <CustomScrollbar className='p-[24px] border-4 border-red-300 rounded-lg max-w-[80vw] text-[16px] leading-[18px] text-[#3D3F4C]'>
-                                {this.state.error && <p className='mb-[12px]'>{this.state.error}</p>}
+                                {this.state.error && <div className='mb-[12px]'>{this.state.error}</div>}
                                 {this.state.errorInfo && <pre className=''>{this.state.errorInfo}</pre>}
                             </CustomScrollbar>
                         </>

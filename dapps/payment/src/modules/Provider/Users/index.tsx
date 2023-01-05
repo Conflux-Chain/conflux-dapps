@@ -90,7 +90,7 @@ export default () => {
                 </Col>
                 <Col span="16">
                     {/* add key to refresh main fn reference */}
-                    <Airdrop onComplete={main} key={`airdrop-${filter}`} />
+                    <Airdrop address={address as string} onComplete={main} key={`airdrop-${filter}`} />
                 </Col>
             </Row>
             <div className="mt-4"></div>
