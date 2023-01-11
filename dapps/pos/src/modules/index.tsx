@@ -20,6 +20,10 @@ const Apps: React.FC = () => {
     const confluxAccount = useConfluxAccount();
 
     useEffect(() => {
+        if (!isAcceptedPosGuide()) {
+            navigate('/pos/guide');
+            return;
+        }
         if (!confluxAccount) {
             navigate('/pos/register');
             return;
