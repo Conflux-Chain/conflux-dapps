@@ -1,5 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { usePosAccount } from 'pos/src/store';
+import { useAccount as useConfluxAccount } from '@cfxjs/use-wallet-react/conflux/Fluent';
 import cx from 'clsx';
 import Button from 'common/components/Button';
 import CheckBox from '../../components/CheckBox';
@@ -90,6 +92,9 @@ interface Props {
 
 const Guide: React.FC<Props> = ({ isRegister }) => {
     const navigate = useNavigate();
+    const posAccount = usePosAccount();
+    const confluxAccount = useConfluxAccount();
+
     const [checked, setChecked] = useState(false);
     const onClick = useCallback(() => {
         setChecked((pre) => !pre);
@@ -97,8 +102,12 @@ const Guide: React.FC<Props> = ({ isRegister }) => {
 
     const onNext = useCallback(() => {
         localStorage.setItem('posAcceptedGuide', 'true');
-        navigate('/pos/register');
-    }, []);
+        if (!confluxAccount || posAccount === null) {
+            navigate('/pos/register');
+        } else if (posAccount) {
+            navigate('/pos/increase');
+        }
+    }, [posAccount, confluxAccount]);
 
     return (
         <div className={cx('relative bg-white', !isRegister && 'mt-[16px] mx-auto w-[1142px] rounded-[8px] px-[24px] pt-[24px] pb-[36px] mb-[40px]')}>
