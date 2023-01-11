@@ -97,7 +97,7 @@ const Guide: React.FC<Props> = ({ isRegister }) => {
 
     const onNext = useCallback(() => {
         localStorage.setItem('posAcceptedGuide', 'true');
-        navigate('/pos/resigter');
+        navigate('/pos/register');
     }, []);
 
     return (

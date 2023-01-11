@@ -72,8 +72,10 @@ const Register: React.FC = () => {
             try {
                 showModal(RegisterWaitingContent);
                 await registerAndLock(data.nodeData, data.stakeVotes);
-                hideModal();
-                navigate('/pos/increase', { state: { status: 'wait-bound-confirm' } });
+                setTimeout(() => {
+                    hideModal();
+                    navigate('/pos/increase', { state: { status: 'wait-bound-confirm' } });
+                }, 4000);
             } catch (error) {
                 hideModal();
             }
