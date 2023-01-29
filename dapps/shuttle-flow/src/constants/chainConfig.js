@@ -28,7 +28,7 @@ export const ScanUrlEth = IS_DEV
   : 'https://etherscan.io'
 export const ChainIdsEth = {
   MAINNET: {id: 1, name: 'Mainnet'},
-  TESTNET: {id: 4, name: 'Rinkeby'}, // shuttle use Rinkeby network as testnet
+  TESTNET: {id: 5, name: 'Goerli'}, // shuttle use Rinkeby network as testnet
   // ROPSTEN: 3,
   // GÖRLI: 5,
   // KOVAN: 42,

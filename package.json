@@ -2,10 +2,25 @@
     "name": "conflux-hub",
     "version": "0.0.0",
     "private": true,
-    "workspaces": [
-        "dapps/*",
-        "packages/*"
-    ],
+    "workspaces": {
+        "packages": [
+            "dapps/*",
+            "packages/*"
+        ],
+        "nohoist": [
+            "**/shuttle-flow"
+        ]
+    },
+    "resolutions": {
+        "shuttle-flow/**/react": "17.0.2",
+        "shuttle-flow/**/react-dom": "17.0.2",
+        "shuttle-flow/**/rc-dropdown": "2.4.1",
+        "shuttle-flow/**/rc-notification": "4.4.0",
+        "shuttle-flow/**/rc-tooltip": "5.1.1",
+        "shuttle-flow/**/rc-trigger": "5.1.1",
+        "shuttle-flow/**/rc-util": "5.19.3",
+        "shuttle-flow/**/rc-motion": "2.4.1"
+    },
     "scripts": {
         "build": "turbo run build --scope=cross-space --scope=hub --scope=shuttle-flow",
         "lint": "turbo run lint",
