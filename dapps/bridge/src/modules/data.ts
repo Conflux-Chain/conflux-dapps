@@ -10,8 +10,7 @@ import BTCIcon from 'common/assets/chains/BTC.svg';
 import EthereumIcon from 'common/assets/chains/Ethereum.svg';
 import HECOIcon from 'common/assets/chains/HECO.svg';
 import OECIcon from 'common/assets/chains/OEC.svg';
-import Networks, { isProduction } from 'common/conf/Networks';
-
+import Networks, { isProduction, isStage } from 'common/conf/Networks';
 
 const CommonTokenCount = 16;
 const commonTokensCache = new Cache<string>(CommonTokenCount, 'bridge-common-tokens');
@@ -71,7 +70,7 @@ export const map: Record<'shuttleFlowChains' | 'shuttleFlowFromTokenAddress' | '
 };
 
 Promise.all([
-    fetch(`https://${isProduction ? 'www' : 'test'}.confluxhub.io/rpcsponsor`, {
+    fetch(`https://${isProduction ? (isStage ? 'stage' : 'www') : 'test'}.confluxhub.io/rpcsponsor`, {
         body: JSON.stringify({ id: 1, jsonrpc: '2.0', method: 'getTokenList', params: [] }),
         headers: { 'content-type': 'application/json' },
         method: 'POST',
@@ -354,7 +353,7 @@ export const createHref = ({
             }
         }
         if (!fromTokenAddress) return '';
-        return `https://${isProduction ? 'www' : 'test'}.confluxhub.io/shuttle-flow/?fromChain=${map.shuttleFlowChains[sourceChain]}&fromTokenAddress=${fromTokenAddress}&toChain=${map.shuttleFlowChains[destinationChain]}`;
+        return `https://${isProduction ? (isStage ? 'stage' : 'www') : 'test'}.confluxhub.io/shuttle-flow/?fromChain=${map.shuttleFlowChains[sourceChain]}&fromTokenAddress=${fromTokenAddress}&toChain=${map.shuttleFlowChains[destinationChain]}`;
     }
     return '';
 };
