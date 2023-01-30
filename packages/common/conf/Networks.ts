@@ -19,6 +19,8 @@ export const isProduction =
     !location.host.startsWith('192.168') &&
     !location.host.startsWith('dev-internal');
 
+export const isStage = location.host.startsWith('stage');
+    
 const AllNetworks: Record<string, Network> = {
     '1029': {
         chainId: '1029',
