@@ -1,0 +1,6 @@
+.input {
+  @apply w-full overflow-ellipsis border-[1px] border-[#EAECEF] bg-white rounded-[2px] transition-colors placeholder-[#979797] p-3
+  focus:outline-none focus:border-[#808BE7] focus:ring-1 focus:ring-[#808BE7]
+  invalid:border-[#E96170] invalid:text-[#E96170]
+  focus:invalid:border-[#E96170] focus:invalid:ring-[#E96170];
+}
