@@ -83,7 +83,11 @@ const Sidebar: React.FC = () => {
                 .filter((dapp) => dapp.name !== 'ShuttleFlow')
                 .map((dapp, index) => (
                     <Fragment key={dapp.name}>
-                        {dapp.name === 'Pos' && <div className={cx("mt-[32px] mb-[8px] text-[12px] leading-[16px] text-[#A9ABB2]", expand ? 'ml-[17.62px]' : 'ml-[4px]')}>Advanced</div>}
+                        {dapp.name === 'Pos' && (
+                            <div className={cx('mt-[32px] mb-[8px] text-[12px] leading-[16px] text-[#A9ABB2]', expand ? 'ml-[17.62px]' : 'ml-[4px]')}>
+                                Advanced
+                            </div>
+                        )}
                         <Popper
                             Content={<DappTooltip name={dapp.name} />}
                             placement="right"
@@ -100,7 +104,10 @@ const Sidebar: React.FC = () => {
                                         currentDapp.path === dapp.path && 'bg-[#F8F9FE]',
                                         expand && currentDapp.path !== dapp.path && 'hover:bg-[#F8F9FE] cursor-pointer'
                                     )}
-                                    onClick={() => navigate(dapp?.link ?? dapp.path)}
+                                    onClick={() => {
+                                        if (currentDapp.path === dapp.path && dapp.name === 'Pos') return;
+                                        navigate(dapp?.link ?? dapp.path);
+                                    }}
                                 >
                                     <div
                                         className={cx(
