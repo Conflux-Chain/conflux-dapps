@@ -102,7 +102,7 @@ export const startTrackPosAccount = () => {
                         const accountStakeBalance = Unit.fromMinUnit(res?.stakingBalance ?? 0);
 
                         posStore.setState({
-                            totalInterest: +Unit.fromMinUnit(res?.accumulatedInterestReturn ?? 0).toDecimalMinUnit(2),
+                            totalInterest: +Unit.fromMinUnit(res?.accumulatedInterestReturn ?? 0).toDecimalStandardUnit(2),
                             totalVotes: accountStakeBalance.greaterThanOrEqualTo(thousand)
                                 ? Math.floor(+accountStakeBalance.div(thousand).toDecimalMinUnit())
                                 : 0,
