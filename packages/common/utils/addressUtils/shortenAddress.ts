@@ -42,3 +42,9 @@ export const shortenAddress = (address?: string) => {
     else if (address.startsWith('cfx') || address.startsWith('net8888')) return shortenCfxAddress(address);
     return '';
 };
+
+export const shortenHexString = (hexString: string) => {
+    if (typeof hexString !== 'string' || !hexString) return '';
+    if (hexString.startsWith('0x')) return getEllipsStr(hexString, 6, 4);
+    return '';
+}

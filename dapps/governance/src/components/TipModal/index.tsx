@@ -14,7 +14,7 @@ const TipModalContent = memo(({ children }: PropsWithChildren) => {
     return (
         <div className="relative w-[404px] p-[24px] bg-white rounded-lg">
             <img
-                className="absolute right-[24px] top-[27px] w-[16px] h-[16px] cursor-pointer hover:scale-110 transition-transform select-none"
+                className="absolute right-[16px] top-[20px] w-[16px] h-[16px] cursor-pointer hover:scale-110 transition-transform select-none"
                 onClick={TipModal.hideAll}
                 src={Close}
                 alt="close icon"

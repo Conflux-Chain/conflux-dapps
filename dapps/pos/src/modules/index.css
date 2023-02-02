@@ -1,0 +1,11 @@
+.cross-space-module {
+    @apply absolute w-[480px] p-[24px] rounded-[16px] bg-white will-change-transform;
+
+    box-shadow: 0 8px 16px rgba(164 170 216 / 8%);
+    backface-visibility: visible;
+    contain: layout style;
+}
+
+.turn-page {
+    box-shadow: 0 2px 8px rgba(75 100 233 / 12%);
+}
