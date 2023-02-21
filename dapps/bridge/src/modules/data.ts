@@ -93,7 +93,7 @@ Promise.all([
                 BUSD: ['Multichain'],
             },
             'BSC Chain': {
-                CFX: ['Chain Bridge', 'Multichain'],
+                CFX: ['Chain Bridge', ['Space Bridge', 'ShuttleFlow'], 'Multichain'],
                 BNB: ['Multichain'],
                 BUSD: ['Multichain'],
                 USDT: ['Multichain'],
@@ -105,7 +105,7 @@ Promise.all([
         },
         'BSC Chain': {
             'Conflux eSpace': {
-                CFX: ['Chain Bridge', 'Multichain'],
+                CFX: ['Chain Bridge', ['ShuttleFlow', 'Space Bridge'], 'Multichain'],
                 BNB: ['Multichain'],
                 BUSD: ['Multichain'],
                 USDT: ['Multichain'],
