@@ -1,11 +1,13 @@
 import React, { useMemo, memo } from 'react';
 import cx from 'clsx';
+import dayjs from 'dayjs';
 import { Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
-import { useCurrentVote, usePreVote, usePosStakeForVotes, useCurrentVotingRound } from 'governance/src/store';
+import { useCurrentVote, usePreVote, usePosStakeForVotes, useCurrentVotingRound, useCurrentVotingRoundEndTimestamp } from 'governance/src/store';
 import QuestionMark from 'common/assets/icons/QuestionMark.svg';
 import VoteUp from 'governance/src/assets/VoteUp.svg';
 import VoteDown from 'governance/src/assets/VoteDown.svg';
 import { showTipModal } from 'governance/src/components/TipModal';
+import { NumFormatWithEllipsis } from 'common/utils/numFormat';
 import MathTex from './MathTex';
 
 const options = [
@@ -45,6 +47,7 @@ const Result: React.FC<{
     const unit = type === 'Reward of block' ? ' CFX/Block' : '%';
 
     const currentVotingRound = useCurrentVotingRound();
+    const currentVotingRoundEndTimestamp = useCurrentVotingRoundEndTimestamp();
 
     const totalVotingRights = useMemo(() => {
         const voting = voteDetail?.voting;
@@ -65,7 +68,7 @@ const Result: React.FC<{
             <div className="mb-[12px] flex items-center">
                 <div
                     className={cx(
-                        'w-fit px-[12px] h-[28px] leading-[28px] rounded-[4px] text-[14px] font-medium',
+                        'w-fit px-[12px] h-[28px] leading-[28px] rounded-[4px] text-[14px] font-medium whitespace-nowrap',
                         type === 'Reward of block' ? 'text-[#7984ED] bg-[#F3F6FF]' : 'text-[#6FC5B1] bg-[#F1FDFA]'
                     )}
                 >
@@ -73,7 +76,7 @@ const Result: React.FC<{
                 </div>
 
                 {currentVotingRound! > 1 && (
-                    <div className="flex items-center ml-[16px] text-[12px] text-[#898D9A]">
+                    <div className="flex items-center ml-[16px] text-[12px] text-[#898D9A] whitespace-nowrap">
                         Effective voting rights
                         <img
                             src={QuestionMark}
@@ -86,14 +89,14 @@ const Result: React.FC<{
                             }
                         />
                         <span className="ml-[8px]">
-                            {totalVotingRights ? totalVotingRights.toDecimalStandardUnit() : '--'} /{' '}
-                            {posStakeForVotes ? posStakeForVotes.mul(Unit.fromMinUnit(0.05)).toDecimalStandardUnit() : '--'}
+                            {totalVotingRights ? <NumFormatWithEllipsis value={totalVotingRights.toDecimalStandardUnit()} /> : '--'} /{' '}
+                            {posStakeForVotes ? <NumFormatWithEllipsis value={posStakeForVotes.mul(Unit.fromMinUnit(0.05)).toDecimalStandardUnit()} /> : '--'}
                         </span>
                     </div>
                 )}
             </div>
 
-            <div className="mb-[16px] flex justify-between items-center">
+            <div className="mb-[24px] flex justify-between items-center">
                 <div>
                     <div className="mb-[4px] flex items-center text-[14px] text-[#898D9A]">
                         Previous voting {type === 'Reward of block' ? 'reward' : 'APY'}
@@ -135,7 +138,10 @@ const Result: React.FC<{
                 </div>
             </div>
 
-            <div className="flex justify-between items-center">
+            <div className="relative flex justify-between items-center">
+                <span className="absolute left-[0px] -top-[26px] text-[10px] text-[#898D9A] font-normal">
+                    Estimated execution at {currentVotingRoundEndTimestamp ? dayjs(currentVotingRoundEndTimestamp).format('YYYY-MM-DD HH:mm:ss') : '--'}
+                </span>
                 {options.map(({ name, color }) => (
                     <div key={name} className="text-[12px] leading-[12px] text-[#3D3F4C]">
                         <span className="mr-[4px] inline-block w-[8px] h-[8px] rounded-full select-none" style={{ backgroundColor: color }} />
@@ -154,7 +160,11 @@ const Result: React.FC<{
                     <div key={name} className="">
                         <div className="mb-[4px] text-[12px] leading-[16px] text-[#939393]">Voting power</div>
                         <div className="mb-[12px] text-[14px] leading-[18px] font-medium" style={{ color: index === 1 ? '#3D3F4C' : color }}>
-                            {voteDetail?.voting?.[index]?.toDecimalStandardUnit() ?? 0}
+                            {voteDetail?.voting?.[index]?.toDecimalStandardUnit() ? (
+                                <NumFormatWithEllipsis value={voteDetail?.voting?.[index]?.toDecimalStandardUnit()} />
+                            ) : (
+                                0
+                            )}
                         </div>
 
                         <div className="mb-[4px] text-[12px] leading-[16px] text-[#939393]">Proportion</div>
