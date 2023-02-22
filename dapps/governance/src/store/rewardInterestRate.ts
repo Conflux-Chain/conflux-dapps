@@ -65,6 +65,7 @@ interface RewardRateStore {
     };
     currentAccountVoted: Voting | undefined;
     posStakeForVotes?: Unit;
+    posStakeForPreVotes?: Unit;
 }
 
 const zero = Unit.fromMinUnit(0);
@@ -82,6 +83,7 @@ const initState = {
     preVotingOrigin: undefined,
     currentAccountVoted: undefined,
     posStakeForVotes: undefined,
+    posStakeForPreVotes: undefined,
 } as RewardRateStore;
 export const rewardRateStore = create(subscribeWithSelector(() => initState));
 
@@ -92,6 +94,7 @@ let unsubFetchPreVoting: VoidFunction | null = null;
 let unsubFetchCurrentExecValue: VoidFunction | null = null;
 let unsubCalPreVote1: VoidFunction | null = null;
 let unsubCalPreVote2: VoidFunction | null = null;
+let unsubCalPreVote3: VoidFunction | null = null;
 let unsubPosStakeForVotes: VoidFunction | null = null;
 let unsubCurrentBlockNumber: VoidFunction | null = null;
 rewardRateStore.subscribe(
@@ -104,6 +107,7 @@ rewardRateStore.subscribe(
         unsubFetchCurrentExecValue?.();
         unsubCalPreVote1?.();
         unsubCalPreVote2?.();
+        unsubCalPreVote3?.();
         unsubPosStakeForVotes?.();
         unsubCurrentBlockNumber?.();
         if (!currentVotingRound) {
@@ -166,6 +170,22 @@ rewardRateStore.subscribe(
                 },
             }
         )();
+
+        fetchChain({
+            rpcUrl: Networks.core.rpcUrls[0],
+            method: 'cfx_call',
+            params: [
+                {
+                    to: paramsControlContractAddress,
+                    data: paramsControlContract.posStakeForVotes('0x' + Number(currentVotingRound - 1).toString(16)).encodeABI(),
+                },
+                'latest_state',
+            ],
+        }).then((r) => {
+            if (!r) return;
+            const res = decodeHexResult(paramsControlContract.posStakeForVotes('0x' + Number(currentVotingRound - 1).toString(16))._method.outputs, r)?.[0];
+            rewardRateStore.setState({ posStakeForPreVotes: Unit.fromMinUnit(res) });
+        });
 
         // fetch currentExecValue
         unsubFetchCurrentExecValue = intervalFetchChain(
@@ -267,6 +287,11 @@ rewardRateStore.subscribe(
             () => calcPreVote(currentVotingRound),
             { fireImmediately: true }
         );
+        unsubCalPreVote3 = rewardRateStore.subscribe(
+            (state) => state.posStakeForPreVotes,
+            () => calcPreVote(currentVotingRound),
+            { fireImmediately: true }
+        );
 
         // calc currentVotingRoundEndBlockNumber
         const currentVotingRoundEndBlockNumber = currentDataConfig.start.add(Unit.fromMinUnit(currentVotingRound).mul(currentDataConfig.duration));
@@ -296,8 +321,8 @@ rewardRateStore.subscribe(
 );
 
 const calcPreVote = (currentVotingRound: number) => {
-    const { currentExecValueOrigin, preVotingOrigin } = rewardRateStore.getState();
-    if (!currentExecValueOrigin || !preVotingOrigin) return;
+    const { currentExecValueOrigin, preVotingOrigin, posStakeForPreVotes } = rewardRateStore.getState();
+    if (!currentExecValueOrigin || !preVotingOrigin || !posStakeForPreVotes) return;
 
     const currentExecValue = {
         powBaseReward: Unit.fromMinUnit(currentExecValueOrigin?.powBaseReward ?? 0),
@@ -322,7 +347,8 @@ const calcPreVote = (currentVotingRound: number) => {
                         value: currentExecValue.interestRate,
                     },
                 },
-                preVoting
+                preVoting,
+                posStakeForPreVotes
             ),
         });
     } else {
@@ -353,9 +379,13 @@ const calcCurrentVote = () => {
 rewardRateStore.subscribe((state) => state.currentVoting, calcCurrentVote, { fireImmediately: true });
 rewardRateStore.subscribe((state) => state.preVote, calcCurrentVote, { fireImmediately: true });
 
-const calcNextVotingValue = (curVote: Vote, nextVoting: Voting): Vote => {
+const calcNextVotingValue = (curVote: Vote, nextVoting: Voting, posStakeForPreVotes?: Unit): Vote => {
     const calcValue = (type: 'powBaseReward' | 'interestRate') => {
         const totalOptionVotes = nextVoting[type][0].add(nextVoting[type][1]).add(nextVoting[type][2]);
+        if (posStakeForPreVotes && totalOptionVotes.lessThan(posStakeForPreVotes.mul(Unit.fromMinUnit(0.05)))) {
+            return curVote[type].value;
+        }
+
         const product = new Unit(
             Decimal.pow(
                 (two as any).value,
