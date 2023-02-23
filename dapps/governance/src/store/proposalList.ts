@@ -1,4 +1,4 @@
-import create from 'zustand';
+import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
 import LocalStorage from 'localstorage-enhance';

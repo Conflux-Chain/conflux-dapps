@@ -1,4 +1,4 @@
-import create from 'zustand';
+import { create } from 'zustand';
 import { store as confluxStore, Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
 import { createConfluxMaxAvailableBalanceTracker, createBalanceTracker } from '@cfxjs/use-wallet-enhance-react';
 import Networks from 'common/conf/Networks';

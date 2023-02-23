@@ -1,4 +1,4 @@
-import create from 'zustand';
+import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import dayjs from 'dayjs';
 import { Unit, store as fluentStore } from '@cfxjs/use-wallet-react/conflux/Fluent';
