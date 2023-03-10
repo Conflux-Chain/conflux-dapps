@@ -1,4 +1,4 @@
-import create from 'zustand';
+import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { store as walletStore, provider, Unit } from '@cfxjs/use-wallet-react/ethereum';
 import { networkStore, useCurrentFromChain, Contracts } from './index';

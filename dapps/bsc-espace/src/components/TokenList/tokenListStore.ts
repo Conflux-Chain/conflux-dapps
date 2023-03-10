@@ -1,4 +1,4 @@
-import create from 'zustand';
+import { create } from 'zustand';
 import { type Token } from 'bsc-espace/src/store/index';
 import LocalStorage from 'localstorage-enhance';
 import { networkStore, setToken, tokenStore } from 'bsc-espace/src/store/index';

@@ -1,4 +1,4 @@
-import create from 'zustand';
+import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { store as fluentStore } from '@cfxjs/use-wallet-react/conflux/Fluent';
 import { validateCfxAddress, cfxMappedEVMSpaceAddress } from 'common/utils/addressUtils';

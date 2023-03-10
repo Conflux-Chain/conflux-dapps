@@ -1,5 +1,5 @@
 import { debounce } from 'lodash-es';
-import create from 'zustand';
+import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { store as confluxStore, Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
 import { posContractAddress, posContract } from 'pos/src/utils/contracts';

@@ -43,10 +43,12 @@ const Apps: React.FC = () => {
     const tokenList = useTokenList();
     const [searchParams, setSearchParams] = useSearchParams();
     const initTokenAndFlip = useCallback(() => {
-        if (hasInit.current) return;
+        if (hasInit.current) return undefined;
+
+        const sourceChain = searchParams.get('sourceChain');
+        if (!sourceChain) return undefined;
         if (tokenList) {
             hasInit.current = true;
-            const sourceChain = searchParams.get('sourceChain');
             const flip = sourceChain !== 'Conflux Core';
             LocalStorage.setItem({ key: 'flipped', data: flip, namespace: 'cross-space' });
 
@@ -64,6 +66,7 @@ const Apps: React.FC = () => {
             setCurrentToken(targetToken);
             return flip;
         }
+        return undefined;
     }, [tokenList]);
 
     const [flipped, setFlipped] = useState(() => {
@@ -120,7 +123,7 @@ const Apps: React.FC = () => {
                         transform,
                         rotateY: '180deg',
                     }}
-                    isShow={flipped}
+                    isShow={!!flipped}
                     handleClickFlipped={handleClickFlipped}
                 />
             </div>
