@@ -1,4 +1,4 @@
-import create from 'zustand';
+import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import Config from 'bsc-espace/config';
 import LocalStorage from 'localstorage-enhance';

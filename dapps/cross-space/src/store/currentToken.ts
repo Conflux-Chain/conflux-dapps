@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import create from 'zustand';
+import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import LocalStorage from 'localstorage-enhance';
 import Cache from 'common/utils/LRUCache';

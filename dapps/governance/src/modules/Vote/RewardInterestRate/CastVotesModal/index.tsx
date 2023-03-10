@@ -121,7 +121,7 @@ const CastVotesModalContent: React.FC = memo(({}) => {
             <div className="mt-[16px] mb-[24px] px-[16px] py-[12px] rounded-[4px] text-[14px] leading-[18px] text-[#3D3F4C] bg-[#FCF1E8]">
                 <div>
                     1. The total voting rights is votes you have locked. You can freely distribute votes on the POW and POS rewards rate parameters. The new
-                    rewards is according to: <MathTex className='ml-[4px]' type='result'/>
+                    rewards is according to: <MathTex type='result'/>
                 </div>
                 <div className="mt-[10px]">2. The previous rate is calculated from the previous round of voting.</div>
                 <div className="mt-[4px]">3. During the valid voting period, you can reassign your votes at any time.</div>

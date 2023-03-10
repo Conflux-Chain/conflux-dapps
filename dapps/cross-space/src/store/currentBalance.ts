@@ -1,4 +1,4 @@
-import create from 'zustand';
+import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { store as fluentStore, Unit, provider as fluentProvider } from '@cfxjs/use-wallet-react/conflux/Fluent';
 import { store as metaMaskStore } from '@cfxjs/use-wallet-react/ethereum';
