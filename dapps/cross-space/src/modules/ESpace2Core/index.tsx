@@ -489,9 +489,9 @@ const Withdraw2Core: React.FC<{ isShow: boolean; inTransfer: boolean; setInTrans
                 href="https://conflux-faucets.com/"
                 target="_blank"
                 rel="noopener"
-                className="mb-[20px] block text-[14px] !text-[#A9ABB2] hover:underline"
+                className="mb-[8px] block text-[14px] !text-[#808be7] underline"
             >
-                No CFX for gas? Check <span className="underline text-[#808be7]">this community</span> maintained faucet
+                No CFX for gas? Check this community maintained faucet
             </a>
 
             <Button

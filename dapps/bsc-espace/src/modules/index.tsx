@@ -134,8 +134,8 @@ const Steps: React.FC<{ currentStep: 0 | 1 | 2; changeCurrentStep: (step: 0 | 1 
             <div className={cx('mt-[24px] mb-[16px] text-[14px] text-[#898D9A] transition-opacity', !hasPeggedCFX && currentStep === 2 && 'opacity-0')}>
                 {steps[currentStep].desc}
                 {currentStep === 1 && (
-                    <a href="https://conflux-faucets.com/" target="_blank" rel="noopener" className="block mt-[4px] text-[12px] !text-[#A9ABB2] hover:underline">
-                        No CFX for gas? Check <span className="underline text-[#808be7]">this community</span> maintained faucet
+                    <a href="https://conflux-faucets.com/" target="_blank" rel="noopener" className="block mt-[4px] text-[12px] !text-[#808be7] underline">
+                        No CFX for gas? Check this community maintained faucet
                     </a>
                 )}
             </div>
