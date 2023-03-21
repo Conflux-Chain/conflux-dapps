@@ -44,11 +44,11 @@
         "build:shuttle-flow": "turbo run build --scope=shuttle-flow"
     },
     "devDependencies": {
+        "@types/node": "latest",
+        "only-allow": "latest",
         "prettier": "latest",
         "turbo": "latest",
-        "typescript": "latest",
-        "@types/node": "latest",
-        "only-allow": "latest"
+        "typescript": "latest"
     },
     "engines": {
         "npm": ">=7.0.0",

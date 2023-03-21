@@ -473,7 +473,7 @@ const Withdraw2Core: React.FC<{ isShow: boolean; inTransfer: boolean; setInTrans
 				</div>
 			}
 
-			<div className='flex items-center mb-[20px]'>
+			<div className='flex items-center mb-[8px]'>
 				<span className='mr-[8px] text-[14px] text-[#A9ABB2]'>{isCurrentTokenHasEnoughLiquidity ? 'Withdrawable:' : 'Pending:'}</span>
 				{(!inWithdraw && !inTransfer) && 
 					<span className='text-[16px] text-[#3D3F4C] font-medium'>
@@ -485,17 +485,26 @@ const Withdraw2Core: React.FC<{ isShow: boolean; inTransfer: boolean; setInTrans
 				}
 			</div>
 
-				<Button
-					id="eSpace2Core-withdraw"
-					className='min-w-[100px] px-[38px]'
-					size="large"
-					disabled={disabled}
-					loading={inWithdraw || inTransfer}
-					onClick={handleClick}
-					tabIndex={isShow ? 7 : -1}
-				>
-					{isCurrentTokenHasEnoughLiquidity ? 'Withdraw' : 'Refund'}
-				</Button>
+            <a
+                href="https://conflux-faucets.com/"
+                target="_blank"
+                rel="noopener"
+                className="mb-[8px] block text-[14px] !text-[#808be7] underline"
+            >
+                No CFX for gas? Check this community maintained faucet
+            </a>
+
+            <Button
+                id="eSpace2Core-withdraw"
+                className='min-w-[100px] px-[38px]'
+                size="large"
+                disabled={disabled}
+                loading={inWithdraw || inTransfer}
+                onClick={handleClick}
+                tabIndex={isShow ? 7 : -1}
+            >
+                {isCurrentTokenHasEnoughLiquidity ? 'Withdraw' : 'Refund'}
+            </Button>
 		</>
 	);
 };
