@@ -71,7 +71,7 @@ export default ({ onChange, address }: Props) => {
                 <Row className="mt-2">
                     <Col span={3}>Price</Col>
                     <Col span={20} className="text-gray-600" id="span_SubscriptionPrice">
-                        {d.price || '--'}
+                        ${d.price || '--'}
                     </Col>
                 </Row>
                 <Row className="mt-3">
@@ -121,7 +121,7 @@ export default ({ onChange, address }: Props) => {
                     <Col span={21} className="text-right">
                         Total:{' '}
                         <span className="text-lg" id="span_SubscriptionTotal">
-                            {amount * Number(d.price)}
+                            ${amount * Number(d.price)}
                         </span>
                     </Col>
                     <Col span={3} className="text-right">
