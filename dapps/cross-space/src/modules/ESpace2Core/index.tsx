@@ -16,12 +16,15 @@ import Input from 'common/components/Input';
 import Tooltip from 'common/components/Tooltip';
 import useI18n from 'common/hooks/useI18n';
 import Fluent from 'common/assets/wallets/Fluent.svg';
+import MetaMask from 'common/assets/wallets/MetaMask.svg';
 import TokenList from 'cross-space/src/components/TokenList';
 import TurnPage from 'cross-space/src/assets/turn-page.svg';
 import Switch from 'cross-space/src/assets/switch.svg';
 import Success from 'cross-space/src/assets/success.svg';
 import Suggest from 'cross-space/src/assets/suggest.svg';
 import Copy from 'common/assets/icons/copy.svg';
+import eSpace from 'cross-space/src/assets/Conflux-eSpace.svg';
+import Core from 'cross-space/src/assets/Conflux-Core.svg';
 import { showToast } from 'common/components/showPopup/Toast';
 import { tokenListStore } from 'cross-space/src/components/TokenList/tokenListStore';
 import { handleWithdraw } from './handleWithdraw';
@@ -51,36 +54,35 @@ const ESpace2Core: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 
 	const [inTransfer, setInTransfer] = useState(false);
 	const isMetaMaskHostedByFluent = useIsMetaMaskHostedByFluent();
-	
+
 	return (
 		<a.div className="cross-space-module absolute" style={style}>
-			<div className="p-[16px] rounded-[8px] border border-[#EAECEF] mb-[16px]">
+			{/* <div className="p-[16px] rounded-[8px] border border-[#EAECEF] mb-[16px]">
 				<div className='relative flex items-center mb-[12px]'>
 					<span className='mr-[8px] text-[14px] text-[#A9ABB2]'>To:</span>
-					<span className='mr-[8px] text-[16px] text-[#2959B4] font-medium'>Conflux Core</span>
-					
-					<button
-						id="eSpace2Core-flip"
-						className='turn-page flex justify-center items-center w-[28px] h-[28px] rounded-full cursor-pointer transition-transform hover:scale-105'
-						onClick={handleClickFlipped}
-						tabIndex={isShow ? 1 : -1}
-					>
-						<img src={TurnPage} alt="turn page" className='w-[14px] h-[14px]' draggable="false" />
-					</button>
-				</div>
+					<span className='mr-[8px] text-[16px] text-[#2959B4] font-medium'>Conflux Core</span> */}
+			<button
+				id="eSpace2Core-flip"
+				className='turn-page flex justify-center items-center w-[28px] h-[28px] rounded-full cursor-pointer transition-transform hover:scale-105 absolute left-[224px] top-[176px] bg-white'
+				onClick={handleClickFlipped}
+				tabIndex={isShow ? 1 : -1}
+			>
+				<img src={TurnPage} alt="turn page" className='w-[14px] h-[14px]' draggable="false" />
+			</button>
+			{/* </div>
 
 				<FluentConnected id="eSpace2Core-auth-fluent-connectedAddress" tabIndex={isShow ? 2 : -1}  />
-			</div>
+			</div> */}
 
 			<TokenList space="eSpace" />
 
-			<Transfer2Bridge isShow={isShow} inTransfer={inTransfer} setInTransfer={setInTransfer} /> 
+			<Transfer2Bridge isShow={isShow} inTransfer={inTransfer} setInTransfer={setInTransfer} />
 
-			<div className="mt-[24px] flex items-center h-[24px] text-[16px] text-[#3D3F4C] font-medium">
+			{/* <div className="mt-[24px] flex items-center h-[24px] text-[16px] text-[#3D3F4C] font-medium">
 				<span className="mr-[8px] px-[10px] h-[24px] leading-[24px] rounded-[4px] bg-[#F0F3FF] text-center text-[12px] text-[#808BE7]">Step 2</span>
 				Withdraw
-			</div>
-			{(currentToken.isNative || isMetaMaskHostedByFluent) ? 
+			</div> */}
+			{(currentToken.isNative || isMetaMaskHostedByFluent) ?
 				<AuthCoreSpace
 					id="eSpace2Core-auth-both-withdraw"
 					className='mt-[14px]'
@@ -102,31 +104,51 @@ const ESpace2Core: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 }
 
 const FluentConnected: React.FC<{ id?: string; tabIndex?: number; }> = ({ id, tabIndex }) => {
-	const i18n = useI18n(transitions);
 	const fluentAccount = useFluentAccount();
 	const isMetaMaskHostedByFluent = useIsMetaMaskHostedByFluent();
 
 	return (
 		<AuthCoreSpace
 			id={id}
-			size="small"
+			size="mini"
 			reverse
 			showLogo
 			tabIndex={tabIndex}
 			checkChainMatch={!isMetaMaskHostedByFluent}
-			authContent={() => 
+			connectTextType='concise'
+			authContent={() =>
 				<div className='relative flex items-center'>
 					<img src={Fluent} alt='fluent icon' className='mr-[4px] w-[14px] h-[14px]' />
-					<span className='mr-[8px] text-[16px] text-[#3D3F4C] font-medium'>{shortenAddress(fluentAccount!)}</span>
-					<span className='px-[6px] h-[20px] leading-[20px] rounded-[3px] bg-[#44D7B6] text-[12px] text-white'>{i18n.connected}</span>
-				</div>	
+					<span className='mr-[8px] text-[14px] text-[#3D3F4C]'>{shortenAddress(fluentAccount!)}</span>
+				</div>
 			}
 		/>
 	);
 }
 
+const MetaMaskConnected: React.FC<{ id?: string; tabIndex?: number; }> = ({ id, tabIndex }) => {
+	const metaMaskAccount = useMetaMaskAccount();
+	const isMetaMaskHostedByFluent = useIsMetaMaskHostedByFluent();
+	return (
+		<AuthESpace
+			id={id}
+			size="mini"
+			reverse
+			showLogo
+			tabIndex={tabIndex}
+			checkChainMatch={!isMetaMaskHostedByFluent}
+			connectTextType='concise'
+			authContent={() =>
+				<div className='relative flex items-center'>
+					<img src={MetaMask} alt='fluent icon' className='mr-[4px] w-[14px] h-[14px]' />
+					<span className='mr-[8px] text-[14px] text-[#3D3F4C]'>{shortenAddress(metaMaskAccount!)}</span>
+				</div>
+			}
+		/>
+	)
+}
+
 const Transfer2Bridge: React.FC<{ isShow: boolean; inTransfer: boolean; setInTransfer: React.Dispatch<React.SetStateAction<boolean>>; }> = memo(({ isShow, inTransfer, setInTransfer }) => {
-	const i18n = useI18n(transitions);
 	const isMetaMaskHostedByFluent = useIsMetaMaskHostedByFluent();
 
 	const { currentToken } = useToken();
@@ -134,38 +156,69 @@ const Transfer2Bridge: React.FC<{ isShow: boolean; inTransfer: boolean; setInTra
 	const metaMaskStatus = useMetaMaskStatus();
 	const [mode, setMode] = useState<'normal' | 'advanced'>(() => {
 		if (metaMaskStatus === 'not-installed') {
-			LocalStorage.setItem({ key: 'eSpace-transfer2bridge-mode', data: 'advanced', namespace: 'cross-space'});
+			LocalStorage.setItem({ key: 'eSpace-transfer2bridge-mode', data: 'advanced', namespace: 'cross-space' });
 			return 'advanced';
 		}
 		const local = LocalStorage.getItem('eSpace-transfer2bridge-mode', 'cross-space') as 'normal';
 		if (local === 'normal' || local === 'advanced') {
 			return local;
 		}
-		LocalStorage.setItem({ key: 'eSpace-transfer2bridge-mode', data: 'normal', namespace: 'cross-space'});
+		LocalStorage.setItem({ key: 'eSpace-transfer2bridge-mode', data: 'normal', namespace: 'cross-space' });
 		return 'normal';
 	});
 
 	const switchMode = useCallback(() => {
 		setMode(pre => {
-			LocalStorage.setItem({ key: 'eSpace-transfer2bridge-mode', data: pre === 'normal' ? 'advanced' : 'normal', namespace: 'cross-space'});
+			LocalStorage.setItem({ key: 'eSpace-transfer2bridge-mode', data: pre === 'normal' ? 'advanced' : 'normal', namespace: 'cross-space' });
 			return pre === 'normal' ? 'advanced' : 'normal';
 		});
 	}, []);
 
 	useEffect(() => {
 		if (!currentToken.isNative) {
-			LocalStorage.setItem({ key: 'eSpace-transfer2bridge-mode', data: 'normal', namespace: 'cross-space'});
+			LocalStorage.setItem({ key: 'eSpace-transfer2bridge-mode', data: 'normal', namespace: 'cross-space' });
 			setMode('normal');
 		}
 	}, [currentToken]);
 
 	return (
 		<>
-			<div className="mt-[24px] flex justify-between items-center h-[24px] text-[16px] text-[#3D3F4C] font-medium">
-				<span className="inline-flex items-center">
+			<div className='w-[432px] h-[96px] rounded-[8px] border-[1px] border-[#EAECEF] my-[16px] px-[12px] py-[10px]'>
+				<div className='flex justify-between mb-[11px] items-center'>
+					<div className='text-[24px] text-[#898D9A] font-medium'>0</div>
+					<div className='text-[16px] text-[#3D3F4C] font-medium flex items-center'>
+						<img src={eSpace} alt="conflux-eSpace" draggable={false} className="h-[20px] w-[20px] mr-[4px]" />
+						Conflux eSpace
+					</div>
+				</div>
+				<div className='flex justify-between items-center'>
+					<div className='text-[14px] text-[#A9ABB2] font-normal'>Balance:---</div>
+					<MetaMaskConnected id="eSpace2Core-auth-fluent-connectedAddress" tabIndex={isShow ? 7 : -1} />
+				</div>
+			</div>
+			<div className='w-[432px] h-[96px] rounded-[8px] border-[1px] border-[#EAECEF] my-[16px] px-[12px] py-[10px]'>
+				<div className='flex justify-between mb-[11px] items-center'>
+					<div className='text-[24px] text-[#898D9A] font-medium'>0</div>
+					<div className='text-[16px] text-[#3D3F4C] font-medium flex items-center'>
+						<img src={Core} alt="conflux-Core" draggable={false} className="h-[20px] w-[20px] mr-[4px]" />
+						Conflux Core
+					</div>
+				</div>
+				<div className='flex justify-between items-center'>
+					<div className='text-[14px] text-[#A9ABB2] font-normal'>receive</div>
+					<FluentConnected id="eSpace2Core-auth-fluent-connectedAddress" tabIndex={isShow ? 2 : -1} />
+				</div>
+			</div>
+
+			<div className="mt-[24px] flex justify-between items-center h-[24px] text-[14px] text-[#3D3F4C]">
+				{/* <span className="inline-flex items-center">
 					<span className="mr-[8px] px-[10px] h-[24px] leading-[24px] rounded-[4px] bg-[#F0F3FF] text-center text-[12px] text-[#808BE7]">Step 1</span>
 					Transfer Token
-				</span>
+				</span> */}
+				<span>Advanced Mode</span>
+				{currentToken.isNative &&
+					<switch/>
+				}
 
 				{currentToken.isNative &&
 					<button className="inline-flex items-center cursor-pointer select-none" id="eSpace2Core-switchMode" onClick={switchMode} tabIndex={isShow ? 3 : -1} type="button">
@@ -176,12 +229,12 @@ const Transfer2Bridge: React.FC<{ isShow: boolean; inTransfer: boolean; setInTra
 					</button>
 				}
 			</div>
-			<div className="mt-[8px] text-[#A9ABB2] text-[14px] leading-[18px]">
+			{/* <div className="mt-[8px] text-[#A9ABB2] text-[14px] leading-[18px]">
 				{mode === 'normal' && `Transfer ${currentToken.evm_space_symbol} to cross space bridge.`}
 				{mode === 'advanced' && `Self-transfer ${currentToken.evm_space_symbol} to cross space birdge on eSpace.`}
-			</div>
+			</div> */}
 
-			{mode === 'normal' && 
+			{mode === 'normal' &&
 				<>
 					{isMetaMaskHostedByFluent &&
 						<AuthESpace
@@ -301,7 +354,7 @@ const TransferNormalMode: React.FC<{ isShow: boolean; inTransfer: boolean; setIn
 					min={Unit.fromMinUnit(1).toDecimalStandardUnit()}
 					max={maxAvailableBalance?.toDecimalStandardUnit()}
 					disabled={inTransfer || !isBalanceGreaterThan0}
-					{...register('amount', { required: !needApprove, min: Unit.fromMinUnit(1).toDecimalStandardUnit(), max: maxAvailableBalance?.toDecimalStandardUnit(), onBlur: handleCheckAmount})}
+					{...register('amount', { required: !needApprove, min: Unit.fromMinUnit(1).toDecimalStandardUnit(), max: maxAvailableBalance?.toDecimalStandardUnit(), onBlur: handleCheckAmount })}
 					suffix={
 						<button
 							className={cx("absolute right-[16px] top-[50%] -translate-y-[50%] text-[14px] text-[#808BE7] cursor-pointer", isBalanceGreaterThan0 && 'hover:underline')}
@@ -328,24 +381,24 @@ const TransferNormalMode: React.FC<{ isShow: boolean; inTransfer: boolean; setIn
 					{needApprove === false && !inTransfer && i18n.transfer}
 				</Button>
 			</div>
-			
+
 			<div className="text-[14px] leading-[18px] text-[#3D3F4C]">
 				<span className="text-[#15C184]" id="eSpace-balance">eSpace</span> Balance:
 				{inTransfer && <span id="eSpace2Core-currentTokenBalance" className="ml-[4px]">...</span>}
 				{!inTransfer &&
 					<>
-						{currentTokenBalance ? 
+						{currentTokenBalance ?
 							(
 								(currentTokenBalance.toDecimalMinUnit() !== '0' && Unit.lessThan(currentTokenBalance, Unit.fromStandardUnit('0.000001'))) ?
-								<Tooltip text={`${numFormat(currentTokenBalance.toDecimalStandardUnit())} ${currentToken.evm_space_symbol}`} placement="right">
-									<span
-										id="eSpace2Core-currentTokenBalance"
-										className="ml-[4px]"
-									>
-										＜0.000001 {currentToken.evm_space_symbol}
-									</span>
-								</Tooltip>
-								: <span id="eSpace2Core-currentTokenBalance" className="ml-[4px]">{`${numFormat(currentTokenBalance.toDecimalStandardUnit())} ${currentToken.evm_space_symbol}`}</span>
+									<Tooltip text={`${numFormat(currentTokenBalance.toDecimalStandardUnit())} ${currentToken.evm_space_symbol}`} placement="right">
+										<span
+											id="eSpace2Core-currentTokenBalance"
+											className="ml-[4px]"
+										>
+											＜0.000001 {currentToken.evm_space_symbol}
+										</span>
+									</Tooltip>
+									: <span id="eSpace2Core-currentTokenBalance" className="ml-[4px]">{`${numFormat(currentTokenBalance.toDecimalStandardUnit())} ${currentToken.evm_space_symbol}`}</span>
 							)
 							: <span id="eSpace2Core-currentTokenBalance" className="ml-[4px]">loading...</span>
 						}
@@ -394,7 +447,7 @@ const TransferAdvancedMode: React.FC<{ isShow: boolean; }> = ({ isShow }) => {
 				size="small"
 				reverse
 				tabIndex={isShow ? 4 : -1}
-				authContent={() => 
+				authContent={() =>
 					<button
 						className="relative w-full font-medium text-[14px] h-[18px] text-[#15C184] flex items-center cursor-pointer hover:ring-[2px] ring-[#15C184] transition-shadow"
 						onClick={setCopied}
@@ -410,7 +463,7 @@ const TransferAdvancedMode: React.FC<{ isShow: boolean; }> = ({ isShow }) => {
 						{!isCopied && (
 							<>
 								{eSpaceMirrorAddress}
-								<img className="absolute top-[50%] right-0 translate-y-[-50%] w-[16px] h-[16px]" src={Copy} alt="copy icon"/>
+								<img className="absolute top-[50%] right-0 translate-y-[-50%] w-[16px] h-[16px]" src={Copy} alt="copy icon" />
 							</>
 						)}
 					</button>
@@ -448,13 +501,13 @@ const Withdraw2Core: React.FC<{ isShow: boolean; inTransfer: boolean; setInTrans
 	if (currentToken.isNative) {
 		disabled = fluentStatus === 'active' ? (!withdrawableBalance || Unit.equals(withdrawableBalance, Unit.fromMinUnit(0)) || inWithdraw || inTransfer) : fluentStatus !== 'not-active';
 	} else {
-		disabled = fluentStatus === 'active' && metaMaskStatus === 'active' ? 
+		disabled = fluentStatus === 'active' && metaMaskStatus === 'active' ?
 			(!withdrawableBalance || Unit.equals(withdrawableBalance, Unit.fromMinUnit(0)) || inWithdraw || inTransfer)
 			: (fluentStatus !== 'not-active' && metaMaskStatus !== 'not-active');
 	}
 
 	return (
-		<>	
+		<>
 			{isCurrentTokenHasEnoughLiquidity &&
 				<>
 					<div className="mt-[8px] text-[14px] leading-[20px] text-[#A9ABB2] ">
@@ -475,36 +528,36 @@ const Withdraw2Core: React.FC<{ isShow: boolean; inTransfer: boolean; setInTrans
 
 			<div className='flex items-center mb-[8px]'>
 				<span className='mr-[8px] text-[14px] text-[#A9ABB2]'>{isCurrentTokenHasEnoughLiquidity ? 'Withdrawable:' : 'Pending:'}</span>
-				{(!inWithdraw && !inTransfer) && 
+				{(!inWithdraw && !inTransfer) &&
 					<span className='text-[16px] text-[#3D3F4C] font-medium'>
 						{`${withdrawableBalance ? `${numFormat(withdrawableBalance.toDecimalStandardUnit())} ${currentToken.core_space_symbol}` : (currentToken.isNative && hasESpaceMirrorAddress ? 'loading...' : '--')}`}
 					</span>
 				}
-				{(inWithdraw || inTransfer) && 
+				{(inWithdraw || inTransfer) &&
 					<span className='text-[16px] text-[#3D3F4C] font-medium'>...</span>
 				}
 			</div>
 
-            <a
-                href="https://conflux-faucets.com/"
-                target="_blank"
-                rel="noopener"
-                className="mb-[8px] block text-[14px] !text-[#808be7] underline"
-            >
-                No CFX for gas? Check this community maintained faucet
-            </a>
+			<a
+				href="https://conflux-faucets.com/"
+				target="_blank"
+				rel="noopener"
+				className="mb-[8px] block text-[14px] !text-[#808be7] underline"
+			>
+				No CFX for gas? Check this community maintained faucet
+			</a>
 
-            <Button
-                id="eSpace2Core-withdraw"
-                className='min-w-[100px] px-[38px]'
-                size="large"
-                disabled={disabled}
-                loading={inWithdraw || inTransfer}
-                onClick={handleClick}
-                tabIndex={isShow ? 7 : -1}
-            >
-                {isCurrentTokenHasEnoughLiquidity ? 'Withdraw' : 'Refund'}
-            </Button>
+			<Button
+				id="eSpace2Core-withdraw"
+				className='min-w-[100px] px-[38px]'
+				size="large"
+				disabled={disabled}
+				loading={inWithdraw || inTransfer}
+				onClick={handleClick}
+				tabIndex={isShow ? 7 : -1}
+			>
+				{isCurrentTokenHasEnoughLiquidity ? 'Withdraw' : 'Refund'}
+			</Button>
 		</>
 	);
 };
