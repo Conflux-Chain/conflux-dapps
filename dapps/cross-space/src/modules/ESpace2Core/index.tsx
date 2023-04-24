@@ -470,11 +470,10 @@ const TransferNormalMode: React.FC<{ isShow: boolean; inTransfer: boolean; setIn
 	);
 }
 
-const TransferAdvancedMode: React.FC<{ isShow: boolean;mode: string; switchMode: () => void; }> = ({ isShow,mode,switchMode }) => {
+const TransferAdvancedMode: React.FC<{ isShow: boolean; mode: string; switchMode: () => void; }> = ({ isShow, mode, switchMode }) => {
 	const eSpaceMirrorAddress = useESpaceMirrorAddress();
 	const [isCopied, setCopied] = useClipboard(eSpaceMirrorAddress ?? '', { successDuration: 1500 });
 	const { currentToken } = useToken();
-	const isMetaMaskHostedByFluent = useIsMetaMaskHostedByFluent();
 
 	return (
 		<>
@@ -487,7 +486,7 @@ const TransferAdvancedMode: React.FC<{ isShow: boolean;mode: string; switchMode:
 				</div>
 				<div className='flex items-center text-[#3D3F4C] text-[14px]'>
 					{/* <MetaMaskConnected id="eSpace2Core-auth-fluent-connectedAddress" tabIndex={isShow ? 7 : -1} /> */}
-					<img src={AnyAddress} alt="any-address" draggable={false} className="w-[16px] h-[16px] mr-[4px]"/>
+					<img src={AnyAddress} alt="any-address" draggable={false} className="w-[16px] h-[16px] mr-[4px]" />
 					Any address
 				</div>
 			</div>
@@ -509,36 +508,6 @@ const TransferAdvancedMode: React.FC<{ isShow: boolean;mode: string; switchMode:
 					<Switch checked={mode === 'advanced'} onChange={switchMode} />
 				}
 			</div>
-
-			{isMetaMaskHostedByFluent &&
-				<AuthESpace
-					id="eSpace2Core-auth-both-transfer"
-					className='mt-[14px]'
-					fullWidth
-					size='large'
-					tabIndex={isShow ? 7 : -1}
-					connectTextType='wallet'
-					type="button"
-					authContent={() =>
-						{}
-					}
-				/>
-			}
-			{!isMetaMaskHostedByFluent &&
-				<AuthESpaceAndCore
-					id="eSpace2Core-auth-both-transfer"
-					className='mt-[14px]'
-					fullWidth
-					size='large'
-					tabIndex={isShow ? 7 : -1}
-					connectTextType='wallet'
-					type="button"
-					authContent={() =>
-						{}
-					}
-				/>
-
-			}
 
 			<div className='p-[12px] bg-[#F8F9FE]'>
 				<div className='flex text-[12px] text-[#898D9A] items-center'>
@@ -565,32 +534,19 @@ const TransferAdvancedMode: React.FC<{ isShow: boolean;mode: string; switchMode:
 
 			<AuthCoreSpace
 				id="eSpace2Core-auth-fluent-copyMirrowAddress"
-				size="small"
+				fullWidth
 				reverse
 				tabIndex={isShow ? 4 : -1}
 				authContent={() =>
-					<button
-						className="relative w-full font-medium text-[14px] h-[18px] text-[#15C184] flex items-center cursor-pointer hover:ring-[2px] ring-[#15C184] transition-shadow"
-						onClick={setCopied}
-						id="eSpace2Core-copyMirrowAddress"
-						tabIndex={isShow ? 4 : -1}
-					>
-						{isCopied && (
-							<>
-								Copy success!
-								<img className="ml-1 w-[16px] h-[16px]" src={Success} alt="success icon" />
-							</>
-						)}
-						{!isCopied && (
-							<>
-								{eSpaceMirrorAddress}
-								<img className="absolute top-[50%] right-0 translate-y-[-50%] w-[16px] h-[16px]" src={Copy} alt="copy icon" />
-							</>
-						)}
-					</button>
+					<div className='flex justify-between items-center px-[12px] w-full bg-[#FAFBFD] h-[48px] border-[1px] border-[#EAECEF] text-[#3D3F4C] text-[14px]'>
+						{eSpaceMirrorAddress}
+						<Tooltip text="复制成功" trigger='click' visible={isCopied}>
+							<img className="w-[16px] h-[16px] cursor-pointer" src={Copy} alt="copy icon" onClick={setCopied} />
+						</Tooltip>
+					</div>
+
 				}
 			/>
-			<div className="mt-[8px] w-full h-[1px] bg-[#EAECEF]"></div>
 		</>
 	);
 }
