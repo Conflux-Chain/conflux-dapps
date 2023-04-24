@@ -52,9 +52,10 @@ const transitions = {
 const ESpace2Core: React.FC<{ style: any; isShow: boolean; handleClickFlipped: () => void; }> = ({ style, isShow, handleClickFlipped }) => {
 	const i18n = useI18n(transitions);
 	const { currentToken } = useToken();
-
 	const [inTransfer, setInTransfer] = useState(false);
 	const isMetaMaskHostedByFluent = useIsMetaMaskHostedByFluent();
+	const fluentAccount = useFluentAccount();
+	const metaMaskAccount = useMetaMaskAccount();
 
 	return (
 		<a.div className="cross-space-module absolute" style={style}>
@@ -70,20 +71,12 @@ const ESpace2Core: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 			>
 				<img src={TurnPage} alt="turn page" className='w-[14px] h-[14px]' draggable="false" />
 			</button>
-			{/* </div>
-
-				<FluentConnected id="eSpace2Core-auth-fluent-connectedAddress" tabIndex={isShow ? 2 : -1}  />
-			</div> */}
 
 			<TokenList space="eSpace" />
 
 			<Transfer2Bridge isShow={isShow} inTransfer={inTransfer} setInTransfer={setInTransfer} />
 
-			{/* <div className="mt-[24px] flex items-center h-[24px] text-[16px] text-[#3D3F4C] font-medium">
-				<span className="mr-[8px] px-[10px] h-[24px] leading-[24px] rounded-[4px] bg-[#F0F3FF] text-center text-[12px] text-[#808BE7]">Step 2</span>
-				Withdraw
-			</div> */}
-			{(currentToken.isNative || isMetaMaskHostedByFluent) ?
+			{fluentAccount && metaMaskAccount && ((currentToken.isNative || isMetaMaskHostedByFluent) ?
 				<AuthCoreSpace
 					id="eSpace2Core-auth-both-withdraw"
 					className='mt-[14px]'
@@ -98,7 +91,7 @@ const ESpace2Core: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 					fullWidth
 					size="large"
 					authContent={() => <Withdraw2Core isShow={isShow} inTransfer={inTransfer} setInTransfer={setInTransfer} />}
-				/>
+				/>)
 			}
 		</a.div>
 	);
@@ -197,6 +190,7 @@ const Transfer2Bridge: React.FC<{ isShow: boolean; inTransfer: boolean; setInTra
 					<MetaMaskConnected id="eSpace2Core-auth-fluent-connectedAddress" tabIndex={isShow ? 7 : -1} />
 				</div>
 			</div>
+
 			<div className='w-[432px] h-[96px] rounded-[8px] border-[1px] border-[#EAECEF] my-[16px] px-[12px] py-[10px]'>
 				<div className='flex justify-between mb-[11px] items-center'>
 					<div className='text-[24px] text-[#898D9A] font-medium'>0</div>
@@ -211,21 +205,12 @@ const Transfer2Bridge: React.FC<{ isShow: boolean; inTransfer: boolean; setInTra
 				</div>
 			</div>
 
-			<div className="mt-[24px] flex justify-between items-center h-[24px] text-[14px] text-[#3D3F4C]">
-				{/* <span className="inline-flex items-center">
-					<span className="mr-[8px] px-[10px] h-[24px] leading-[24px] rounded-[4px] bg-[#F0F3FF] text-center text-[12px] text-[#808BE7]">Step 1</span>
-					Transfer Token
-				</span> */}
+			<div className="my-[17px] flex justify-between items-center h-[18px] text-[14px] text-[#3D3F4C]">
 				<span>Advanced Mode</span>
-				
 				{currentToken.isNative &&
-					<Switch checked={mode==='advanced'} onChange={switchMode}/>
+					<Switch checked={mode === 'advanced'} onChange={switchMode} />
 				}
 			</div>
-			{/* <div className="mt-[8px] text-[#A9ABB2] text-[14px] leading-[18px]">
-				{mode === 'normal' && `Transfer ${currentToken.evm_space_symbol} to cross space bridge.`}
-				{mode === 'advanced' && `Self-transfer ${currentToken.evm_space_symbol} to cross space birdge on eSpace.`}
-			</div> */}
 
 			{mode === 'normal' &&
 				<>
@@ -236,6 +221,7 @@ const Transfer2Bridge: React.FC<{ isShow: boolean; inTransfer: boolean; setInTra
 							fullWidth
 							size='large'
 							tabIndex={isShow ? 7 : -1}
+							connectTextType='wallet'
 							type="button"
 							authContent={() => <TransferNormalMode isShow={isShow} inTransfer={inTransfer} setInTransfer={setInTransfer} />}
 						/>
@@ -247,6 +233,7 @@ const Transfer2Bridge: React.FC<{ isShow: boolean; inTransfer: boolean; setInTra
 							fullWidth
 							size='large'
 							tabIndex={isShow ? 7 : -1}
+							connectTextType='wallet'
 							type="button"
 							authContent={() => <TransferNormalMode isShow={isShow} inTransfer={inTransfer} setInTransfer={setInTransfer} />}
 						/>
@@ -419,22 +406,29 @@ const TransferAdvancedMode: React.FC<{ isShow: boolean; }> = ({ isShow }) => {
 
 	return (
 		<>
-			<div className="mt-[10px] pl-[16px] py-[12px] bg-[#F8F9FE]">
-				<div className="flex items-center h-[20px] mb-[3px] text-[14px] text-[#3D3F4C] font-medium">
-					<img className="ml-[4px] mr-[8px] w-[16px] h-[16px]" src={Suggest} alt="suggest icon" />
-					Cautious:
+			<div className='p-[12px] bg-[#F8F9FE]'>
+				<div className='flex text-[12px] text-[#898D9A] items-center'>
+					<img className="mr-[4px] w-[14px] h-[14px]" src={Suggest} alt="suggest icon" />
+					Use&nbsp;&nbsp;<span className='text-[#3D3F4C]'>Conflux eSpace</span>
 				</div>
-				<ul className="list-disc pl-[23px] text-[14px] text-[#898D9A] leading-[18px]">
-					<li>Use <span className="text-[#15C184]">Conflux eSpace</span>.</li>
-					<li>Send your CFX to the <span className="text-[#3D3F4C] font-medium">following address</span>.</li>
-					<li>This address can <span className="text-[#3D3F4C] font-medium">only receive CFX.</span></li>
-				</ul>
+				<div className='flex text-[12px] text-[#898D9A] items-center'>
+					<img className="mr-[4px] w-[14px] h-[14px]" src={Suggest} alt="suggest icon" />
+					Send your CFX to the&nbsp;&nbsp;<span className='text-[#3D3F4C]'>following address</span>
+				</div>
+				<div className='flex text-[12px] text-[#898D9A] items-center'>
+					<img className="mr-[4px] w-[14px] h-[14px]" src={Suggest} alt="suggest icon" />
+					This address can&nbsp;&nbsp;<span className='text-[#3D3F4C]'>only receive CFX</span>
+				</div>
 			</div>
 
-			<div className="mt-[16px] mb-[10px] ">
-				<span className='mr-[8px] leading-[22px] text-[16px] text-[#3D3F4C] font-medium'>Transfer Address</span>
-				<span className='leading-[22px] text-[12px] text-[#898D9A]'>（Don’t save）</span>
+			<div className="mt-[16px] mb-[8px] flex items-center justify-between">
+				<div className='leading-[18px] text-[14px] text-[#3D3F4C]'>Transfer Address</div>
+				<div className='leading-[16px] text-[12px] text-[#898D9A] flex items-center'>
+					<img className="mr-[4px] w-[14px] h-[14px]" src={Suggest} alt="suggest icon" />
+					Don’t save
+				</div>
 			</div>
+
 			<AuthCoreSpace
 				id="eSpace2Core-auth-fluent-copyMirrowAddress"
 				size="small"

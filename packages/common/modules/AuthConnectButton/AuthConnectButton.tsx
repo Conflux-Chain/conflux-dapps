@@ -12,6 +12,7 @@ const transitions = {
         switchTo: 'Switch {walletName} to {chainName}',
         connect_concise: 'Connect {walletName}',
         connect_specific: 'Connect to {chainName} via {walletName}',
+        connect_wallet: 'Connect Wallet',
         connecting: '{walletName} Connecting...',
         not_installed: '{walletName} Not Installed',
     },
@@ -20,6 +21,7 @@ const transitions = {
         switchTo: '切换 {walletName} 至 {chainName}',
         connect_concise: '连接 {walletName}',
         connect_specific: '通过 {walletName} 连接到 {chainName}',
+        connect_wallet: '连接钱包',
         connecting: '{walletName} 连接中...',
         not_installed: '{walletName} 未安装',
     },
@@ -41,7 +43,7 @@ interface AuthInfo {
 export interface Props extends ButtonProps {
     authInfo: AuthInfo | Array<AuthInfo>;
     authContent: React.ReactNode | Function;
-    connectTextType?: 'concise' | 'specific';
+    connectTextType?: 'concise' | 'specific' | 'wallet';
 }
 
 const checkAuthPass = (authInfo: AuthInfo) => authInfo.currentStatus === 'active' && (authInfo.checkChainMatch ? authInfo.currentChainId === authInfo.network.chainId : true);
@@ -88,6 +90,7 @@ const AuthConnectButton: React.FC<Props> = ({
             {currentStatus === 'active' && !isChainMatch && connectTextType === 'concise' && `Switch Network`}
             {currentStatus === 'not-active' && connectTextType === 'specific' && `${compiled(i18n.connect_specific, { walletName, chainName })}`}
             {currentStatus === 'not-active' && connectTextType === 'concise' && `${compiled(i18n.connect_concise, { walletName })}`}
+            {currentStatus === 'not-active' && connectTextType === 'wallet' && `${i18n.connect_wallet}`}
             {currentStatus === 'in-activating' && `${compiled(i18n.connecting, { walletName })}`}
             {currentStatus === 'not-installed' && `${compiled(i18n.not_installed, { walletName })}`}
         </Button>
