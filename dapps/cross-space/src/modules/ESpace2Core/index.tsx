@@ -13,13 +13,14 @@ import LocalStorage from 'localstorage-enhance';
 import { AuthCoreSpace, AuthESpace, AuthESpaceAndCore, AuthCoreAndESpace } from 'common/modules/AuthConnectButton';
 import Button from 'common/components/Button';
 import Input from 'common/components/Input';
+import Switch from 'common/components/Switch';
 import Tooltip from 'common/components/Tooltip';
 import useI18n from 'common/hooks/useI18n';
 import Fluent from 'common/assets/wallets/Fluent.svg';
 import MetaMask from 'common/assets/wallets/MetaMask.svg';
 import TokenList from 'cross-space/src/components/TokenList';
 import TurnPage from 'cross-space/src/assets/turn-page.svg';
-import Switch from 'cross-space/src/assets/switch.svg';
+import SwitchImg from 'cross-space/src/assets/switch.svg';
 import Success from 'cross-space/src/assets/success.svg';
 import Suggest from 'cross-space/src/assets/suggest.svg';
 import Copy from 'common/assets/icons/copy.svg';
@@ -216,17 +217,9 @@ const Transfer2Bridge: React.FC<{ isShow: boolean; inTransfer: boolean; setInTra
 					Transfer Token
 				</span> */}
 				<span>Advanced Mode</span>
+				
 				{currentToken.isNative &&
-					<switch/>
-				}
-
-				{currentToken.isNative &&
-					<button className="inline-flex items-center cursor-pointer select-none" id="eSpace2Core-switchMode" onClick={switchMode} tabIndex={isShow ? 3 : -1} type="button">
-						<span className="mr-[4px] text-[14px] text-[#808BE7] font-normal">
-							{mode === 'normal' ? 'Advanced Mode' : 'Normal Mode'}
-						</span>
-						<img src={Switch} alt="switch icon" className="w-[14px] h-[14px]" draggable={false} />
-					</button>
+					<Switch checked={mode==='advanced'} onChange={switchMode}/>
 				}
 			</div>
 			{/* <div className="mt-[8px] text-[#A9ABB2] text-[14px] leading-[18px]">
