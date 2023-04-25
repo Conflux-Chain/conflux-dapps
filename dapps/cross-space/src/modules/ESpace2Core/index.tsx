@@ -20,7 +20,6 @@ import Fluent from 'common/assets/wallets/Fluent.svg';
 import MetaMask from 'common/assets/wallets/MetaMask.svg';
 import TokenList from 'cross-space/src/components/TokenList';
 import TurnPage from 'cross-space/src/assets/turn-page.svg';
-import Success from 'cross-space/src/assets/success.svg';
 import Suggest from 'cross-space/src/assets/suggest.svg';
 import Copy from 'common/assets/icons/copy.svg';
 import eSpace from 'cross-space/src/assets/Conflux-eSpace.svg';
@@ -53,7 +52,6 @@ const ESpace2Core: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 	const i18n = useI18n(transitions);
 	const { currentToken } = useToken();
 	const [inTransfer, setInTransfer] = useState(false);
-	const isMetaMaskHostedByFluent = useIsMetaMaskHostedByFluent();
 	const fluentAccount = useFluentAccount();
 	const metaMaskAccount = useMetaMaskAccount();
 	const metaMaskStatus = useMetaMaskStatus();
@@ -85,38 +83,28 @@ const ESpace2Core: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 	}, [currentToken]);
 
 	return (
-		<a.div className="cross-space-module absolute" style={style}>
-			<button
-				id="eSpace2Core-flip"
-				className='turn-page flex justify-center items-center w-[28px] h-[28px] rounded-full cursor-pointer transition-transform hover:scale-105 absolute left-[224px] top-[176px] bg-white'
-				onClick={handleClickFlipped}
-				tabIndex={isShow ? 1 : -1}
-			>
-				<img src={TurnPage} alt="turn page" className='w-[14px] h-[14px]' draggable="false" />
-			</button>
+		<a.div className="absolute" style={style}>
+			<div className="cross-space-module">
+				<button
+					id="eSpace2Core-flip"
+					className='turn-page flex justify-center items-center w-[28px] h-[28px] rounded-full cursor-pointer transition-transform hover:scale-105 absolute left-[224px] top-[176px] bg-white'
+					onClick={handleClickFlipped}
+					tabIndex={isShow ? 1 : -1}
+				>
+					<img src={TurnPage} alt="turn page" className='w-[14px] h-[14px]' draggable="false" />
+				</button>
 
-			<TokenList space="eSpace" />
+				<TokenList space="eSpace" />
 
-			{/* <Transfer2Bridge isShow={isShow} inTransfer={inTransfer} setInTransfer={setInTransfer} /> */}
-			{mode === 'normal' && <TransferNormalMode isShow={isShow} inTransfer={inTransfer} setInTransfer={setInTransfer} mode={mode} switchMode={switchMode} />}
-			{mode === 'advanced' && <TransferAdvancedMode isShow={isShow} mode={mode} switchMode={switchMode} />}
+				{mode === 'normal' && <TransferNormalMode isShow={isShow} inTransfer={inTransfer} setInTransfer={setInTransfer} mode={mode} switchMode={switchMode} />}
+				{mode === 'advanced' && <TransferAdvancedMode isShow={isShow} mode={mode} switchMode={switchMode} />}
+			</div>
 
-			{fluentAccount && metaMaskAccount && ((currentToken.isNative || isMetaMaskHostedByFluent) ?
-				<AuthCoreSpace
-					id="eSpace2Core-auth-both-withdraw"
-					className='mt-[14px]'
-					fullWidth
-					size="large"
-					authContent={() => <Withdraw2Core isShow={isShow} inTransfer={inTransfer} setInTransfer={setInTransfer} />}
-				/>
-				:
-				<AuthCoreAndESpace
-					id="eSpace2Core-auth-both-withdraw"
-					className='mt-[14px]'
-					fullWidth
-					size="large"
-					authContent={() => <Withdraw2Core isShow={isShow} inTransfer={inTransfer} setInTransfer={setInTransfer} />}
-				/>)
+			{
+				fluentAccount && currentToken.isNative &&
+				<div className='cross-space-module mt-[24px]'>
+					<Withdraw2Core isShow={isShow} inTransfer={inTransfer} setInTransfer={setInTransfer} />
+				</div>
 			}
 		</a.div>
 	);
@@ -137,7 +125,7 @@ const FluentConnected: React.FC<{ id?: string; tabIndex?: number; }> = ({ id, ta
 			connectTextType='concise'
 			authContent={() =>
 				<div className='relative flex items-center'>
-					<img src={Fluent} alt='fluent icon' className='mr-[4px] w-[14px] h-[14px]' />
+					<img src={Fluent} alt='fluent icon' className='mr-[4px] w-[14px] h-[14px]' draggable={false} />
 					<span className='mr-[8px] text-[14px] text-[#3D3F4C]'>{shortenAddress(fluentAccount!)}</span>
 				</div>
 			}
@@ -159,91 +147,13 @@ const MetaMaskConnected: React.FC<{ id?: string; tabIndex?: number; }> = ({ id, 
 			connectTextType='concise'
 			authContent={() =>
 				<div className='relative flex items-center'>
-					<img src={MetaMask} alt='fluent icon' className='mr-[4px] w-[14px] h-[14px]' />
+					<img src={MetaMask} alt='fluent icon' className='mr-[4px] w-[14px] h-[14px]' draggable={false} />
 					<span className='mr-[8px] text-[14px] text-[#3D3F4C]'>{shortenAddress(metaMaskAccount!)}</span>
 				</div>
 			}
 		/>
 	)
 }
-
-// const Transfer2Bridge: React.FC<{ isShow: boolean; inTransfer: boolean; setInTransfer: React.Dispatch<React.SetStateAction<boolean>>; }> = memo(({ isShow, inTransfer, setInTransfer }) => {
-// 	const isMetaMaskHostedByFluent = useIsMetaMaskHostedByFluent();
-
-// 	const { currentToken } = useToken();
-
-// 	const metaMaskStatus = useMetaMaskStatus();
-// 	const [mode, setMode] = useState<'normal' | 'advanced'>(() => {
-// 		if (metaMaskStatus === 'not-installed') {
-// 			LocalStorage.setItem({ key: 'eSpace-transfer2bridge-mode', data: 'advanced', namespace: 'cross-space' });
-// 			return 'advanced';
-// 		}
-// 		const local = LocalStorage.getItem('eSpace-transfer2bridge-mode', 'cross-space') as 'normal';
-// 		if (local === 'normal' || local === 'advanced') {
-// 			return local;
-// 		}
-// 		LocalStorage.setItem({ key: 'eSpace-transfer2bridge-mode', data: 'normal', namespace: 'cross-space' });
-// 		return 'normal';
-// 	});
-
-// 	const switchMode = useCallback(() => {
-// 		setMode(pre => {
-// 			LocalStorage.setItem({ key: 'eSpace-transfer2bridge-mode', data: pre === 'normal' ? 'advanced' : 'normal', namespace: 'cross-space' });
-// 			return pre === 'normal' ? 'advanced' : 'normal';
-// 		});
-// 	}, []);
-
-// 	useEffect(() => {
-// 		if (!currentToken.isNative) {
-// 			LocalStorage.setItem({ key: 'eSpace-transfer2bridge-mode', data: 'normal', namespace: 'cross-space' });
-// 			setMode('normal');
-// 		}
-// 	}, [currentToken]);
-
-// 	return (
-// 		<>
-// 			{mode === 'normal' && <TransferNormalMode isShow={isShow} inTransfer={inTransfer} setInTransfer={setInTransfer} mode={mode} switchMode={switchMode}/>}
-
-// 			<div className="my-[17px] flex justify-between items-center h-[18px] text-[14px] text-[#3D3F4C]">
-// 				<span>Advanced Mode</span>
-// 				{currentToken.isNative &&
-// 					<Switch checked={mode === 'advanced'} onChange={switchMode} />
-// 				}
-// 			</div>
-
-// 			{mode === 'normal' &&
-// 				<>
-// 					{isMetaMaskHostedByFluent &&
-// 						<AuthESpace
-// 							id="eSpace2Core-auth-both-transfer"
-// 							className='mt-[14px]'
-// 							fullWidth
-// 							size='large'
-// 							tabIndex={isShow ? 7 : -1}
-// 							connectTextType='wallet'
-// 							type="button"
-// 							authContent={() => { }}
-// 						/>
-// 					}
-// 					{!isMetaMaskHostedByFluent &&
-// 						<AuthESpaceAndCore
-// 							id="eSpace2Core-auth-both-transfer"
-// 							className='mt-[14px]'
-// 							fullWidth
-// 							size='large'
-// 							tabIndex={isShow ? 7 : -1}
-// 							connectTextType='wallet'
-// 							type="button"
-// 							authContent={() => { }}
-// 						/>
-
-// 					}
-// 				</>
-// 			}
-// 			{mode === 'advanced' && <TransferAdvancedMode isShow={isShow} />}
-// 		</>
-// 	)
-// });
 
 const TransferNormalMode: React.FC<{ isShow: boolean; inTransfer: boolean; setInTransfer: React.Dispatch<React.SetStateAction<boolean>>; mode: string; switchMode: () => void }> = ({ isShow, inTransfer, setInTransfer, mode, switchMode }) => {
 	const i18n = useI18n(transitions);
@@ -316,6 +226,9 @@ const TransferNormalMode: React.FC<{ isShow: boolean; inTransfer: boolean; setIn
 			});
 	}), []);
 
+	const [value, changeValue] = useState('');
+	const [valueNum, changeValueNum] = useState(0);
+
 	const isBalanceGreaterThan0 = maxAvailableBalance && Unit.greaterThan(maxAvailableBalance, Unit.fromStandardUnit(0));
 	const canClickButton = inTransfer === false && (needApprove === true || (needApprove === false && isBalanceGreaterThan0)) && isCurrentTokenHasEnoughLiquidity;
 
@@ -326,26 +239,31 @@ const TransferNormalMode: React.FC<{ isShow: boolean; inTransfer: boolean; setIn
 					<div className='text-[24px] text-[#898D9A] font-medium'>
 						<Input
 							id="eSpace2Core-transferAamount-input"
-							className='pr-[52px] bg-white'
-							placeholder='input'
-							size='small'
+							className='border-none text-[#3D3F4C]'
+							placeholder='0'
+							size='mini'
 							type="number"
 							step={1e-18}
 							min={Unit.fromMinUnit(1).toDecimalStandardUnit()}
 							max={maxAvailableBalance?.toDecimalStandardUnit()}
 							disabled={inTransfer || !isBalanceGreaterThan0}
 							{...register('amount', { required: !needApprove, min: Unit.fromMinUnit(1).toDecimalStandardUnit(), max: maxAvailableBalance?.toDecimalStandardUnit(), onBlur: handleCheckAmount })}
-							suffix={
-								<button
-									className={cx("absolute right-[16px] top-[50%] -translate-y-[50%] text-[14px] text-[#808BE7] cursor-pointer", isBalanceGreaterThan0 && 'hover:underline')}
-									onClick={handleClickMax}
-									disabled={inTransfer || !isBalanceGreaterThan0}
-									tabIndex={isShow ? 5 : -1}
-									type="button"
-								>
-									MAX
-								</button>
-							}
+							// suffix={
+							// 	<button
+							// 		className={cx("absolute right-[16px] top-[50%] -translate-y-[50%] text-[14px] text-[#808BE7] cursor-pointer", isBalanceGreaterThan0 && 'hover:underline')}
+							// 		onClick={handleClickMax}
+							// 		disabled={inTransfer || !isBalanceGreaterThan0}
+							// 		tabIndex={isShow ? 5 : -1}
+							// 		type="button"
+							// 	>
+							// 		MAX
+							// 	</button>
+							// }
+							value={value}
+							onChange={(e) => {
+								changeValue(numFormat(e.target.value));
+								changeValueNum(Number(e.target.value));
+							}}
 							tabIndex={isShow ? 4 : -1}
 						/>
 					</div>
@@ -372,7 +290,7 @@ const TransferNormalMode: React.FC<{ isShow: boolean; inTransfer: boolean; setIn
 											</Tooltip>
 											: <span id="eSpace2Core-currentTokenBalance" className="ml-[4px]">{`${numFormat(currentTokenBalance.toDecimalStandardUnit())} ${currentToken.evm_space_symbol}`}</span>
 									)
-									: <span id="eSpace2Core-currentTokenBalance" className="ml-[4px]">loading...</span>
+									: <span id="eSpace2Core-currentTokenBalance" className="ml-[4px]">---</span>
 								}
 							</>
 						}
@@ -383,7 +301,9 @@ const TransferNormalMode: React.FC<{ isShow: boolean; inTransfer: boolean; setIn
 
 			<div className='w-[432px] h-[96px] rounded-[8px] border-[1px] border-[#EAECEF] my-[16px] px-[12px] py-[10px]'>
 				<div className='flex justify-between mb-[11px] items-center'>
-					<div className='text-[24px] text-[#898D9A] font-medium'>0</div>
+					<div className='text-[24px] text-[#898D9A] font-medium'>
+						{(valueNum && maxAvailableBalance?.toDecimalStandardUnit() && valueNum <= Number(maxAvailableBalance?.toDecimalStandardUnit())) ? value : 0}
+					</div>
 					<div className='text-[16px] text-[#3D3F4C] font-medium flex items-center'>
 						<img src={Core} alt="conflux-Core" draggable={false} className="h-[20px] w-[20px] mr-[4px]" />
 						Conflux Core
@@ -485,7 +405,6 @@ const TransferAdvancedMode: React.FC<{ isShow: boolean; mode: string; switchMode
 					</div>
 				</div>
 				<div className='flex items-center text-[#3D3F4C] text-[14px]'>
-					{/* <MetaMaskConnected id="eSpace2Core-auth-fluent-connectedAddress" tabIndex={isShow ? 7 : -1} /> */}
 					<img src={AnyAddress} alt="any-address" draggable={false} className="w-[16px] h-[16px] mr-[4px]" />
 					Any address
 				</div>
@@ -540,7 +459,7 @@ const TransferAdvancedMode: React.FC<{ isShow: boolean; mode: string; switchMode
 				authContent={() =>
 					<div className='flex justify-between items-center px-[12px] w-full bg-[#FAFBFD] h-[48px] border-[1px] border-[#EAECEF] text-[#3D3F4C] text-[14px]'>
 						{eSpaceMirrorAddress}
-						<Tooltip text="复制成功" trigger='click' visible={isCopied}>
+						<Tooltip text="Copied success" trigger='click' visible={isCopied}>
 							<img className="w-[16px] h-[16px] cursor-pointer" src={Copy} alt="copy icon" onClick={setCopied} />
 						</Tooltip>
 					</div>
@@ -558,6 +477,7 @@ const Withdraw2Core: React.FC<{ isShow: boolean; inTransfer: boolean; setInTrans
 	const withdrawableBalance = useESpaceWithdrawableBalance();
 	const fluentStatus = useFluentStatus();
 	const metaMaskStatus = useMetaMaskStatus();
+	const fluentAccount = useFluentAccount();
 	const [isCurrentTokenHasEnoughLiquidity] = useIsCurrentTokenHasEnoughLiquidity(currentToken, 'withdraw');
 
 	const [inWithdraw, _setInWithdraw] = useState(false);
@@ -587,13 +507,12 @@ const Withdraw2Core: React.FC<{ isShow: boolean; inTransfer: boolean; setInTrans
 		<>
 			{isCurrentTokenHasEnoughLiquidity &&
 				<>
-					<div className="mt-[8px] text-[14px] leading-[20px] text-[#A9ABB2] ">
-						After Step 1, withdraw your asset on
-						<span className='text-[#2959B4] font-medium'> Core</span> here.
-					</div>
-					<div className='flex items-center my-[8px]'>
-						<span className='mr-[4px] text-[14px] text-[#A9ABB2]'>Current Address:</span>
-						<FluentConnected tabIndex={-1} />
+					<div className='flex items-center mb-[8px] justify-between'>
+						<span className='text-[14px] text-[#A9ABB2]'>Current Address:</span>
+						<div className='relative flex items-center'>
+							<img src={Fluent} alt='fluent icon' className='mr-[4px] w-[14px] h-[14px]' draggable={false} />
+							<span className='text-[16px] text-[#3D3F4C] font-medium'>{shortenAddress(fluentAccount!)}</span>
+						</div>
 					</div>
 				</>
 			}
@@ -603,7 +522,7 @@ const Withdraw2Core: React.FC<{ isShow: boolean; inTransfer: boolean; setInTrans
 				</div>
 			}
 
-			<div className='flex items-center mb-[8px]'>
+			<div className='flex items-center mb-[8px] justify-between'>
 				<span className='mr-[8px] text-[14px] text-[#A9ABB2]'>{isCurrentTokenHasEnoughLiquidity ? 'Withdrawable:' : 'Pending:'}</span>
 				{(!inWithdraw && !inTransfer) &&
 					<span className='text-[16px] text-[#3D3F4C] font-medium'>
@@ -615,19 +534,23 @@ const Withdraw2Core: React.FC<{ isShow: boolean; inTransfer: boolean; setInTrans
 				}
 			</div>
 
-			<a
-				href="https://conflux-faucets.com/"
-				target="_blank"
-				rel="noopener"
-				className="mb-[8px] block text-[14px] !text-[#808be7] underline"
-			>
-				No CFX for gas? Check this community maintained faucet
-			</a>
+			<div className='flex text-[14px] leading-[18px] text-[#A9ABB2] mb-[24px]'>
+				<span>No CFX for gas?&nbsp;&nbsp;</span>
+				<a
+					href="https://conflux-faucets.com/"
+					target="_blank"
+					rel="noopener"
+					className="mb-[8px] block text-[14px] !text-[#808be7] underline"
+				>
+					Community faucet
+				</a>
+			</div>
 
 			<Button
 				id="eSpace2Core-withdraw"
-				className='min-w-[100px] px-[38px]'
+				className='py-[24px]'
 				size="large"
+				fullWidth
 				disabled={disabled}
 				loading={inWithdraw || inTransfer}
 				onClick={handleClick}

@@ -16,7 +16,7 @@ export type Props = OverWrite<React.InputHTMLAttributes<HTMLInputElement>, {
     prefixIcon?: string;
     suffix?: ReactNode | Array<ReactNode>;
     bindAccout?: string;
-    size?: 'normal' | 'small';
+    size?: 'normal' | 'small' | 'mini';
 }>
 
 const Input = forwardRef<HTMLInputElement, Props>(

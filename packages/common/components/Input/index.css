@@ -16,6 +16,9 @@
 .input-wrapper.input--small {
     @apply text-[12px];
 }
+.input-wrapper.input--mini{
+    @apply text-[24px] font-medium w-[200px] border-none;
+}
 
 .input-wrapper.input--normal > input {
     @apply pl-[12px] h-[48px];
@@ -23,6 +26,10 @@
 
 .input-wrapper.input--small > input {
     @apply pl-[8px] h-[32px];
+}
+
+.input-wrapper.input--mini > input {
+    @apply pl-0 h-[32px];
 }
 
 .input-error {
