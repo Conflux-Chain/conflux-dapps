@@ -42,7 +42,7 @@ const handleTransferCFX = async ({ eSpaceAccount, amount }: Data) => {
         const TxnHash = await sendTransactionWithFluent({
             to: crossSpaceContractAddress,
             data: crossSpaceContract.transferEVM(eSpaceAccount).encodeABI(),
-            value: Unit.fromStandardUnit(amount).toHexMinUnit(),
+            value: Unit.fromStandardUnit(amount, 18).toHexMinUnit(),
         });
         transactionSubmittedKey = showActionSubmitted(TxnHash);
         trackBalanceChangeOnce.coreCurrentTokenBalance(() => {
@@ -151,7 +151,7 @@ const handleTransferCRC20 = async ({ eSpaceAccount, amount, methodType }: Data &
 
         const TxnHash = await sendTransactionWithFluent({
             to: confluxSideContractAddressBase32,
-            data: confluxSideContract[methodType](currentTokenAddress, eSpaceAccount, Unit.fromStandardUnit(amount).toHexMinUnit()).encodeABI(),
+            data: confluxSideContract[methodType](currentTokenAddress, eSpaceAccount, Unit.fromStandardUnit(amount, currentToken?.decimals).toHexMinUnit()).encodeABI(),
         });
         transactionSubmittedKey = showActionSubmitted(TxnHash);
         trackBalanceChangeOnce.coreCurrentTokenBalance(() => {
