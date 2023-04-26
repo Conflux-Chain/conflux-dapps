@@ -451,6 +451,7 @@ const TransferAdvancedMode: React.FC<{ isShow: boolean; mode: string; switchMode
 				fullWidth
 				reverse
 				tabIndex={isShow ? 4 : -1}
+				connectTextType='concise'
 				authContent={() =>
 					<div className='flex justify-between items-center px-[12px] w-full bg-[#FAFBFD] h-[48px] border-[1px] border-[#EAECEF] text-[#3D3F4C] text-[14px]'>
 						{eSpaceMirrorAddress}
