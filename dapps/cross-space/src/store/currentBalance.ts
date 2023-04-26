@@ -6,7 +6,7 @@ import Contracts from './contracts';
 import { convertCfxToHex } from 'common/utils/addressUtils';
 import { mirrorAddressStore } from './mirrorAddress';
 import { estimate } from '@fluent-wallet/estimate-tx';
-import { currentTokenStore, type Token } from './currentToken';
+import { currentTokenStore, getCurrentToken, type Token } from './currentToken';
 import Networks from 'common/conf/Networks';
 import type { ValueOf } from 'tsconfig/types/enhance';
 
@@ -545,6 +545,7 @@ export const recheckApproval = (space: 'core' | 'eSpace') =>
     (space === 'core' ? coreBalanceStore as typeof eSpaceBalanceStore : eSpaceBalanceStore).setState({ reCheckApproveCount: space === 'core' ? 7 : 11 });
 
 export const setTransferBalance = (space: 'core' | 'eSpace', standardUnit: string | undefined) => {
+    const currentToken = getCurrentToken();
     const balanceStore = (space === 'core' ? coreBalanceStore as typeof eSpaceBalanceStore : eSpaceBalanceStore);
     const maxAvailableBalance = balanceStore.getState().maxAvailableBalance;
     if (!standardUnit || !maxAvailableBalance) {
@@ -552,7 +553,7 @@ export const setTransferBalance = (space: 'core' | 'eSpace', standardUnit: strin
         return;
     }
     
-    let transferBalance = Unit.fromStandardUnit(standardUnit);
+    let transferBalance = Unit.fromStandardUnit(standardUnit, currentToken?.decimals);
     if (Unit.greaterThan(transferBalance, maxAvailableBalance)) {
         transferBalance = maxAvailableBalance;
     }

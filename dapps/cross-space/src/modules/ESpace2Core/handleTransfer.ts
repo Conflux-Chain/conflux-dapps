@@ -36,7 +36,7 @@ const handleTransferCFX = async (amount: string) => {
         waitFluentKey = showWaitWallet('MetaMask');
         const TxnHash = await sendTransactionWithMetaMask({
             to: eSpaceMirrorAddress,
-            value: Unit.fromStandardUnit(amount).toHexMinUnit(),
+            value: Unit.fromStandardUnit(amount, 18).toHexMinUnit(),
         });
         transactionSubmittedKey = showActionSubmitted(TxnHash);
         trackBalanceChangeOnce.eSpaceWithdrawableBalance(() => {
@@ -147,7 +147,7 @@ const handleTransferCRC20 = async (amount: string, methodType: 'lockMappedToken'
         waitFluentKey = showWaitWallet('MetaMask');
         const TxnHash = await sendTransactionWithMetaMask({
             to: evmSideContractAddress,
-            data: evmSideContract[methodType](usedTokenAddress, fluentAccount, Unit.fromStandardUnit(amount).toHexMinUnit()).encodeABI(),
+            data: evmSideContract[methodType](usedTokenAddress, fluentAccount, Unit.fromStandardUnit(amount, currentToken?.decimals).toHexMinUnit()).encodeABI(),
         });
         setInTransfer(true);
         transactionSubmittedKey = showActionSubmitted(TxnHash);
