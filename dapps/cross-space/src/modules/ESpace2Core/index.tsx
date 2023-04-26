@@ -53,7 +53,6 @@ const ESpace2Core: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
 	const { currentToken } = useToken();
 	const [inTransfer, setInTransfer] = useState(false);
 	const fluentAccount = useFluentAccount();
-	const metaMaskAccount = useMetaMaskAccount();
 	const metaMaskStatus = useMetaMaskStatus();
 	const [mode, setMode] = useState<'normal' | 'advanced'>(() => {
 		if (metaMaskStatus === 'not-installed') {
@@ -174,7 +173,7 @@ const TransferNormalMode: React.FC<{ isShow: boolean; inTransfer: boolean; setIn
 		setTransferBalance('eSpace', _val);
 
 		if (!bridgeReceived.current) return;
-		bridgeReceived.current.textContent = _val ? `${numFormat(_val)} ${currentToken.core_space_symbol}` : '--';
+		bridgeReceived.current.textContent = _val ? `${numFormat(_val)}` : '0';
 	}, [currentToken])
 
 	useEffect(() => setAmount(''), [metaMaskAccount, currentToken]);
@@ -226,9 +225,6 @@ const TransferNormalMode: React.FC<{ isShow: boolean; inTransfer: boolean; setIn
 			});
 	}), []);
 
-	const [value, changeValue] = useState('');
-	const [valueNum, changeValueNum] = useState(0);
-
 	const isBalanceGreaterThan0 = maxAvailableBalance && Unit.greaterThan(maxAvailableBalance, Unit.fromStandardUnit(0));
 	const canClickButton = inTransfer === false && (needApprove === true || (needApprove === false && isBalanceGreaterThan0)) && isCurrentTokenHasEnoughLiquidity;
 
@@ -248,22 +244,6 @@ const TransferNormalMode: React.FC<{ isShow: boolean; inTransfer: boolean; setIn
 							max={maxAvailableBalance?.toDecimalStandardUnit()}
 							disabled={inTransfer || !isBalanceGreaterThan0}
 							{...register('amount', { required: !needApprove, min: Unit.fromMinUnit(1).toDecimalStandardUnit(), max: maxAvailableBalance?.toDecimalStandardUnit(), onBlur: handleCheckAmount })}
-							// suffix={
-							// 	<button
-							// 		className={cx("absolute right-[16px] top-[50%] -translate-y-[50%] text-[14px] text-[#808BE7] cursor-pointer", isBalanceGreaterThan0 && 'hover:underline')}
-							// 		onClick={handleClickMax}
-							// 		disabled={inTransfer || !isBalanceGreaterThan0}
-							// 		tabIndex={isShow ? 5 : -1}
-							// 		type="button"
-							// 	>
-							// 		MAX
-							// 	</button>
-							// }
-							value={value}
-							onChange={(e) => {
-								changeValue(numFormat(e.target.value));
-								changeValueNum(Number(e.target.value));
-							}}
 							tabIndex={isShow ? 4 : -1}
 						/>
 					</div>
@@ -280,15 +260,30 @@ const TransferNormalMode: React.FC<{ isShow: boolean; inTransfer: boolean; setIn
 								{currentTokenBalance ?
 									(
 										(currentTokenBalance.toDecimalMinUnit() !== '0' && Unit.lessThan(currentTokenBalance, Unit.fromStandardUnit('0.000001'))) ?
-											<Tooltip text={`${numFormat(currentTokenBalance.toDecimalStandardUnit())} ${currentToken.evm_space_symbol}`} placement="right">
+											<Tooltip text={`${numFormat(currentTokenBalance.toDecimalStandardUnit())}`} placement="right">
 												<span
 													id="eSpace2Core-currentTokenBalance"
 													className="ml-[4px]"
 												>
-													＜0.000001 {currentToken.evm_space_symbol}
+													＜0.000001
 												</span>
 											</Tooltip>
-											: <span id="eSpace2Core-currentTokenBalance" className="ml-[4px]">{`${numFormat(currentTokenBalance.toDecimalStandardUnit())} ${currentToken.evm_space_symbol}`}</span>
+											:
+											<>
+												<span id="eSpace2Core-currentTokenBalance" className="ml-[4px]">{`${numFormat(currentTokenBalance.toDecimalStandardUnit())}`}</span>
+												<button
+													id="eSpace2Core-transferAamount-max"
+													className="h-[18px] w-[34px] bg-[#F0F3FF] ml-[8px] rounded-[2px] text-[12px] text-[#808BE7] cursor-pointer"
+													onClick={handleClickMax}
+													disabled={inTransfer || !isBalanceGreaterThan0}
+													tabIndex={isShow ? 5 : -1}
+													type="button"
+												>
+													MAX
+												</button>
+											</>
+
+
 									)
 									: <span id="eSpace2Core-currentTokenBalance" className="ml-[4px]">---</span>
 								}
@@ -302,7 +297,7 @@ const TransferNormalMode: React.FC<{ isShow: boolean; inTransfer: boolean; setIn
 			<div className='w-[432px] h-[96px] rounded-[8px] border-[1px] border-[#EAECEF] my-[16px] px-[12px] py-[10px]'>
 				<div className='flex justify-between mb-[11px] items-center'>
 					<div className='text-[24px] text-[#898D9A] font-medium'>
-						{(valueNum && maxAvailableBalance?.toDecimalStandardUnit() && valueNum <= Number(maxAvailableBalance?.toDecimalStandardUnit())) ? value : 0}
+						<span className="" id="core2eSpace-willReceive" ref={bridgeReceived} />
 					</div>
 					<div className='text-[16px] text-[#3D3F4C] font-medium flex items-center'>
 						<img src={Core} alt="conflux-Core" draggable={false} className="h-[20px] w-[20px] mr-[4px]" />

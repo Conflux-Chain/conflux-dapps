@@ -31,6 +31,9 @@
 .input-wrapper.input--mini > input {
     @apply pl-0 h-[32px];
 }
+.input-wrapper.input--mini > input:disabled {
+    @apply bg-white;
+}
 
 .input-error {
     @apply absolute right-[2px] -top-[20px] text-[12px] text-[#E96170] opacity-0 transition-opacity duration-100; 

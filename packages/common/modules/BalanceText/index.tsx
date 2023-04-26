@@ -25,7 +25,8 @@ const BalanceText: React.FC<Props> = ({ className, balance, status, id, symbol =
         return (
             <Tooltip text={`${numFormat(decimalStandardUnit)} ${symbol}`} placement={placement}>
                 <span className={className} id={id}>
-                    ＜0.000001 {symbol}
+                    {/* ＜0.000001 {symbol} */}
+                    ＜0.000001
                 </span>
             </Tooltip>
         )
@@ -36,8 +37,8 @@ const BalanceText: React.FC<Props> = ({ className, balance, status, id, symbol =
     return (
         <Tooltip text={`${numFormat(decimalStandardUnit)} ${symbol}`} placement={placement} disabled={!needAabbreviate || noughtLen < 6} interactive delay={420}>
             <span className={className} id={id}>
-                {(needAabbreviate && noughtLen >= 6) ? `${numFormat(balance.toDecimalStandardUnit(6, decimals))}... ${symbol}`
-                    : `${numFormat(balance.toDecimalStandardUnit(undefined, decimals))} ${symbol}`
+                {(needAabbreviate && noughtLen >= 6) ? `${numFormat(balance.toDecimalStandardUnit(6, decimals))}... `
+                    : `${numFormat(balance.toDecimalStandardUnit(undefined, decimals))} `
                 }
             </span>
         </Tooltip>
