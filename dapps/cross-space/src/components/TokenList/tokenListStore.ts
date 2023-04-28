@@ -21,6 +21,7 @@ export const tokenListStore = create<TokenListStore>((set) => ({
     getInnerTokenList: async () => {
         try {
             const fetchRes: FetchRes = await fetch(innerTokenListUrl).then((data) => data.json());
+            console.log('fetchRes', fetchRes)
             set({ tokenList: mergeInnerTokenList(fetchRes) });
         } catch (err) {
             console.error('fetch inner tokenList error: ', err);
