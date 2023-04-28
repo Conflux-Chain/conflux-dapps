@@ -81,3 +81,5 @@ export const useToken = () => {
 
     return { currentToken, setCurrentToken, commonTokens, deleteFromCommonTokens };
 }
+
+export const getCurrentToken = () => currentTokenStore.getState().currentToken;
