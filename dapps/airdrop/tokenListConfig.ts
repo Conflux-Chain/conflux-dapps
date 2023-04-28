@@ -1,5 +1,6 @@
 import MSNIcon from 'airdrop/src/assets/MSN.png';
 import PPIIcon from 'airdrop/src/assets/PPI.png';
+import PHXIcon from 'airdrop/src/assets/PHX.jpeg';
 
 const config = {
     '1029': [
@@ -16,6 +17,13 @@ const config = {
             symbol: 'PPI',
             decimals: 18,
             icon: PPIIcon,
+        },
+        {
+            eSpace_address: '0x13db4686f3D1D9ec918A70AE8fbd52f82949906C',
+            name: 'PHX Token',
+            symbol: 'PHX',
+            decimals: 18,
+            icon: PHXIcon,
         }
     ],
     '1': [
