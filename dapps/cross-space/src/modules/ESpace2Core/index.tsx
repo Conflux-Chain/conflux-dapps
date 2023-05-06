@@ -347,10 +347,13 @@ const TransferNormalMode: React.FC<{
                     <FluentConnected id="eSpace2Core-auth-fluent-connectedAddress" tabIndex={isShow ? 2 : -1} />
                 </div>
             </div>
-            <div className="my-[17px] flex justify-between items-center h-[18px] text-[14px] text-[#3D3F4C]">
-                <span>Advanced Mode</span>
-                {currentToken.isNative && <Switch checked={mode === 'advanced'} onChange={switchMode} />}
-            </div>
+
+            {currentToken.isNative && (
+                <div className="my-[17px] flex justify-between items-center h-[18px] text-[14px] text-[#3D3F4C]">
+                    <span>Advanced Mode</span>
+                    <Switch checked={mode === 'advanced'} onChange={switchMode} />
+                </div>
+            )}
 
             {isMetaMaskHostedByFluent && (
                 <AuthESpace
