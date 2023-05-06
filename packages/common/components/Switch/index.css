@@ -3,13 +3,13 @@
 }
 
 .switch::before {
-    @apply w-[6px] h-[6px] bg-white rounded-[50%] top-[4px] left-[4px] absolute content-[''];
-    transition: .3s
+    @apply w-[10px] h-[10px] bg-white rounded-[50%] top-[2px] left-[2px] absolute content-[''];
+    transition: 0.3s;
 }
 .switch-checked {
     @apply bg-[#808BE7];
 }
-.switch-checked::before{
-    @apply left-[12px];
-    transition: .3s
+.switch-checked::before {
+    @apply left-[10px];
+    transition: 0.3s;
 }
