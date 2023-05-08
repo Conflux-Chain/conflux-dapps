@@ -61,7 +61,7 @@ const ESpace2Core: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
     const i18n = useI18n(transitions);
     const { currentToken } = useToken();
     const [inTransfer, setInTransfer] = useState(false);
-    const fluentAccount = useFluentAccount();
+    const fluentStatus = useFluentStatus();
     const metaMaskStatus = useMetaMaskStatus();
     const [mode, setMode] = useState<'normal' | 'advanced'>(() => {
         if (metaMaskStatus === 'not-installed') {
@@ -110,7 +110,7 @@ const ESpace2Core: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
                 {mode === 'advanced' && <TransferAdvancedMode isShow={isShow} mode={mode} switchMode={switchMode} />}
             </div>
 
-            {fluentAccount && currentToken.isNative && (
+            {fluentStatus && (
                 <div className="cross-space-module mt-[24px]">
                     <Withdraw2Core isShow={isShow} inTransfer={inTransfer} setInTransfer={setInTransfer} />
                 </div>
