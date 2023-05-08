@@ -29,7 +29,8 @@
 }
 
 .input-wrapper.input--mini > input {
-    @apply pl-0 h-[32px];
+    @apply pl-0 h-[32px]
+    focus:outline-none focus:border-0 focus:ring-0;
 }
 .input-wrapper.input--mini > input:disabled {
     @apply bg-white;
