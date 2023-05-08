@@ -16,8 +16,8 @@
 .input-wrapper.input--small {
     @apply text-[12px];
 }
-.input-wrapper.input--mini{
-    @apply text-[24px] font-medium w-[260px] border-none;
+.input-wrapper.input--mini {
+    @apply text-[24px] font-medium w-[260px];
 }
 
 .input-wrapper.input--normal > input {
@@ -36,14 +36,14 @@
 }
 
 .input-error {
-    @apply absolute right-[2px] -top-[20px] text-[12px] text-[#E96170] opacity-0 transition-opacity duration-100; 
+    @apply absolute right-[2px] -top-[20px] text-[12px] text-[#E96170] opacity-0 transition-opacity duration-100;
 }
 
 .input:invalid {
-    @apply border-[#E96170]
+    @apply border-[#E96170];
 }
 
-.input:invalid ~ .input-error{
+.input:invalid ~ .input-error {
     @apply opacity-100;
 }
 
@@ -73,11 +73,10 @@ input::-webkit-inner-spin-button {
     margin: 0;
 }
 
-input[type="number"] {
+input[type='number'] {
     -moz-appearance: textfield;
 }
 
 .input:disabled {
     @apply bg-[#F7F8FA] text-opacity-70 cursor-not-allowed;
 }
-

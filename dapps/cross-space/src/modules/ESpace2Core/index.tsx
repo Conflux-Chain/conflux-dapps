@@ -38,6 +38,7 @@ import { tokenListStore } from 'cross-space/src/components/TokenList/tokenListSt
 import { handleWithdraw } from './handleWithdraw';
 import { handleTransferSubmit } from './handleTransfer';
 import { useIsMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFluent';
+import BalanceText from 'common/modules/BalanceText';
 
 const transitions = {
     en: {
@@ -181,6 +182,7 @@ const TransferNormalMode: React.FC<{
     const needApprove = useNeedApprove(currentToken, 'eSpace');
     const [isCurrentTokenHasEnoughLiquidity, maximumLiquidity] = useIsCurrentTokenHasEnoughLiquidity(currentToken, 'transfer');
     const bridgeReceived = useRef<HTMLSpanElement>(null!);
+    const metaMaskStatus = useMetaMaskStatus();
 
     const setAmount = useCallback(
         (val: string) => {
@@ -287,46 +289,24 @@ const TransferNormalMode: React.FC<{
                 <div className="flex justify-between items-center">
                     <div className="text-[14px] text-[#A9ABB2] font-normal">
                         Balance:
-                        {inTransfer && <span>...</span>}
-                        {!inTransfer && (
-                            <>
-                                {currentTokenBalance ? (
-                                    currentTokenBalance.toDecimalMinUnit() !== '0' &&
-                                    Unit.lessThan(currentTokenBalance, Unit.fromStandardUnit('0.000001', currentToken?.decimals)) ? (
-                                        <Tooltip
-                                            text={`${numFormat(currentTokenBalance.toDecimalStandardUnit(undefined, currentToken?.decimals))} ${
-                                                currentToken.evm_space_symbol
-                                            }`}
-                                            placement="right"
-                                        >
-                                            <span id="eSpace2Core-currentTokenBalance" className="ml-[4px]">
-                                                ＜0.000001
-                                            </span>
-                                        </Tooltip>
-                                    ) : (
-                                        <>
-                                            <span id="eSpace2Core-currentTokenBalance" className="ml-[4px]">{`${numFormat(
-                                                currentTokenBalance.toDecimalStandardUnit(undefined, currentToken?.decimals)
-                                            )}`}</span>
-                                            <button
-                                                id="eSpace2Core-transferAamount-max"
-                                                className="h-[18px] w-[34px] bg-[#F0F3FF] ml-[8px] rounded-[2px] text-[12px] text-[#808BE7] cursor-pointer"
-                                                onClick={handleClickMax}
-                                                disabled={inTransfer || !isBalanceGreaterThan0}
-                                                tabIndex={isShow ? 5 : -1}
-                                                type="button"
-                                            >
-                                                MAX
-                                            </button>
-                                        </>
-                                    )
-                                ) : (
-                                    <span id="eSpace2Core-currentTokenBalance" className="ml-[4px]">
-                                        ---
-                                    </span>
-                                )}
-                            </>
-                        )}
+                        <BalanceText
+                            className="ml-[4px]"
+                            balance={currentTokenBalance}
+                            id="eSpace2core-currentTokenBalance"
+                            symbol={currentToken.core_space_symbol}
+                            decimals={+currentToken.decimals}
+                            status={metaMaskStatus}
+                        />
+                        <button
+                            id="eSpace2Core-transferAamount-max"
+                            className="h-[18px] w-[34px] bg-[#F0F3FF] ml-[8px] rounded-[2px] text-[12px] text-[#808BE7] cursor-pointer"
+                            onClick={handleClickMax}
+                            disabled={inTransfer || !isBalanceGreaterThan0}
+                            tabIndex={isShow ? 5 : -1}
+                            type="button"
+                        >
+                            MAX
+                        </button>
                     </div>
                     <MetaMaskConnected id="eSpace2Core-auth-fluent-connectedAddress" tabIndex={isShow ? 7 : -1} />
                 </div>
