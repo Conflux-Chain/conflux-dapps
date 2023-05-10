@@ -565,7 +565,6 @@ const Withdraw2Core: React.FC<{ isShow: boolean; inTransfer: boolean; setInTrans
 
             <Button
                 id="eSpace2Core-withdraw"
-                className="py-[24px]"
                 size="large"
                 fullWidth
                 disabled={disabled}
