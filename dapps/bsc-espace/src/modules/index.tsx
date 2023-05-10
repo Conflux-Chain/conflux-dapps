@@ -42,13 +42,13 @@ const App: React.FC = () => {
 
     useEffect(() => {
         let unsub: undefined | (() => void);
-        completeDetectEthereum().then(() => unsub = startSub());
-        
+        completeDetectEthereum().then(() => (unsub = startSub()));
+
         return () => {
             if (typeof unsub === 'function') {
                 unsub();
             }
-        }
+        };
     }, []);
 
     const [currentStep, setCurrentStep] = useState<0 | 1 | 2>(() => {
@@ -132,7 +132,7 @@ const Steps: React.FC<{ currentStep: 0 | 1 | 2; changeCurrentStep: (step: 0 | 1 
                 ))}
             </div>
             <div className={cx('mt-[24px] mb-[16px] text-[14px] text-[#898D9A] transition-opacity', !hasPeggedCFX && currentStep === 2 && 'opacity-0')}>
-                {steps[currentStep].desc}
+                {/* {steps[currentStep].desc} */}
                 {currentStep === 1 && (
                     <a href="https://conflux-faucets.com/" target="_blank" rel="noopener" className="block mt-[4px] text-[12px] !text-[#808be7] underline">
                         No CFX for gas? Check this community maintained faucet

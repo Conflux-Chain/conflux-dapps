@@ -17,7 +17,7 @@
     @apply text-[12px];
 }
 .input-wrapper.input--mini {
-    @apply text-[24px] font-medium w-[260px];
+    @apply text-[24px] font-medium w-[220px];
 }
 
 .input-wrapper.input--normal > input {
