@@ -47,9 +47,7 @@ const Form: React.FC = () => {
     const [isTransferHasEnoughLiquidity, maximumLiquidity] = useIsTransferHasEnoughLiquidity(token);
 
     const metaMaskAccount = useAccount();
-    const metaMaskStatus = useStatus();
     const metaMaskChainId = useChainId();
-    const balance = useBalance();
     const maxAvailableBalance = useMaxAvailableBalance();
     const needApprove = useNeedApprove(token);
 

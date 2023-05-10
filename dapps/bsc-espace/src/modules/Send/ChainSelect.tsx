@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import cx from 'clsx';
 import { useSpring, a } from '@react-spring/web';
-import { useCrossNetwork, useESpaceNetwork, setCurrentFromChain } from 'bsc-espace/src/store';
+import { setCurrentFromChain } from 'bsc-espace/src/store';
 import { shortenAddress } from 'common/utils/addressUtils';
 import LocalStorage from 'localstorage-enhance';
 import { AuthEthereum } from 'common/modules/AuthConnectButton';
@@ -11,18 +11,8 @@ import { useIsMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFlu
 import TurnPage from 'cross-space/src/assets/turn-page.svg';
 import Input from 'common/components/Input';
 import BalanceText from 'common/modules/BalanceText';
-import { useForm } from 'react-hook-form';
 import { useAccount, useStatus, useChainId, Unit } from '@cfxjs/use-wallet-react/ethereum';
-import {
-    useBalance,
-    useMaxAvailableBalance,
-    useNeedApprove,
-    useToken,
-    useCurrentFromNetwork,
-    useCurrentToNetwork,
-    setTransferBalance,
-    useIsTransferHasEnoughLiquidity,
-} from 'bsc-espace/src/store';
+import { useBalance, useMaxAvailableBalance, useNeedApprove, useToken, useCurrentFromNetwork, useCurrentToNetwork } from 'bsc-espace/src/store';
 
 const transitions = {
     en: {},
