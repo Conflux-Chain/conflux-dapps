@@ -2,12 +2,12 @@ import React, { useCallback, useEffect, memo, useState, useRef } from 'react';
 import { a } from '@react-spring/web';
 import cx from 'clsx';
 import { shortenAddress } from 'common/utils/addressUtils';
-import { useForm, type UseFormRegister, type FieldValues } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { useAccount as useFluentAccount, useStatus as useFluentStatus, Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
 import { useStatus as useMetaMaskStatus, useAccount as useMetaMaskAccount, provider } from '@cfxjs/use-wallet-react/ethereum';
 import { useMaxAvailableBalance, useCurrentTokenBalance, useNeedApprove, useToken, setTransferBalance } from 'cross-space/src/store/index';
 import { useIsMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFluent';
-import { AuthCoreSpace, AuthESpaceAndCore } from 'common/modules/AuthConnectButton';
+import { AuthCoreSpace } from 'common/modules/AuthConnectButton';
 import { connectToEthereum } from 'common/modules/AuthConnectButton';
 import numFormat from 'common/utils/numFormat';
 import Input from 'common/components/Input';
@@ -293,55 +293,28 @@ const Transfer2ESpace: React.FC<{ isShow: boolean }> = memo(({ isShow }) => {
                 </div>
             </div>
 
-            {isMetaMaskHostedByFluent && (
-                <AuthCoreSpace
-                    id="core2eSpace-auth-both-transfer"
-                    className="mt-[24px]"
-                    size="large"
-                    fullWidth
-                    tabIndex={isShow ? 6 : -1}
-                    type="button"
-                    connectTextType="wallet"
-                    authContent={() => (
-                        <Button
-                            id="core2eSpace-transfer"
-                            className="mt-[24px]"
-                            size="large"
-                            fullWidth
-                            disabled={!canClickButton}
-                            loading={typeof needApprove !== 'boolean'}
-                            tabIndex={isShow ? 6 : -1}
-                        >
-                            {needApprove ? 'Approve' : i18n.transfer}
-                        </Button>
-                    )}
-                />
-            )}
-
-            {!isMetaMaskHostedByFluent && (
-                <AuthESpaceAndCore
-                    id="core2eSpace-auth-both-transfer"
-                    className="mt-[24px]"
-                    size="large"
-                    fullWidth
-                    tabIndex={isShow ? 6 : -1}
-                    type="button"
-                    connectTextType="wallet"
-                    authContent={() => (
-                        <Button
-                            id="core2eSpace-transfer"
-                            className="mt-[24px]"
-                            size="large"
-                            fullWidth
-                            disabled={!canClickButton}
-                            loading={typeof needApprove !== 'boolean'}
-                            tabIndex={isShow ? 6 : -1}
-                        >
-                            {needApprove ? 'Approve' : i18n.transfer}
-                        </Button>
-                    )}
-                />
-            )}
+            <AuthCoreSpace
+                id="core2eSpace-auth-both-transfer"
+                className="mt-[24px]"
+                size="large"
+                fullWidth
+                tabIndex={isShow ? 6 : -1}
+                type="button"
+                connectTextType="specific"
+                authContent={() => (
+                    <Button
+                        id="core2eSpace-transfer"
+                        className="mt-[24px]"
+                        size="large"
+                        fullWidth
+                        disabled={!canClickButton}
+                        loading={typeof needApprove !== 'boolean'}
+                        tabIndex={isShow ? 6 : -1}
+                    >
+                        {needApprove ? 'Approve' : i18n.transfer}
+                    </Button>
+                )}
+            />
         </form>
     );
 });

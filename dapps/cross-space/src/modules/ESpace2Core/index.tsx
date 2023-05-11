@@ -2,7 +2,6 @@ import React, { useState, useCallback, useEffect, useRef, memo } from 'react';
 import { a } from '@react-spring/web';
 import { useForm } from 'react-hook-form';
 import useClipboard from 'react-use-clipboard';
-import cx from 'clsx';
 import { shortenAddress } from 'common/utils/addressUtils';
 import { useAccount as useFluentAccount, useStatus as useFluentStatus, Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
 import { useStatus as useMetaMaskStatus, useAccount as useMetaMaskAccount } from '@cfxjs/use-wallet-react/ethereum';
@@ -18,7 +17,7 @@ import {
 import { useToken } from 'cross-space/src/store/index';
 import numFormat from 'common/utils/numFormat';
 import LocalStorage from 'localstorage-enhance';
-import { AuthCoreSpace, AuthESpace, AuthESpaceAndCore, AuthCoreAndESpace } from 'common/modules/AuthConnectButton';
+import { AuthCoreSpace, AuthESpace, AuthESpaceAndCore } from 'common/modules/AuthConnectButton';
 import Button from 'common/components/Button';
 import Input from 'common/components/Input';
 import Switch from 'common/components/Switch';
@@ -58,10 +57,10 @@ const transitions = {
 } as const;
 
 const ESpace2Core: React.FC<{ style: any; isShow: boolean; handleClickFlipped: () => void }> = ({ style, isShow, handleClickFlipped }) => {
-    const i18n = useI18n(transitions);
     const { currentToken } = useToken();
     const [inTransfer, setInTransfer] = useState(false);
-    const fluentStatus = useFluentStatus();
+    const fluentAccount = useFluentAccount();
+    const metMaskAccount = useMetaMaskAccount();
     const metaMaskStatus = useMetaMaskStatus();
     const [mode, setMode] = useState<'normal' | 'advanced'>(() => {
         if (metaMaskStatus === 'not-installed') {
@@ -110,7 +109,7 @@ const ESpace2Core: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
                 {mode === 'advanced' && <TransferAdvancedMode isShow={isShow} mode={mode} switchMode={switchMode} />}
             </div>
 
-            {fluentStatus && (
+            {fluentAccount && (
                 <div className="cross-space-module mt-[24px]">
                     <Withdraw2Core isShow={isShow} inTransfer={inTransfer} setInTransfer={setInTransfer} />
                 </div>
@@ -342,7 +341,7 @@ const TransferNormalMode: React.FC<{
                     fullWidth
                     size="large"
                     tabIndex={isShow ? 7 : -1}
-                    connectTextType="wallet"
+                    connectTextType="specific"
                     type="button"
                     authContent={() => (
                         <Button
@@ -367,7 +366,7 @@ const TransferNormalMode: React.FC<{
                     fullWidth
                     size="large"
                     tabIndex={isShow ? 7 : -1}
-                    connectTextType="wallet"
+                    connectTextType="specific"
                     type="button"
                     authContent={() => (
                         <Button
@@ -385,20 +384,13 @@ const TransferNormalMode: React.FC<{
                     )}
                 />
             )}
-
-            {/* <form onSubmit={onSubmit}>
-				<div className={cx("mt-[8px] text-[14px] leading-[18px]", isCurrentTokenHasEnoughLiquidity ? 'text-[#3D3F4C]' : 'text-[#E96170]')}>
-					<span className={cx(!isCurrentTokenHasEnoughLiquidity && 'absolute opacity-0')}>
-						Will receive on <span className="font-medium">bridge</span>:
-						<span className="ml-[4px]" id="eSpace2Core-willReceive" ref={bridgeReceived} />
-					</span>
-					{!isCurrentTokenHasEnoughLiquidity &&
-						<span>
-							{`Insufficient liquidity on Core, maximum liquidity is ${numFormat(maximumLiquidity?.toDecimalStandardUnit())} ${currentToken.evm_space_symbol}`}
-						</span>
-					}
-				</div>
-			</form> */}
+            {!isCurrentTokenHasEnoughLiquidity && (
+                <p className="mt-[8px] text-[14px] leading-[18px] text-[#E96170]">
+                    {`Insufficient liquidity on Core, maximum liquidity is ${numFormat(maximumLiquidity?.toDecimalStandardUnit())} ${
+                        currentToken.evm_space_symbol
+                    }`}
+                </p>
+            )}
         </form>
     );
 };
@@ -525,7 +517,7 @@ const Withdraw2Core: React.FC<{ isShow: boolean; inTransfer: boolean; setInTrans
         <>
             {isCurrentTokenHasEnoughLiquidity && (
                 <>
-                    <div className="flex items-center mb-[8px] justify-between">
+                    <div className="flex items-center mb-[8px] justify-between h-[26px] leading-[26px]">
                         <span className="text-[14px] text-[#A9ABB2]">Current Address:</span>
                         <div className="relative flex items-center">
                             <img src={Fluent} alt="fluent icon" className="mr-[4px] w-[14px] h-[14px]" draggable={false} />
@@ -540,7 +532,7 @@ const Withdraw2Core: React.FC<{ isShow: boolean; inTransfer: boolean; setInTrans
                 </div>
             )}
 
-            <div className="flex items-center mb-[8px] justify-between">
+            <div className="flex items-center mb-[8px] justify-between h-[26px] leading-[26px]">
                 <span className="mr-[8px] text-[14px] text-[#A9ABB2]">{isCurrentTokenHasEnoughLiquidity ? 'Withdrawable:' : 'Pending:'}</span>
                 {!inWithdraw && !inTransfer && (
                     <span className="text-[16px] text-[#3D3F4C] font-medium">
@@ -563,17 +555,27 @@ const Withdraw2Core: React.FC<{ isShow: boolean; inTransfer: boolean; setInTrans
                 </a>
             </div>
 
-            <Button
-                id="eSpace2Core-withdraw"
+            <AuthCoreSpace
+                id="eSpace2Core-auth-withdraw"
                 size="large"
                 fullWidth
-                disabled={disabled}
-                loading={inWithdraw || inTransfer}
                 onClick={handleClick}
                 tabIndex={isShow ? 7 : -1}
-            >
-                {isCurrentTokenHasEnoughLiquidity ? 'Withdraw' : 'Refund'}
-            </Button>
+                type='button'
+                authContent={() => (
+                    <Button
+                        id="eSpace2Core-withdraw"
+                        size="large"
+                        fullWidth
+                        disabled={disabled}
+                        loading={inWithdraw || inTransfer}
+                        onClick={handleClick}
+                        tabIndex={isShow ? 7 : -1}
+                    >
+                        {isCurrentTokenHasEnoughLiquidity ? 'Withdraw' : 'Refund'}
+                    </Button>
+                )}
+            />
         </>
     );
 };
