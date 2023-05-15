@@ -8,6 +8,7 @@ import { ModeContext } from 'common/hooks/useMode';
 import Sidebar from 'hub/src/modules/Sidebar';
 import CrossSpace from 'cross-space/src/modules';
 import BscEspace from 'bsc-espace/src/modules';
+import EtcEspace from 'etc-espace/src/modules';
 import Airdrop from 'airdrop/src/modules';
 import GovernanceDashboard from 'governance/src/modules/Dashboard';
 import Vote from 'governance/src/modules/Vote';
@@ -80,7 +81,7 @@ export const dapps = [
         icon: PosIcon,
         Advanced: true,
         path: 'pos',
-        element: <Pos />
+        element: <Pos />,
     },
 ];
 
@@ -157,6 +158,7 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                         <Route index element={<ESpaceBridgeEnter />} />
                         <Route key="cross-space" path="cross-space" element={<CrossSpace />} />
                         <Route key="bsc-espace-cfx" path="bsc-espace-cfx" element={<BscEspace />} />
+                        <Route key="etc-espace" path="etc-espace" element={<EtcEspace />} />
                     </Route>
                     <Route key="espace-airdrop" path="espace-airdrop" element={<Airdrop />} />
                     <Route key="governance" path="governance" element={<Outlet />}>

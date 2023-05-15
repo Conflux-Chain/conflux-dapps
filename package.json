@@ -34,6 +34,8 @@
         "build:cross-space": "turbo run build --scope=cross-space",
         "dev:bsc-espace": "turbo run dev --scope=bsc-espace",
         "build:bsc-espace": "turbo run build --scope=bsc-espace",
+        "dev:etc-espace": "turbo run dev --scope=bsc-espace",
+        "build:etc-espace": "turbo run build --scope=bsc-espace",
         "dev:airdrop": "turbo run dev --scope=airdrop",
         "build:airdrop": "turbo run build --scope=airdrop",
         "dev:governance": "turbo run dev --scope=governance",

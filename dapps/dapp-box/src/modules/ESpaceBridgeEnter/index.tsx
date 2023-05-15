@@ -13,7 +13,11 @@ const dapps = [{
     tip: 'Only CFX',
     bg: BscESpaceBg,
     to: 'bsc-espace-cfx'
-
+}, {
+    title: 'Between ETC and eSpace',
+    tip: 'Only CFX/ETC',
+    bg: BscESpaceBg,
+    to: 'etc-espace'
 }] as const;
 
 export const ESpaceBridgeEnter: React.FC = () => {
