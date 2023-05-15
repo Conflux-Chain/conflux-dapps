@@ -13,6 +13,7 @@ import Input from 'common/components/Input';
 import BalanceText from 'common/modules/BalanceText';
 import { useAccount, useStatus, useChainId, Unit } from '@cfxjs/use-wallet-react/ethereum';
 import { useBalance, useMaxAvailableBalance, useNeedApprove, useToken, useCurrentFromNetwork, useCurrentToNetwork } from 'bsc-espace/src/store';
+import ChainList from 'bsc-espace/src/components/ChainList';
 
 const transitions = {
     en: {},
@@ -66,8 +67,9 @@ const Chain: React.FC<{
                         })}
                     />
                     <div className="flex items-center text-[16px] text-[#3D3F4C] font-medium whitespace-nowrap">
-                        <img className="mr-[4px] w-[20px] h-[20px]" src={currentFromNetwork.logo} />
-                        <span>{currentFromNetwork.network.chainName}</span>
+                        {/* <img className="mr-[4px] w-[20px] h-[20px]" src={currentFromNetwork.logo} />
+                        <span>{currentFromNetwork.network.chainName}</span> */}
+                        <ChainList />
                     </div>
                 </div>
                 <div className="flex justify-between items-center">

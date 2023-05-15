@@ -1,9 +1,7 @@
 import React, { useEffect, useCallback, useState } from 'react';
-import cx from 'clsx';
 import { useForm } from 'react-hook-form';
 import { useAccount, useStatus, useChainId, Unit } from '@cfxjs/use-wallet-react/ethereum';
 import {
-    useBalance,
     useMaxAvailableBalance,
     useNeedApprove,
     useToken,
@@ -13,7 +11,6 @@ import {
     useIsTransferHasEnoughLiquidity,
 } from 'bsc-espace/src/store';
 import useI18n from 'common/hooks/useI18n';
-import Input from 'common/components/Input';
 import Button from 'common/components/Button';
 import { AuthEthereum } from 'common/modules/AuthConnectButton';
 import BalanceText from 'common/modules/BalanceText';
