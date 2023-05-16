@@ -30,9 +30,9 @@ export const networkStore = create(
                     logo: ConfluxIcon,
                 },
                 crossChain: {
-                    network: Config.chains[(LocalStorage.getItem('chain', 'bsc-espace') as ChainInfo).network.chainName === 'ETC Mordor' ? 1 : 0].network,
-                    color: Config.chains[(LocalStorage.getItem('chain', 'bsc-espace') as ChainInfo).network.chainName === 'ETC Mordor' ? 1 : 0].color,
-                    logo: Config.chains[(LocalStorage.getItem('chain', 'bsc-espace') as ChainInfo).network.chainName === 'ETC Mordor' ? 1 : 0].logo,
+                    network: Config.chains[0].network,
+                    color: Config.chains[0].color,
+                    logo: Config.chains[0].logo,
                 },
             } as unknown as NetworkStore)
     )

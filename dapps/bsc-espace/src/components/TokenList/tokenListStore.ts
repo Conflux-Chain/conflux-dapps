@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { ChainInfo, Network, type Token } from 'bsc-espace/src/store/index';
+import { Network, type Token } from 'bsc-espace/src/store/index';
 import LocalStorage from 'localstorage-enhance';
 import { networkStore, setToken, tokenStore } from 'bsc-espace/src/store/index';
 import Config from 'bsc-espace/config';
@@ -12,9 +12,9 @@ interface TokenListStore {
 export const tokenListStore = create<TokenListStore>(() => ({
     disabled: false,
     tokenList: getCurrentFromTokenList(LocalStorage.getItem('flipped', 'bsc-espace') === true ? 'crossChain' : 'eSpace', {
-        network: Config.chains[(LocalStorage.getItem('chain', 'bsc-espace') as ChainInfo).network.chainName === 'ETC Mordor' ? 1 : 0].network,
-        color: Config.chains[(LocalStorage.getItem('chain', 'bsc-espace') as ChainInfo).network.chainName === 'ETC Mordor' ? 1 : 0].color,
-        logo: Config.chains[(LocalStorage.getItem('chain', 'bsc-espace') as ChainInfo).network.chainName === 'ETC Mordor' ? 1 : 0].logo,
+        network: Config.chains[0].network,
+        color: Config.chains[0].color,
+        logo: Config.chains[0].logo,
     }),
 }));
 
