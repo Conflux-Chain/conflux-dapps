@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import cx from 'clsx';
 import { useSpring, a } from '@react-spring/web';
-import { setCurrentFromChain } from 'bsc-espace/src/store';
+import { setCurrentFromChain, useCurrentFromChain } from 'bsc-espace/src/store';
 import { shortenAddress } from 'common/utils/addressUtils';
 import LocalStorage from 'localstorage-enhance';
 import { AuthEthereum } from 'common/modules/AuthConnectButton';
@@ -40,6 +40,7 @@ const Chain: React.FC<{
     const needApprove = useNeedApprove(token);
     const currentFromNetwork = useCurrentFromNetwork();
     const currentToNetwork = useCurrentToNetwork();
+    const currentFromChain = useCurrentFromChain();
 
     useEffect(() => setAmount(''), [metaMaskAccount, token, metaMaskChainId]);
 
@@ -67,9 +68,13 @@ const Chain: React.FC<{
                         })}
                     />
                     <div className="flex items-center text-[16px] text-[#3D3F4C] font-medium whitespace-nowrap">
-                        {/* <img className="mr-[4px] w-[20px] h-[20px]" src={currentFromNetwork.logo} />
-                        <span>{currentFromNetwork.network.chainName}</span> */}
-                        <ChainList />
+                        {currentFromChain !== 'crossChain' && (
+                            <>
+                                <img className="mr-[4px] w-[20px] h-[20px]" src={currentFromNetwork.logo} />
+                                <span>{currentFromNetwork.network.chainName}</span>
+                            </>
+                        )}
+                        {currentFromChain === 'crossChain' && <ChainList />}
                     </div>
                 </div>
                 <div className="flex justify-between items-center">
@@ -122,8 +127,13 @@ const Chain: React.FC<{
                         decimals={+token.decimals}
                     />
                     <div className="flex items-center text-[16px] text-[#3D3F4C] font-medium whitespace-nowrap">
-                        <img className="mr-[4px] w-[20px] h-[20px]" src={currentToNetwork.logo} />
-                        <span>{currentToNetwork.network.chainName}</span>
+                        {currentFromChain === 'crossChain' && (
+                            <>
+                                <img className="mr-[4px] w-[20px] h-[20px]" src={currentToNetwork.logo} />
+                                <span>{currentToNetwork.network.chainName}</span>
+                            </>
+                        )}
+                        {currentFromChain !== 'crossChain' && <ChainList />}
                     </div>
                 </div>
                 <div className="flex justify-between items-center">

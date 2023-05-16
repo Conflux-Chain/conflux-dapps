@@ -68,6 +68,7 @@ const DropdownContent: React.FC<{ visible: boolean; hideDropdown: () => void }> 
     const ethereumStatus = useStatus();
     const chainList = Config.chains;
     const chain = useChain();
+
     return (
         <CustomScrollbar className="chain-list">
             {chainList.map((_chain) => (

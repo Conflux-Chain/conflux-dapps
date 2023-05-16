@@ -36,7 +36,7 @@ export const startSubChain = () => {
         (status) => {
             if (status === 'not-installed') {
                 chainStore.setState({ chain: Config.chains[0] });
-                LocalStorage.setItem({ key: 'chain', data: Config.tokens[0], namespace: 'bsc-espace' });
+                LocalStorage.setItem({ key: 'chain', data: Config.chains[0], namespace: 'bsc-espace' });
             }
         },
         { fireImmediately: true }
