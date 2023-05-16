@@ -11,6 +11,7 @@ import List from 'common/components/List';
 import handleClaim from './handleClaim';
 import Button from 'common/components/Button';
 import './index.css';
+import Config from 'bsc-espace/config';
 
 const Auth: React.FC = () => {
     return (
@@ -28,7 +29,6 @@ const Auth: React.FC = () => {
 
 const Claim: React.FC = () => {
     const eSpaceNetwork = useESpaceNetwork()!;
-    const crossNetwork = useCrossNetwork()!;
     const inFetching = useDepositInFetching();
     const depositList = useDepositList();
     const claimingList = useClaimingList();
@@ -44,7 +44,7 @@ const Claim: React.FC = () => {
             </div>
         );
     }
-    
+
     return (
         <div ref={ref}>
             <List
@@ -54,7 +54,7 @@ const Claim: React.FC = () => {
                 itemKey="deposit_tx_hash"
                 ItemWrapperClassName="deposit-item"
                 animatedSize
-                animationType='slideRight'
+                animationType="slideRight"
             >
                 {(deposit) => (
                     <div
@@ -70,15 +70,25 @@ const Claim: React.FC = () => {
                         </div>
 
                         <div className="mt-[8px] leading-[18px] text-[14px] text-[#A9ABB2]">
-                            {`From ${deposit.src_chain_id === eSpaceNetwork.network.chainId ? eSpaceNetwork.network.chainName : crossNetwork.network.chainName} to ${
-                                deposit.dest_chain_id === eSpaceNetwork.network.chainId ? eSpaceNetwork.network.chainName : crossNetwork.network.chainName
+                            {`From ${
+                                deposit.src_chain_id === eSpaceNetwork.network.chainId
+                                    ? eSpaceNetwork.network.chainName
+                                    : deposit.src_chain_id === Config.chains[0].network.chainId
+                                    ? Config.chains[0].network.chainName
+                                    : Config.chains[1].network.chainName
+                            } to ${
+                                deposit.dest_chain_id === eSpaceNetwork.network.chainId
+                                    ? eSpaceNetwork.network.chainName
+                                    : deposit.dest_chain_id === Config.chains[0].network.chainId
+                                    ? Config.chains[0].network.chainName
+                                    : Config.chains[1].network.chainName
                             }`}
                         </div>
 
                         {(deposit.status !== 'WAIT_FOR_CLAIM' || claimingList?.includes(deposit.deposit_tx_hash)) && (
                             <Button
-                                variant='outlined'
-                                size='small'
+                                variant="outlined"
+                                size="small"
                                 className="absolute right-[16px] top-[50%] -translate-y-[50%] min-w-[60px]"
                                 loading={deposit.status !== 'CLAIMED'}
                                 disabled={deposit.status === 'CLAIMED'}
@@ -94,9 +104,21 @@ const Claim: React.FC = () => {
                                 size="small"
                                 type="button"
                                 connectTextType="concise"
-                                network={deposit.dest_chain_id === eSpaceNetwork.network.chainId ? eSpaceNetwork.network : crossNetwork.network}
+                                network={
+                                    deposit.dest_chain_id === eSpaceNetwork.network.chainId
+                                        ? eSpaceNetwork.network
+                                        : deposit.dest_chain_id === Config.chains[0].network.chainId
+                                        ? Config.chains[0].network
+                                        : Config.chains[1].network
+                                }
                                 showLogo
-                                logo={deposit.dest_chain_id === crossNetwork.network.chainId ? crossNetwork.logo : eSpaceNetwork.logo}
+                                logo={
+                                    deposit.dest_chain_id === eSpaceNetwork.network.chainId
+                                        ? eSpaceNetwork.logo
+                                        : deposit.dest_chain_id === Config.chains[0].network.chainId
+                                        ? Config.chains[0].logo
+                                        : Config.chains[1].logo
+                                }
                                 authContent={() => (
                                     <Button
                                         variant="outlined"
@@ -105,7 +127,13 @@ const Claim: React.FC = () => {
                                         startIcon={
                                             <img
                                                 className="mr-[4px] w-[14px] h-[14px]"
-                                                src={deposit.dest_chain_id === crossNetwork.network.chainId ? crossNetwork.logo : eSpaceNetwork.logo}
+                                                src={
+                                                    deposit.dest_chain_id === eSpaceNetwork.network.chainId
+                                                        ? eSpaceNetwork.logo
+                                                        : deposit.dest_chain_id === Config.chains[0].network.chainId
+                                                        ? Config.chains[0].logo
+                                                        : Config.chains[1].logo
+                                                }
                                                 alt="chain logo"
                                             />
                                         }

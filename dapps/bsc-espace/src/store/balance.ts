@@ -52,7 +52,6 @@ export const startSubPeggedAndLiquidity = () => {
     const unSubExec: Function[] = [];
     let balanceTick = 0;
     const getAccount = () => walletStore.getState().accounts?.[0];
-    // const chainIndex = networkStore.getState().chainIndex || 0;
     // same balance should not reset obj state causes duplicate render.
     const handleBalanceChanged = (newBalance: Unit, type: keyof PeggedAndLiquidityStore, currentBalanceTick: number) => {
         if (!newBalance || currentBalanceTick !== balanceTick - 1) return;
