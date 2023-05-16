@@ -43,6 +43,9 @@ const Chain: React.FC<{
     const currentFromChain = useCurrentFromChain();
 
     useEffect(() => setAmount(''), [metaMaskAccount, token, metaMaskChainId]);
+    // useEffect(() => {
+    //     console.log(currentFromNetwork.network.chainName);
+    // }, [currentFromChain]);
 
     const isBalanceGreaterThan0 = maxAvailableBalance && Unit.greaterThan(maxAvailableBalance, Unit.fromStandardUnit(0));
 

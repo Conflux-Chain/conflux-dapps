@@ -9,6 +9,7 @@ import { startSubBalance, startSubPeggedAndLiquidity } from './balance';
 import { startSubToken } from './token';
 import { startSubDepositList } from 'bsc-espace/src/modules/Claim/depositStore';
 import { startSubChain } from './chain';
+import { startSubNetwork } from './network';
 
 export const startSub = () => {
     const unsubBalance = startSubBalance();
@@ -16,6 +17,7 @@ export const startSub = () => {
     const unsubToken = startSubToken();
     const unSubDepositList = startSubDepositList();
     const unSubChain = startSubChain();
+    const unSubNetwork = startSubNetwork();
 
     return () => {
         unsubBalance();
@@ -23,5 +25,6 @@ export const startSub = () => {
         unsubToken();
         unSubDepositList();
         unSubChain();
+        unSubNetwork();
     };
 };

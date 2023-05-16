@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect, memo } from 'react';
 import { showToast, type Content } from 'common/components/showPopup/Toast';
 import cx from 'clsx';
-import { ChainInfo, setChain, useChain } from 'bsc-espace/src/store';
+import { ChainInfo, setChain, useChain, useCurrentFromNetwork, useCurrentFromChain } from 'bsc-espace/src/store';
 import { useStatus } from '@cfxjs/use-wallet-react/ethereum';
 import { connectToEthereum, switchToEthereum } from 'common/modules/AuthConnectButton';
 import { useIsMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFluent';
