@@ -71,8 +71,9 @@ const DropdownContent: React.FC<{ visible: boolean; hideDropdown: () => void }> 
 
     return (
         <CustomScrollbar className="chain-list">
-            {chainList.map((_chain) => (
+            {chainList.map((_chain, index) => (
                 <ChainItem
+                    key={index}
                     hideDropdown={hideDropdown}
                     ethereumStatus={ethereumStatus}
                     {..._chain}

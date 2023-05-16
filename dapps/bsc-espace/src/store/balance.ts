@@ -53,8 +53,6 @@ export const startSubPeggedAndLiquidity = () => {
     let balanceTick = 0;
     const getAccount = () => walletStore.getState().accounts?.[0];
     // const chainIndex = networkStore.getState().chainIndex || 0;
-    const chainIndex = chainStore.getState().chain.network.chainName === 'ETC Mordor' ? 1 : 0;
-
     // same balance should not reset obj state causes duplicate render.
     const handleBalanceChanged = (newBalance: Unit, type: keyof PeggedAndLiquidityStore, currentBalanceTick: number) => {
         if (!newBalance || currentBalanceTick !== balanceTick - 1) return;
@@ -72,6 +70,7 @@ export const startSubPeggedAndLiquidity = () => {
         balanceTick += 1;
         const { eSpaceBridgeContractAddress, crossChainBridgeContractAddress } = Contracts;
         const { eSpace: eSpaceNetwork, crossChain: crossChianNetwork } = networkStore.getState();
+        const { chain } = chainStore.getState();
         if (!eSpaceBridgeContractAddress || !crossChainBridgeContractAddress || !eSpaceNetwork || !crossChianNetwork) return;
         // get eSpace maximumLiquidity value.
         fetch(eSpaceNetwork.network.rpcUrls[0], {
@@ -104,7 +103,7 @@ export const startSubPeggedAndLiquidity = () => {
                 params: [
                     {
                         data: '0x70a08231000000000000000000000000' + crossChainBridgeContractAddress.slice(2),
-                        to: Config.chains[chainIndex].tokens[0].address,
+                        to: Config.chains[chain.network.chainName === 'ETC Mordor' ? 1 : 0].tokens[0].address,
                     },
                     'latest',
                 ],
@@ -134,7 +133,10 @@ export const startSubPeggedAndLiquidity = () => {
                     params: [
                         {
                             data: '0x70a08231000000000000000000000000' + account.slice(2),
-                            to: type === 'eSpace' ? Config.tokens[0].PeggedToken.address : Config.chains[chainIndex].tokens[0].PeggedToken.address,
+                            to:
+                                type === 'eSpace'
+                                    ? Config.tokens[0].PeggedToken.address
+                                    : Config.chains[chain.network.chainName === 'ETC Mordor' ? 1 : 0].tokens[0].PeggedToken.address,
                         },
                         'latest',
                     ],
