@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { store as walletStore, provider, Unit } from '@cfxjs/use-wallet-react/ethereum';
-import { networkStore, useCurrentFromChain, Contracts, chainStore } from './index';
+import { networkStore, useCurrentFromChain, chainStore, contractStore } from './index';
 import Config from 'bsc-espace/config';
 import { tokenStore, type Token } from './token';
 import { type ValueOf } from 'tsconfig/types/enhance';
@@ -67,7 +67,7 @@ export const startSubPeggedAndLiquidity = () => {
 
         const currentBalanceTick = balanceTick;
         balanceTick += 1;
-        const { eSpaceBridgeContractAddress, crossChainBridgeContractAddress } = Contracts;
+        const { eSpaceBridgeContractAddress, crossChainBridgeContractAddress } = contractStore.getState();
         const { eSpace: eSpaceNetwork, crossChain: crossChianNetwork } = networkStore.getState();
         const { chain } = chainStore.getState();
         if (!eSpaceBridgeContractAddress || !crossChainBridgeContractAddress || !eSpaceNetwork || !crossChianNetwork) return;
@@ -279,7 +279,7 @@ export const startSubBalance = () => {
             }
 
             // if token is CRC20, getBalance from eth_call
-            const { tokenContract, eSpaceBridgeContractAddress, crossChainBridgeContractAddress } = Contracts;
+            const { tokenContract, eSpaceBridgeContractAddress, crossChainBridgeContractAddress } = contractStore.getState();
             const currentFromBridgeContractAddress = currentFrom === 'eSpace' ? eSpaceBridgeContractAddress : crossChainBridgeContractAddress;
             if (!currentFromBridgeContractAddress) return;
             provider!
@@ -413,7 +413,7 @@ export const startSubBalance = () => {
         const trackBalance = () => {
             const account = walletStore.getState().accounts?.[0];
             const balance = balanceStore.getState().balance;
-            const { bridgeContract, eSpaceBridgeContractAddress } = Contracts;
+            const { bridgeContract, eSpaceBridgeContractAddress } = contractStore.getState();
             const { chainId } = walletStore.getState();
             const { eSpace, crossChain, currentFrom } = networkStore.getState();
             const { token } = tokenStore.getState();
