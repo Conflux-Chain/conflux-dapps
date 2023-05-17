@@ -20,7 +20,7 @@ const Auth: React.FC = () => {
             id="claim-authConnect"
             size="large"
             fullWidth
-            connectTextType="concise"
+            connectTextType="wallet"
             checkChainMatch={false}
             authContent={() => <Claim />}
         />

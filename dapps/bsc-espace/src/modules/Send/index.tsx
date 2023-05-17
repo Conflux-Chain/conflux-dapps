@@ -126,6 +126,7 @@ const Form: React.FC = () => {
                 size="large"
                 fullWidth
                 type="button"
+                connectTextType="wallet"
                 network={currentFromNetwork.network}
                 authContent={() => (
                     <Button
@@ -136,7 +137,7 @@ const Form: React.FC = () => {
                         disabled={!canClickButton || !isTransferHasEnoughLiquidity}
                         loading={typeof needApprove !== 'boolean'}
                     >
-                        {needApprove ? 'Approve' : 'Send'}
+                        {needApprove ? 'Approve' : 'Transfer'}
                     </Button>
                 )}
             />
