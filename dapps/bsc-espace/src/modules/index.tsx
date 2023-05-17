@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import cx from 'clsx';
 import useI18n from 'common/hooks/useI18n';
-import { completeDetect as completeDetectEthereum } from '@cfxjs/use-wallet-react/ethereum';
+import { completeDetect as completeDetectEthereum, useAccount } from '@cfxjs/use-wallet-react/ethereum';
 import { startSub, useHasPeggedCFX } from 'bsc-espace/src/store';
 import Send from 'bsc-espace/src/modules/Send';
 import Claim from 'bsc-espace/src/modules/Claim';
 import Redeem from 'bsc-espace/src/modules/Redeem';
 import LocalStorage from 'localstorage-enhance';
 import './index.css';
+import { useIsMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFluent';
 
 const transitions = {
     en: {
@@ -91,6 +92,10 @@ const Steps: React.FC<{ currentStep: 0 | 1 | 2; changeCurrentStep: (step: 0 | 1 
     changeCurrentStep,
     hasPeggedCFX,
 }) => {
+    const metaMaskAccount = useAccount()!;
+    const fluentAccount = useAccount()!;
+    const isMetaMaskHostedByFluent = useIsMetaMaskHostedByFluent();
+
     return (
         <>
             <div className={cx('flex items-center')}>
@@ -128,12 +133,14 @@ const Steps: React.FC<{ currentStep: 0 | 1 | 2; changeCurrentStep: (step: 0 | 1 
                                 </div>
                             )}
                         </div>
-                        <div className="flex text-[14px] mt-[6px]">
-                            No CFX for gas?&nbsp;
-                            <a href="https://conflux-faucets.com/" target="_blank" rel="noopener" className=" !text-[#808be7] ">
-                                Community faucet
-                            </a>
-                        </div>
+                        {(metaMaskAccount || (isMetaMaskHostedByFluent && fluentAccount)) && (
+                            <div className="flex text-[14px] mt-[6px]">
+                                No CFX for gas?&nbsp;
+                                <a href="https://conflux-faucets.com/" target="_blank" rel="noopener" className=" !text-[#808be7] ">
+                                    Community faucet
+                                </a>
+                            </div>
+                        )}
                     </>
                 )}
             </div>

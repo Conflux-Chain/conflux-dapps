@@ -4,7 +4,7 @@ import Config from 'bsc-espace/config';
 import LocalStorage from 'localstorage-enhance';
 import ConfluxIcon from 'common/assets/chains/Conflux.svg';
 import { type Network as NetworkBase } from 'common/conf/Networks';
-import { ChainInfo, chainStore } from './index';
+import { chainStore } from './index';
 
 export interface Network {
     network: NetworkBase;

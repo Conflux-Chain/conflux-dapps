@@ -74,13 +74,4 @@ export const startSubContract = () => {
     };
 };
 
-// const contracts = {
-//     eSpaceBridgeContractAddress: Config.BridgeContractAddress,
-//     crossChainBridgeContractAddress: Config.chains[0].BridgeContractAddress,
-//     bridgeContract: createContract(BridgeContract.abi),
-//     tokenContract: createContract(CRC20TokenContractABI),
-// } as Contracts;
-
 export const useContract = () => contractStore(selectors.contracts);
-
-// export default contracts;
