@@ -28,7 +28,7 @@ export const ESpaceBridgeEnter: React.FC = () => {
     const navigate = useNavigate();
 
     return (
-        <div className="pt-[94px] mx-auto w-fit flex items-stretch gap-[60px] flex-wrap justify-center">
+        <div className="md:pt-[94px] pt-[20px] mx-auto w-fit flex items-stretch md:gap-[60px] gap-[10px] flex-wrap justify-center ">
             {dapps.map((dapp) => (
                 <div
                     className="bridge-dapp relative w-[348px] h-[402px] rounded-[12px] bg-cover text-center border-[1px] border-transparent hover:border-[#808BE7] cursor-pointer transition-colors"
