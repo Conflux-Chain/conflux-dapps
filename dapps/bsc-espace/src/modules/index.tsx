@@ -72,11 +72,11 @@ const App: React.FC = () => {
     }, [currentStep, hasPeggedCFX]);
 
     return (
-        <div className="relative w-[480px] mx-auto pt-[16px] mb-24px">
-            <div className="pl-[32px] font-medium text-[28px] leading-[36px] text-[#3D3F4C]">{i18n.transfer_assets}</div>
-            <div className="pl-[32px] text-[16px] leading-[22px] mt-[4px] text-[#A9ABB2]">{i18n.between_space}</div>
+        <div className="relative mx-auto pt-[16px] mb-24px md:w-[480px] w-[360px]">
+            <div className="pl-[10px] md:pl-[32px] font-medium text-[28px] leading-[36px] text-[#3D3F4C]">{i18n.transfer_assets}</div>
+            <div className="pl-[10px] md:pl-[32px] text-[16px] leading-[22px] mt-[4px] text-[#A9ABB2]">{i18n.between_space}</div>
 
-            <div className={cx('mt-[24px] bsc-espace-module', currentStep === 2 && 'min-h-[372px]')}>
+            <div className={cx('mt-[24px] bsc-espace-module scale-75 md:scale-100 origin-top-left ', currentStep === 2 && 'min-h-[372px]')}>
                 <Steps currentStep={currentStep} changeCurrentStep={changeCurrentStep} hasPeggedCFX={hasPeggedCFX} />
 
                 {currentStep === 0 && <Send />}

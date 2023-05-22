@@ -31,6 +31,7 @@ import Payment from 'payment/src/modules';
 import PaymentNavbarEnhance from 'hub/src/modules/NavbarEnhance/Payment';
 import PaymentIcon from 'payment/src/assets/logo-light.png';
 import './App.css';
+import { SideBarMask } from './modules/SidebarMask';
 
 export const dapps = [
     {
@@ -153,6 +154,7 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                     dappIcon={currentDapp.icon}
                     Enhance={currentDapp.NavbarEnhance}
                 />
+                <SideBarMask />
                 <Routes>
                     <Route key="espace-bridge" path="espace-bridge" element={<Outlet />}>
                         <Route index element={<ESpaceBridgeEnter />} />

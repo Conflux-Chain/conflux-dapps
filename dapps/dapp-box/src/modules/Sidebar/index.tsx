@@ -10,6 +10,7 @@ import Expand from 'hub/src/assets/expand.svg';
 import { dapps } from 'hub/src/App';
 import { useNotSupportMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFluent';
 import './index.css';
+import { useExpand, changeExpand } from './sideBarStore';
 
 const dappsSupportMetaMaskHostedByFluent = ['eSpace Bridge', 'Governance', 'Web3 Paywall', 'Bridge', 'Pos'];
 
@@ -18,21 +19,18 @@ const Sidebar: React.FC = () => {
     const currentDapp = useCurrentDapp();
     useNotSupportMetaMaskHostedByFluent(dappsSupportMetaMaskHostedByFluent.includes(currentDapp?.name) ? undefined : currentDapp?.name);
 
-    const [expand, setExpand] = useState(() => {
-        const last = (localStorage.getItem('ConfluxHub-drawer-expand') as 'true') || 'false';
-        if (last === 'true' || last === 'false') return last === 'true';
-        return true;
-    });
+    const expand = useExpand();
 
     const triggerExpand = useCallback(() => {
-        setExpand((pre) => {
-            localStorage.setItem('ConfluxHub-drawer-expand', !pre ? 'true' : 'false');
-            return !pre;
-        });
+        changeExpand();
     }, []);
 
+    const isMobile = () => {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    };
+
     const drawerStyle = useSpring({
-        width: expand ? 222 : 72,
+        width: expand ? (isMobile() ? 300 : 222) : isMobile() ? 0 : 72,
         config: config.stiff,
     });
 
@@ -49,7 +47,13 @@ const Sidebar: React.FC = () => {
     });
 
     return (
-        <a.div className={'leftbar-container relative flex-shrink-0 flex flex-col px-[8px] pb-[36px] bg-white z-10 select-none'} style={drawerStyle}>
+        <a.div
+            className={cx(
+                'leftbar-container flex-shrink-0 flex flex-col px-[8px] pb-[36px] bg-white z-20 select-none md:relative absolute h-[100vh] rounded-r-[12px] md:rounded-none',
+                isMobile() && !expand && 'hidden'
+            )}
+            style={drawerStyle}
+        >
             <div className="relative flex items-center h-[64px]">
                 <div className="ml-[12px] flex items-center overflow-hidden">
                     <img src={ConfluxHub} className="w-[32px] h-[32px] mr-[2px]" alt="logo" draggable="false" />
@@ -65,7 +69,8 @@ const Sidebar: React.FC = () => {
                 <div
                     className={cx(
                         'absolute top-[50%] -translate-y-[50%] expand-button flex items-center justify-center w-[24px] h-[24px] rounded-full bg-white transition-all cursor-pointer',
-                        expand ? '-right-[20px]' : '-right-[44px]'
+                        expand && !isMobile() ? '-right-[20px]' : '-right-[44px]',
+                        expand && isMobile() && 'right-[12px]'
                     )}
                     onClick={triggerExpand}
                 >
