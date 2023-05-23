@@ -11,6 +11,7 @@ import { dapps } from 'hub/src/App';
 import { useNotSupportMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFluent';
 import './index.css';
 import { useExpand, changeExpand } from './sideBarStore';
+import { useDrag } from '@use-gesture/react';
 
 const dappsSupportMetaMaskHostedByFluent = ['eSpace Bridge', 'Governance', 'Web3 Paywall', 'Bridge', 'Pos'];
 
@@ -49,8 +50,8 @@ const Sidebar: React.FC = () => {
     return (
         <a.div
             className={cx(
-                'leftbar-container flex-shrink-0 flex flex-col px-[8px] pb-[36px] bg-white z-20 select-none md:relative absolute h-[100vh] rounded-r-[12px] md:rounded-none',
-                isMobile() && !expand && 'hidden'
+                'leftbar-container flex-shrink-0 flex flex-col pb-[36px] md:px-[8px] bg-white z-20 select-none md:relative absolute h-[100vh] rounded-r-[12px] md:rounded-none',
+                expand && 'px-[8px]'
             )}
             style={drawerStyle}
         >
@@ -69,8 +70,8 @@ const Sidebar: React.FC = () => {
                 <div
                     className={cx(
                         'absolute top-[50%] -translate-y-[50%] expand-button flex items-center justify-center w-[24px] h-[24px] rounded-full bg-white transition-all cursor-pointer',
-                        expand && !isMobile() ? '-right-[20px]' : '-right-[44px]',
-                        expand && isMobile() && 'right-[12px]'
+                        expand ? 'md:-right-[20px] right-[12px]' : '-right-[44px]',
+                        !expand && isMobile() && 'hidden'
                     )}
                     onClick={triggerExpand}
                 >
@@ -83,13 +84,18 @@ const Sidebar: React.FC = () => {
                 </div>
             </div>
 
-            <div className="mt-[32px] mb-[8px] ml-[17.62px] text-[12px] leading-[16px] text-[#A9ABB2]">APP</div>
+            <div className="mt-[32px] mb-[8px] ml-[17.62px] text-[12px] leading-[16px] text-[#A9ABB2] md:flex hidden">APP</div>
             {dapps
                 .filter((dapp) => dapp.name !== 'ShuttleFlow')
                 .map((dapp, index) => (
                     <Fragment key={dapp.name}>
                         {dapp.name === 'Pos' && (
-                            <div className={cx('mt-[32px] mb-[8px] text-[12px] leading-[16px] text-[#A9ABB2]', expand ? 'ml-[17.62px]' : 'ml-[4px]')}>
+                            <div
+                                className={cx(
+                                    'mt-[32px] mb-[8px] text-[12px] leading-[16px] text-[#A9ABB2] md:flex hidden',
+                                    expand ? 'ml-[17.62px]' : 'ml-[4px]'
+                                )}
+                            >
                                 Advanced
                             </div>
                         )}
@@ -102,10 +108,10 @@ const Sidebar: React.FC = () => {
                             disabled={expand}
                             animationType="zoom"
                         >
-                            <div className={cx('relative', { 'mt-[12px]': dapp.name !== 'Bridge' && dapp.name !== 'Pos' })}>
+                            <div className={cx('relative', !expand && 'md:flex hidden', { 'mt-[12px]': dapp.name !== 'Bridge' && dapp.name !== 'Pos' })}>
                                 <div
                                     className={cx(
-                                        'group flex items-center pl-[8px] h-[48px] rounded-[8px] transition-colors overflow-hidden contain-content',
+                                        'group items-center pl-[8px] h-[48px] rounded-[8px] transition-colors overflow-hidden contain-content flex',
                                         currentDapp.path === dapp.path && 'bg-[#F8F9FE]',
                                         expand && currentDapp.path !== dapp.path && 'hover:bg-[#F8F9FE] cursor-pointer'
                                     )}
@@ -136,7 +142,7 @@ const Sidebar: React.FC = () => {
 
                                 <span
                                     className={cx(
-                                        'absolute right-[-8px] top-[50%] -translate-y-[50%] w-[2px] h-[20px] bg-[#4C70FF] opacity-0 transition-opacity',
+                                        'absolute right-[-8px] top-[50%] -translate-y-[50%] w-[2px] h-[20px] bg-[#4C70FF] opacity-0 transition-opacity ',
                                         !expand && currentDapp.path === dapp.path && 'opacity-100'
                                     )}
                                 />

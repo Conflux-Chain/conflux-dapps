@@ -78,7 +78,7 @@ const TokenListDropdown: React.FC<{ children: (triggerDropdown: () => void, visi
         <Dropdown
             visible={visible}
             onClickOutside={hideDropdown}
-            className="relative flex flex-col w-[432px] rounded-[4px] bg-white shadow contain-content overflow-hidden"
+            className="relative flex flex-col md:w-[432px] w-[324px] rounded-[4px] bg-white shadow contain-content overflow-hidden"
             Content={<DropdownContent visible={visible} hideDropdown={hideDropdown} />}
             appendTo={document.body}
         >

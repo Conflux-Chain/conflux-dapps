@@ -55,7 +55,7 @@ const ChainListDropdown: React.FC<{ children: (triggerDropdown: () => void, visi
         <Dropdown
             visible={visible}
             onClickOutside={hideDropdown}
-            className="relative flex flex-col w-[210px] rounded-[4px] bg-white shadow contain-content overflow-hidden"
+            className="relative flex flex-col md:w-[210px] w-[160px] rounded-[4px] bg-white shadow contain-content overflow-hidden"
             Content={<DropdownContent visible={visible} hideDropdown={hideDropdown} />}
             appendTo={document.body}
         >
@@ -94,7 +94,7 @@ const ChainItem = memo<ChainItemProps>(({ hideDropdown, ethereumStatus, isCurren
     return (
         <div
             className={cx(
-                'relative flex justify-between items-center h-[48px] pl-[16px] pr-[20px] bg-white',
+                'relative flex justify-between items-center md:h-[48px] h-[40px] pl-[16px] pr-[20px] bg-white',
                 isCurrent ? 'bg-[#808BE7] bg-opacity-30' : 'hover:bg-[#808BE7] hover:bg-opacity-10 cursor-pointer'
             )}
             onClick={() => {
@@ -105,7 +105,7 @@ const ChainItem = memo<ChainItemProps>(({ hideDropdown, ethereumStatus, isCurren
             <div className="inline-flex items-center">
                 <img src={chain.logo} alt="chain img" className="w-[20px] h-[20px] mr-[8px]" />
 
-                <div className="text-[16px] text-[#3D3F4C]">{chain.network.chainName}</div>
+                <div className="md:text-[16px] text-[12px] text-[#3D3F4C]">{chain.network.chainName}</div>
             </div>
         </div>
     );
