@@ -561,7 +561,7 @@ const Withdraw2Core: React.FC<{ isShow: boolean; inTransfer: boolean; setInTrans
                 fullWidth
                 onClick={handleClick}
                 tabIndex={isShow ? 7 : -1}
-                type='button'
+                type="button"
                 authContent={() => (
                     <Button
                         id="eSpace2Core-withdraw"

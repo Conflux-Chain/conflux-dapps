@@ -72,7 +72,7 @@ const App: React.FC = () => {
     }, [currentStep, hasPeggedCFX]);
 
     return (
-        <div className="relative mx-auto pt-[16px] mb-24px md:w-[480px] w-[360px]">
+        <div className="relative mx-auto pt-[16px] md:w-[480px] w-[360px]">
             <div className="pl-[10px] md:pl-[32px] font-medium text-[28px] leading-[36px] text-[#3D3F4C]">{i18n.transfer_assets}</div>
             <div className="pl-[10px] md:pl-[32px] text-[16px] leading-[22px] mt-[4px] text-[#A9ABB2]">{i18n.between_space}</div>
 

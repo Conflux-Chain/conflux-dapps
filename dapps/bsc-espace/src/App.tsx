@@ -10,7 +10,7 @@ import './App.css';
 
 const AppRouter = () => {
     const [mode, setMode] = useState<'light' | 'dark'>(() => {
-        const last = LocalStorage.getItem('mode') as 'light' || 'light';
+        const last = (LocalStorage.getItem('mode') as 'light') || 'light';
         if (last === 'light' || last === 'dark') return last;
         return 'light';
     });
@@ -26,34 +26,36 @@ const AppRouter = () => {
     const handleSwitchMode = useCallback(() => {
         setMode((pre) => {
             const mode = pre === 'light' ? 'dark' : 'light';
-            LocalStorage.setItem({ key: 'mode', data: mode});
+            LocalStorage.setItem({ key: 'mode', data: mode });
             return mode;
         });
     }, []);
 
-
     const [locale, setLocal] = useState<'zh' | 'en'>(() => {
         const last = LocalStorage.getItem('locale') as 'en' | 'zh';
         if (last === 'en' || last === 'zh') return last;
-        return (navigator.language.includes('zh') ? 'en' : 'en')
+        return navigator.language.includes('zh') ? 'en' : 'en';
     });
-    const handleSwitchLocale = useCallback(() => setLocal(preLocale => {
-        const locale = preLocale === 'zh' ? 'en' : 'zh';
-        LocalStorage.setItem({ key: 'locale', data: locale});
-        return locale;
-    }), []);
-
+    const handleSwitchLocale = useCallback(
+        () =>
+            setLocal((preLocale) => {
+                const locale = preLocale === 'zh' ? 'en' : 'zh';
+                LocalStorage.setItem({ key: 'locale', data: locale });
+                return locale;
+            }),
+        []
+    );
 
     return (
         <ModeContext.Provider value={mode}>
             <LocaleContext.Provider value={locale}>
                 <Navbar handleSwitchLocale={handleSwitchLocale} handleSwitchMode={handleSwitchMode} dappIcon={CrossSpaceIcon} dappName="BSC - eSpace" />
-                <CustomScrollbar contentClassName='main-scroll'>
+                <CustomScrollbar contentClassName="main-scroll">
                     <Modules />
                 </CustomScrollbar>
             </LocaleContext.Provider>
         </ModeContext.Provider>
     );
-}
+};
 
 export default AppRouter;
