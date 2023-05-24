@@ -83,49 +83,31 @@ Promise.all([
         'Conflux eSpace': {
             Ethereum: {
                 CFX: [['Space Bridge', 'ShuttleFlow']],
-                ETH: [['Space Bridge', 'ShuttleFlow'], 'Multichain'],
+                ETH: [['Space Bridge', 'ShuttleFlow']],
                 WETH: ['cBridge'],
-                USDT: [['Space Bridge', 'ShuttleFlow'], 'Multichain', 'cBridge'],
-                USDC: [['Space Bridge', 'ShuttleFlow'], 'Multichain', 'cBridge'],
-                WBTC: [['Space Bridge', 'ShuttleFlow'], 'Multichain', 'cBridge'],
+                USDT: [['Space Bridge', 'ShuttleFlow'], 'cBridge'],
+                USDC: [['Space Bridge', 'ShuttleFlow'], 'cBridge'],
+                WBTC: [['Space Bridge', 'ShuttleFlow'], 'cBridge'],
                 DAI: [['Space Bridge', 'ShuttleFlow'], 'cBridge'],
-                BNB: ['Multichain'],
-                BUSD: ['Multichain'],
             },
             'BSC Chain': {
-                CFX: ['Chain Bridge', ['Space Bridge', 'ShuttleFlow'], 'Multichain'],
-                BNB: ['Multichain'],
-                BUSD: ['Multichain'],
-                USDT: ['Multichain'],
-                USDC: ['Multichain'],
-                WBTC: ['Multichain'],
-                DAI: ['Multichain'],
-                ETH: ['Multichain'],
+                CFX: ['Chain Bridge', ['Space Bridge', 'ShuttleFlow']],
             },
         },
         'BSC Chain': {
             'Conflux eSpace': {
-                CFX: ['Chain Bridge', ['ShuttleFlow', 'Space Bridge'], 'Multichain'],
-                BNB: ['Multichain'],
-                BUSD: ['Multichain'],
-                USDT: ['Multichain'],
-                USDC: ['Multichain'],
-                WBTC: ['Multichain'],
-                DAI: ['Multichain'],
-                ETH: ['Multichain'],
+                CFX: ['Chain Bridge', ['ShuttleFlow', 'Space Bridge']],
             },
         },
         Ethereum: {
             'Conflux eSpace': {
                 CFX: [['ShuttleFlow', 'Space Bridge']],
-                ETH: [['ShuttleFlow', 'Space Bridge'], 'Multichain'],
+                ETH: [['ShuttleFlow', 'Space Bridge']],
                 WETH: ['cBridge'],
-                USDT: [['ShuttleFlow', 'Space Bridge'], 'Multichain', 'cBridge'],
-                USDC: [['ShuttleFlow', 'Space Bridge'], 'Multichain', 'cBridge'],
-                WBTC: [['ShuttleFlow', 'Space Bridge'], 'Multichain', 'cBridge'],
+                USDT: [['ShuttleFlow', 'Space Bridge'], 'cBridge'],
+                USDC: [['ShuttleFlow', 'Space Bridge'], 'cBridge'],
+                WBTC: [['ShuttleFlow', 'Space Bridge'], 'cBridge'],
                 DAI: [['ShuttleFlow', 'Space Bridge'], 'cBridge'],
-                BNB: ['Multichain'],
-                BUSD: ['Multichain'],
             },
         },
     };
@@ -334,9 +316,6 @@ export const createHref = ({
     }
     if (route === 'Chain Bridge') {
         return location.origin + '/espace-bridge/bsc-espace-cfx';
-    }
-    if (route === 'Multichain') {
-        return 'https://app.multichain.org/#/router';
     }
     if (route === 'cBridge') {
         return `https://cbridge.celer.network/${destinationChain === 'Conflux eSpace' ? '1' : '1030'}/${
