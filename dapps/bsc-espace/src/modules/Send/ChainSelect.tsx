@@ -140,7 +140,13 @@ const Chain: React.FC<{
                                 <span>{currentToNetwork.network.chainName}</span>
                             </>
                         )}
-                        {currentFromChain !== 'crossChain' && <ChainList />}
+                        {/* {currentFromChain !== 'crossChain' && <ChainList />} */}
+                        {currentFromChain !== 'crossChain' && (
+                            <>
+                                <img className="mr-[4px] w-[20px] h-[20px]" src={currentToNetwork.logo} />
+                                <span>{currentToNetwork.network.chainName}</span>
+                            </>
+                        )}
                     </div>
                 </div>
                 <div className="flex justify-between items-center">
