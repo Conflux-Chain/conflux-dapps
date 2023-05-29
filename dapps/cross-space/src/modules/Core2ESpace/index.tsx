@@ -44,7 +44,7 @@ const transitions = {
 
 const Core2ESpace: React.FC<{ style: any; isShow: boolean; handleClickFlipped: () => void }> = ({ style, isShow, handleClickFlipped }) => {
     return (
-        <a.div className="cross-space-module absolute " style={style}>
+        <a.div className="cross-space-module absolute" style={style}>
             <button
                 id="eSpace2Core-flip"
                 className="turn-page flex justify-center items-center w-[28px] h-[28px] rounded-full cursor-pointer transition-transform hover:scale-105 absolute left-[224px] top-[176px] bg-white"
