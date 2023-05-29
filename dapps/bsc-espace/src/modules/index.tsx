@@ -31,8 +31,7 @@ const steps = [
         desc: 'Claim CFX on the destination chain.',
     },
     {
-        title: 'Redeem',
-        title_detail: 'Redeem peggedCFX',
+        title: 'Redeem peggedCFX',
         desc: 'You can redeem your peggedCFX here.',
     },
 ];
@@ -76,7 +75,7 @@ const App: React.FC = () => {
             <div className="pl-[10px] md:pl-[32px] font-medium text-[28px] leading-[36px] text-[#3D3F4C]">{i18n.transfer_assets}</div>
             <div className="pl-[10px] md:pl-[32px] text-[16px] leading-[22px] mt-[4px] text-[#A9ABB2]">{i18n.between_space}</div>
 
-            <div className={cx('mt-[24px] bsc-espace-module scale-75 md:scale-100 origin-top-left ', currentStep === 2 && 'min-h-[372px]')}>
+            <div className={cx('mt-[24px] bsc-espace-module scale-75 md:scale-100 origin-top-left')}>
                 <Steps currentStep={currentStep} changeCurrentStep={changeCurrentStep} hasPeggedCFX={hasPeggedCFX} />
 
                 {currentStep === 0 && <Send />}
@@ -110,7 +109,7 @@ const Steps: React.FC<{ currentStep: 0 | 1 | 2; changeCurrentStep: (step: 0 | 1 
                             onClick={() => changeCurrentStep(index as 0 | 1 | 2)}
                         >
                             <span className={cx('text-[16px]', currentStep === index ? 'text-[#3D3F4C] font-medium' : 'text-[#898D9A] font-normal')}>
-                                {currentStep === 2 ? step.title_detail : step.title}
+                                {step.title}
                             </span>
 
                             {index !== 2 && (
@@ -129,7 +128,7 @@ const Steps: React.FC<{ currentStep: 0 | 1 | 2; changeCurrentStep: (step: 0 | 1 
                             {steps[currentStep].desc}
                             {hasPeggedCFX && (
                                 <div className="text-[16px] text-[#808BE7] font-medium cursor-pointer" onClick={() => changeCurrentStep(2)}>
-                                    {steps[2].title_detail + ' >'}
+                                    {steps[2].title + ' >'}
                                 </div>
                             )}
                         </div>
