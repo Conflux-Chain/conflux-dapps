@@ -53,11 +53,13 @@ const Apps: React.FC = () => {
             LocalStorage.setItem({ key: 'flipped', data: flip, namespace: 'cross-space' });
 
             const token = searchParams.get('token');
-            const targetToken = token ? tokenList?.find(
-                (tokenData) =>
-                    tokenData.core_space_symbol.search(new RegExp(escapeRegExp(token), 'i')) !== -1 ||
-                    tokenData.evm_space_symbol.search(new RegExp(escapeRegExp(token), 'i')) !== -1
-            ) : null;
+            const targetToken = token
+                ? tokenList?.find(
+                      (tokenData) =>
+                          tokenData.core_space_symbol.search(new RegExp(escapeRegExp(token), 'i')) !== -1 ||
+                          tokenData.evm_space_symbol.search(new RegExp(escapeRegExp(token), 'i')) !== -1
+                  )
+                : null;
             searchParams.delete('sourceChain');
             searchParams.delete('destinationChain');
             searchParams.delete('token');
@@ -90,7 +92,7 @@ const Apps: React.FC = () => {
 
     const { transform, opacity } = useSpring({
         opacity: flipped ? 1 : 0,
-        transform: `perspective(600px) rotateY(${flipped ? 180 : 0}deg)`,
+        transform: `perspective(600px) rotateX(${flipped ? 180 : 0}deg)`,
         config: { mass: 5, tension: 500, friction: 80, clamp: true },
     });
 
@@ -102,11 +104,11 @@ const Apps: React.FC = () => {
     }, []);
 
     return (
-        <div className="relative w-[480px] mx-auto pt-[16px] mb-[24px]">
-            <div className="pl-[32px] font-medium	text-[28px] leading-[36px] text-[#3D3F4C]">{i18n.transfer_assets}</div>
-            <div className="pl-[32px] text-[16px] leading-[22px] mt-[4px] text-[#A9ABB2]">{i18n.between_space}</div>
+        <div className="relative md:w-[480px] w-[360px] mx-auto pt-[16px]">
+            <div className="pl-[10px] md:pl-[32px] font-medium text-[28px] leading-[36px] text-[#3D3F4C]">{i18n.transfer_assets}</div>
+            <div className="pl-[10px] md:pl-[32px] text-[16px] leading-[22px] mt-[4px] text-[#A9ABB2]">{i18n.between_space}</div>
 
-            <div className="mt-[24px] h-[726px]">
+            <div className="mt-[24px] scale-75 md:scale-100 origin-top-left ">
                 <Core2ESpace
                     style={{
                         zIndex: flipped ? 0 : 1,
@@ -121,7 +123,7 @@ const Apps: React.FC = () => {
                         zIndex: flipped ? 1 : 0,
                         opacity,
                         transform,
-                        rotateY: '180deg',
+                        rotateX: '180deg',
                     }}
                     isShow={!!flipped}
                     handleClickFlipped={handleClickFlipped}

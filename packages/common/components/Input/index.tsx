@@ -9,18 +9,39 @@ import './index.css';
 
 const setValue = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')!?.set!;
 
-export type Props = OverWrite<React.InputHTMLAttributes<HTMLInputElement>, {
-    error?: string;
-    wrapperClassName?: string;
-    outerPlaceholder?: ReactElement;
-    prefixIcon?: string;
-    suffix?: ReactNode | Array<ReactNode>;
-    bindAccout?: string;
-    size?: 'normal' | 'small';
-}>
+export type Props = OverWrite<
+    React.InputHTMLAttributes<HTMLInputElement>,
+    {
+        error?: string;
+        wrapperClassName?: string;
+        outerPlaceholder?: ReactElement;
+        prefixIcon?: string;
+        suffix?: ReactNode | Array<ReactNode>;
+        bindAccout?: string;
+        size?: 'normal' | 'small' | 'mini';
+    }
+>;
 
 const Input = forwardRef<HTMLInputElement, Props>(
-    ({ wrapperClassName, className, outerPlaceholder, placeholder, error, prefixIcon, suffix, id, max, disabled, bindAccout, size = 'normal', defaultValue, ...props }, ref) => {
+    (
+        {
+            wrapperClassName,
+            className,
+            outerPlaceholder,
+            placeholder,
+            error,
+            prefixIcon,
+            suffix,
+            id,
+            max,
+            disabled,
+            bindAccout,
+            size = 'normal',
+            defaultValue,
+            ...props
+        },
+        ref
+    ) => {
         const domRef = useRef<HTMLInputElement>(null!);
         useEffect(() => {
             if (!domRef.current) return;

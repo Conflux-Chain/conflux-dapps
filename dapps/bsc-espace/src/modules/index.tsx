@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import cx from 'clsx';
 import useI18n from 'common/hooks/useI18n';
-import { completeDetect as completeDetectEthereum } from '@cfxjs/use-wallet-react/ethereum';
+import { completeDetect as completeDetectEthereum, useAccount } from '@cfxjs/use-wallet-react/ethereum';
 import { startSub, useHasPeggedCFX } from 'bsc-espace/src/store';
 import Send from 'bsc-espace/src/modules/Send';
 import Claim from 'bsc-espace/src/modules/Claim';
 import Redeem from 'bsc-espace/src/modules/Redeem';
 import LocalStorage from 'localstorage-enhance';
 import './index.css';
+import { useIsMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFluent';
 
 const transitions = {
     en: {
@@ -30,8 +31,7 @@ const steps = [
         desc: 'Claim CFX on the destination chain.',
     },
     {
-        title: 'Redeem',
-        title_detail: 'Redeem peggedCFX',
+        title: 'Redeem peggedCFX',
         desc: 'You can redeem your peggedCFX here.',
     },
 ];
@@ -42,13 +42,13 @@ const App: React.FC = () => {
 
     useEffect(() => {
         let unsub: undefined | (() => void);
-        completeDetectEthereum().then(() => unsub = startSub());
-        
+        completeDetectEthereum().then(() => (unsub = startSub()));
+
         return () => {
             if (typeof unsub === 'function') {
                 unsub();
             }
-        }
+        };
     }, []);
 
     const [currentStep, setCurrentStep] = useState<0 | 1 | 2>(() => {
@@ -71,11 +71,11 @@ const App: React.FC = () => {
     }, [currentStep, hasPeggedCFX]);
 
     return (
-        <div className="relative w-[480px] mx-auto pt-[16px] mb-24px">
-            <div className="pl-[32px] font-medium	text-[28px] leading-[36px] text-[#3D3F4C]">{i18n.transfer_assets}</div>
-            <div className="pl-[32px] text-[16px] leading-[22px] mt-[4px] text-[#A9ABB2]">{i18n.between_space}</div>
+        <div className="relative mx-auto pt-[16px] md:w-[480px] w-[360px]">
+            <div className="pl-[10px] md:pl-[32px] font-medium text-[28px] leading-[36px] text-[#3D3F4C]">{i18n.transfer_assets}</div>
+            <div className="pl-[10px] md:pl-[32px] text-[16px] leading-[22px] mt-[4px] text-[#A9ABB2]">{i18n.between_space}</div>
 
-            <div className={cx('mt-[24px] bsc-espace-module', currentStep === 2 && 'min-h-[372px]')}>
+            <div className={cx('mt-[24px] bsc-espace-module scale-75 md:scale-100 origin-top-left')}>
                 <Steps currentStep={currentStep} changeCurrentStep={changeCurrentStep} hasPeggedCFX={hasPeggedCFX} />
 
                 {currentStep === 0 && <Send />}
@@ -91,52 +91,56 @@ const Steps: React.FC<{ currentStep: 0 | 1 | 2; changeCurrentStep: (step: 0 | 1 
     changeCurrentStep,
     hasPeggedCFX,
 }) => {
+    const metaMaskAccount = useAccount()!;
+    const fluentAccount = useAccount()!;
+    const isMetaMaskHostedByFluent = useIsMetaMaskHostedByFluent();
+
     return (
         <>
-            <div className={cx('flex justify-between items-center pr-[28px]')}>
+            <div className={cx('flex items-center')}>
                 {steps.map((step, index) => (
                     <React.Fragment key={step.title}>
                         <div
                             id={`bsc-espace-step-${index}`}
                             className={cx(
-                                'flex items-center cursor-pointer transition-opacity',
-                                !hasPeggedCFX && index === 2 && 'opacity-0 pointer-events-none'
+                                ' cursor-pointer transition-opacity flex flex-col items-center pr-[42px]',
+                                index === 2 && 'opacity-0 pointer-events-none'
                             )}
                             onClick={() => changeCurrentStep(index as 0 | 1 | 2)}
                         >
+                            <span className={cx('text-[16px]', currentStep === index ? 'text-[#3D3F4C] font-medium' : 'text-[#898D9A] font-normal')}>
+                                {step.title}
+                            </span>
+
                             {index !== 2 && (
                                 <div
-                                    className={cx(
-                                        'mr-[8px] w-[24px] h-[24px] leading-[24px] rounded-full text-center text-[14px]',
-                                        currentStep === index ? 'text-white bg-[#808BE7]' : 'text-[#A9ABB2] bg-[#F7F8FA]'
-                                    )}
-                                >
-                                    {index + 1}
-                                </div>
-                            )}
-                            {(currentStep === index || index === 2) && (
-                                <span className={cx('text-[16px]', currentStep === index ? 'text-[#3D3F4C] font-medium' : 'text-[#898D9A] font-normal')}>
-                                    {currentStep === 2 ? step.title_detail : step.title}
-                                </span>
+                                    className={cx('w-[24px] h-[4px] mt-[4px]', currentStep === index ? 'text-white bg-[#808BE7]' : 'text-[#A9ABB2] bg-none')}
+                                ></div>
                             )}
                         </div>
-                        {index !== 2 && (
-                            <div
-                                className={cx(
-                                    'w-[40px] border-[1px] border-dashed border-[#A9ABB2] transition-opacity',
-                                    !hasPeggedCFX && index === 1 && 'opacity-0'
-                                )}
-                            />
-                        )}
                     </React.Fragment>
                 ))}
             </div>
             <div className={cx('mt-[24px] mb-[16px] text-[14px] text-[#898D9A] transition-opacity', !hasPeggedCFX && currentStep === 2 && 'opacity-0')}>
-                {steps[currentStep].desc}
                 {currentStep === 1 && (
-                    <a href="https://conflux-faucets.com/" target="_blank" rel="noopener" className="block mt-[4px] text-[12px] !text-[#808be7] underline">
-                        No CFX for gas? Check this community maintained faucet
-                    </a>
+                    <>
+                        <div className="flex justify-between">
+                            {steps[currentStep].desc}
+                            {hasPeggedCFX && (
+                                <div className="text-[16px] text-[#808BE7] font-medium cursor-pointer" onClick={() => changeCurrentStep(2)}>
+                                    {steps[2].title + ' >'}
+                                </div>
+                            )}
+                        </div>
+                        {(metaMaskAccount || (isMetaMaskHostedByFluent && fluentAccount)) && (
+                            <div className="flex text-[14px] mt-[6px]">
+                                No CFX for gas?&nbsp;
+                                <a href="https://conflux-faucets.com/" target="_blank" rel="noopener" className=" !text-[#808be7] ">
+                                    Community faucet
+                                </a>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
         </>
