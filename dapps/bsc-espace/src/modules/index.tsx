@@ -12,7 +12,7 @@ import { useIsMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFlu
 
 const transitions = {
     en: {
-        transfer_assets: 'CFX Cross-chain',
+        transfer_assets: 'Chain Bridge',
         between_space: 'Between Binance Smart Chain and Conflux eSpace.',
     },
     zh: {

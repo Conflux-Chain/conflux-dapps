@@ -9,7 +9,6 @@ import { isProduction } from 'common/conf/Networks';
 const Config = {
     network: Networks.eSpace,
     serverUrl: isProduction ? 'https://ebridge.shuttleflow.io/' : 'https://ebridge-testnet.shuttleflow.io/',
-    //serverUrl: 'https://131.186.17.28',
     BridgeContractAddress: isProduction ? '0xf55460b8bc81ea65d7ae0aea2383ef69c8f2c62e' : '0x6c421153f5d506d4d1b9d586c4b32b9185dbf593',
     color: '#15C184',
     logo: ConfluxLogo,
@@ -65,7 +64,7 @@ const Config = {
                     name: 'Ethereum Classic',
                     symbol: 'ETC',
                     isNative: true,
-                    address: '0x0000000000000000000000000000000000000002',
+                    address: '0x0000000000000000000000000000000000000001',
                     decimals: 18,
                     icon: CFXIcon,
                     PeggedToken: {

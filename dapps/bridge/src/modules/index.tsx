@@ -72,7 +72,7 @@ const Index: React.FC = () => {
                 <div className="cross-space-module mx-auto mt-[16px] mb-[24px] text-[14px] text-[#898D9A] leading-[18px] font-normal whitespace-nowrap">
                     <div>
                         Assets directly across between Conflux and other chains.{' '}
-                        <Link className="group text-[#808BE7] hover:text-[#808BE7] hover:underline" to="/shuttle-flow">
+                        <Link className="group text-[#808BE7] hover:text-[#808BE7] hover:underline" to="/shuttle-flow" target="_blank">
                             ShuttleFlow
                             <img
                                 src={ArrowLeft}
@@ -81,13 +81,26 @@ const Index: React.FC = () => {
                             />
                         </Link>
                     </div>
+
                     <div className="mt-[4px]">
-                        Assets across Conflux space.{' '}
-                        <Link className="group text-[#808BE7] hover:text-[#808BE7] hover:underline" to="/espace-bridge">
-                            eSpace Bridge
+                        Assets directly across between Conflux eSpace and BSC.{' '}
+                        <Link className="group text-[#808BE7] hover:text-[#808BE7] hover:underline" to="/espace-bridge/espace-cross-chain" target="_blank">
+                            Chain Bridge
                             <img
                                 src={ArrowLeft}
-                                alt="go to ShuttleFlow"
+                                alt="go to chain bridge"
+                                className="inline-block w-[12px] h-[12px] ml-[2px] rotate-180 -translate-y-[1px] group-hover:translate-x-1 transition-all"
+                            />
+                        </Link>
+                    </div>
+
+                    <div className="mt-[4px]">
+                        Assets across Conflux space.{' '}
+                        <Link className="group text-[#808BE7] hover:text-[#808BE7] hover:underline" to="/espace-bridge/cross-space" target="_blank">
+                            Space Bridge
+                            <img
+                                src={ArrowLeft}
+                                alt="go to space bridge"
                                 className="inline-block w-[12px] h-[12px] ml-[2px] rotate-180 -translate-y-[1px] group-hover:translate-x-1 transition-all"
                             />
                         </Link>
