@@ -11,7 +11,6 @@ import { dapps } from 'hub/src/App';
 import { useNotSupportMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFluent';
 import './index.css';
 import { useExpand, changeExpand } from './sideBarStore';
-import { useDrag } from '@use-gesture/react';
 
 const dappsSupportMetaMaskHostedByFluent = ['eSpace Bridge', 'Governance', 'Web3 Paywall', 'Bridge', 'Pos'];
 
@@ -50,8 +49,9 @@ const Sidebar: React.FC = () => {
     return (
         <a.div
             className={cx(
-                'leftbar-container flex-shrink-0 flex flex-col pb-[36px] md:px-[8px] bg-white z-20 select-none md:relative absolute h-[100vh] rounded-r-[12px] md:rounded-none',
-                expand && 'px-[8px]'
+                'leftbar-container flex-shrink-0 flex flex-col pb-[36px] px-[8px] bg-white z-20 select-none relative h-[100vh] rounded-none',
+                expand && 'px-[8px]',
+                isMobile() && 'absolute px-0 rounded-r-[12px]'
             )}
             style={drawerStyle}
         >
@@ -84,7 +84,7 @@ const Sidebar: React.FC = () => {
                 </div>
             </div>
 
-            <div className="mt-[32px] mb-[8px] ml-[17.62px] text-[12px] leading-[16px] text-[#A9ABB2] md:flex hidden">APP</div>
+            <div className={cx('mt-[32px] mb-[8px] ml-[17.62px] text-[12px] leading-[16px] text-[#A9ABB2] ', isMobile() && 'hidden')}>APP</div>
             {dapps
                 .filter((dapp) => dapp.name !== 'ShuttleFlow')
                 .map((dapp, index) => (
@@ -92,8 +92,9 @@ const Sidebar: React.FC = () => {
                         {dapp.name === 'Pos' && (
                             <div
                                 className={cx(
-                                    'mt-[32px] mb-[8px] text-[12px] leading-[16px] text-[#A9ABB2] md:flex hidden',
-                                    expand ? 'ml-[17.62px]' : 'ml-[4px]'
+                                    'mt-[32px] mb-[8px] text-[12px] leading-[16px] text-[#A9ABB2]',
+                                    expand ? 'ml-[17.62px]' : 'ml-[4px]',
+                                    isMobile() && 'hidden'
                                 )}
                             >
                                 Advanced
@@ -108,7 +109,7 @@ const Sidebar: React.FC = () => {
                             disabled={expand}
                             animationType="zoom"
                         >
-                            <div className={cx('relative', !expand && 'md:flex hidden', { 'mt-[12px]': dapp.name !== 'Bridge' && dapp.name !== 'Pos' })}>
+                            <div className={cx('relative', !expand && isMobile() && 'hidden', { 'mt-[12px]': dapp.name !== 'Bridge' && dapp.name !== 'Pos' })}>
                                 <div
                                     className={cx(
                                         'group items-center pl-[8px] h-[48px] rounded-[8px] transition-colors overflow-hidden contain-content flex',
