@@ -14,7 +14,7 @@ const dapps = [
         title: 'Between BSC and eSpace',
         tip: 'Only CFX',
         bg: BscESpaceBg,
-        to: 'bsc-espace-cfx',
+        to: 'espace-cross-chain',
     },
     // {
     //     title: 'Between ETC and eSpace',

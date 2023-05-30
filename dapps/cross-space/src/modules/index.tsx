@@ -15,11 +15,11 @@ import './index.css';
 
 const transitions = {
     en: {
-        transfer_assets: 'Transfer Assets',
+        transfer_assets: 'Space Bridge',
         between_space: 'Between Conflux Core and Conflux eSpace.',
     },
     zh: {
-        transfer_assets: '转移资产',
+        transfer_assets: '跨 Space',
         between_space: '在 Conflux Core 和 Conflux eSpace 之间。',
     },
 } as const;
