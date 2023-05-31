@@ -342,7 +342,7 @@ export const createHref = ({
         return location.origin + `/espace-bridge/cross-space?sourceChain=${sourceChain}&destinationChain=${destinationChain}&token=${token}`;
     }
     if (route === 'Chain Bridge') {
-        return location.origin + '/espace-bridge/espace-cross-chain';
+        return location.origin + `/espace-bridge/espace-cross-chain?sourceChain=${sourceChain}&destinationChain=${destinationChain}`;
     }
     if (route === 'Multichain') {
         return 'https://app.multichain.org/#/router';

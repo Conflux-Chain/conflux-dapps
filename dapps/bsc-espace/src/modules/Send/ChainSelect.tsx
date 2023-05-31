@@ -1,4 +1,5 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import cx from 'clsx';
 import { useSpring, a } from '@react-spring/web';
 import { setCurrentFromChain, useCurrentFromChain } from 'bsc-espace/src/store';
@@ -12,8 +13,9 @@ import TurnPage from 'cross-space/src/assets/turn-page.svg';
 import Input from 'common/components/Input';
 import BalanceText from 'common/modules/BalanceText';
 import { useAccount, useStatus, useChainId, Unit } from '@cfxjs/use-wallet-react/ethereum';
-import { useBalance, useMaxAvailableBalance, useNeedApprove, useToken, useCurrentFromNetwork, useCurrentToNetwork } from 'bsc-espace/src/store';
+import { useBalance, useMaxAvailableBalance, useNeedApprove, useToken, useCurrentFromNetwork, useCurrentToNetwork, setChain } from 'bsc-espace/src/store';
 import ChainList from 'bsc-espace/src/components/ChainList';
+import Config from 'bsc-espace/config';
 
 const transitions = {
     en: {},
@@ -181,10 +183,37 @@ const ChainSelect: React.FC<{
     register: any;
 }> = ({ setAmount, handleCheckAmount, handleClickMax, receiveBalance, register }) => {
     const account = useAccount();
+
+    const hasInit = useRef(false);
+    const [searchParams, setSearchParams] = useSearchParams();
+    const initChainAndFlip = useCallback(() => {
+        if (hasInit.current) return undefined;
+
+        const sourceChain = searchParams.get('sourceChain');
+        const destinationChain = searchParams.get('destinationChain');
+        if (!sourceChain || !destinationChain) return undefined;
+        if (sourceChain === 'Ethereum Classic' || destinationChain == 'Ethereum Classic') {
+            setChain(Config.chains[1]);
+        }
+
+        const flip = sourceChain !== 'Conflux eSpace';
+        LocalStorage.setItem({ key: 'flipped', data: flip, namespace: 'bsc-espace' });
+        searchParams.delete('sourceChain');
+        searchParams.delete('destinationChain');
+        setTimeout(() => setSearchParams(searchParams));
+        return flip;
+    }, []);
+
     const [flipped, setFlipped] = useState(() => {
-        const res = LocalStorage.getItem('flipped', 'bsc-espace') === true;
-        setCurrentFromChain(res ? 'crossChain' : 'eSpace');
-        return res;
+        if (searchParams.get('sourceChain')) {
+            const flipRes = initChainAndFlip();
+            if (typeof flipRes === 'boolean') return flipRes;
+        } else if (window.location.hash.slice(1).indexOf('source=fluent-wallet') !== -1) {
+            LocalStorage.setItem({ key: 'flipped', data: false, namespace: 'bsc-espace' });
+            history.pushState('', document.title, window.location.pathname + window.location.search);
+            return false;
+        }
+        return LocalStorage.getItem('flipped', 'bsc-espace') === true;
     });
 
     const style = useSpring({
