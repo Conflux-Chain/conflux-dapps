@@ -29,6 +29,22 @@ const Config = {
                 isPeggedToken: true,
             },
         },
+        {
+            name: 'METC',
+            symbol: 'METC',
+            decimals: 18,
+            isNative: false,
+            address: '0x0000000000000000000000000000000000000001',
+            icon: CFXIcon,
+            PeggedToken: {
+                name: 'Pegged METC',
+                symbol: 'Pegged METC',
+                address: isProduction ? '0xc5649e95ee07d07307f69af292d1c74c52165444' : '0xc5649e95ee07d07307f69af292d1c74c52165444',
+                decimals: 18,
+                icon: TokenDefaultIcon,
+                isPeggedToken: true,
+            },
+        },
     ],
     chains: [
         {

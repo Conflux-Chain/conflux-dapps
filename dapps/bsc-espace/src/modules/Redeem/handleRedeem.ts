@@ -14,7 +14,7 @@ const handleRedeem = async (type: 'eSpace' | 'crossChain', setInRedeem: (inRedee
     const maximumLiquidity = type == 'eSpace' ? eSpaceMaximumLiquidity : crossChainMaximumLiquidity;
     const bridgeContractAddress = type == 'eSpace' ? eSpaceBridgeContractAddress : crossChainBridgeContractAddress;
     const chainIndex = chainStore.getState().chain.network.chainName === 'ETC Morder' ? 1 : 0;
-    const token = type === 'eSpace' ? Config.tokens[0] : Config.chains[chainIndex].tokens[0];
+    const token = type === 'eSpace' ? Config.tokens[chainIndex] : Config.chains[chainIndex].tokens[0];
     const redeemBalance = peggedBalance && maximumLiquidity ? (Unit.lessThan(maximumLiquidity, peggedBalance) ? maximumLiquidity : peggedBalance) : undefined;
     const trackPeggedBalance = type === 'eSpace' ? trackBalanceChangeOnce.eSpacePeggedBalance : trackBalanceChangeOnce.crossChainPeggedBalance;
 

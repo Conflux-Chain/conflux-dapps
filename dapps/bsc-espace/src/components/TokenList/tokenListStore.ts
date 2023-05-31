@@ -24,7 +24,16 @@ export const useTokenList = () => tokenListStore(tokenListSelector);
 function getCurrentFromTokenList(currentFrom: 'crossChain' | 'eSpace' = 'eSpace', crossChain: Network) {
     let _tokens: Array<Token> = [];
     if (currentFrom === 'eSpace') {
-        _tokens = Config.tokens;
+        let chainName = crossChain.network.chainName;
+        switch (chainName) {
+            case 'Binance Smart Chain':
+            case 'BSC (Testnet)':
+                _tokens = [Config.tokens[0]];
+                break;
+            case 'ETC Mordor':
+                _tokens = [Config.tokens[1]];
+                break;
+        }
     } else {
         let chainName = crossChain.network.chainName;
         switch (chainName) {

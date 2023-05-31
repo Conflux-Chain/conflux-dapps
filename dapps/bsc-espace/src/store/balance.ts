@@ -134,7 +134,7 @@ export const startSubPeggedAndLiquidity = () => {
                             data: '0x70a08231000000000000000000000000' + account.slice(2),
                             to:
                                 type === 'eSpace'
-                                    ? Config.tokens[0].PeggedToken.address
+                                    ? Config.tokens[chain.network.chainName === 'ETC Mordor' ? 1 : 0].PeggedToken.address
                                     : Config.chains[chain.network.chainName === 'ETC Mordor' ? 1 : 0].tokens[0].PeggedToken.address,
                         },
                         'latest',
