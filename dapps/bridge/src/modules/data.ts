@@ -6,6 +6,7 @@ import { isEqual, escapeRegExp } from 'lodash-es';
 import Cache from 'common/utils/LRUCache';
 import CFXIcon from 'common/assets/chains/Conflux.svg';
 import BSCIcon from 'common/assets/chains/BSC.svg';
+import ETCIcon from 'common/assets/chains/ETC.svg';
 import BTCIcon from 'common/assets/chains/BTC.svg';
 import EthereumIcon from 'common/assets/chains/Ethereum.svg';
 import HECOIcon from 'common/assets/chains/HECO.svg';
@@ -62,6 +63,7 @@ export const map: Record<'shuttleFlowChains' | 'shuttleFlowFromTokenAddress' | '
         'Conflux Core': CFXIcon,
         Ethereum: EthereumIcon,
         'BSC Chain': BSCIcon,
+        'Ethereum Classic': ETCIcon,
         OKExChain: OECIcon,
         'HECO Chain': HECOIcon,
         Bitcoin: BTCIcon,
@@ -101,6 +103,9 @@ Promise.all([
                 DAI: ['Multichain'],
                 ETH: ['Multichain'],
             },
+            'Ethereum Classic': {
+                ETC: ['Chain Bridge'],
+            },
         },
         'BSC Chain': {
             'Conflux eSpace': {
@@ -112,6 +117,11 @@ Promise.all([
                 WBTC: ['Multichain'],
                 DAI: ['Multichain'],
                 ETH: ['Multichain'],
+            },
+        },
+        'Ethereum Classic': {
+            'Conflux eSpace': {
+                ETC: ['Chain Bridge'],
             },
         },
         Ethereum: {

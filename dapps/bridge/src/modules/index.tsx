@@ -22,6 +22,8 @@ import TurnPage from 'cross-space/src/assets/turn-page.svg';
 import ArrowLeft from 'cross-space/src/assets/arrow-left.svg';
 import Button from 'common/components/Button';
 
+console.log(map);
+
 const renderToken = (token: string) => (
     <div className="flex items-center">
         <img
