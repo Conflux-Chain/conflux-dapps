@@ -34,7 +34,7 @@ const Config = {
             symbol: 'METC',
             decimals: 18,
             isNative: false,
-            address: '0x0000000000000000000000000000000000000001',
+            address: '0xc5649e95ee07d07307f69af292d1c74c52165444',
             icon: CFXIcon,
             PeggedToken: {
                 name: 'Pegged METC',
@@ -80,7 +80,7 @@ const Config = {
                     name: 'Ethereum Classic',
                     symbol: 'ETC',
                     isNative: true,
-                    address: '0x0000000000000000000000000000000000000001',
+                    address: '0xaA0980712Ff3d302d8926A33959eA009326B921c',
                     decimals: 18,
                     icon: CFXIcon,
                     PeggedToken: {
