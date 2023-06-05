@@ -29,7 +29,7 @@ const SelectDropdown: React.FC<{ children: (triggerDropdown: () => void, visible
         <Dropdown
             visible={visible}
             onClickOutside={hideDropdown}
-            className="relative flex flex-col w-[432px] rounded-[4px] bg-white shadow contain-content overflow-hidden"
+            className="relative flex flex-col md:w-[432px] w-[324px] rounded-[4px] bg-white shadow contain-content overflow-hidden"
             Content={<DropdownContent visible={visible} hideDropdown={hideDropdown} {...props} />}
             appendTo={document.body}
         >
@@ -48,7 +48,7 @@ const DropdownContent: React.FC<{ visible: boolean; hideDropdown: () => void } &
     useSearch,
 }) => {
     const commonTokens = useCommonTokens();
-    const filteredCommonTokens = useMemo(() => commonTokens?.filter(token => data?.includes(token)), [commonTokens, data]);
+    const filteredCommonTokens = useMemo(() => commonTokens?.filter((token) => data?.includes(token)), [commonTokens, data]);
 
     const inputRef = useRef<HTMLInputElement>(null!);
     const [filter, setFilter] = useState('');
@@ -111,7 +111,7 @@ const DropdownContent: React.FC<{ visible: boolean; hideDropdown: () => void } &
                     <div
                         key={typeof item === 'string' ? item : index}
                         className={cx(
-                            'relative flex justify-between items-center h-[48px] pl-[16px] pr-[20px]',
+                            'relative flex justify-between items-center h-[48px] pl-[16px] pr-[20px] md:text-[14px] text-[12px]',
                             isEqual(current, item) ? 'bg-[#808BE7] bg-opacity-30' : 'bg-white hover:bg-[#808BE7] hover:bg-opacity-10 cursor-pointer'
                         )}
                         onClick={() => {

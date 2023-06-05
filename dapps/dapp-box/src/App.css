@@ -4,21 +4,21 @@
 }
 
 #conflux-hub-root > .scrollbar__wrapper {
-    @apply flex-1 px-[32px] bg-[#f8f9ff];
+    @apply flex-1 px-0 bg-[#f8f9ff];
 }
 
 .main-scroll.main-scroll {
-  @apply relative flex flex-col h-[100vh];
+    @apply relative flex flex-col h-[100vh];
 }
 
 #shuttle-flow {
-  @apply flex-1;
+    @apply flex-1;
 }
 
-#__qiankun_microapp_wrapper_for_shuttle_flow__{
-  @apply h-full;
+#__qiankun_microapp_wrapper_for_shuttle_flow__ {
+    @apply h-full;
 }
 
 body {
-  @apply overflow-y-hidden
+    @apply overflow-y-hidden;
 }

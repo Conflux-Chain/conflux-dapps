@@ -15,7 +15,6 @@ import Networks, { isProduction, isStage } from 'common/conf/Networks';
 const CommonTokenCount = 16;
 const commonTokensCache = new Cache<string>(CommonTokenCount, 'bridge-common-tokens');
 
-
 interface DataStore {
     data?: Record<string, any>;
     sourceChain?: string;
@@ -315,7 +314,7 @@ export const createHref = ({
         return location.origin + `/espace-bridge/cross-space?sourceChain=${sourceChain}&destinationChain=${destinationChain}&token=${token}`;
     }
     if (route === 'Chain Bridge') {
-        return location.origin + '/espace-bridge/bsc-espace-cfx';
+        return location.origin + '/espace-bridge/espace-cross-chain';
     }
     if (route === 'cBridge') {
         return `https://cbridge.celer.network/${destinationChain === 'Conflux eSpace' ? '1' : '1030'}/${
@@ -326,13 +325,17 @@ export const createHref = ({
         let fromTokenAddress = map.shuttleFlowFromTokenAddress?.[sourceChain]?.[token];
         if (!fromTokenAddress) {
             const allKeys = Object.keys(map.shuttleFlowFromTokenAddress?.[sourceChain]);
-            const matchKey = allKeys.find(key => key.search(new RegExp(escapeRegExp(token), 'i')) !== -1 || token.search(new RegExp(escapeRegExp(key), 'i')) !== -1);
+            const matchKey = allKeys.find(
+                (key) => key.search(new RegExp(escapeRegExp(token), 'i')) !== -1 || token.search(new RegExp(escapeRegExp(key), 'i')) !== -1
+            );
             if (matchKey) {
                 fromTokenAddress = map.shuttleFlowFromTokenAddress?.[sourceChain][matchKey];
             }
         }
         if (!fromTokenAddress) return '';
-        return `https://${isProduction ? (isStage ? 'stage' : 'www') : 'test'}.confluxhub.io/shuttle-flow/?fromChain=${map.shuttleFlowChains[sourceChain]}&fromTokenAddress=${fromTokenAddress}&toChain=${map.shuttleFlowChains[destinationChain]}`;
+        return `https://${isProduction ? (isStage ? 'stage' : 'www') : 'test'}.confluxhub.io/shuttle-flow/?fromChain=${
+            map.shuttleFlowChains[sourceChain]
+        }&fromTokenAddress=${fromTokenAddress}&toChain=${map.shuttleFlowChains[destinationChain]}`;
     }
     return '';
 };

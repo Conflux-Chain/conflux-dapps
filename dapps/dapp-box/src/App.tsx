@@ -30,6 +30,7 @@ import Payment from 'payment/src/modules';
 import PaymentNavbarEnhance from 'hub/src/modules/NavbarEnhance/Payment';
 import PaymentIcon from 'payment/src/assets/logo-light.png';
 import './App.css';
+import { SideBarMask } from './modules/SidebarMask';
 
 export const dapps = [
     {
@@ -80,7 +81,7 @@ export const dapps = [
         icon: PosIcon,
         Advanced: true,
         path: 'pos',
-        element: <Pos />
+        element: <Pos />,
     },
 ];
 
@@ -152,11 +153,12 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                     dappIcon={currentDapp.icon}
                     Enhance={currentDapp.NavbarEnhance}
                 />
+                <SideBarMask />
                 <Routes>
                     <Route key="espace-bridge" path="espace-bridge" element={<Outlet />}>
                         <Route index element={<ESpaceBridgeEnter />} />
                         <Route key="cross-space" path="cross-space" element={<CrossSpace />} />
-                        <Route key="bsc-espace-cfx" path="bsc-espace-cfx" element={<BscEspace />} />
+                        <Route key="espace-cross-chain" path="espace-cross-chain" element={<BscEspace />} />
                     </Route>
                     <Route key="espace-airdrop" path="espace-airdrop" element={<Airdrop />} />
                     <Route key="governance" path="governance" element={<Outlet />}>
