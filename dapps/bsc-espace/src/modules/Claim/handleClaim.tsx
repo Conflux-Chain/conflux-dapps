@@ -1,5 +1,5 @@
 import { store as walletStore, Unit, sendTransaction } from '@cfxjs/use-wallet-react/ethereum';
-import { peggedAndLiquidityStore, networkStore } from 'bsc-espace/src/store/index';
+import { peggedAndLiquidityStore, networkStore, chainStore } from 'bsc-espace/src/store/index';
 import { setDepositClaiming, type Deposit } from './depositStore';
 import { showWaitWallet, showActionSubmitted, hideWaitWallet } from 'common/components/showPopup/Modal';
 import { showToast } from 'common/components/showPopup/Toast';
@@ -57,7 +57,8 @@ const handleClaim = async (deposit: Deposit) => {
     };
 
     const hasEnoughLiquidity = checkDepositHasEnoughLiquidity(deposit);
-    if (!hasEnoughLiquidity) {
+    const { chain } = chainStore.getState();
+    if (!hasEnoughLiquidity && chain.network.chainName !== 'ETC Mordor') {
         showPeggedModal({ toChain: claimNetwork.network.chainName, amount: Unit.fromMinUnit(deposit.amount).toDecimalStandardUnit(), callback: execClaim });
     } else {
         execClaim();
@@ -70,7 +71,10 @@ function checkDepositHasEnoughLiquidity(deposit: Deposit): boolean {
         peggedAndLiquidityStore.getState()[deposit.dest_chain_id === eSpace.network.chainId ? 'eSpaceMaximumLiquidity' : 'crossChainMaximumLiquidity'];
     const claimBalance = Unit.fromMinUnit(deposit.amount);
     if (!claimBalance || !maximumLiquidity) {
-        showToast(`Can't detect Liquidity.`, { type: 'failed' });
+        const { chain } = chainStore.getState();
+        if (chain.network.chainName !== 'ETC Mordor') {
+            showToast(`Can't detect Liquidity.`, { type: 'failed' });
+        }
         return false;
     }
     return Unit.lessThanOrEqualTo(claimBalance, maximumLiquidity);
