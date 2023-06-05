@@ -35,7 +35,8 @@ const Config = {
             decimals: 18,
             isNative: false,
             address: isProduction ? '0xc5649e95ee07d07307f69af292d1c74c52165444' : '0xc5649e95ee07d07307f69af292d1c74c52165444',
-            icon: CFXIcon
+            icon: CFXIcon,
+            PeggedToken: null,
         },
     ],
     chains: [
@@ -75,6 +76,7 @@ const Config = {
                     address: '0x0000000000000000000000000000000000000001',
                     decimals: 18,
                     icon: CFXIcon,
+                    PeggedToken: null,
                 },
             ],
         },
