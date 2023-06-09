@@ -1,4 +1,4 @@
-import create from 'zustand';
+import { create } from 'zustand';
 import { store as confluxStore, Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { intervalFetchChain } from 'common/utils/fetchChain';

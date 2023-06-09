@@ -61,8 +61,8 @@ const CountdownUnit: React.FC<{ unit: typeof units[number]; }> = ({ unit }) => {
     return (
         <div className='w-[72px] h-[72px] rounded-[8px] overflow-hidden'>
             <div className={`flex justify-center items-center gap-[1px] governance-countdown-unit relative h-[52px] leading-[52px] text-[32px] text-white font-bold bg-[#808BE7] governance-shadow ${unit}`}>
-                <span></span>
-                <span></span>
+                <span className='text-right'></span>
+                <span className='text-left'></span>
             </div>
 
             <div className='h-[20px] leading-[20px] text-[12px] text-[#808BE7] text-center bg-[#F8F9FE]'>

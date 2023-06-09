@@ -19,6 +19,8 @@ export const isProduction =
     !location.host.startsWith('192.168') &&
     !location.host.startsWith('dev-internal');
 
+export const isStage = location.host.startsWith('stage');
+
 const AllNetworks: Record<string, Network> = {
     '1029': {
         chainId: '1029',
@@ -97,12 +99,24 @@ const AllNetworks: Record<string, Network> = {
             decimals: 18,
         },
     },
+    '63': {
+        chainId: '63',
+        chainName: 'ETC Mordor',
+        rpcUrls: ['https://www.ethercluster.com/mordor'],
+        blockExplorerUrls: ['https://blockexplorer.one/ethereum-classic/mordor'],
+        nativeCurrency: {
+            name: 'Ethereum Classic',
+            symbol: 'ETC',
+            decimals: 18,
+        },
+    },
 };
 
 const Networks = {
     core: AllNetworks[isProduction ? '1029' : location.host.startsWith('net8888') ? '8888' : import.meta.env.VITE_CORE_NETWORK || '1'],
     eSpace: AllNetworks[isProduction ? '1030' : '71'],
     bsc: AllNetworks[isProduction ? '56' : '97'],
+    etc: AllNetworks[isProduction ? '63' : '63'],
 } as const;
 
 export default Networks;

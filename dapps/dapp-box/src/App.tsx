@@ -21,15 +21,16 @@ import useCurrentDapp from 'hub/src/hooks/useCurrentDapp';
 import BridgeIcon from 'hub/src/assets/Bridge.svg';
 import ShuttleFlowIcon from 'hub/src/assets/shuttle-flow.svg';
 import GovernanceIcon from 'hub/src/assets/governance.svg';
-import CrossSpaceIcon from 'hub/src/assets/cross-space.svg';
+import PosIcon from 'hub/src/assets/Pos.svg';
 import AirdropIcon from 'hub/src/assets/Airdrop.svg';
 import { hideAllToast } from 'common/components/showPopup/Toast';
 import LocalStorage from 'localstorage-enhance';
-
+import Pos from 'pos/src/modules';
 import Payment from 'payment/src/modules';
 import PaymentNavbarEnhance from 'hub/src/modules/NavbarEnhance/Payment';
 import PaymentIcon from 'payment/src/assets/logo-light.png';
 import './App.css';
+import { SideBarMask } from './modules/SidebarMask';
 
 export const dapps = [
     {
@@ -74,6 +75,13 @@ export const dapps = [
             type: 'childRoutes' as 'childRoutes',
             Content: <PaymentNavbarEnhance />,
         },
+    },
+    {
+        name: 'Pos',
+        icon: PosIcon,
+        Advanced: true,
+        path: 'pos',
+        element: <Pos />,
     },
 ];
 
@@ -145,11 +153,12 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                     dappIcon={currentDapp.icon}
                     Enhance={currentDapp.NavbarEnhance}
                 />
+                <SideBarMask />
                 <Routes>
                     <Route key="espace-bridge" path="espace-bridge" element={<Outlet />}>
                         <Route index element={<ESpaceBridgeEnter />} />
                         <Route key="cross-space" path="cross-space" element={<CrossSpace />} />
-                        <Route key="bsc-espace-cfx" path="bsc-espace-cfx" element={<BscEspace />} />
+                        <Route key="espace-cross-chain" path="espace-cross-chain" element={<BscEspace />} />
                     </Route>
                     <Route key="espace-airdrop" path="espace-airdrop" element={<Airdrop />} />
                     <Route key="governance" path="governance" element={<Outlet />}>
@@ -166,6 +175,7 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
 
                     <Route key="shuttle-flow" path="shuttle-flow/*" element={<div id="shuttle-flow" />} />
                     <Route key="payment" path="payment/*" element={<Payment />} />
+                    <Route key="pos" path="pos/*" element={<Pos />} />
                     <Route path="*" element={<Navigate to="bridge" />} />
                 </Routes>
             </ErrorBoundary>

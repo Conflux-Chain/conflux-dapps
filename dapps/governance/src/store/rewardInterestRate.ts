@@ -1,5 +1,6 @@
-import create from 'zustand';
+import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
+import dayjs from 'dayjs';
 import { Unit, store as fluentStore } from '@cfxjs/use-wallet-react/conflux/Fluent';
 import Decimal from 'decimal.js';
 import { intervalFetchChain, fetchChain } from 'common/utils/fetchChain';
@@ -8,6 +9,8 @@ import { decodeHexResult } from 'common/utils/Contract';
 import { paramsControlContract, paramsControlContractAddress } from './contracts';
 import { convertCfxToHex, validateCfxAddress } from 'common/utils/addressUtils';
 import createTrackStoreChangeOnce from 'common/utils/createTrackStoreChangeOnce';
+import { BLOCK_SPEED } from 'governance/src/store';
+import { getCurrentBlockNumber, lockDaysAndBlockNumberStore } from './lockDays&blockNumber';
 
 const dateConfigs = {
     '8888': {
@@ -50,6 +53,7 @@ interface RewardRateStore {
     };
     currentVote?: Vote;
     currentVotingRoundEndBlockNumber?: Unit;
+    currentVotingRoundEndTimestamp?: number;
     preVote?: Vote;
     currentExecValueOrigin?: {
         powBaseReward: string;
@@ -61,6 +65,7 @@ interface RewardRateStore {
     };
     currentAccountVoted: Voting | undefined;
     posStakeForVotes?: Unit;
+    posStakeForPreVotes?: Unit;
 }
 
 const zero = Unit.fromMinUnit(0);
@@ -72,11 +77,13 @@ const initState = {
     currentVote: undefined,
     currentVotingOrigin: undefined,
     currentVotingRoundEndBlockNumber: undefined,
+    currentVotingRoundEndTimestamp: undefined,
     preVote: undefined,
     currentExecValueOrigin: undefined,
     preVotingOrigin: undefined,
     currentAccountVoted: undefined,
     posStakeForVotes: undefined,
+    posStakeForPreVotes: undefined,
 } as RewardRateStore;
 export const rewardRateStore = create(subscribeWithSelector(() => initState));
 
@@ -87,7 +94,9 @@ let unsubFetchPreVoting: VoidFunction | null = null;
 let unsubFetchCurrentExecValue: VoidFunction | null = null;
 let unsubCalPreVote1: VoidFunction | null = null;
 let unsubCalPreVote2: VoidFunction | null = null;
+let unsubCalPreVote3: VoidFunction | null = null;
 let unsubPosStakeForVotes: VoidFunction | null = null;
+let unsubCurrentBlockNumber: VoidFunction | null = null;
 rewardRateStore.subscribe(
     (state) => state.currentVotingRound,
     (currentVotingRound) => {
@@ -98,7 +107,9 @@ rewardRateStore.subscribe(
         unsubFetchCurrentExecValue?.();
         unsubCalPreVote1?.();
         unsubCalPreVote2?.();
+        unsubCalPreVote3?.();
         unsubPosStakeForVotes?.();
+        unsubCurrentBlockNumber?.();
         if (!currentVotingRound) {
             rewardRateStore.setState(initState);
             return;
@@ -116,7 +127,7 @@ rewardRateStore.subscribe(
                     },
                     'latest_state',
                 ],
-                equalKey: `Round:${currentRoundHex}-currentVoting`
+                equalKey: `Round:${currentRoundHex}-currentVoting`,
             },
             {
                 intervalTime: 2222,
@@ -148,7 +159,7 @@ rewardRateStore.subscribe(
                     },
                     'latest_state',
                 ],
-                equalKey: `Round:${currentRoundHex}-posStakeForVotes`
+                equalKey: `Round:${currentRoundHex}-posStakeForVotes`,
             },
             {
                 intervalTime: 2222,
@@ -160,12 +171,28 @@ rewardRateStore.subscribe(
             }
         )();
 
+        fetchChain({
+            rpcUrl: Networks.core.rpcUrls[0],
+            method: 'cfx_call',
+            params: [
+                {
+                    to: paramsControlContractAddress,
+                    data: paramsControlContract.posStakeForVotes('0x' + Number(currentVotingRound - 1).toString(16)).encodeABI(),
+                },
+                'latest_state',
+            ],
+        }).then((r) => {
+            if (!r) return;
+            const res = decodeHexResult(paramsControlContract.posStakeForVotes('0x' + Number(currentVotingRound - 1).toString(16))._method.outputs, r)?.[0];
+            rewardRateStore.setState({ posStakeForPreVotes: Unit.fromMinUnit(res) });
+        });
+
         // fetch currentExecValue
         unsubFetchCurrentExecValue = intervalFetchChain(
             {
                 rpcUrl: Networks.core.rpcUrls[0],
                 method: 'cfx_getParamsFromVote',
-                equalKey: `Round:${currentRoundHex}-currentExecValue`
+                equalKey: `Round:${currentRoundHex}-currentExecValue`,
             },
             {
                 intervalTime: 20000,
@@ -177,43 +204,47 @@ rewardRateStore.subscribe(
         )();
 
         // read currentAccount voted data at currentRound
-        unsubCurrentAccount = fluentStore.subscribe(state => state.accounts, (accounts) => {
-            const account = accounts?.[0];
-            unsubFetchCurrentAccountVoted?.();
-            if (!account || !validateCfxAddress(account)) {
-                rewardRateStore.setState({ currentAccountVoted: undefined });
-                return;
-            }
-            unsubFetchCurrentAccountVoted = intervalFetchChain(
-                {
-                    rpcUrl: Networks.core.rpcUrls[0],
-                    method: 'cfx_call',
-                    params: [
-                        {
-                            to: paramsControlContractAddress,
-                            data: paramsControlContract.readVote(convertCfxToHex(account)).encodeABI(),
-                        },
-                        'latest_state',
-                    ],
-                    equalKey: `Round:${currentRoundHex}-${account}-voted`
-                },
-                {
-                    intervalTime: 3333,
-                    callback: (hexRes: string) => {
-                        const res = decodeHexResult(paramsControlContract.readVote(convertCfxToHex(account))._method.outputs, hexRes)?.[0];
-                        const currentAccountVotedOrigin = {
-                            powBaseReward: [res[0][1][1], res[0][1][2], res[0][1][0]] as [string, string, string],
-                            interestRate: [res[1][1][1], res[1][1][2], res[1][1][0]] as [string, string, string],
-                        };
-                        const currentAccountVoted = {
-                            powBaseReward: currentAccountVotedOrigin.powBaseReward.map((val: string) => Unit.fromMinUnit(val)) as [Unit, Unit, Unit],
-                            interestRate: currentAccountVotedOrigin.interestRate.map((val: string) => Unit.fromMinUnit(val)) as [Unit, Unit, Unit],
-                        };
-                        rewardRateStore.setState({ currentAccountVoted });
-                    },
+        unsubCurrentAccount = fluentStore.subscribe(
+            (state) => state.accounts,
+            (accounts) => {
+                const account = accounts?.[0];
+                unsubFetchCurrentAccountVoted?.();
+                if (!account || !validateCfxAddress(account)) {
+                    rewardRateStore.setState({ currentAccountVoted: undefined });
+                    return;
                 }
-            )();
-        }, { fireImmediately: true });
+                unsubFetchCurrentAccountVoted = intervalFetchChain(
+                    {
+                        rpcUrl: Networks.core.rpcUrls[0],
+                        method: 'cfx_call',
+                        params: [
+                            {
+                                to: paramsControlContractAddress,
+                                data: paramsControlContract.readVote(convertCfxToHex(account)).encodeABI(),
+                            },
+                            'latest_state',
+                        ],
+                        equalKey: `Round:${currentRoundHex}-${account}-voted`,
+                    },
+                    {
+                        intervalTime: 3333,
+                        callback: (hexRes: string) => {
+                            const res = decodeHexResult(paramsControlContract.readVote(convertCfxToHex(account))._method.outputs, hexRes)?.[0];
+                            const currentAccountVotedOrigin = {
+                                powBaseReward: [res[0][1][1], res[0][1][2], res[0][1][0]] as [string, string, string],
+                                interestRate: [res[1][1][1], res[1][1][2], res[1][1][0]] as [string, string, string],
+                            };
+                            const currentAccountVoted = {
+                                powBaseReward: currentAccountVotedOrigin.powBaseReward.map((val: string) => Unit.fromMinUnit(val)) as [Unit, Unit, Unit],
+                                interestRate: currentAccountVotedOrigin.interestRate.map((val: string) => Unit.fromMinUnit(val)) as [Unit, Unit, Unit],
+                            };
+                            rewardRateStore.setState({ currentAccountVoted });
+                        },
+                    }
+                )();
+            },
+            { fireImmediately: true }
+        );
 
         // fetch preVoting
         unsubFetchPreVoting = intervalFetchChain(
@@ -227,7 +258,7 @@ rewardRateStore.subscribe(
                     },
                     'latest_state',
                 ],
-                equalKey: `Round:${currentRoundHex}-preVoted`
+                equalKey: `Round:${currentRoundHex}-preVoted`,
             },
             {
                 intervalTime: 20000,
@@ -246,24 +277,58 @@ rewardRateStore.subscribe(
             }
         )();
 
-        unsubCalPreVote1 = rewardRateStore.subscribe(state => state.currentExecValueOrigin, () => calcPreVote(currentVotingRound), { fireImmediately: true });
-        unsubCalPreVote2 = rewardRateStore.subscribe(state => state.preVotingOrigin, () => calcPreVote(currentVotingRound), { fireImmediately: true });
+        unsubCalPreVote1 = rewardRateStore.subscribe(
+            (state) => state.currentExecValueOrigin,
+            () => calcPreVote(currentVotingRound),
+            { fireImmediately: true }
+        );
+        unsubCalPreVote2 = rewardRateStore.subscribe(
+            (state) => state.preVotingOrigin,
+            () => calcPreVote(currentVotingRound),
+            { fireImmediately: true }
+        );
+        unsubCalPreVote3 = rewardRateStore.subscribe(
+            (state) => state.posStakeForPreVotes,
+            () => calcPreVote(currentVotingRound),
+            { fireImmediately: true }
+        );
 
         // calc currentVotingRoundEndBlockNumber
-        rewardRateStore.setState({ currentVotingRoundEndBlockNumber: currentDataConfig.start.add(Unit.fromMinUnit(currentVotingRound).mul(currentDataConfig.duration)) });
+        const currentVotingRoundEndBlockNumber = currentDataConfig.start.add(Unit.fromMinUnit(currentVotingRound).mul(currentDataConfig.duration));
+        const currentBlockNumber = getCurrentBlockNumber();
+        const calcCurrentVotingRoundEndTimestamp = (currentBlockNumber: Unit) =>
+            dayjs().add(+currentVotingRoundEndBlockNumber.sub(currentBlockNumber).div(BLOCK_SPEED).toDecimalMinUnit(0), 'second').unix() * 1000;
+        if (currentBlockNumber) {
+            rewardRateStore.setState({
+                currentVotingRoundEndBlockNumber,
+                currentVotingRoundEndTimestamp: calcCurrentVotingRoundEndTimestamp(currentBlockNumber),
+            });
+        } else {
+            unsubCurrentBlockNumber = lockDaysAndBlockNumberStore.subscribe(
+                (state) => state.currentBlockNumber,
+                (currentBlockNumber) => {
+                    if (!currentBlockNumber) return;
+                    unsubCurrentBlockNumber?.();
+                    rewardRateStore.setState({
+                        currentVotingRoundEndBlockNumber,
+                        currentVotingRoundEndTimestamp: calcCurrentVotingRoundEndTimestamp(currentBlockNumber),
+                    });
+                }
+            );
+        }
     },
     { fireImmediately: true }
 );
 
 const calcPreVote = (currentVotingRound: number) => {
-    const { currentExecValueOrigin, preVotingOrigin } = rewardRateStore.getState();
-    if (!currentExecValueOrigin || !preVotingOrigin) return;
-    
+    const { currentExecValueOrigin, preVotingOrigin, posStakeForPreVotes } = rewardRateStore.getState();
+    if (!currentExecValueOrigin || !preVotingOrigin || !posStakeForPreVotes) return;
+
     const currentExecValue = {
         powBaseReward: Unit.fromMinUnit(currentExecValueOrigin?.powBaseReward ?? 0),
         interestRate: Unit.fromMinUnit(currentExecValueOrigin?.interestRate ?? 0),
     };
-    
+
     const preVoting = {
         powBaseReward: preVotingOrigin?.powBaseReward.map((val: string) => Unit.fromMinUnit(val)) as [Unit, Unit, Unit],
         interestRate: preVotingOrigin?.interestRate.map((val: string) => Unit.fromMinUnit(val)) as [Unit, Unit, Unit],
@@ -282,7 +347,8 @@ const calcPreVote = (currentVotingRound: number) => {
                         value: currentExecValue.interestRate,
                     },
                 },
-                preVoting
+                preVoting,
+                posStakeForPreVotes
             ),
         });
     } else {
@@ -313,9 +379,13 @@ const calcCurrentVote = () => {
 rewardRateStore.subscribe((state) => state.currentVoting, calcCurrentVote, { fireImmediately: true });
 rewardRateStore.subscribe((state) => state.preVote, calcCurrentVote, { fireImmediately: true });
 
-const calcNextVotingValue = (curVote: Vote, nextVoting: Voting): Vote => {
+const calcNextVotingValue = (curVote: Vote, nextVoting: Voting, posStakeForPreVotes?: Unit): Vote => {
     const calcValue = (type: 'powBaseReward' | 'interestRate') => {
         const totalOptionVotes = nextVoting[type][0].add(nextVoting[type][1]).add(nextVoting[type][2]);
+        if (posStakeForPreVotes && totalOptionVotes.lessThan(posStakeForPreVotes.mul(Unit.fromMinUnit(0.05)))) {
+            return curVote[type].value;
+        }
+
         const product = new Unit(
             Decimal.pow(
                 (two as any).value,
@@ -366,6 +436,7 @@ const selectors = {
     currentVotingRound: (state: RewardRateStore) => state.currentVotingRound,
     currentVote: (state: RewardRateStore) => state.currentVote,
     currentVotingRoundEndBlockNumber: (state: RewardRateStore) => state.currentVotingRoundEndBlockNumber,
+    currentVotingRoundEndTimestamp: (state: RewardRateStore) => state.currentVotingRoundEndTimestamp,
     preVote: (state: RewardRateStore) => state.preVote,
     currentAccountVoted: (state: RewardRateStore) => state.currentAccountVoted,
     posStakeForVotes: (state: RewardRateStore) => state.posStakeForVotes,
@@ -375,6 +446,7 @@ export const useCurrentVotingRound = () => rewardRateStore(selectors.currentVoti
 export const usePreVote = () => rewardRateStore(selectors.preVote);
 export const useCurrentVote = () => rewardRateStore(selectors.currentVote);
 export const useCurrentVotingRoundEndBlockNumber = () => rewardRateStore(selectors.currentVotingRoundEndBlockNumber);
+export const useCurrentVotingRoundEndTimestamp = () => rewardRateStore(selectors.currentVotingRoundEndTimestamp);
 export const useCurrentAccountVoted = () => rewardRateStore(selectors.currentAccountVoted);
 export const usePosStakeForVotes = () => rewardRateStore(selectors.posStakeForVotes);
 export const trackCurrentAccountVotedChangeOnce = createTrackStoreChangeOnce(rewardRateStore, 'currentAccountVoted');

@@ -1,4 +1,4 @@
-import create from 'zustand';
+import { create } from 'zustand';
 import LocalStorage from 'localstorage-enhance';
 import { nativeToken, type Token } from 'cross-space/src/store/index';
 import { isProduction } from 'common/conf/Networks';

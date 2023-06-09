@@ -1,4 +1,4 @@
-import create from 'zustand';
+import { create } from 'zustand';
 
 import { store, useBalance } from '@cfxjs/use-wallet-react/ethereum';
 import { createBalanceTracker } from '@cfxjs/use-wallet-enhance-react';

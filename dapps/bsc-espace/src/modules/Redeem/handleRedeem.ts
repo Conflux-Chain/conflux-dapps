@@ -1,19 +1,20 @@
 import { Unit, sendTransaction } from '@cfxjs/use-wallet-react/ethereum';
-import { peggedAndLiquidityStore, trackBalanceChangeOnce, Contracts, networkStore } from 'bsc-espace/src/store/index';
+import { peggedAndLiquidityStore, trackBalanceChangeOnce, networkStore, contractStore, chainStore } from 'bsc-espace/src/store/index';
 import Config from 'bsc-espace/config';
 import { showWaitWallet, showActionSubmitted, hideWaitWallet, hideActionSubmitted } from 'common/components/showPopup/Modal';
 import { showToast } from 'common/components/showPopup/Toast';
 
 const handleRedeem = async (type: 'eSpace' | 'crossChain', setInRedeem: (inRedeem: boolean) => void) => {
     const { eSpacePeggedBalance, eSpaceMaximumLiquidity, crossChainPeggedBalance, crossChainMaximumLiquidity } = peggedAndLiquidityStore.getState();
-    const { eSpaceBridgeContractAddress, crossChainBridgeContractAddress, bridgeContract} = Contracts;
+    const { eSpaceBridgeContractAddress, crossChainBridgeContractAddress, bridgeContract } = contractStore.getState();
     const { eSpace: eSpaceNetwork, crossChain: crossChainNetworrk } = networkStore.getState();
 
     const network = (type == 'eSpace' ? eSpaceNetwork : crossChainNetworrk).network;
     const peggedBalance = type == 'eSpace' ? eSpacePeggedBalance : crossChainPeggedBalance;
     const maximumLiquidity = type == 'eSpace' ? eSpaceMaximumLiquidity : crossChainMaximumLiquidity;
     const bridgeContractAddress = type == 'eSpace' ? eSpaceBridgeContractAddress : crossChainBridgeContractAddress;
-    const token = type === 'eSpace' ? Config.tokens[0] : Config.chains[0].tokens[0];
+    const chainIndex = chainStore.getState().chain.network.chainName === 'ETC Morder' ? 1 : 0;
+    const token = type === 'eSpace' ? Config.tokens[chainIndex] : Config.chains[chainIndex].tokens[0];
     const redeemBalance = peggedBalance && maximumLiquidity ? (Unit.lessThan(maximumLiquidity, peggedBalance) ? maximumLiquidity : peggedBalance) : undefined;
     const trackPeggedBalance = type === 'eSpace' ? trackBalanceChangeOnce.eSpacePeggedBalance : trackBalanceChangeOnce.crossChainPeggedBalance;
 
@@ -24,9 +25,9 @@ const handleRedeem = async (type: 'eSpace' | 'crossChain', setInRedeem: (inRedee
         waitFluentKey = showWaitWallet('MetaMask');
         const TxnHash = await sendTransaction({
             to: bridgeContractAddress,
-            data: bridgeContract.removeLiquidity(token.address, redeemBalance.toHexMinUnit()).encodeABI()
+            data: bridgeContract.removeLiquidity(token.address, redeemBalance.toHexMinUnit()).encodeABI(),
         });
-        setInRedeem(true)
+        setInRedeem(true);
         transactionSubmittedKey = showActionSubmitted(TxnHash);
         trackPeggedBalance(() => {
             setInRedeem(false);
@@ -48,7 +49,6 @@ const handleRedeem = async (type: 'eSpace' | 'crossChain', setInRedeem: (inRedee
             );
         }
     }
-
 };
 
 export default handleRedeem;

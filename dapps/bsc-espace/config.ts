@@ -1,5 +1,7 @@
 import ConfluxLogo from 'common/assets/chains/Conflux.svg';
 import CFXIcon from 'cross-space/src/assets/CFX.svg';
+import BSCIcon from 'bsc-espace/src/assets/BSC.svg';
+import ETHIcon from 'bsc-espace/src/assets/ETH.svg';
 import TokenDefaultIcon from 'cross-space/src/assets/TokenDefaultIcon.png';
 import Networks from 'common/conf/Networks';
 import { isProduction } from 'common/conf/Networks';
@@ -24,8 +26,17 @@ const Config = {
                 address: isProduction ? '0x5ce35e15080737671799911a300f112221406bb5' : '0x43d2a9f6818a30cfd6251262d619dff0e7bc105d',
                 decimals: 18,
                 icon: TokenDefaultIcon,
-                isPeggedToken: true
+                isPeggedToken: true,
             },
+        },
+        {
+            name: 'cETC',
+            symbol: 'cETC',
+            decimals: 18,
+            isNative: false,
+            address: isProduction ? '0xc5649e95ee07d07307f69af292d1c74c52165444' : '0xc5649e95ee07d07307f69af292d1c74c52165444',
+            icon: CFXIcon,
+            PeggedToken: null,
         },
     ],
     chains: [
@@ -33,7 +44,7 @@ const Config = {
             network: Networks.bsc,
             BridgeContractAddress: isProduction ? '0xf55460b8bc81ea65d7ae0aea2383ef69c8f2c62e' : '0xe1fab6d373fabcb16fb092deadf17cc20b196cb5',
             color: '#F3BA2F',
-            logo: 'https://bin.bnbstatic.com/static/images/common/logo.png',
+            logo: BSCIcon,
             tokens: [
                 {
                     name: 'BSC Conflux',
@@ -47,8 +58,25 @@ const Config = {
                         address: isProduction ? '0x5ce35e15080737671799911a300f112221406bb5' : '0xb7cd26c41bd8b120735273150b5255377ba1978f',
                         decimals: 18,
                         icon: TokenDefaultIcon,
-                        isPeggedToken: true
+                        isPeggedToken: true,
                     },
+                },
+            ],
+        },
+        {
+            network: Networks.etc,
+            BridgeContractAddress: isProduction ? '0xefbda757bd6ebb7229df41a609cd69ae028b5c30' : '0xefbda757bd6ebb7229df41a609cd69ae028b5c30',
+            color: '#F3BA2F',
+            logo: ETHIcon,
+            tokens: [
+                {
+                    name: 'Ethereum Classic',
+                    symbol: 'ETC',
+                    isNative: true,
+                    address: '0x0000000000000000000000000000000000000001',
+                    decimals: 18,
+                    icon: CFXIcon,
+                    PeggedToken: null,
                 },
             ],
         },

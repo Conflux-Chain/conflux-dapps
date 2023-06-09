@@ -1,4 +1,4 @@
-import create from 'zustand';
+import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import LocalStorage from 'localstorage-enhance';
 import { innerTokenListUrl as crossSpaceTokenListUrl } from 'cross-space/src/components/TokenList/tokenListStore';
@@ -6,16 +6,15 @@ import { isEqual, escapeRegExp } from 'lodash-es';
 import Cache from 'common/utils/LRUCache';
 import CFXIcon from 'common/assets/chains/Conflux.svg';
 import BSCIcon from 'common/assets/chains/BSC.svg';
+import ETCIcon from 'common/assets/chains/ETC.svg';
 import BTCIcon from 'common/assets/chains/BTC.svg';
 import EthereumIcon from 'common/assets/chains/Ethereum.svg';
 import HECOIcon from 'common/assets/chains/HECO.svg';
 import OECIcon from 'common/assets/chains/OEC.svg';
-import Networks, { isProduction } from 'common/conf/Networks';
-
+import Networks, { isProduction, isStage } from 'common/conf/Networks';
 
 const CommonTokenCount = 16;
 const commonTokensCache = new Cache<string>(CommonTokenCount, 'bridge-common-tokens');
-
 
 interface DataStore {
     data?: Record<string, any>;
@@ -64,6 +63,7 @@ export const map: Record<'shuttleFlowChains' | 'shuttleFlowFromTokenAddress' | '
         'Conflux Core': CFXIcon,
         Ethereum: EthereumIcon,
         'BSC Chain': BSCIcon,
+        'Ethereum Classic': ETCIcon,
         OKExChain: OECIcon,
         'HECO Chain': HECOIcon,
         Bitcoin: BTCIcon,
@@ -71,7 +71,7 @@ export const map: Record<'shuttleFlowChains' | 'shuttleFlowFromTokenAddress' | '
 };
 
 Promise.all([
-    fetch(`https://${isProduction ? 'www' : 'test'}.confluxhub.io/rpcsponsor`, {
+    fetch(`https://${isProduction ? (isStage ? 'stage' : 'www') : 'test'}.confluxhub.io/rpcsponsor`, {
         body: JSON.stringify({ id: 1, jsonrpc: '2.0', method: 'getTokenList', params: [] }),
         headers: { 'content-type': 'application/json' },
         method: 'POST',
@@ -94,7 +94,22 @@ Promise.all([
                 BUSD: ['Multichain'],
             },
             'BSC Chain': {
-                CFX: ['Chain Bridge', 'Multichain'],
+                CFX: ['Chain Bridge', ['Space Bridge', 'ShuttleFlow'], 'Multichain'],
+                BNB: ['Multichain'],
+                BUSD: ['Multichain'],
+                USDT: ['Multichain'],
+                USDC: ['Multichain'],
+                WBTC: ['Multichain'],
+                DAI: ['Multichain'],
+                ETH: ['Multichain'],
+            },
+            'Ethereum Classic': {
+                ETC: ['Chain Bridge'],
+            },
+        },
+        'BSC Chain': {
+            'Conflux eSpace': {
+                CFX: ['Chain Bridge', ['ShuttleFlow', 'Space Bridge'], 'Multichain'],
                 BNB: ['Multichain'],
                 BUSD: ['Multichain'],
                 USDT: ['Multichain'],
@@ -104,16 +119,9 @@ Promise.all([
                 ETH: ['Multichain'],
             },
         },
-        'BSC Chain': {
+        'Ethereum Classic': {
             'Conflux eSpace': {
-                CFX: ['Chain Bridge', 'Multichain'],
-                BNB: ['Multichain'],
-                BUSD: ['Multichain'],
-                USDT: ['Multichain'],
-                USDC: ['Multichain'],
-                WBTC: ['Multichain'],
-                DAI: ['Multichain'],
-                ETH: ['Multichain'],
+                ETC: ['Chain Bridge'],
             },
         },
         Ethereum: {
@@ -334,7 +342,7 @@ export const createHref = ({
         return location.origin + `/espace-bridge/cross-space?sourceChain=${sourceChain}&destinationChain=${destinationChain}&token=${token}`;
     }
     if (route === 'Chain Bridge') {
-        return location.origin + '/espace-bridge/bsc-espace-cfx';
+        return location.origin + `/espace-bridge/espace-cross-chain?sourceChain=${sourceChain}&destinationChain=${destinationChain}`;
     }
     if (route === 'Multichain') {
         return 'https://app.multichain.org/#/router';
@@ -348,13 +356,17 @@ export const createHref = ({
         let fromTokenAddress = map.shuttleFlowFromTokenAddress?.[sourceChain]?.[token];
         if (!fromTokenAddress) {
             const allKeys = Object.keys(map.shuttleFlowFromTokenAddress?.[sourceChain]);
-            const matchKey = allKeys.find(key => key.search(new RegExp(escapeRegExp(token), 'i')) !== -1 || token.search(new RegExp(escapeRegExp(key), 'i')) !== -1);
+            const matchKey = allKeys.find(
+                (key) => key.search(new RegExp(escapeRegExp(token), 'i')) !== -1 || token.search(new RegExp(escapeRegExp(key), 'i')) !== -1
+            );
             if (matchKey) {
                 fromTokenAddress = map.shuttleFlowFromTokenAddress?.[sourceChain][matchKey];
             }
         }
         if (!fromTokenAddress) return '';
-        return `https://${isProduction ? 'www' : 'test'}.confluxhub.io/shuttle-flow/?fromChain=${map.shuttleFlowChains[sourceChain]}&fromTokenAddress=${fromTokenAddress}&toChain=${map.shuttleFlowChains[destinationChain]}`;
+        return `https://${isProduction ? (isStage ? 'stage' : 'www') : 'test'}.confluxhub.io/shuttle-flow/?fromChain=${
+            map.shuttleFlowChains[sourceChain]
+        }&fromTokenAddress=${fromTokenAddress}&toChain=${map.shuttleFlowChains[destinationChain]}`;
     }
     return '';
 };

@@ -1,7 +1,7 @@
-import create from 'zustand';
+import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { store as walletStore, provider, Unit } from '@cfxjs/use-wallet-react/ethereum';
-import { networkStore, useCurrentFromChain, Contracts } from './index';
+import { networkStore, useCurrentFromChain, chainStore, contractStore } from './index';
 import Config from 'bsc-espace/config';
 import { tokenStore, type Token } from './token';
 import { type ValueOf } from 'tsconfig/types/enhance';
@@ -43,7 +43,7 @@ export const peggedAndLiquidityStore = create(
                 eSpacePeggedBalance: undefined,
                 eSpaceMaximumLiquidity: undefined,
                 crossChainPeggedBalance: undefined,
-                crossChainMaximumLiquidity: undefined
+                crossChainMaximumLiquidity: undefined,
             } as PeggedAndLiquidityStore)
     )
 );
@@ -52,11 +52,10 @@ export const startSubPeggedAndLiquidity = () => {
     const unSubExec: Function[] = [];
     let balanceTick = 0;
     const getAccount = () => walletStore.getState().accounts?.[0];
-
     // same balance should not reset obj state causes duplicate render.
     const handleBalanceChanged = (newBalance: Unit, type: keyof PeggedAndLiquidityStore, currentBalanceTick: number) => {
         if (!newBalance || currentBalanceTick !== balanceTick - 1) return;
-        const preBalance = peggedAndLiquidityStore.getState()[type]
+        const preBalance = peggedAndLiquidityStore.getState()[type];
         if (preBalance === undefined || !preBalance.equalsWith(newBalance)) {
             peggedAndLiquidityStore.setState({ [type]: newBalance });
         }
@@ -68,8 +67,9 @@ export const startSubPeggedAndLiquidity = () => {
 
         const currentBalanceTick = balanceTick;
         balanceTick += 1;
-        const { eSpaceBridgeContractAddress, crossChainBridgeContractAddress } = Contracts;
+        const { eSpaceBridgeContractAddress, crossChainBridgeContractAddress } = contractStore.getState();
         const { eSpace: eSpaceNetwork, crossChain: crossChianNetwork } = networkStore.getState();
+        const { chain } = chainStore.getState();
         if (!eSpaceBridgeContractAddress || !crossChainBridgeContractAddress || !eSpaceNetwork || !crossChianNetwork) return;
         // get eSpace maximumLiquidity value.
         fetch(eSpaceNetwork.network.rpcUrls[0], {
@@ -79,10 +79,11 @@ export const startSubPeggedAndLiquidity = () => {
                 params: [eSpaceBridgeContractAddress, 'latest'],
                 id: 1,
             }),
-            headers: {'content-type': 'application/json'},
+            headers: { 'content-type': 'application/json' },
             method: 'POST',
         })
-            .then(response => response.json()).then((balanceRes: Record<string, string>) => {
+            .then((response) => response.json())
+            .then((balanceRes: Record<string, string>) => {
                 const minUnitBalance = balanceRes?.result;
                 if (typeof minUnitBalance === 'string') {
                     handleBalanceChanged(Unit.fromMinUnit(minUnitBalance), 'eSpaceMaximumLiquidity', currentBalanceTick);
@@ -90,7 +91,7 @@ export const startSubPeggedAndLiquidity = () => {
                     // console.error(`get eSpace maximumLiquidity error: `, balanceRes);
                 }
             })
-            .catch(err => {})
+            .catch((err) => {})
             .finally(callback);
 
         // get crossChain maximumLiquidity value.
@@ -98,16 +99,20 @@ export const startSubPeggedAndLiquidity = () => {
             body: JSON.stringify({
                 jsonrpc: '2.0',
                 method: 'eth_call',
-                params: [{
-                    data: '0x70a08231000000000000000000000000' + crossChainBridgeContractAddress.slice(2),
-                    to: Config.chains[0].tokens[0].address,
-                }, 'latest'],
+                params: [
+                    {
+                        data: '0x70a08231000000000000000000000000' + crossChainBridgeContractAddress.slice(2),
+                        to: Config.chains[chain.network.chainName === 'ETC Mordor' ? 1 : 0].tokens[0].address,
+                    },
+                    'latest',
+                ],
                 id: 1,
             }),
-            headers: {'content-type': 'application/json'},
+            headers: { 'content-type': 'application/json' },
             method: 'POST',
         })
-            .then(response => response.json()).then((balanceRes: Record<string, string>) => {
+            .then((response) => response.json())
+            .then((balanceRes: Record<string, string>) => {
                 const minUnitBalance = balanceRes?.result;
                 if (typeof minUnitBalance === 'string') {
                     handleBalanceChanged(Unit.fromMinUnit(minUnitBalance), 'crossChainMaximumLiquidity', currentBalanceTick);
@@ -115,7 +120,7 @@ export const startSubPeggedAndLiquidity = () => {
                     // console.error(`get eSpace maximumLiquidity error: `, balanceRes);
                 }
             })
-            .catch(err => {})
+            .catch((err) => {})
             .finally(callback);
 
         // get PeggedToken Balance
@@ -124,16 +129,20 @@ export const startSubPeggedAndLiquidity = () => {
                 body: JSON.stringify({
                     jsonrpc: '2.0',
                     method: 'eth_call',
-                    params: [{
-                        data: '0x70a08231000000000000000000000000' + account.slice(2),
-                        to: type === 'eSpace' ? Config.tokens[0].PeggedToken.address : Config.chains[0].tokens[0].PeggedToken.address,
-                    }, 'latest'],
+                    params: [
+                        {
+                            data: '0x70a08231000000000000000000000000' + account.slice(2),
+                            to: type === 'eSpace' ? Config.tokens[0].PeggedToken?.address : Config.chains[0].tokens[0].PeggedToken?.address,
+                        },
+                        'latest',
+                    ],
                     id: 1,
                 }),
-                headers: {'content-type': 'application/json'},
+                headers: { 'content-type': 'application/json' },
                 method: 'POST',
             })
-                .then(response => response.json()).then((balanceRes: Record<string, string>) => {
+                .then((response) => response.json())
+                .then((balanceRes: Record<string, string>) => {
                     const minUnitBalance = balanceRes?.result;
                     if (typeof minUnitBalance === 'string') {
                         handleBalanceChanged(Unit.fromMinUnit(minUnitBalance), (type + 'PeggedBalance') as 'eSpacePeggedBalance', currentBalanceTick);
@@ -141,7 +150,7 @@ export const startSubPeggedAndLiquidity = () => {
                         // console.error(`get eSpace maximumLiquidity error: `, balanceRes);
                     }
                 })
-                .catch(err => {})
+                .catch((err) => {})
                 .finally(callback);
         });
     };
@@ -170,7 +179,7 @@ export const startSubPeggedAndLiquidity = () => {
                 eSpacePeggedBalance: undefined,
                 eSpaceMaximumLiquidity: undefined,
                 crossChainPeggedBalance: undefined,
-                crossChainMaximumLiquidity: undefined
+                crossChainMaximumLiquidity: undefined,
             });
             return;
         }
@@ -184,7 +193,7 @@ export const startSubPeggedAndLiquidity = () => {
                 eSpacePeggedBalance: undefined,
                 eSpaceMaximumLiquidity: undefined,
                 crossChainPeggedBalance: undefined,
-                crossChainMaximumLiquidity: undefined
+                crossChainMaximumLiquidity: undefined,
             });
             setUndefinedTimer = null;
         }, 50) as unknown as number;
@@ -267,7 +276,7 @@ export const startSubBalance = () => {
             }
 
             // if token is CRC20, getBalance from eth_call
-            const { tokenContract, eSpaceBridgeContractAddress, crossChainBridgeContractAddress } = Contracts;
+            const { tokenContract, eSpaceBridgeContractAddress, crossChainBridgeContractAddress } = contractStore.getState();
             const currentFromBridgeContractAddress = currentFrom === 'eSpace' ? eSpaceBridgeContractAddress : crossChainBridgeContractAddress;
             if (!currentFromBridgeContractAddress) return;
             provider!
@@ -401,12 +410,18 @@ export const startSubBalance = () => {
         const trackBalance = () => {
             const account = walletStore.getState().accounts?.[0];
             const balance = balanceStore.getState().balance;
-            const { bridgeContract, eSpaceBridgeContractAddress } = Contracts;
+            const { bridgeContract, eSpaceBridgeContractAddress } = contractStore.getState();
             const { chainId } = walletStore.getState();
             const { eSpace, crossChain, currentFrom } = networkStore.getState();
             const { token } = tokenStore.getState();
 
-            if (!bridgeContract || !currentFrom || !balance || !account || chainId !== (currentFrom === 'eSpace' ? eSpace.network.chainId : crossChain.network.chainId)) {
+            if (
+                !bridgeContract ||
+                !currentFrom ||
+                !balance ||
+                !account ||
+                chainId !== (currentFrom === 'eSpace' ? eSpace.network.chainId : crossChain.network.chainId)
+            ) {
                 clearUndefinedTimer();
                 balanceStore.setState({ maxAvailableBalance: undefined });
                 return;
@@ -415,16 +430,20 @@ export const startSubBalance = () => {
             if (currentFrom === 'eSpace' && token.isNative) {
                 // estimate MetaMask max available balance
                 if (!provider) return;
-                const minUnitBalance = Unit.lessThan(balance, Unit.fromStandardUnit('16e-12')) ? Unit.fromStandardUnit(0).toHexMinUnit() : Unit.sub(balance, Unit.fromStandardUnit('16e-12')).toHexMinUnit();
+                const minUnitBalance = Unit.lessThan(balance, Unit.fromStandardUnit('16e-12'))
+                    ? Unit.fromStandardUnit(0).toHexMinUnit()
+                    : Unit.sub(balance, Unit.fromStandardUnit('16e-12')).toHexMinUnit();
                 Promise.all([
                     provider.request({
                         method: 'eth_estimateGas',
                         params: [
                             {
                                 from: account,
-                                data: bridgeContract.deposit(token.address, minUnitBalance, crossChain.network.chainId, account, `${parseInt(Date.now() / 1000 + '')}`).encodeABI(),
+                                data: bridgeContract
+                                    .deposit(token.address, minUnitBalance, crossChain.network.chainId, account, `${parseInt(Date.now() / 1000 + '')}`)
+                                    .encodeABI(),
                                 to: eSpaceBridgeContractAddress,
-                                value: minUnitBalance
+                                value: minUnitBalance,
                             },
                         ],
                     }),
@@ -485,7 +504,7 @@ const selectors = {
 
 // track balance change once
 const createTrackBalanceChangeOnce =
-    ({ store, balanceSelector }: { store: typeof balanceStore | typeof peggedAndLiquidityStore, balanceSelector: ValueOf<typeof selectors> }) =>
+    ({ store, balanceSelector }: { store: typeof balanceStore | typeof peggedAndLiquidityStore; balanceSelector: ValueOf<typeof selectors> }) =>
     (callback: () => void) => {
         if (!callback) return;
         let unsubBalance: Function | null = null;
@@ -504,7 +523,7 @@ const createTrackBalanceChangeOnce =
                 unsubChainId();
                 unsubChainId = null;
             }
-        }
+        };
 
         if (walletStore) {
             unsubAccount = walletStore.subscribe((state) => state.accounts, clearUnsub);
@@ -513,7 +532,7 @@ const createTrackBalanceChangeOnce =
             }
         }
 
-        unsubBalance = (store as typeof balanceStore).subscribe(balanceSelector as typeof selectors['balance'], () => {
+        unsubBalance = (store as typeof balanceStore).subscribe(balanceSelector as (typeof selectors)['balance'], () => {
             callback();
             clearUnsub();
         });
@@ -522,9 +541,9 @@ const createTrackBalanceChangeOnce =
 const trackBalanceChangeOnce = {
     balance: createTrackBalanceChangeOnce({ store: balanceStore, balanceSelector: selectors.balance }),
     approvedBalance: createTrackBalanceChangeOnce({ store: balanceStore, balanceSelector: selectors.approvedBalance }),
-    maxAvailableBalance: createTrackBalanceChangeOnce({ store: balanceStore,  balanceSelector: selectors.maxAvailableBalance }),
-    eSpacePeggedBalance: createTrackBalanceChangeOnce({ store: peggedAndLiquidityStore,  balanceSelector: selectors.eSpacePeggedBalance }),
-    crossChainPeggedBalance: createTrackBalanceChangeOnce({ store: peggedAndLiquidityStore,  balanceSelector: selectors.crossChainPeggedBalance }),
+    maxAvailableBalance: createTrackBalanceChangeOnce({ store: balanceStore, balanceSelector: selectors.maxAvailableBalance }),
+    eSpacePeggedBalance: createTrackBalanceChangeOnce({ store: peggedAndLiquidityStore, balanceSelector: selectors.eSpacePeggedBalance }),
+    crossChainPeggedBalance: createTrackBalanceChangeOnce({ store: peggedAndLiquidityStore, balanceSelector: selectors.crossChainPeggedBalance }),
 };
 
 export { trackBalanceChangeOnce };
@@ -570,8 +589,11 @@ export const useMaxAvailableBalance = () => balanceStore(selectors.maxAvailableB
 export const useHasPeggedCFX = () => {
     const eSpacePeggedBalance = peggedAndLiquidityStore(selectors.eSpacePeggedBalance);
     const crossChainPeggedBalance = peggedAndLiquidityStore(selectors.crossChainPeggedBalance);
-    return (eSpacePeggedBalance && Unit.greaterThan(eSpacePeggedBalance, Unit.fromStandardUnit(0))) || (crossChainPeggedBalance && Unit.greaterThan(crossChainPeggedBalance, Unit.fromStandardUnit(0)));
-}
+    return (
+        (eSpacePeggedBalance && Unit.greaterThan(eSpacePeggedBalance, Unit.fromStandardUnit(0))) ||
+        (crossChainPeggedBalance && Unit.greaterThan(crossChainPeggedBalance, Unit.fromStandardUnit(0)))
+    );
+};
 
 export const useESpacePeggedBalance = () => peggedAndLiquidityStore(selectors.eSpacePeggedBalance);
 export const useCrossChainPeggedBalance = () => peggedAndLiquidityStore(selectors.crossChainPeggedBalance);
@@ -587,4 +609,4 @@ export const useIsTransferHasEnoughLiquidity = (token: Token) => {
     if (token.isPeggedToken) return [true, undefined];
     if (!currentFromChain || !transferBalance || !maximumLiquidity) return [true, undefined];
     return [Unit.lessThanOrEqualTo(transferBalance, maximumLiquidity), maximumLiquidity];
-}
+};

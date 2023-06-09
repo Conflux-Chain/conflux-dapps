@@ -16,7 +16,11 @@ interface Props {
 
 const BalanceText: React.FC<Props> = ({ className, balance, status, id, symbol = 'CFX', decimals, placement = 'right' }) => {
     if (!balance) {
-        return <span className={className} id={id}>{status === 'active' ? 'loading...' : '--'}</span>;
+        return (
+            <span className={className} id={id}>
+                {status === 'active' ? 'loading...' : '--'}
+            </span>
+        );
     }
     const needAabbreviate = Number(decimals) > 12;
 
@@ -28,20 +32,26 @@ const BalanceText: React.FC<Props> = ({ className, balance, status, id, symbol =
                     ＜0.000001 {symbol}
                 </span>
             </Tooltip>
-        )
+        );
     }
-        
+
     const nought = decimalStandardUnit.split('.')[1];
     const noughtLen = nought ? nought.length : 0;
     return (
-        <Tooltip text={`${numFormat(decimalStandardUnit)} ${symbol}`} placement={placement} disabled={!needAabbreviate || noughtLen < 6} interactive delay={420}>
+        <Tooltip
+            text={`${numFormat(decimalStandardUnit)} ${symbol}`}
+            placement={placement}
+            disabled={!needAabbreviate || noughtLen < 6}
+            interactive
+            delay={420}
+        >
             <span className={className} id={id}>
-                {(needAabbreviate && noughtLen >= 6) ? `${numFormat(balance.toDecimalStandardUnit(6, decimals))}... ${symbol}`
-                    : `${numFormat(balance.toDecimalStandardUnit(undefined, decimals))} ${symbol}`
-                }
+                {needAabbreviate && noughtLen >= 6
+                    ? `${numFormat(balance.toDecimalStandardUnit(6, decimals))}... ${symbol}`
+                    : `${numFormat(balance.toDecimalStandardUnit(undefined, decimals))} ${symbol}`}
             </span>
         </Tooltip>
-    )
-}
+    );
+};
 
 export default BalanceText;

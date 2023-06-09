@@ -1,12 +1,13 @@
-import create from 'zustand';
+import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { store as fluentStore, Unit, provider as fluentProvider } from '@cfxjs/use-wallet-react/conflux/Fluent';
 import { store as metaMaskStore } from '@cfxjs/use-wallet-react/ethereum';
+import { debounce } from 'lodash-es';
 import Contracts from './contracts';
 import { convertCfxToHex } from 'common/utils/addressUtils';
 import { mirrorAddressStore } from './mirrorAddress';
 import { estimate } from '@fluent-wallet/estimate-tx';
-import { currentTokenStore, type Token } from './currentToken';
+import { currentTokenStore, getCurrentToken, type Token } from './currentToken';
 import Networks from 'common/conf/Networks';
 import type { ValueOf } from 'tsconfig/types/enhance';
 
@@ -381,15 +382,16 @@ export const startSubBalance = () => {
             }
         }
 
-        const unsub = balanceStore.subscribe(state => state.currentTokenBalance, (currentTokenBalance) => {
+        const subCurrentTokenBalanceChange = debounce(() => {
             const currentToken = currentTokenStore.getState().currentToken;
+            const currentTokenBalance = balanceStore.getState().currentTokenBalance;
             const account = walletStore.getState().accounts?.[0];
 
             if (!currentTokenBalance || !account) {
                 balanceStore.setState({ maxAvailableBalance: undefined });
                 return;
             }
-            
+
             if (currentToken.isNative) {
                 setUndefinedTimer = setTimeout(() => {
                     balanceStore.setState({ maxAvailableBalance: undefined });
@@ -400,22 +402,30 @@ export const startSubBalance = () => {
                     // estimate Fluent max available balance
                     const { crossSpaceContract, crossSpaceContractAddress } = Contracts;
                     if (!fluentProvider || !crossSpaceContract || !crossSpaceContractAddress) return;
-                    estimate({
-                        from: account,
-                        to: crossSpaceContractAddress,
-                        data: crossSpaceContract.transferEVM('0xFBBEd826c29b88BCC428B6fa0cfE6b0908653676').encodeABI(),
-                        value: Unit.lessThan(currentTokenBalance, Unit.fromStandardUnit('16e-12')) ? Unit.fromStandardUnit(0).toHexMinUnit() : Unit.sub(currentTokenBalance, Unit.fromStandardUnit('16e-12')).toHexMinUnit()
-                    }, {
-                        type: balanceStore === coreBalanceStore ? 'cfx' : 'eth',
-                        request: fluentProvider.request.bind(fluentProvider),
-                        tokensAmount: {},
-                        isFluentRequest: true,
-                    }).then(estimateRes => {
-                        balanceStore.setState({ maxAvailableBalance: Unit.fromMinUnit(estimateRes.nativeMaxDrip) });
-                    }).catch(err => {
-                        balanceStore.setState({ maxAvailableBalance: undefined });
-                        // console.error('Get fluent max available balance error: ', err);
-                    }).finally(clearUndefinedTimer);
+                    estimate(
+                        {
+                            from: account,
+                            to: crossSpaceContractAddress,
+                            data: crossSpaceContract.transferEVM('0xFBBEd826c29b88BCC428B6fa0cfE6b0908653676').encodeABI(),
+                            value: Unit.lessThan(currentTokenBalance, Unit.fromStandardUnit('16e-12'))
+                                ? Unit.fromStandardUnit(0).toHexMinUnit()
+                                : Unit.sub(currentTokenBalance, Unit.fromStandardUnit('16e-12')).toHexMinUnit(),
+                        },
+                        {
+                            type: balanceStore === coreBalanceStore ? 'cfx' : 'eth',
+                            request: fluentProvider.request.bind(fluentProvider),
+                            tokensAmount: {},
+                            isFluentRequest: true,
+                        }
+                    )
+                        .then((estimateRes) => {
+                            balanceStore.setState({ maxAvailableBalance: Unit.fromMinUnit(estimateRes.nativeMaxDrip) });
+                        })
+                        .catch((err) => {
+                            balanceStore.setState({ maxAvailableBalance: undefined });
+                            // console.error('Get fluent max available balance error: ', err);
+                        })
+                        .finally(clearUndefinedTimer);
                 } else {
                     // estimate MetaMask max available balance
                     const eSpaceNetwork = Networks.eSpace;
@@ -425,40 +435,58 @@ export const startSubBalance = () => {
                             body: JSON.stringify({
                                 jsonrpc: '2.0',
                                 method: 'eth_estimateGas',
-                                params: [{ 
-                                    from: account,
-                                    to: '0x8a4c531EED1205E0eE6E34a1092e0298173a659d',
-                                    value: Unit.lessThan(currentTokenBalance, Unit.fromStandardUnit('16e-12')) ? Unit.fromStandardUnit(0).toHexMinUnit() : Unit.sub(currentTokenBalance, Unit.fromStandardUnit('16e-12')).toHexMinUnit()
-                                }, 'latest'],
+                                params: [
+                                    {
+                                        from: account,
+                                        to: '0x8a4c531EED1205E0eE6E34a1092e0298173a659d',
+                                        value: Unit.lessThan(currentTokenBalance, Unit.fromStandardUnit('16e-12'))
+                                            ? Unit.fromStandardUnit(0).toHexMinUnit()
+                                            : Unit.sub(currentTokenBalance, Unit.fromStandardUnit('16e-12')).toHexMinUnit(),
+                                    },
+                                    'latest',
+                                ],
                                 id: 1,
                             }),
-                            headers: {'content-type': 'application/json'},
+                            headers: { 'content-type': 'application/json' },
                             method: 'POST',
                         })
-                            .then(response => response.json()).then(res => res?.result),
+                            .then((response) => response.json())
+                            .then((res) => res?.result),
                         fetch(eSpaceNetwork.rpcUrls[0], {
-                                body: JSON.stringify({
-                                    jsonrpc: '2.0',
-                                    method: 'eth_gasPrice',
-                                    id: 1
-                                }),
-                                headers: {'content-type': 'application/json'},
-                                method: 'POST',
-                            })
-                                .then(response => response.json()).then(res => res?.result),
-                    ]).then(([estimateGas, gasPrice]) => {
-                        const gasFee = Unit.mul(Unit.mul(Unit.fromMinUnit(estimateGas), Unit.fromMinUnit(gasPrice)), Unit.fromMinUnit('1.5'));
-                        balanceStore.setState({ maxAvailableBalance: Unit.greaterThan(currentTokenBalance, gasFee) ? Unit.sub(currentTokenBalance, gasFee) : Unit.fromMinUnit(0) });
-                    }).catch(err => {
-                        balanceStore.setState({ maxAvailableBalance: undefined });
-                        // console.error('Get MetaMask max available balance error: ', err);
-                    }).finally(clearUndefinedTimer);
+                            body: JSON.stringify({
+                                jsonrpc: '2.0',
+                                method: 'eth_gasPrice',
+                                id: 1,
+                            }),
+                            headers: { 'content-type': 'application/json' },
+                            method: 'POST',
+                        })
+                            .then((response) => response.json())
+                            .then((res) => res?.result),
+                    ])
+                        .then(([estimateGas, gasPrice]) => {
+                            const gasFee = Unit.mul(Unit.mul(Unit.fromMinUnit(estimateGas), Unit.fromMinUnit(gasPrice)), Unit.fromMinUnit('1.5'));
+                            balanceStore.setState({
+                                maxAvailableBalance: Unit.greaterThan(currentTokenBalance, gasFee)
+                                    ? Unit.sub(currentTokenBalance, gasFee)
+                                    : Unit.fromMinUnit(0),
+                            });
+                        })
+                        .catch((err) => {
+                            balanceStore.setState({ maxAvailableBalance: undefined });
+                            // console.error('Get MetaMask max available balance error: ', err);
+                        })
+                        .finally(clearUndefinedTimer);
                 }
             } else {
                 balanceStore.setState({ maxAvailableBalance: currentTokenBalance });
             }
-        });
-        unSubExec.push(unsub);
+        }, 50);
+
+        const unsub1 = balanceStore.subscribe(state => state.currentTokenBalance, subCurrentTokenBalanceChange);
+        const unsub2 = fluentStore.subscribe(state => state.chainId, subCurrentTokenBalanceChange);
+        unSubExec.push(unsub1);
+        unSubExec.push(unsub2);
         unSubExec.push(() => {
             clearUndefinedTimer();
         });
@@ -545,6 +573,7 @@ export const recheckApproval = (space: 'core' | 'eSpace') =>
     (space === 'core' ? coreBalanceStore as typeof eSpaceBalanceStore : eSpaceBalanceStore).setState({ reCheckApproveCount: space === 'core' ? 7 : 11 });
 
 export const setTransferBalance = (space: 'core' | 'eSpace', standardUnit: string | undefined) => {
+    const currentToken = getCurrentToken();
     const balanceStore = (space === 'core' ? coreBalanceStore as typeof eSpaceBalanceStore : eSpaceBalanceStore);
     const maxAvailableBalance = balanceStore.getState().maxAvailableBalance;
     if (!standardUnit || !maxAvailableBalance) {
@@ -552,7 +581,7 @@ export const setTransferBalance = (space: 'core' | 'eSpace', standardUnit: strin
         return;
     }
     
-    let transferBalance = Unit.fromStandardUnit(standardUnit);
+    let transferBalance = Unit.fromStandardUnit(standardUnit, currentToken?.decimals);
     if (Unit.greaterThan(transferBalance, maxAvailableBalance)) {
         transferBalance = maxAvailableBalance;
     }
