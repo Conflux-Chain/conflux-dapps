@@ -14,11 +14,11 @@ import {
   BgCopy,
   ErrorFilled,
   SuccessFilled,
-  // PendingFilled,
+  PendingFilled,
   ArrowUp,
 } from '../../assets/svg'
 import {
-  ShuttleStatus
+  ShuttleStatus,
 } from '../../constants'
 import Progress from './Progress'
 
@@ -100,8 +100,8 @@ function Status({status}) {
         break
       case 'pending':
       // case 'waiting':
-      //   icon = <PendingFilled className={iconClassName} />
-      //   break
+        icon = <PendingFilled className={iconClassName} />
+        break
     }
     return icon
   }, [status])
