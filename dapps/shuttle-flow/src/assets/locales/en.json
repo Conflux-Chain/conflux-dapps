@@ -125,7 +125,7 @@
       "stepOne": "Initiate cross-chain",
       "stepTwo": "Confirm on {{fromChain}} {{fromChainId}}",
       "stepThreeToBtc": "Confirm on ShuttleFlow",
-      "stepThree": "Claim your token and wait for processing",
+      "stepThree": "Confirm on ShuttleFlow",
       "stepFour": "Confirm on {{toChain}} {{toChainId}}"
     }
   },

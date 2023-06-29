@@ -2,7 +2,7 @@
 /**
  * data about shuttle, mainly various contract params
  */
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Big from "big.js";
 import { useShuttleContract } from "./useShuttleContract";
 import { ContractType } from "../constants/contractConfig";
@@ -27,6 +27,8 @@ export function useCustodianData(chainOfContract, token) {
     ctoken,
     minimal_burn_value: token_minimal_burn_value,
     minimal_mint_value: token_minimal_mint_value,
+    max_mint_fee,
+    max_burn_fee,
   } = token;
   const isCfxChain = useIsCfxChain(origin);
   let contractAddress = useTokenAddress(token, isCfxChain);
@@ -43,8 +45,9 @@ export function useCustodianData(chainOfContract, token) {
     chainOfContract
   );
   const contract = isCfxChain ? reverseContract : obverseContract;
-  const dicimalsNum = getExponent(decimals);
+  const decimalsNum = getExponent(decimals);
   const [contractData, setContractData] = useState({});
+
   useEffect(() => {
     if (!origin || !contract) {
       setContractData({});
@@ -67,6 +70,8 @@ export function useCustodianData(chainOfContract, token) {
     )
       .then((data) => {
         let [
+          burn_fee,
+          mint_fee,
           wallet_fee,
           minimal_mint_value,
           minimal_burn_value,
@@ -80,15 +85,18 @@ export function useCustodianData(chainOfContract, token) {
         minimal_burn_value =
           contractAddress === KeyOfBtc
             ? minimal_burn_value
-            : Big(token_minimal_burn_value); 
+            : Big(token_minimal_burn_value);
         setContractData({
-          in_fee: Big(0), //shuttle in fee has already benn zero in new version
-          out_fee: Big(0), //shuttle out fee has already benn zero in claim version
-          wallet_fee: wallet_fee.div(`${dicimalsNum}`),
-          minimal_in_value: minimal_mint_value.div(`${dicimalsNum}`),
-          minimal_out_value:minimal_burn_value.div(`${dicimalsNum}`),
+          //Big(burn_fee).div(decimalsNum)
+          burn_fee,
+          mint_fee,
+          wallet_fee: wallet_fee.div(`${decimalsNum}`),
+          minimal_in_value: minimal_mint_value.div(`${decimalsNum}`),
+          minimal_out_value: minimal_burn_value.div(`${decimalsNum}`),
           minimal_sponsor_amount: minimal_sponsor_amount.div(getExponent(18)),
           safe_sponsor_amount: safe_sponsor_amount.div(getExponent(18)),
+          max_mint_fee: Big(max_mint_fee),
+          max_burn_fee: Big(max_burn_fee),
         });
       })
       .catch(() => {
@@ -98,7 +106,7 @@ export function useCustodianData(chainOfContract, token) {
     isCfxChain,
     chainOfContract,
     contractAddress,
-    dicimalsNum,
+    decimalsNum,
     origin,
     Boolean(contract),
   ]);
@@ -146,14 +154,45 @@ export function useSponsorData(chainOfContract, token) {
   return contractData;
 }
 
-export function useShuttleFee(chainOfContract, token, toChain) {
+export function useShuttleFee(chainOfContract, token, toChain, value) {
   const isToChainCfx = useIsCfxChain(toChain);
-  const { in_fee, out_fee } = useCustodianData(chainOfContract, token);
-  return isToChainCfx
-    ? in_fee
-      ? in_fee.toString(10)
-      : "0"
-    : out_fee
-    ? out_fee.toString(10)
-    : "0";
+  const { decimals } = token;
+  const { burn_fee, mint_fee, max_mint_fee, max_burn_fee } = useCustodianData(
+    chainOfContract,
+    token
+  );
+  const decimalsNum = decimals && getExponent(decimals);
+  //real_mint_fee = max(min(amount * burn_fee / 1e18, max_mint_fee), mint_fee)
+  const in_fee =
+    value && burn_fee && max_mint_fee && mint_fee
+      ? Math.max(
+          Math.min(
+            Big(value).times(burn_fee).div(1e18).toNumber(),
+            max_mint_fee.div(`${decimalsNum}`).toNumber()
+          ),
+          mint_fee.div(`${decimalsNum}`).toNumber()
+        )
+      : Big(0);
+  //real_burn_fee = max(min(amount * mint_fee / 1e18, max_burn_fee), burn_fee)
+  const out_fee =
+    value && mint_fee && max_burn_fee && burn_fee
+      ? Math.max(
+          Math.min(
+            Big(value).times(mint_fee).div(1e18).toNumber(),
+            max_burn_fee.div(`${decimalsNum}`).toNumber()
+          ),
+          burn_fee.div(`${decimalsNum}`).toNumber()
+        )
+      : Big(0);
+  return useMemo(
+    () =>
+      isToChainCfx
+        ? in_fee
+          ? in_fee.toString(10)
+          : "0"
+        : out_fee
+        ? out_fee.toString(10)
+        : "0",
+    [in_fee, out_fee]
+  );
 }

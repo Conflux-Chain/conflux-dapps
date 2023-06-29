@@ -37,6 +37,7 @@ function ConfirmModal({
           fromChain={fromChain}
           toChain={toChain}
           fromToken={fromToken}
+          value={value}
           {...props}
         />
       </div>
