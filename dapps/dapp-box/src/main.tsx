@@ -28,3 +28,31 @@ Promise.all([completeDetectConflux(), completeDetectEthereum()]).then(() => {
     ]);
     startQianKun({});
 });
+
+function getPlatformOS() {
+    const userAgent = window.navigator.userAgent;
+    let os = null;
+
+    const isIOS =
+        (/iPad|iPhone|iPod/.test(userAgent) || (/Mac|Mac OS|MacIntel/gi.test(userAgent) && (navigator.maxTouchPoints > 1 || 'ontouchend' in document))) &&
+        !window.MSStream;
+
+    if (/Macintosh|Mac|Mac OS|MacIntel|MacPPC|Mac68K/gi.test(userAgent)) {
+        os = 'Mac OS';
+    } else if (isIOS) {
+        os = 'iOS';
+    } else if (/'Win32|Win64|Windows|Windows NT|WinCE/gi.test(userAgent)) {
+        os = 'Windows';
+    } else if (/Android/gi.test(userAgent)) {
+        os = 'Android';
+    } else if (/Linux/gi.test(userAgent)) {
+        os = 'Linux';
+    }
+
+    return os;
+}
+
+if (getPlatformOS() === 'Windows') {
+    const dpr = window.devicePixelRatio;
+    document.body.style.zoom = 1 / (dpr / 2);
+}
