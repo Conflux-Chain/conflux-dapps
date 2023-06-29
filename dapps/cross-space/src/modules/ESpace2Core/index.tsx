@@ -16,7 +16,6 @@ import {
 } from 'cross-space/src/store/index';
 import { useToken } from 'cross-space/src/store/index';
 import numFormat from 'common/utils/numFormat';
-import LocalStorage from 'localstorage-enhance';
 import { AuthCoreSpace, AuthESpace, AuthESpaceAndCore } from 'common/modules/AuthConnectButton';
 import Button from 'common/components/Button';
 import Input from 'common/components/Input';
@@ -60,31 +59,17 @@ const ESpace2Core: React.FC<{ style: any; isShow: boolean; handleClickFlipped: (
     const { currentToken } = useToken();
     const [inTransfer, setInTransfer] = useState(false);
     const fluentAccount = useFluentAccount();
-    const metMaskAccount = useMetaMaskAccount();
-    const metaMaskStatus = useMetaMaskStatus();
-    const [mode, setMode] = useState<'normal' | 'advanced'>(() => {
-        if (metaMaskStatus === 'not-installed') {
-            LocalStorage.setItem({ key: 'eSpace-transfer2bridge-mode', data: 'advanced', namespace: 'cross-space' });
-            return 'advanced';
-        }
-        const local = LocalStorage.getItem('eSpace-transfer2bridge-mode', 'cross-space') as 'normal';
-        if (local === 'normal' || local === 'advanced') {
-            return local;
-        }
-        LocalStorage.setItem({ key: 'eSpace-transfer2bridge-mode', data: 'normal', namespace: 'cross-space' });
-        return 'normal';
-    });
+
+    const [mode, setMode] = useState<'normal' | 'advanced'>('normal');
 
     const switchMode = useCallback(() => {
         setMode((pre) => {
-            LocalStorage.setItem({ key: 'eSpace-transfer2bridge-mode', data: pre === 'normal' ? 'advanced' : 'normal', namespace: 'cross-space' });
             return pre === 'normal' ? 'advanced' : 'normal';
         });
     }, []);
 
     useEffect(() => {
         if (!currentToken.isNative) {
-            LocalStorage.setItem({ key: 'eSpace-transfer2bridge-mode', data: 'normal', namespace: 'cross-space' });
             setMode('normal');
         }
     }, [currentToken]);
