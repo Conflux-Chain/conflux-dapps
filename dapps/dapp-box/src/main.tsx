@@ -51,8 +51,31 @@ function getPlatformOS() {
 
     return os;
 }
-
+// getPlatformOS() === 'Windows'
 if (getPlatformOS() === 'Windows') {
-    const dpr = window.devicePixelRatio;
-    document.body.style.zoom = 1 / (dpr / 2);
+    let originPixelRatio = localStorage.devicePixelRatio;
+    if (!originPixelRatio) {
+        originPixelRatio = window.devicePixelRatio;
+        // 整数保存
+        if (Number.isInteger(originPixelRatio)) {
+            localStorage.devicePixelRatio = originPixelRatio;
+        }
+    }
+
+    let mqListener = function () {
+        let currentPixelRatio = window.devicePixelRatio;
+        const zoom = Math.round(1000 * (currentPixelRatio / originPixelRatio)) / 10 / 100;
+        document.body.style.zoom = 1 / zoom;
+
+        // 移除之前的查询检测
+        this.removeEventListener('change', mqListener);
+        // 使用新的查询检测
+        matchMedia(`(resolution: ${currentPixelRatio}dppx)`).addEventListener('change', mqListener);
+    };
+
+    matchMedia(`(resolution: ${originPixelRatio}dppx)`).addEventListener('change', mqListener);
+
+    const zoom = Math.round(1000 * (window.devicePixelRatio / originPixelRatio)) / 10 / 100;
+    document.body.style.zoom = 1 / zoom;
+
 }
