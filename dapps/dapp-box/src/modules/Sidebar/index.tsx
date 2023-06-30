@@ -49,8 +49,8 @@ const Sidebar: React.FC = () => {
     return (
         <a.div
             className={cx(
-                'leftbar-container flex-shrink-0 flex flex-col pb-[36px] px-[8px] bg-white z-20 select-none relative h-[100vh] rounded-none',
-                expand && 'px-[8px]',
+                'leftbar-container flex-shrink-0 flex flex-col pb-[36px]  bg-white z-20 select-none h-[100vh] rounded-none',
+                (expand || !isMobile()) && 'px-[8px]',
                 isMobile() && 'absolute px-0 rounded-r-[12px]'
             )}
             style={drawerStyle}

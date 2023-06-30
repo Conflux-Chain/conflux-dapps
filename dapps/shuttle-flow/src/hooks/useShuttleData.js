@@ -37,7 +37,7 @@ export function useCustodianData(chainOfContract, token) {
     chainOfContract,
   )
   const contract = isCfxChain ? reverseContract : obverseContract
-  const dicimalsNum = getExponent(decimals)
+  const decimalsNum = getExponent(decimals)
   const [contractData, setContractData] = useState({})
   useEffect(() => {
     if (!origin || !contract) {
@@ -74,18 +74,18 @@ export function useCustodianData(chainOfContract, token) {
 
         setContractData({
           //   in_fee: isCfxChain
-          //     ? burn_fee.div(`${dicimalsNum}`)
-          //     : mint_fee.div(`${dicimalsNum}`),
+          //     ? burn_fee.div(`${decimalsNum}`)
+          //     : mint_fee.div(`${decimalsNum}`),
           in_fee: Big(0), //shuttle in fee has already benn zero in new version
           out_fee: Big(0), //shuttle out fee has already benn zero in claim version
-          wallet_fee: wallet_fee.div(`${dicimalsNum}`),
+          wallet_fee: wallet_fee.div(`${decimalsNum}`),
           minimal_in_value:
             contractAddress === KeyOfBtc
-              ? minimal_mint_value.div(`${dicimalsNum}`)
+              ? minimal_mint_value.div(`${decimalsNum}`)
               : Big(0), //only btc token pair have the minimal_in_value
           minimal_out_value:
             contractAddress === KeyOfBtc
-              ? minimal_burn_value.div(`${dicimalsNum}`)
+              ? minimal_burn_value.div(`${decimalsNum}`)
               : Big(0), //only btc token pair have the minimal_out_value
           minimal_sponsor_amount: minimal_sponsor_amount.div(getExponent(18)),
           safe_sponsor_amount: safe_sponsor_amount.div(getExponent(18)),
@@ -98,7 +98,7 @@ export function useCustodianData(chainOfContract, token) {
     isCfxChain,
     chainOfContract,
     contractAddress,
-    dicimalsNum,
+    decimalsNum,
     origin,
     Boolean(contract),
   ])
