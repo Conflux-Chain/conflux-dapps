@@ -39,7 +39,7 @@ export const ContractConfig = {
     abi: DepositRelayer_ABI,
     address: {
       [KeyOfEth]: IS_DEV
-        ? '0x2f9bd2eeb09a006adf39a33b8782aaf4c7c84b63'
+        ? '0xF84b35F22cd7D4fca9Fd83abdC71347074ED71C5'
         : '0x02a9656f6851527e2199ce0ad3c15adddbaf734f',
       [KeyOfBsc]: IS_DEV
         ? '0x95edfd5fd720ace4cd585a469e5d8f12a448e27c'
@@ -57,7 +57,7 @@ export const ContractConfig = {
     abi: DepositRelayer_CFX_ABI,
     address: {
       [KeyOfEth]: IS_DEV
-        ? 'cfxtest:accfj95y44gfbcsa8nfk98u2dcydt5j0825cevrxv2'
+        ? 'cfxtest:acfuhfjw1cg8d9mn2kbk7ts5xxx1jy48r62p0fn5zn'
         : 'cfx:acesn0rpwutkb0ex9cghm91rs4dj60szk6ayzcm9aw',
       [KeyOfBsc]: IS_DEV
         ? 'cfxtest:acau4v7hac8r01h659u2m525dg5w0391pjb406f0m2'
@@ -75,10 +75,10 @@ export const ContractConfig = {
     abi: CustodianImpl_ABI,
     address: {
       [KeyOfEth]: IS_DEV
-        ? 'cfxtest:ace863dsv5evux88atmmr735y023vyd3sufutajna1'
+        ? 'cfxtest:acbuck0rc2pgaf2wh4ber14hhtwgvzww6eryn3kr0t'
         : 'cfx:aceu6t9m2wvpgtnzww8f13vstf2s8zeb6a4eja1756',
       [KeyOfBtc]: IS_DEV
-        ? 'cfxtest:ace863dsv5evux88atmmr735y023vyd3sufutajna1'
+        ? 'cfxtest:acbuck0rc2pgaf2wh4ber14hhtwgvzww6eryn3kr0t'
         : 'cfx:aceu6t9m2wvpgtnzww8f13vstf2s8zeb6a4eja1756',
       [KeyOfBsc]: IS_DEV
         ? 'cfxtest:acg8g810ntrv2wn62mjd7jn8brackkcc6pxv3u47ae'
@@ -96,7 +96,7 @@ export const ContractConfig = {
     abi: CustodianImplReverse_ABI,
     address: {
       [KeyOfEth]: IS_DEV
-        ? 'cfxtest:acb13s4261puun56amtwzfy0u8vft0apsph8hu7g61'
+        ? 'cfxtest:accjppmacssdnw1neymw6h27w2ze3guz9pzmdwejpr'
         : 'cfx:acfphjkmvy23zww7tpzrrxp3hrs6r70bbyke5zfb5z',
       [KeyOfBsc]: IS_DEV
         ? 'cfxtest:acdbc6vygv2rcejrf59rga0b1ze52h94by3en9b77n'
