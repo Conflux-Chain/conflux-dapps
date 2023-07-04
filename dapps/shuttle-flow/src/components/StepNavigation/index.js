@@ -28,7 +28,7 @@ export const StepNavigation = ({className}) => {
           <NavLink
             className="relative inline-flex flex-col items-center shrink-0 grow-0 text-black"
             activeClassName="step-navigation-link--active !text-white"
-            to={`./${step.path ? step.path : index + 1}`}
+            to={`./${step.path ? step.path : index + 1}${location.search}`}
           >
             {index !== steps.length - 1 && (
               <span className="absolute w-[calc(50%-10px)] right-0 top-[9px] h-[2px] bg-black pointer-events-none select-none -z-[1]" />
@@ -69,7 +69,6 @@ export const StepContent = ({children}) => {
       return {step: steps?.[stepIndex], index: stepIndex}
     } else return null
   }, [location.pathname, steps])
-  console.log({currentStep})
 
   const next = useCallback(() => {
     if (!currentStep) return
