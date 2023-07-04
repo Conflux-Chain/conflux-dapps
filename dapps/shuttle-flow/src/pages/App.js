@@ -64,7 +64,7 @@ function App() {
           >
             {!window.__POWERED_BY_QIANKUN__ && <Header />}
             <TxsUpdater />
-            <div className="container mx-auto flex flex-1 justify-center md:pb-6 h-0">
+            <div className="container mx-auto flex flex-1 justify-center pb-[118px] h-0">
               <Web3ReactManager>
                 <Switch>
                   <Route path="/" exact={!!window.__POWERED_BY_QIANKUN__}>

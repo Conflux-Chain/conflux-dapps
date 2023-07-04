@@ -9,8 +9,8 @@ import Shuttle from '../Shuttle'
 
 const DetailsContent = () => {
   return (
-    <div className="bg-red-200 h-[200px] overflow-scroll">
-      <div className="h-[600px]"><Shuttle /></div>
+    <div className="flex overflow-scroll">
+      <Shuttle />
     </div>
   )
 }
@@ -32,7 +32,9 @@ const ConfirmContent = () => {
 }
 
 function Stepper() {
-  <StepProvider
+  return (
+    <div className="flex flex-col items-center mt-[74px] px-[100px] pt-[58px] bg-white rounded-[8px]">
+      <StepProvider
         steps={[{title: 'Details'}, {title: 'Review'}, {title: 'Confirm'}]}
       >
         <StepNavigation className="w-[520px] mt-[24px]" />
@@ -66,6 +68,8 @@ function Stepper() {
           )}
         </StepContent>
       </StepProvider>
+    </div>
+  )
 }
 
 export default Stepper

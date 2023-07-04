@@ -69,6 +69,7 @@ export const StepContent = ({children}) => {
       return {step: steps?.[stepIndex], index: stepIndex}
     } else return null
   }, [location.pathname, steps])
+  console.log({currentStep})
 
   const next = useCallback(() => {
     if (!currentStep) return
