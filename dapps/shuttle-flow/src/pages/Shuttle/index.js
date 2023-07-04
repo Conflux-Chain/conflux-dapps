@@ -219,7 +219,7 @@ function Shuttle() {
           fromToken={fromToken}
           toToken={toToken}
           onChooseToken={() => setTokenListShow(true)}
-          onNextClick={() => setConfirmModalShow(true)}
+          onNextClick={() => history.push(`./2${location.search}`)}
           onChangeValue={value => setValue(value)}
           value={value}
           onChangeChain={onChangeChain}
