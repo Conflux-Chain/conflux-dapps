@@ -7,6 +7,13 @@ import {useIsMobile} from '../../../hooks'
 // import useTheme from '../../../hooks/useTheme'
 // import {WalletHub, LanguageButton, ThemeButton} from '../../components'
 import './header.css'
+import {
+  StepProvider,
+  StepNavigation,
+  StepContent,
+} from '../../../components/StepNavigation'
+import KeepAlive from 'react-activation'
+
 function Header() {
   const {t} = useTranslation()
   // const {language} = i18n
@@ -71,10 +78,72 @@ function Header() {
           {/* <WalletHub />
           <ThemeButton />
           <LanguageButton /> */}
-          <span id="title" className="text-2xl">ZERO GRAVITY</span>
-          <span className="text-base leading-5 inline-block mt-7 opacity-70">Make a fast and secure transaction</span>
+          <span id="title" className="text-2xl">
+            ZERO GRAVITY
+          </span>
+          <span className="text-base leading-5 inline-block mt-7 opacity-70">
+            Make a fast and secure transaction
+          </span>
         </div>
       )}
+      <StepProvider
+        steps={[{title: 'Details'}, {title: 'Review'}, {title: 'Confirm'}]}
+      >
+        <StepNavigation className="w-[520px] mt-[24px]" />
+        <StepContent>
+          {({next, back, currentStep}) => (
+            <div>
+              {currentStep.step.title === 'Details' && (
+                <KeepAlive>
+                  <DetailsContent />
+                </KeepAlive>
+              )}
+              {currentStep.step.title === 'Review' && (
+                <KeepAlive>
+                  <ReviewContent />
+                </KeepAlive>
+              )}
+              {currentStep.step.title === 'Confirm' && (
+                <KeepAlive>
+                  <ConfirmContent />
+                </KeepAlive>
+              )}
+              <button onClick={back}>click go back</button>
+              <button className="ml-[10px]" onClick={next}>
+                click to next
+              </button>
+
+              <div>
+                CurrentStep: {currentStep.index + 1} {currentStep.step.title}
+              </div>
+            </div>
+          )}
+        </StepContent>
+      </StepProvider>
+    </div>
+  )
+}
+
+const DetailsContent = () => {
+  return (
+    <div className="bg-red-200 h-[200px] overflow-scroll">
+      <div className="h-[600px]">Details Content</div>
+    </div>
+  )
+}
+
+const ReviewContent = () => {
+  return (
+    <div className="bg-blue-200 h-[200px] overflow-scroll">
+      <div className="h-[600px]">Review Content</div>
+    </div>
+  )
+}
+
+const ConfirmContent = () => {
+  return (
+    <div className="bg-green-200 h-[200px] overflow-scroll">
+      <div className="h-[600px]">Confirm Content</div>
     </div>
   )
 }
