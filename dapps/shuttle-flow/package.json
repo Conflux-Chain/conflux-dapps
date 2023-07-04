@@ -85,7 +85,7 @@
     "webpack-dev-server": "^3.11.2"
   },
   "scripts": {
-    "dev": "craco start",
+    "dev": "TAILWIND_MODE=watch craco start",
     "build": "craco build",
     "test": "craco test",
     "eject": "react-scripts eject",

@@ -19,11 +19,15 @@ function TokenSelect({token, onClick, type, fromChain, toChain, ...props}) {
       {...props}
     >
       {/* <TokenIcon token={token} chain={chain} size="small" /> */}
-      <span className="text-sm text-gray-60 opacity-70 inline-block ml-10">From</span>
-      <span className="mx-4 text-2lg font-medium text-black">{display_symbol}</span>
-      {type === 'from' && !isFromBtcChain && !isToBtcChain && (
-        <ArrowDownOutlined className="w-4 h-4 text-gray-60 mx-4" />
-      )}
+      <span className="text-2lg font-medium text-black w-20">
+        {display_symbol}
+      </span>
+
+      <ArrowDownOutlined
+        className={`w-4 h-4 text-gray-60 mx-8 ${
+          type === 'from' && !isFromBtcChain && !isToBtcChain ? '' : 'invisible'
+        }`}
+      />
     </div>
   )
 }

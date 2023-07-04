@@ -38,12 +38,12 @@ function ChainSelect({type, chain, fromChain, onClick, ...props}) {
   return (
     <Dropdown overlay={menu} placement="bottomLeft" trigger={['click']}>
       <div
-        className="p-3 mr-3 flex items-center justify-between cursor-pointer"
+        className="p-3 mr-3 flex items-center justify-between cursor-pointer w-[240px]"
         aria-hidden="true"
         {...props}
       >
         <ChainItem chain={chain} />
-        <ArrowDownOutlined className="w-4 h-4 text-gray-60 ml-4" />
+        <ArrowDownOutlined className="w-4 h-4 text-gray-60" />
       </div>
     </Dropdown>
   )

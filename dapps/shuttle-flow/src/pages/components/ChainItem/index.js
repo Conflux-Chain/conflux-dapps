@@ -9,7 +9,7 @@ function ChainItem({chain, className = '', iconSize = ''}) {
   return (
     <div className={`flex items-center ${className}`}>
       {getIcon()}
-      <span className="text-2lg text-black mx-4 inline-block font-medium">
+      <span className="text-2lg text-black mx-4 w-[120px] inline-block font-medium">
         {chainConfig.shortName}
       </span>
     </div>

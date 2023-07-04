@@ -5,7 +5,7 @@ module.exports = {
   theme: {
     fontSize: {
       '2xs': ['10px', '14px'],
-      xs: ['12px', '16px'],
+      xs: ['14px', '16px'],
       sm: ['16px', '18px'],
       base: ['20px', '24px'],
       lg: ['20px', '28px'],
@@ -62,12 +62,12 @@ module.exports = {
       colors: {
         white: '#fff',
         black: '#000',
-        primary: '#44d7b6',
+        primary: '#2e2f33',
         error: '#e15c56',
         success: '#44d7b6',
         warning: '#ffca4f',
         info: '#4c65e9',
-        'primary-dark': '#16bd98',
+        'primary-dark': '#111',
         'error-dark': '#b83c36',
         'success-dark': '#16bd98',
         'warning-dark': '#ec7910',

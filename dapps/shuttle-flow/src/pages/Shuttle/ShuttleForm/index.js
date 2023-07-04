@@ -5,7 +5,7 @@ import {useTranslation} from 'react-i18next'
 import {convertDecimal, formatAmount} from '@cfxjs/data-format'
 import Big from 'big.js'
 
-import {WrapIcon, Button, Input} from '../../../components'
+import {Button, Input} from '../../../components'
 import {
   DefaultFromChain,
   DefaultToChain,
@@ -21,14 +21,14 @@ import {
 } from '../../../hooks/useWallet'
 import {AccountStatus} from '../../components'
 import {useIsCfxChain, useIsBtcChain} from '../../../hooks'
-import {BgChange, AlertTriangle} from '../../../assets/svg'
+import {AlertTriangle, Forbidden} from '../../../assets/svg'
 import {getChainIdRight, isNumber} from '../../../utils'
 import {checkBtcAddress} from '../../../utils/address'
 import useShuttleAddress from '../../../hooks/useShuttleAddress'
 import {useShuttleState} from '../../../state'
 import TokenSelect from './TokenSelect'
 import ChainSelect from './ChainSelect'
-import ToToken from './ToToken'
+// import ToToken from './ToToken'
 import ToBtcAddress from './ToBtcAddress'
 import {useCustodianData} from '../../../hooks/useShuttleData'
 
@@ -42,7 +42,6 @@ function ShuttleForm({
   onChangeValue,
   value,
   onChangeChain,
-  onInvertChain,
   fromAddress,
   toAddress,
   fromAccountType,
@@ -232,83 +231,121 @@ function ShuttleForm({
   ])
 
   return (
-    <div className="flex flex-col relative mt-4 md:mt-16 w-full md:w-110 items-center shadow-common py-6 px-3 md:px-6 bg-gray-0 rounded-2.5xl h-fit">
-      <div className="flex w-full">
-        <TokenSelect
-          id="fromToken"
-          token={fromToken}
-          type="from"
-          fromChain={fromChain}
-          toChain={toChain}
-          onClick={() => onChooseToken && onChooseToken()}
-        />
-        <ChainSelect
-          chain={fromChain || DefaultFromChain}
-          type="from"
-          onClick={onChangeChain}
-          id="fromChain"
-        />
-        <AccountStatus id="fromToken" chain={fromChain} />
-        {fromAddress && !errorNetwork && (
-          <span
-            className="text-gray-40 text-xs inline-block mb-1"
-            id="balance"
-          >{`${t('balance')} ${
-            balanceVal ? formatAmount(balanceVal) : '--'
-          }`}</span>
+    <div className="flex flex-col mt-[108px] h-fit items-center">
+      <div className="flex flex-col border-l-2 border-[#34c759] pl-8">
+        <div className="flex w-full items-center">
+          <span className="text-sm text-gray-60 opacity-70 inline-block w-10 mr-14">
+            From
+          </span>
+          <TokenSelect
+            id="fromToken"
+            token={fromToken}
+            type="from"
+            fromChain={fromChain}
+            toChain={toChain}
+            onClick={() => onChooseToken && onChooseToken()}
+          />
+          <ChainSelect
+            chain={fromChain || DefaultFromChain}
+            type="from"
+            onClick={onChangeChain}
+            id="fromChain"
+          />
+          <div className="flex flex-col">
+            <AccountStatus
+              id="fromToken"
+              chain={fromChain}
+              iconClassName="absolute top-1.5"
+              addressClassName="inline-block ml-8"
+            />
+            {fromAddress && !errorNetwork && (
+              <span
+                className="text-gray-60 text-xs ml-8 inline-block mt-1"
+                id="balance"
+              >{`${t('balance')} ${
+                balanceVal ? formatAmount(balanceVal) : '--'
+              }`}</span>
+            )}
+          </div>
+        </div>
+        <div className="flex w-full items-center">
+          <span className="text-sm text-gray-60 opacity-70 inline-block w-10 mr-14">
+            To
+          </span>
+          <div className="flex">
+            {Object.keys(toToken).length === 0 ? (
+              <span className="flex items-center text-gray-40">
+                <Forbidden className="w-3 h-3 text-gray-40 mr-1" />
+                {t('tips.notAvailable')}
+              </span>
+            ) : (
+              <TokenSelect
+                id="toToken"
+                token={toToken}
+                type="to"
+                fromChain={fromChain}
+                toChain={toChain}
+              />
+            )}
+          </div>
+          <ChainSelect
+            chain={toChain || DefaultToChain}
+            type="to"
+            onClick={onChangeChain}
+            fromChain={fromChain || DefaultFromChain}
+            id="toChain"
+          />
+          <AccountStatus id="toToken" chain={toChain} />
+        </div>
+        <div className="flex w-full items-center">
+          <span className="text-sm text-gray-60 opacity-70 inline-block w-10 mr-14">
+            Amount
+          </span>
+          <Input
+            autoComplete="off"
+            id="shuttleAmount"
+            bordered={false}
+            value={value}
+            onChange={onInputChange}
+            onKeyDown={onInputPress}
+            placeholder="0.00"
+            className="!text-gray-100 !text-lg !px-0 !bg-transparent"
+            containerClassName="!bg-transparent"
+            width="w-36"
+            maxLength="40"
+          />
+        </div>
+        {isToChainBtc && (
+          <ToBtcAddress
+            btcAddressVal={btcAddressVal}
+            errorBtcAddressMsg={t(errorBtcAddressMsg)}
+            onAddressInputChange={onAddressInputChange}
+          />
         )}
-      </div>
-      <div className="flex w-full">
-        <div className="w-29.5" />
-        {errorMsg && (
-          <div className="text-xs text-error mt-2">
-            {t(errorMsg.str, errorMsg.obj)}
+        <div className="flex w-full">
+          <div className="w-29.5" />
+          {errorMsg && (
+            <div className="text-xs text-error mt-2">
+              {t(errorMsg.str, errorMsg.obj)}
+            </div>
+          )}
+        </div>
+
+        {supported === 0 && (
+          <div className="flex flex-col w-full bg-warning-10 p-3 text-xs mt-6 text-warning-dark">
+            <span className="flex items-center font-medium">
+              <AlertTriangle className="mr-1 w-4 h-4" />
+              {t('tips.notAvailable')}
+            </span>
+            <span className="inline-block mt-1">
+              {t('tips.notAvailableDescription', {fromChain, toChain})}
+            </span>
           </div>
         )}
       </div>
-      <WrapIcon
-        type="circle"
-        size="w-8 h-8"
-        className="my-4"
-        onClick={onInvertChain}
-        id="exchangeChain"
-      >
-        <BgChange />
-      </WrapIcon>
-      <div className="flex w-full">
-        <ChainSelect
-          chain={toChain || DefaultToChain}
-          type="to"
-          onClick={onChangeChain}
-          fromChain={fromChain || DefaultFromChain}
-          id="toChain"
-        />
-        <ToToken fromChain={fromChain} toChain={toChain} toToken={toToken} />
-      </div>
-      <Input
-        autoComplete="off"
-        id="shuttleAmount"
-        bordered={false}
-        value={value}
-        onChange={onInputChange}
-        onKeyDown={onInputPress}
-        placeholder="0.00"
-        className="!text-gray-100 !text-lg !bg-transparent !px-0"
-        width="w-36"
-        maxLength="40"
-      />
-      {isToChainBtc && (
-        <ToBtcAddress
-          btcAddressVal={btcAddressVal}
-          errorBtcAddressMsg={t(errorBtcAddressMsg)}
-          onAddressInputChange={onAddressInputChange}
-        />
-      )}
-
       {supported !== 0 && (
         <Button
-          className="mt-6"
-          fullWidth
+          className="mt-[83px] w-[319px]"
           size="large"
           disabled={btnDisabled}
           onClick={onNextBtnClick}
@@ -316,17 +353,6 @@ function ShuttleForm({
         >
           {t('next')}
         </Button>
-      )}
-      {supported === 0 && (
-        <div className="flex flex-col w-full bg-warning-10 p-3 text-xs mt-6 text-warning-dark">
-          <span className="flex items-center font-medium">
-            <AlertTriangle className="mr-1 w-4 h-4" />
-            {t('tips.notAvailable')}
-          </span>
-          <span className="inline-block mt-1">
-            {t('tips.notAvailableDescription', {fromChain, toChain})}
-          </span>
-        </div>
       )}
     </div>
   )
