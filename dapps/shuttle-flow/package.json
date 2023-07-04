@@ -36,14 +36,15 @@
     "qrcode.react": "^1.0.1",
     "query-string": "^7.0.0",
     "rc-dropdown": "2.4.1",
+    "rc-motion": "2.4.1",
     "rc-notification": "4.4.0",
     "rc-tooltip": "5.1.1",
     "rc-util": "5.19.3",
-    "rc-motion": "2.4.1",
     "react": "17.0.2",
     "react-copy-to-clipboard": "^5.0.3",
     "react-device-detect": "^1.17.0",
     "react-dom": "17.0.2",
+    "react-form-stepper": "^2.0.3",
     "react-i18next": "^11.8.13",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.0",
@@ -114,13 +115,6 @@
     "*.{js,jsx}": [
       "eslint --cache --fix",
       "prettier --write"
-    ],
-    "*.{json,md}": [
-      "prettier --write"
-    ],
-    "*.css": [
-      "prettier --write",
-      "stylelint"
     ]
   },
   "stylelint": {

@@ -7,16 +7,18 @@ module.exports = {
       '2xs': ['10px', '14px'],
       xs: ['12px', '16px'],
       sm: ['14px', '18px'],
-      base: ['16px', '22px'],
+      base: ['20px', '24px'],
       lg: ['20px', '28px'],
       '2lg': ['24px', '30px'],
       xl: ['28px', '36px'],
-      '2xl': ['32px', '40px'],
+      '2xl': ['40px', '52px'],
     },
     extend: {
       spacing: {
         1.25: '0.3125rem',
         4.5: '1.125rem',
+        7: '1.75rem',
+        9: "2.25rem",
         15: '3.75rem',
         24.5: '6.125rem',
         26.5: '6.625rem',
@@ -91,7 +93,7 @@ module.exports = {
       },
       fontFamily: {
         body: [
-          'Circular Std',
+          'Metropolis',
           'PingFang SC',
           'Helvetica Neue',
           'Helvetica',

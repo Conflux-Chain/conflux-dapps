@@ -7,7 +7,7 @@ import {
 } from 'react-router-dom'
 import Shuttle from '../pages/Shuttle'
 import History from '../pages/History'
-import Home from '../pages/Home'
+// import Home from '../pages/Home'
 import Maintenance from '../pages/Maintenance'
 import NotFound from '../pages/NotFound'
 import {Web3ReactManager, Header, MobileFooter} from '../pages/components'
@@ -45,7 +45,7 @@ function TxsUpdater() {
 function App() {
   const isMobile = useIsMobile()
   useMetaMaskHostedByFluent();
-  
+
   return (
     <Suspense
       fallback={
@@ -61,17 +61,17 @@ function App() {
           <div className="container mx-auto flex flex-1 justify-center md:pb-6 h-0">
             <Web3ReactManager>
               <Switch>
-                <Route path={window.__POWERED_BY_QIANKUN__ ? "/" : "/shuttle"} exact={!!window.__POWERED_BY_QIANKUN__}>
+                <Route path="/" exact={!!window.__POWERED_BY_QIANKUN__}>
                   <Shuttle />
                 </Route>
                 <Route path="/history">
                   <History />
                 </Route>
-                {!window.__POWERED_BY_QIANKUN__ &&
+                {/* {!window.__POWERED_BY_QIANKUN__ &&
                   <Route path="/" exact>
                     <Home />
                   </Route>
-                }
+                } */}
                 <Route path="/maintenance">
                   <Maintenance />
                 </Route>
