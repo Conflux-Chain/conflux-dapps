@@ -124,3 +124,7 @@ html {
   --color-gray-80: #eaecef;
   @apply bg-home;
 }
+
+body > iframe {
+  display: none;
+}
