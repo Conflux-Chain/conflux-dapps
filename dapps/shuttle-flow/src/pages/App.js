@@ -6,7 +6,7 @@ import {
   Redirect,
 } from 'react-router-dom'
 import {AliveScope} from 'react-activation'
-import Shuttle from '../pages/Shuttle'
+import Stepper from '../pages/Stepper'
 import History from '../pages/History'
 // import Home from '../pages/Home'
 import Maintenance from '../pages/Maintenance'
@@ -68,7 +68,7 @@ function App() {
               <Web3ReactManager>
                 <Switch>
                   <Route path="/" exact={!!window.__POWERED_BY_QIANKUN__}>
-                    <Shuttle />
+                    <Stepper />
                   </Route>
                   <Route path="/history">
                     <History />
