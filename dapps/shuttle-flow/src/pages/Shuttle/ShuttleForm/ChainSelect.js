@@ -10,7 +10,7 @@ import {
   ChainConfig,
 } from '../../../constants/chainConfig'
 import {Menu, Dropdown} from '../../../components'
-import {ArrowDownFilled} from '../../../assets/svg'
+import {ArrowDownOutlined} from '../../../assets/svg'
 import {ChainItem} from '../../components'
 
 function ChainSelect({type, chain, fromChain, onClick, ...props}) {
@@ -38,12 +38,12 @@ function ChainSelect({type, chain, fromChain, onClick, ...props}) {
   return (
     <Dropdown overlay={menu} placement="bottomLeft" trigger={['click']}>
       <div
-        className="w-26.5 h-24.5 rounded bg-gray-10 p-3 mr-3 flex items-end justify-between cursor-pointer"
+        className="p-3 mr-3 flex items-center justify-between cursor-pointer"
         aria-hidden="true"
         {...props}
       >
         <ChainItem chain={chain} />
-        <ArrowDownFilled className="w-4 h-4 text-gray-40" />
+        <ArrowDownOutlined className="w-4 h-4 text-gray-60 ml-4" />
       </div>
     </Dropdown>
   )
