@@ -26,8 +26,8 @@ export const StepNavigation = ({className}) => {
       {steps?.map((step, index) => (
         <Fragment key={step.title}>
           <NavLink
-            className="relative inline-flex flex-col items-center shrink-0 grow-0 text-black"
-            activeClassName="step-navigation-link--active !text-white"
+            className="relative inline-flex flex-col items-center shrink-0 grow-0 text-black pointer-events-none"
+            activeClassName="step-navigation-link--active !text-white pointer-events-none"
             to={`./${step.path ? step.path : index + 1}${location.search}`}
           >
             {index !== steps.length - 1 && (
