@@ -140,5 +140,8 @@
     "takeTime": "It may <strong>take a while</strong>, wait here or ",
     "clickSend": "Click Send to continue",
     "clickClaim": "Click Claim to receive your assets"
-  }
+  },
+  "back": "Back",
+  "startOver": "Start Over",
+  "newTx": "New Transaction"
 }

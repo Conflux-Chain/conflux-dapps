@@ -6,10 +6,11 @@ import {
 import KeepAlive from 'react-activation'
 
 import Shuttle from '../Shuttle'
+import Confirm from '../Confirm'
 
 const DetailsContent = () => {
   return (
-    <div className="flex overflow-scroll">
+    <div className="flex">
       <Shuttle />
     </div>
   )
@@ -23,13 +24,13 @@ const ReviewContent = () => {
   )
 }
 
-const ConfirmContent = () => {
-  return (
-    <div className="bg-green-200 h-[200px] overflow-scroll">
-      <div className="h-[600px]">Confirm Content</div>
-    </div>
-  )
-}
+// const ConfirmContent = () => {
+//   return (
+//     <div className="flex">
+//       <Confirm/>
+//     </div>
+//   )
+// }
 
 function Stepper() {
   return (
@@ -43,7 +44,7 @@ function Stepper() {
             <div>
               {currentStep.step.title === 'Details' && (
                 <KeepAlive>
-                  <DetailsContent />
+                  <DetailsContent next={next}/>
                 </KeepAlive>
               )}
               {currentStep.step.title === 'Review' && (
@@ -53,17 +54,17 @@ function Stepper() {
               )}
               {currentStep.step.title === 'Confirm' && (
                 <KeepAlive>
-                  <ConfirmContent />
+                  <Confirm back={back}/>
                 </KeepAlive>
               )}
-              <button onClick={back}>click go back</button>
-              <button className="ml-[10px]" onClick={next}>
+              {/* <button onClick={back}>click go back</button> */}
+              {/* <button className="ml-[10px]" onClick={next}>
                 click to next
-              </button>
+              </button> */}
 
-              <div>
+              {/* <div>
                 CurrentStep: {currentStep.index + 1} {currentStep.step.title}
-              </div>
+              </div> */}
             </div>
           )}
         </StepContent>
