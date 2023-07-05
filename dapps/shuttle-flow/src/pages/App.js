@@ -5,9 +5,10 @@ import {
   Switch,
   Redirect,
 } from 'react-router-dom'
-import Shuttle from '../pages/Shuttle'
+import {AliveScope} from 'react-activation'
+import Stepper from '../pages/Stepper'
 import History from '../pages/History'
-import Home from '../pages/Home'
+// import Home from '../pages/Home'
 import Maintenance from '../pages/Maintenance'
 import NotFound from '../pages/NotFound'
 import {Web3ReactManager, Header, MobileFooter} from '../pages/components'
@@ -36,16 +37,16 @@ import cfx from '../utils/cfx'
 // })
 
 function TxsUpdater() {
-  useUpdateTxs();
-  useUpdateClaimedTxs();
-  usePendingTransactions();
-  return null;
+  useUpdateTxs()
+  useUpdateClaimedTxs()
+  usePendingTransactions()
+  return null
 }
 
 function App() {
   const isMobile = useIsMobile()
-  useMetaMaskHostedByFluent();
-  
+  useMetaMaskHostedByFluent()
+
   return (
     <Suspense
       fallback={
@@ -55,37 +56,43 @@ function App() {
       }
     >
       <Router basename={window.__POWERED_BY_QIANKUN__ ? '/shuttle-flow' : ''}>
-        <div className={`flex flex-col h-full relative overflow-x-hidden ${!window.__POWERED_BY_QIANKUN__ ? 'bg-image' : ''}`}>
-          {!window.__POWERED_BY_QIANKUN__ && <Header />}
-          <TxsUpdater />
-          <div className="container mx-auto flex flex-1 justify-center md:pb-6 h-0">
-            <Web3ReactManager>
-              <Switch>
-                <Route path={window.__POWERED_BY_QIANKUN__ ? "/" : "/shuttle"} exact={!!window.__POWERED_BY_QIANKUN__}>
-                  <Shuttle />
-                </Route>
-                <Route path="/history">
-                  <History />
-                </Route>
-                {!window.__POWERED_BY_QIANKUN__ &&
+        <AliveScope>
+          <div
+            className={`flex flex-col h-full relative overflow-x-hidden ${
+              !window.__POWERED_BY_QIANKUN__ ? 'bg-image' : ''
+            }`}
+          >
+            {!window.__POWERED_BY_QIANKUN__ && <Header />}
+            <TxsUpdater />
+            <div className="container mx-auto flex flex-1 justify-center pb-[118px] h-0">
+              <Web3ReactManager>
+                <Switch>
+                  <Route path="/" exact={!!window.__POWERED_BY_QIANKUN__}>
+                    <Stepper />
+                  </Route>
+                  <Route path="/history">
+                    <History />
+                  </Route>
+                  {/* {!window.__POWERED_BY_QIANKUN__ &&
                   <Route path="/" exact>
                     <Home />
                   </Route>
-                }
-                <Route path="/maintenance">
-                  <Maintenance />
-                </Route>
-                <Route path="/notfound">
-                  <NotFound />
-                </Route>
-                <Route path="*">
-                  <Redirect to="/notfound" />
-                </Route>
-              </Switch>
-            </Web3ReactManager>
+                } */}
+                  <Route path="/maintenance">
+                    <Maintenance />
+                  </Route>
+                  <Route path="/notfound">
+                    <NotFound />
+                  </Route>
+                  <Route path="*">
+                    <Redirect to="/notfound" />
+                  </Route>
+                </Switch>
+              </Web3ReactManager>
+            </div>
+            {isMobile && !window.__POWERED_BY_QIANKUN__ && <MobileFooter />}
           </div>
-          {isMobile && !window.__POWERED_BY_QIANKUN__ && <MobileFooter />}
-        </div>
+        </AliveScope>
       </Router>
     </Suspense>
   )

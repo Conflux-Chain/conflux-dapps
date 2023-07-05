@@ -1,14 +1,14 @@
 import PropTypes from 'prop-types'
-import {BgArrowRight} from '../../../assets/svg'
-import {WrapIcon} from '../../../components'
-import {TokenIcon} from '../../components'
+import {ArrowDownOutlined} from '../../../assets/svg'
+// import {WrapIcon} from '../../../components'
+// import {TokenIcon} from '../../components'
 import {SupportedChains} from '../../../constants/chainConfig'
 import {useIsBtcChain} from '../../../hooks'
 
 function TokenSelect({token, onClick, type, fromChain, toChain, ...props}) {
   const isFromBtcChain = useIsBtcChain(fromChain)
   const isToBtcChain = useIsBtcChain(toChain)
-  const chain = type === 'from' ? fromChain : toChain
+  // const chain = type === 'from' ? fromChain : toChain
   const {display_symbol} = token
 
   return (
@@ -18,13 +18,16 @@ function TokenSelect({token, onClick, type, fromChain, toChain, ...props}) {
       aria-hidden="true"
       {...props}
     >
-      <TokenIcon token={token} chain={chain} size="small" />
-      <span className="ml-1 font-medium text-gray-100">{display_symbol}</span>
-      {type === 'from' && !isFromBtcChain && !isToBtcChain && (
-        <WrapIcon type="circle" className="ml-1">
-          <BgArrowRight />
-        </WrapIcon>
-      )}
+      {/* <TokenIcon token={token} chain={chain} size="small" /> */}
+      <span className="text-2lg font-medium text-black w-20">
+        {display_symbol}
+      </span>
+
+      <ArrowDownOutlined
+        className={`w-4 h-4 text-gray-60 mx-8 ${
+          type === 'from' && !isFromBtcChain && !isToBtcChain ? '' : 'invisible'
+        }`}
+      />
     </div>
   )
 }

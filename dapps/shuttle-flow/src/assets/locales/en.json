@@ -5,6 +5,8 @@
   "shuttleInfo": "Shuttle <strong>{{value}}</strong> {{tokenSymbol}} to {{chain}}",
   "confirm": "Confirm the transaction in {{wallet}}",
   "submitted": "Transaction Submitted",
+  "transfer": "Transfer",
+  "historyMenu": "History",
   "viewOnScan": "View on Scan",
   "addTokenToMetaMask": "Add {{tokenSymbol}} to MetaMask",
   "rejected": "Transaction Rejected",

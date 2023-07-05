@@ -63,6 +63,7 @@ module.exports = {
     plugins: [
       // 配置解析器
       ['@babel/plugin-proposal-optional-chaining'],
+      'react-activation/babel',
     ],
   },
 }

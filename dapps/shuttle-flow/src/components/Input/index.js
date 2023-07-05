@@ -9,7 +9,7 @@ const sizeStyleObj = {
 
 const inputStyleObj = {
   small: 'text-xs',
-  medium: 'text-sm',
+  medium: 'text-2lg',
   large: 'text-base',
 }
 

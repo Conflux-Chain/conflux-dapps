@@ -102,8 +102,10 @@ function Shuttle() {
     ) {
       nFromTokenAddress = btcTokenPair.address
     }
+    const arr = location.pathname.split('/')
+    const step = Number(arr[arr.length - 1])
     const pathWithQuery = queryString.stringifyUrl({
-      url: location.pathname,
+      url: [1,2,3].indexOf(step) > -1 ? location.pathname : location.pathname + '1',
       query: {
         ...others,
         fromChain: nFromChain,
@@ -217,7 +219,7 @@ function Shuttle() {
           fromToken={fromToken}
           toToken={toToken}
           onChooseToken={() => setTokenListShow(true)}
-          onNextClick={() => setConfirmModalShow(true)}
+          onNextClick={() => history.push(`./2${location.search}`)}
           onChangeValue={value => setValue(value)}
           value={value}
           onChangeChain={onChangeChain}
