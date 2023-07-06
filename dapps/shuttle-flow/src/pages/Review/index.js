@@ -11,6 +11,7 @@ import {useBalance, useAccountStatus, useWallet} from '../../hooks/useWallet'
 import {AccountStatus} from '../components'
 import TokenSelect from '../Shuttle/ShuttleForm/TokenSelect'
 import ChainSelect from '../Shuttle/ShuttleForm/ChainSelect'
+import BtcConfirmTips from './BtcConfirmTips'
 import {TypeAccountStatus, Decimal18} from '../../constants'
 import {Button, Input} from '../../components'
 import {useShuttleFee} from '../../hooks/useShuttleData'
@@ -50,6 +51,7 @@ function Review() {
   const isToChainCfx = useIsCfxChain(toChain)
   const isFromChainBtc = useIsBtcChain(fromChain)
   const isToChainBtc = useIsBtcChain(toChain)
+  const isFromBtcChain = useIsBtcChain(fromChain)
   const chainOfContract = isFromChainCfx ? toChain : fromChain
   const {type: fromAccountType} = useAccountStatus(
     fromChain,
@@ -121,8 +123,8 @@ function Review() {
 
   if (!fromChain) return null
   return (
-    <div className="flex flex-col mt-[108px] h-fit items-center">
-      <div className="flex flex-col border-l-2 border-[#34c759] pl-8">
+    <div className="flex flex-col flex-1 mt-[108px] md:mt-[32px] h-fit items-center">
+      <div className="flex flex-col w-full border-l-2 border-[#34c759] pl-8">
         <div className="flex w-full items-center">
           <span className="text-sm text-gray-60 opacity-70 inline-block w-10 mr-14">
             From
@@ -199,7 +201,7 @@ function Review() {
           />
         </div>
       </div>
-      <div className="flex flex-col w-full border-l-2 border-[#ff9500] pl-8 mt-15">
+      <div className="flex flex-col w-full border-l-2 border-[#ff9500] pl-8 mt-15 md:mt-8">
         <div className="flex items-center">
           <span className="text-sm text-gray-60 opacity-70 inline-block w-10 mr-14">
             Fee
@@ -208,17 +210,20 @@ function Review() {
             shuttleFee,
           )} ${display_symbol}`}</span>
         </div>
-        <span className="inline-block mt-10 text-sm text-gray-60 opacity-70">
+        <span className="inline-block mt-10 md:mt-4 text-sm text-gray-60 opacity-70">
           There may be gas charges from your wallet
         </span>
       </div>
+      {isFromBtcChain && <BtcConfirmTips />}
       {/* approve + send for zc */}
       {/* <CbtcShuttleOutButton />
       <ApproveIn />
       <ApproveOut/> */}
-      <div className="flex items-end gap-8">
+      <div
+        className={`flex items-end ${isFromBtcChain ? 'mt-4' : ' mt-[83px]'}`}
+      >
         <Button
-          className="mt-[83px] w-[319px]"
+          className="w-[319px]"
           size="large"
           onClick={() => {
             history.push(
@@ -230,15 +235,17 @@ function Review() {
         >
           Back
         </Button>
-        <Button
-          className="mt-[83px] w-[319px]"
-          size="large"
-          disabled={btnDisabled}
-          onClick={onSend}
-          id="send"
-        >
-          Send to Wallet
-        </Button>
+        {!isFromBtcChain && (
+          <Button
+            className="w-[319px] ml-8"
+            size="large"
+            disabled={btnDisabled}
+            onClick={onSend}
+            id="send"
+          >
+            Send to Wallet
+          </Button>
+        )}
       </div>
     </div>
   )
