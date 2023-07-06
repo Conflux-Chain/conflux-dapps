@@ -4,6 +4,7 @@ import {
   StepContent,
 } from '../../components/StepNavigation'
 import KeepAlive from 'react-activation'
+import {useState} from 'react'
 
 import Shuttle from '../Shuttle'
 import Confirm from '../Confirm'
@@ -33,6 +34,7 @@ const ReviewContent = () => {
 // }
 
 function Stepper() {
+  const [sendStatus, setSendStatus] = useState('')
   return (
     <div className="flex flex-col items-center mt-[74px] px-[100px] pt-[58px] bg-white rounded-[8px]">
       <StepProvider
@@ -49,12 +51,12 @@ function Stepper() {
               )}
               {currentStep.step.title === 'Review' && (
                 <KeepAlive>
-                  <ReviewContent />
+                  <ReviewContent setSendStatus={setSendStatus} />
                 </KeepAlive>
               )}
               {currentStep.step.title === 'Confirm' && (
                 <KeepAlive>
-                  <Confirm back={back}/>
+                  <Confirm back={back} sendStatus={sendStatus}/>
                 </KeepAlive>
               )}
               {/* <button onClick={back}>click go back</button> */}
