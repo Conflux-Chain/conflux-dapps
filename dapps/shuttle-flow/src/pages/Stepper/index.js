@@ -7,6 +7,7 @@ import KeepAlive from 'react-activation'
 import {useState} from 'react'
 
 import Shuttle from '../Shuttle'
+import Review from '../Review'
 import Confirm from '../Confirm'
 
 const DetailsContent = () => {
@@ -19,8 +20,8 @@ const DetailsContent = () => {
 
 const ReviewContent = () => {
   return (
-    <div className="bg-blue-200 h-[200px] overflow-scroll">
-      <div className="h-[600px]">Review Content</div>
+    <div className="flex">
+      <Review />
     </div>
   )
 }
@@ -46,7 +47,7 @@ function Stepper() {
             <div>
               {currentStep.step.title === 'Details' && (
                 <KeepAlive>
-                  <DetailsContent next={next}/>
+                  <DetailsContent next={next} />
                 </KeepAlive>
               )}
               {currentStep.step.title === 'Review' && (
@@ -56,7 +57,7 @@ function Stepper() {
               )}
               {currentStep.step.title === 'Confirm' && (
                 <KeepAlive>
-                  <Confirm back={back} sendStatus={sendStatus}/>
+                  <Confirm back={back} sendStatus={sendStatus} />
                 </KeepAlive>
               )}
               {/* <button onClick={back}>click go back</button> */}

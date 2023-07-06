@@ -41,6 +41,8 @@ function ShuttleForm({
   onNextClick,
   onChangeValue,
   value,
+  btcAddressVal,
+  setBtcAddressVal,
   onChangeChain,
   fromAddress,
   toAddress,
@@ -50,7 +52,6 @@ function ShuttleForm({
   const {t} = useTranslation()
   const [errorMsg, setErrorMsg] = useState(null)
   const [errorBtcAddressMsg, setErrorBtcAddressMsg] = useState('')
-  const [btcAddressVal, setBtcAddressVal] = useState('')
   const [btnDisabled, setBtnDisabled] = useState(true)
   const oldValue = useRef('')
   const {address, decimals, supported} = fromToken
@@ -274,7 +275,7 @@ function ShuttleForm({
           </span>
           <div className="flex">
             {Object.keys(toToken).length === 0 ? (
-              <span className="flex items-center text-gray-40">
+              <span className="flex items-center text-gray-40 w-[160px]">
                 <Forbidden className="w-3 h-3 text-gray-40 mr-1" />
                 {t('tips.notAvailable')}
               </span>
@@ -309,7 +310,7 @@ function ShuttleForm({
             onChange={onInputChange}
             onKeyDown={onInputPress}
             placeholder="0.00"
-            className="!text-gray-100 !text-lg !px-0 !bg-transparent"
+            className="!text-gray-100 !text-2lg !px-0 !bg-transparent"
             containerClassName="!bg-transparent"
             width="w-36"
             maxLength="40"
@@ -367,6 +368,8 @@ ShuttleForm.propTypes = {
   onNextClick: PropTypes.func,
   onChangeValue: PropTypes.func,
   value: PropTypes.string,
+  btcAddressVal: PropTypes.string,
+  setBtcAddressVal: PropTypes.func,
   onChangeChain: PropTypes.func,
   onInvertChain: PropTypes.func,
   fromAddress: PropTypes.string,

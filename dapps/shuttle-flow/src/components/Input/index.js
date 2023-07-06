@@ -9,7 +9,7 @@ const sizeStyleObj = {
 
 const inputStyleObj = {
   small: 'text-xs',
-  medium: 'text-2lg',
+  medium: 'text-sm',
   large: 'text-base',
 }
 
@@ -82,8 +82,9 @@ function Input({
             setFocused(false)
             onBlur && onBlur()
           }}
-          onChange={e => onChange && onChange(e)}
-          className={`w-full h-full px-3 text-gray-80 placeholder-gray-40 border-0 rounded p-0 outline-none ${inputStyle} ${className}`}
+          disabled={disabled}
+          onChange={e => !disabled && onChange && onChange(e)}
+          className={`w-full h-full px-3 text-black opacity-90 placeholder-gray-40 border-0 rounded p-0 outline-none ${inputStyle} ${className}`}
           {...props}
         />
         {suffix && (
