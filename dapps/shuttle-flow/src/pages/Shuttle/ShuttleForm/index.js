@@ -232,7 +232,7 @@ function ShuttleForm({
   ])
 
   return (
-    <div className="flex flex-col mt-[108px] h-fit items-center">
+    <div className="flex flex-col mt-8 xl:mt-[108px] h-fit items-center">
       <div className="flex flex-col border-l-2 border-[#34c759] pl-8">
         <div className="flex w-full items-center">
           <span className="text-sm text-gray-60 opacity-70 inline-block w-10 mr-14">

@@ -123,7 +123,7 @@ function Review() {
 
   if (!fromChain) return null
   return (
-    <div className="flex flex-col flex-1 mt-[108px] md:mt-[32px] h-fit items-center">
+    <div className="flex flex-col flex-1 mt-8 xl:mt-[108px] h-fit items-center">
       <div className="flex flex-col w-full border-l-2 border-[#34c759] pl-8">
         <div className="flex w-full items-center">
           <span className="text-sm text-gray-60 opacity-70 inline-block w-10 mr-14">
@@ -210,7 +210,7 @@ function Review() {
             shuttleFee,
           )} ${display_symbol}`}</span>
         </div>
-        <span className="inline-block mt-10 md:mt-4 text-sm text-gray-60 opacity-70">
+        <span className="inline-block mt-4 xl:mt-10 text-sm text-gray-60 opacity-70">
           There may be gas charges from your wallet
         </span>
       </div>

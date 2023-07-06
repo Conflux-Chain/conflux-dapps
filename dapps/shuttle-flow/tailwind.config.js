@@ -3,6 +3,12 @@ module.exports = {
   mode: 'jit',
   darkMode: false, // or 'media' or 'class'
   theme: {
+    screens: {
+      'xl': '1730px',
+      'lg': '1023px',
+      'md': '767px',
+      'sm': '639px',
+    },
     fontSize: {
       '2xs': ['10px', '14px'],
       xs: ['14px', '16px'],
