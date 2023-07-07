@@ -143,5 +143,6 @@
   },
   "back": "Back",
   "startOver": "Start Over",
-  "newTx": "New Transaction"
+  "newTx": "New Transaction",
+  "sendToWallet":"Send to Wallet"
 }

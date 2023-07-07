@@ -1,24 +1,19 @@
-import {useState, useEffect} from 'react'
-import PropTypes from 'prop-types'
-import {useTranslation} from 'react-i18next'
-import Big from 'big.js'
+import { useState, useEffect } from "react";
+import PropTypes from "prop-types";
+import { useTranslation } from "react-i18next";
+import Big from "big.js";
 
-import {Button} from '../../components'
-import {Send} from '../../assets/svg'
-import {SupportedChains} from '../../constants/chainConfig'
-import useShuttleAddress from '../../hooks/useShuttleAddress'
-import {useShuttleContract} from '../../hooks/useShuttleContract'
-import {ContractType} from '../../constants/contractConfig'
-import {useCustodianData} from '../../hooks/useShuttleData'
-import {
-  ZeroAddrHex,
-  TxReceiptModalType,
-  TypeTransaction,
-} from '../../constants'
-import {useShuttleState} from '../../state'
-import {getExponent, calculateGasMargin} from '../../utils'
-import {useTxState} from '../../state/transaction'
-import {TransactionReceiptionModal} from '../components'
+import { Button } from "../../components";
+import { Send } from "../../assets/svg";
+import { SupportedChains } from "../../constants/chainConfig";
+import useShuttleAddress from "../../hooks/useShuttleAddress";
+import { useShuttleContract } from "../../hooks/useShuttleContract";
+import { ContractType } from "../../constants/contractConfig";
+import { useCustodianData } from "../../hooks/useShuttleData";
+import { ZeroAddrHex, TypeTransaction, SendStatus } from "../../constants";
+import { useShuttleState } from "../../state";
+import { getExponent, calculateGasMargin } from "../../utils";
+import { useTxState } from "../../state/transaction";
 
 function CbtcShuttleOutButton({
   fromChain, // is cfx
@@ -29,35 +24,34 @@ function CbtcShuttleOutButton({
   disabled,
   fromAddress,
   toAddress,
+  setSendStatus,
+  nextClick,
 }) {
-  const {t} = useTranslation()
-  const {ctoken} = toToken
-  const [outAddress, setOutAddress] = useState('')
+  const { t } = useTranslation();
+  const { ctoken } = toToken;
+  const [outAddress, setOutAddress] = useState("");
   const shuttleAddress = useShuttleAddress(
     outAddress,
     fromChain,
     toChain,
-    'out',
-  )
-  const tokenBaseContract = useShuttleContract(ContractType.tokenBase)
-  const {out_fee} = useCustodianData(toChain, toToken)
-  const {toBtcAddress} = useShuttleState()
-  const [didMount, setDidMount] = useState(false)
-  const {unshiftTx} = useTxState()
-  const [txModalShow, setTxModalShow] = useState(false)
-  const [txModalType, setTxModalType] = useState(TxReceiptModalType.ongoing)
-  const [txHash, setTxHash] = useState('')
+    "out"
+  );
+  const tokenBaseContract = useShuttleContract(ContractType.tokenBase);
+  const { out_fee } = useCustodianData(toChain, toToken);
+  const { toBtcAddress } = useShuttleState();
+  const [didMount, setDidMount] = useState(false);
+  const { unshiftTx } = useTxState();
 
   useEffect(() => {
-    setDidMount(true)
-    setOutAddress(toBtcAddress)
+    setDidMount(true);
+    setOutAddress(toBtcAddress);
     return () => {
-      setDidMount(false)
-    }
-  }, [toBtcAddress])
+      setDidMount(false);
+    };
+  }, [toBtcAddress]);
 
   function getShuttleStatusData(hash, type = TypeTransaction.transaction) {
-    let fee = out_fee ? out_fee.toString(10) : '0'
+    let fee = out_fee ? out_fee.toString(10) : "0";
     const data = {
       hash: hash,
       fromChain,
@@ -71,36 +65,31 @@ function CbtcShuttleOutButton({
       shuttleAddress: shuttleAddress,
       fee,
       cfxAddress: fromAddress,
-    }
-    return data
+    };
+    return data;
   }
 
   const onSubmit = async () => {
-    if (
-      txModalType === TxReceiptModalType.success ||
-      txModalType === TxReceiptModalType.error
-    ) {
-      setTxModalType(TxReceiptModalType.ongoing)
-    }
-    setTxModalShow(true)
-    const amountVal = Big(value).mul(getExponent(18))
+    nextClick && nextClick();
+    setSendStatus(SendStatus.ongoing);
+    const amountVal = Big(value).mul(getExponent(18));
     try {
-      const estimateData = await tokenBaseContract['burn'](
+      const estimateData = await tokenBaseContract["burn"](
         fromAddress,
         amountVal,
         0,
         outAddress,
-        ZeroAddrHex,
+        ZeroAddrHex
       ).estimateGasAndCollateral({
         from: fromAddress,
         to: ctoken,
-      })
-      tokenBaseContract['burn'](
+      });
+      tokenBaseContract["burn"](
         fromAddress,
         amountVal,
         0,
         outAddress,
-        ZeroAddrHex,
+        ZeroAddrHex
       )
         .sendTransaction({
           from: fromAddress,
@@ -108,54 +97,38 @@ function CbtcShuttleOutButton({
           gas: calculateGasMargin(estimateData?.gasLimit, 0.5),
           storageLimit: calculateGasMargin(
             estimateData?.storageCollateralized,
-            0.5,
+            0.5
           ),
         })
-        .then(data => {
-          unshiftTx(getShuttleStatusData(data))
-          setTxHash(data)
-          setTxModalType(TxReceiptModalType.success)
+        .then((data) => {
+          unshiftTx(getShuttleStatusData(data));
+          setSendStatus(SendStatus.success);
         })
         .catch(() => {
-          setTxModalType(TxReceiptModalType.error)
-        })
+          setSendStatus(SendStatus.error);
+        });
     } catch {
-      setTxModalType(TxReceiptModalType.error)
+      setSendStatus(SendStatus.error);
     }
-  }
+  };
 
   if (!didMount) {
-    return null
+    return null;
   }
   return (
     <>
       <Button
-        fullWidth
+        className="w-[319px] ml-8"
         startIcon={<Send />}
         onClick={onSubmit}
         disabled={disabled}
         size="large"
         id="cBtcShuttleOutBtn"
       >
-        {t('send')}
+        {t("sendToWallet")}
       </Button>
-      {txModalShow && (
-        <TransactionReceiptionModal
-          type={txModalType}
-          open={txModalShow}
-          fromChain={fromChain}
-          toChain={toChain}
-          fromToken={fromToken}
-          toToken={toToken}
-          txHash={txHash}
-          value={value}
-          onClose={() => {
-            setTxModalShow(false)
-          }}
-        />
-      )}
     </>
-  )
+  );
 }
 
 CbtcShuttleOutButton.propTypes = {
@@ -168,6 +141,8 @@ CbtcShuttleOutButton.propTypes = {
   disabled: PropTypes.bool,
   fromAddress: PropTypes.string,
   toAddress: PropTypes.string,
-}
+  nextClick: PropTypes.func,
+  setSendStatus: PropTypes.func,
+};
 
-export default CbtcShuttleOutButton
+export default CbtcShuttleOutButton;

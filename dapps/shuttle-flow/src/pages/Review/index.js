@@ -1,90 +1,99 @@
-import {useState, useEffect} from 'react'
-import queryString from 'query-string'
-import {useTranslation} from 'react-i18next'
-import {useHistory, useLocation} from 'react-router-dom'
-import {convertDecimal, formatAmount} from '@cfxjs/data-format'
-import Big from 'big.js'
+import { useState, useEffect } from "react";
+import queryString from "query-string";
+import { useTranslation } from "react-i18next";
+import { useHistory, useLocation } from "react-router-dom";
+import { convertDecimal, formatAmount } from "@cfxjs/data-format";
+import Big from "big.js";
+import PropTypes from "prop-types";
 
-import {useFromToken, useToToken} from '../../hooks/useTokenList'
-import {useIsCfxChain, useIsBtcChain} from '../../hooks'
-import {useBalance, useAccountStatus, useWallet} from '../../hooks/useWallet'
-import {AccountStatus} from '../components'
-import TokenSelect from '../Shuttle/ShuttleForm/TokenSelect'
-import ChainSelect from '../Shuttle/ShuttleForm/ChainSelect'
-import BtcConfirmTips from './BtcConfirmTips'
-import {TypeAccountStatus, Decimal18} from '../../constants'
-import {Button, Input} from '../../components'
-import {useShuttleFee} from '../../hooks/useShuttleData'
+import { useFromToken, useToToken } from "../../hooks/useTokenList";
+import { useIsCfxChain, useIsBtcChain } from "../../hooks";
+import { useBalance, useAccountStatus, useWallet } from "../../hooks/useWallet";
+import { AccountStatus } from "../components";
+import TokenSelect from "../Shuttle/ShuttleForm/TokenSelect";
+import ChainSelect from "../Shuttle/ShuttleForm/ChainSelect";
+import BtcConfirmTips from "./BtcConfirmTips";
+import { TypeAccountStatus, Decimal18 } from "../../constants";
+import { Button, Input } from "../../components";
+import { useShuttleFee } from "../../hooks/useShuttleData";
 
-import {DefaultFromChain, DefaultToChain} from '../../constants/chainConfig'
-import {useShuttleState} from '../../state'
-import {getChainIdRight} from '../../utils'
+import { DefaultFromChain, DefaultToChain } from "../../constants/chainConfig";
+import { useShuttleState } from "../../state";
+import { getChainIdRight } from "../../utils";
+import CbtcShuttleOutButton from "./CbtcShuttleOutButton";
+import { ApproveIn, ApproveOut } from "./Approve";
+import { ShuttleInButton, ShuttleOutButton } from "./ShuttleButton";
 
-function Review() {
-  const {t} = useTranslation()
-  const history = useHistory()
-  const location = useLocation()
-  const {tokenFromBackend} = useShuttleState()
+function Review({ setSendStatus }) {
+  const { t } = useTranslation();
+  const { push } = useHistory();
+  const location = useLocation();
+  const { tokenFromBackend } = useShuttleState();
 
-  const [btnDisabled, setBtnDisabled] = useState(true)
-
-  const {fromChain, toChain, fromTokenAddress, value, btcToAddress} =
-    queryString.parse(location.search)
+  const [btnDisabled, setBtnDisabled] = useState(true);
+  const [inApproveShown, setInApproveShown] = useState(false);
+  const [outApproveShown, setOutApproveShown] = useState(false);
+  const {
+    fromChain,
+    toChain,
+    fromTokenAddress,
+    value,
+    btcToAddress,
+  } = queryString.parse(location.search);
   const {
     address: fromAddress,
     error: fromChainError,
     chainId: fromChainId,
-  } = useWallet(fromChain)
+  } = useWallet(fromChain);
 
   const {
     address: toAddress,
     error: toChainError,
     chainId: toChainId,
-  } = useWallet(toChain)
+  } = useWallet(toChain);
   const isFromChainIdRight = getChainIdRight(
     fromChain,
     fromChainId,
-    fromAddress,
-  )
-  const isToChainIdRight = getChainIdRight(toChain, toChainId, toAddress)
-  const isFromChainCfx = useIsCfxChain(fromChain)
-  const isToChainCfx = useIsCfxChain(toChain)
-  const isFromChainBtc = useIsBtcChain(fromChain)
-  const isToChainBtc = useIsBtcChain(toChain)
-  const isFromBtcChain = useIsBtcChain(fromChain)
-  const chainOfContract = isFromChainCfx ? toChain : fromChain
-  const {type: fromAccountType} = useAccountStatus(
+    fromAddress
+  );
+  const isToChainIdRight = getChainIdRight(toChain, toChainId, toAddress);
+  const isFromChainCfx = useIsCfxChain(fromChain);
+  const isToChainCfx = useIsCfxChain(toChain);
+  const isFromChainBtc = useIsBtcChain(fromChain);
+  const isToChainBtc = useIsBtcChain(toChain);
+  const isFromBtcChain = useIsBtcChain(fromChain);
+  const chainOfContract = isFromChainCfx ? toChain : fromChain;
+  let BtnComp = isToChainCfx ? ShuttleInButton : ShuttleOutButton;
+
+  const { type: fromAccountType } = useAccountStatus(
     fromChain,
     fromAddress,
     fromChainError,
-    isFromChainIdRight,
-  )
-  const {type: toAccountType} = useAccountStatus(
+    isFromChainIdRight
+  );
+  const { type: toAccountType } = useAccountStatus(
     toChain,
     toAddress,
     toChainError,
-    isToChainIdRight,
-  )
-  let fromToken = useFromToken(fromChain, toChain, fromTokenAddress)
-  fromToken = Object.keys(fromToken).length === 0 ? tokenFromBackend : fromToken
-  const toToken = useToToken(fromChain, toChain, fromTokenAddress)
-  const shuttleFee = useShuttleFee(chainOfContract, fromToken, toChain, value)
+    isToChainIdRight
+  );
+  let fromToken = useFromToken(fromChain, toChain, fromTokenAddress);
+  fromToken =
+    Object.keys(fromToken).length === 0 ? tokenFromBackend : fromToken;
+  const toToken = useToToken(fromChain, toChain, fromTokenAddress);
+  const shuttleFee = useShuttleFee(chainOfContract, fromToken, toChain, value);
 
-  const {address, decimals, display_symbol} = fromToken
+  const { address, decimals, display_symbol } = fromToken;
 
-  const balance = useBalance(fromChain, fromAddress, address)
+  const balance = useBalance(fromChain, fromAddress, address);
   const balanceVal = balance
     ? new Big(
-        convertDecimal(
-          balance,
-          'divide',
-          isFromChainCfx ? Decimal18 : decimals,
-        ),
+        convertDecimal(balance, "divide", isFromChainCfx ? Decimal18 : decimals)
       ).toString()
-    : null
+    : null;
 
   useEffect(() => {
-    setBtnDisabled(true)
+    setBtnDisabled(true);
     if (
       (!isFromChainBtc && isToChainCfx) ||
       (isFromChainCfx && !isToChainBtc)
@@ -95,14 +104,14 @@ function Review() {
         fromAccountType === TypeAccountStatus.success &&
         toAccountType === TypeAccountStatus.success
       ) {
-        setBtnDisabled(false)
+        setBtnDisabled(false);
       }
     } else {
       if (isFromChainBtc && toAddress && value) {
-        setBtnDisabled(false)
+        setBtnDisabled(false);
       }
       if (isToChainBtc && fromAddress && value) {
-        setBtnDisabled(false)
+        setBtnDisabled(false);
       }
     }
   }, [
@@ -116,12 +125,13 @@ function Review() {
     btnDisabled,
     fromAccountType,
     toAccountType,
-  ])
+  ]);
 
-  // for zc
-  const onSend = () => {}
+  const nextClick = () => {
+    push("/3" + location.search);
+  };
 
-  if (!fromChain) return null
+  if (!fromChain) return null;
   return (
     <div className="flex flex-col flex-1 mt-8 xl:mt-[108px] h-fit items-center">
       <div className="flex flex-col w-full border-l-2 border-[#34c759] pl-8">
@@ -154,8 +164,8 @@ function Review() {
               <span
                 className="text-gray-60 text-xs ml-8 inline-block mt-1"
                 id="balance"
-              >{`${t('balance')} ${
-                balanceVal ? formatAmount(balanceVal) : '--'
+              >{`${t("balance")} ${
+                balanceVal ? formatAmount(balanceVal) : "--"
               }`}</span>
             )}
           </div>
@@ -207,7 +217,7 @@ function Review() {
             Fee
           </span>
           <span className="text-black text-2lg">{`${formatAmount(
-            shuttleFee,
+            shuttleFee
           )} ${display_symbol}`}</span>
         </div>
         <span className="inline-block mt-4 xl:mt-10 text-sm text-gray-60 opacity-70">
@@ -215,40 +225,87 @@ function Review() {
         </span>
       </div>
       {isFromBtcChain && <BtcConfirmTips />}
-      {/* approve + send for zc */}
-      {/* <CbtcShuttleOutButton />
-      <ApproveIn />
-      <ApproveOut/> */}
+
       <div
-        className={`flex items-end ${isFromBtcChain ? 'mt-4' : ' mt-[83px]'}`}
+        className={`flex items-end ${isFromBtcChain ? "mt-4" : " mt-[83px]"}`}
       >
         <Button
           className="w-[319px]"
           size="large"
           onClick={() => {
-            history.push(
-              `./1?fromChain=${fromChain}&toChain=${toChain}&fromTokenAddress=${fromTokenAddress}`,
-            )
+            push(
+              `./1?fromChain=${fromChain}&toChain=${toChain}&fromTokenAddress=${fromTokenAddress}`
+            );
           }}
           variant="outlined"
           id="back"
         >
           Back
         </Button>
-        {!isFromBtcChain && (
-          <Button
-            className="w-[319px] ml-8"
-            size="large"
-            disabled={btnDisabled}
-            onClick={onSend}
-            id="send"
-          >
-            Send to Wallet
-          </Button>
+        {!isToChainBtc && isToChainCfx && (
+          <ApproveIn
+            fromChain={fromChain}
+            toChain={toChain}
+            fromToken={fromToken}
+            toToken={toToken}
+            value={value}
+            fromAddress={fromAddress}
+            toAddress={toAddress}
+            disabled={false}
+            setApproveShown={setInApproveShown}
+            approveShown={inApproveShown}
+          />
+        )}
+        {!isToChainBtc && !isToChainCfx && (
+          <ApproveOut
+            fromChain={fromChain}
+            toChain={toChain}
+            fromToken={fromToken}
+            toToken={toToken}
+            value={value}
+            fromAddress={fromAddress}
+            toAddress={toAddress}
+            disabled={false}
+            setApproveShown={setOutApproveShown}
+            approveShown={outApproveShown}
+          />
+        )}
+        {isToChainBtc && (
+          <CbtcShuttleOutButton
+            fromChain={fromChain}
+            toChain={toChain}
+            fromToken={fromToken}
+            toToken={toToken}
+            value={value}
+            fromAddress={fromAddress}
+            toAddress={toAddress}
+            disabled={false}
+            setSendStatus={setSendStatus}
+            nextClick={nextClick}
+          />
+        )}
+        {!isToChainBtc && !inApproveShown && !outApproveShown && (
+          <BtnComp
+            setSendStatus={setSendStatus}
+            fromChain={fromChain}
+            toChain={toChain}
+            fromToken={fromToken}
+            toToken={toToken}
+            fromAddress={fromAddress}
+            toAddress={toAddress}
+            value={value}
+            disabled={false}
+            nextClick={nextClick}
+          />
         )}
       </div>
     </div>
-  )
+  );
 }
 
-export default Review
+Review.propTypes = {
+  setSendStatus: PropTypes.func,
+  nextClick: PropTypes.func,
+};
+
+export default Review;

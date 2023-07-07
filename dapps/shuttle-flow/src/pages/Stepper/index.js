@@ -18,13 +18,13 @@ const DetailsContent = () => {
   )
 }
 
-const ReviewContent = () => {
-  return (
-    <div className="flex">
-      <Review />
-    </div>
-  )
-}
+// const ReviewContent = ({}) => {
+//   return (
+//     <div className="flex">
+//       <Review />
+//     </div>
+//   )
+// }
 
 // const ConfirmContent = () => {
 //   return (
@@ -52,7 +52,7 @@ function Stepper() {
               )}
               {currentStep.step.title === 'Review' && (
                 <KeepAlive>
-                  <ReviewContent setSendStatus={setSendStatus} />
+                  <Review setSendStatus={setSendStatus} nextClick={next} />
                 </KeepAlive>
               )}
               {currentStep.step.title === 'Confirm' && (

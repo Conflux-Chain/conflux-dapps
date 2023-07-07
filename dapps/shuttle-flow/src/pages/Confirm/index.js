@@ -1,13 +1,19 @@
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
+import queryString from "query-string";
 
 import { SendStatus } from "../../constants";
 import { StatusError, StatusSuccess, StatusWaiting } from "../../assets/img";
 
-function Confirm({ sendStatus, back }) {
+function Confirm({ sendStatus }) {
   const { t } = useTranslation();
   const { push } = useHistory();
+  const location = useLocation();
+  const { fromChain, toChain, fromTokenAddress } = queryString.parse(
+    location.search
+  );
+
   return (
     <div className="flex flex-col mt-20">
       {(!sendStatus || sendStatus == SendStatus.ongoing) && (
@@ -25,7 +31,7 @@ function Confirm({ sendStatus, back }) {
             <button
               className=" w-[319px] h-[48px] border border-black border-solid text-black bg-white rounded-md font-medium"
               size="large"
-              onClick={back}
+              onClick={() => push("/2" + location.search)}
               id="back"
             >
               {t("back")}
@@ -45,7 +51,7 @@ function Confirm({ sendStatus, back }) {
             <button
               className=" w-[319px] h-[48px] border border-black border-solid text-black bg-white rounded-md font-medium"
               size="large"
-              onClick={() => push("/1")}
+              onClick={() => push("/1" + location.search)}
               id="newTx"
             >
               {t("newTx")}
@@ -65,15 +71,19 @@ function Confirm({ sendStatus, back }) {
             <button
               className="w-[319px] h-[48px] border border-black border-solid text-black bg-white rounded-md font-medium"
               size="large"
-              onClick={back}
-              id="next"
+              onClick={() => push("/2" + location.search)}
+              id="back"
             >
               {t("back")}
             </button>
             <button
               className="ml-6 w-[319px] h-[48px] border border-black border-solid text-white bg-black rounded-md font-medium"
               size="large"
-              onClick={() => push("/1")}
+              onClick={() =>
+                push(
+                  `./1?fromChain=${fromChain}&toChain=${toChain}&fromTokenAddress=${fromTokenAddress}`
+                )
+              }
               id="startOver"
             >
               {t("startOver")}
@@ -88,6 +98,7 @@ function Confirm({ sendStatus, back }) {
 Confirm.propTypes = {
   sendStatus: PropTypes.oneOf([...Object.values(SendStatus), ""]).isRequired,
   back: PropTypes.func,
+  setSendStatus: PropTypes.func,
 };
 
 export default Confirm;
