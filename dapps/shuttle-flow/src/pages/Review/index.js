@@ -284,20 +284,23 @@ function Review({ setSendStatus }) {
             nextClick={nextClick}
           />
         )}
-        {!isToChainBtc && !inApproveShown && !outApproveShown && (
-          <BtnComp
-            setSendStatus={setSendStatus}
-            fromChain={fromChain}
-            toChain={toChain}
-            fromToken={fromToken}
-            toToken={toToken}
-            fromAddress={fromAddress}
-            toAddress={toAddress}
-            value={value}
-            disabled={false}
-            nextClick={nextClick}
-          />
-        )}
+        {!isFromBtcChain &&
+          !isToChainBtc &&
+          !inApproveShown &&
+          !outApproveShown && (
+            <BtnComp
+              setSendStatus={setSendStatus}
+              fromChain={fromChain}
+              toChain={toChain}
+              fromToken={fromToken}
+              toToken={toToken}
+              fromAddress={fromAddress}
+              toAddress={toAddress}
+              value={value}
+              disabled={false}
+              nextClick={nextClick}
+            />
+          )}
       </div>
     </div>
   );

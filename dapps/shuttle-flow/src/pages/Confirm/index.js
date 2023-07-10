@@ -51,7 +51,11 @@ function Confirm({ sendStatus }) {
             <button
               className=" w-[319px] h-[48px] border border-black border-solid text-black bg-white rounded-md font-medium"
               size="large"
-              onClick={() => push("/1" + location.search)}
+              onClick={() =>
+                push(
+                  `./1?fromChain=${fromChain}&toChain=${toChain}&fromTokenAddress=${fromTokenAddress}`
+                )
+              }
               id="newTx"
             >
               {t("newTx")}
