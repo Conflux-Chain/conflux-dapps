@@ -7,9 +7,9 @@ function ChainItem({chain, className = '', iconSize = ''}) {
     return chainConfig?.icon(iconSize)
   }
   return (
-    <div className={`flex flex-col ${className}`}>
+    <div className={`flex items-center ${className}`}>
       {getIcon()}
-      <span className="text-xs text-gray-80 mt-2 inline-block font-medium">
+      <span className="text-2lg text-black opacity-90 mx-4 w-[120px] inline-block font-medium">
         {chainConfig.shortName}
       </span>
     </div>

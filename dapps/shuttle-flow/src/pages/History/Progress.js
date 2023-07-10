@@ -111,7 +111,7 @@ function Progress({progress, fromChain, toChain}) {
                 getIsDone(2) ? 'text-gray-100' : 'text-gray-40'
               }`}
             >
-              {t('history.progress.stepThreeToBtc')}
+              {t('history.progress.stepThree')}
             </span>
             {!isToBtcChain && getIsDone(2) && (
               <JumpIcon

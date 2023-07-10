@@ -3,20 +3,28 @@ module.exports = {
   mode: 'jit',
   darkMode: false, // or 'media' or 'class'
   theme: {
+    screens: {
+      'xl': '1730px',
+      'lg': '1023px',
+      'md': '767px',
+      'sm': '639px',
+    },
     fontSize: {
       '2xs': ['10px', '14px'],
-      xs: ['12px', '16px'],
-      sm: ['14px', '18px'],
-      base: ['16px', '22px'],
+      xs: ['14px', '16px'],
+      sm: ['16px', '18px'],
+      base: ['20px', '24px'],
       lg: ['20px', '28px'],
-      '2lg': ['24px', '30px'],
+      '2lg': ['24px', '24px'],
       xl: ['28px', '36px'],
-      '2xl': ['32px', '40px'],
+      '2xl': ['40px', '52px'],
     },
     extend: {
       spacing: {
         1.25: '0.3125rem',
         4.5: '1.125rem',
+        7: '1.75rem',
+        9: "2.25rem",
         15: '3.75rem',
         24.5: '6.125rem',
         26.5: '6.625rem',
@@ -60,12 +68,12 @@ module.exports = {
       colors: {
         white: '#fff',
         black: '#000',
-        primary: '#44d7b6',
+        primary: '#2e2f33',
         error: '#e15c56',
         success: '#44d7b6',
         warning: '#ffca4f',
         info: '#4c65e9',
-        'primary-dark': '#16bd98',
+        'primary-dark': '#111',
         'error-dark': '#b83c36',
         'success-dark': '#16bd98',
         'warning-dark': '#ec7910',
@@ -91,7 +99,7 @@ module.exports = {
       },
       fontFamily: {
         body: [
-          'Circular Std',
+          'Metropolis',
           'PingFang SC',
           'Helvetica Neue',
           'Helvetica',
