@@ -19,4 +19,9 @@ export default defineConfig({
             '/rpcsponsor': ProxyConfig,
         },
     },
+    build: {
+        rollupOptions: {
+            external: ['rc-util/es/hooks/useEvent'],
+        },
+    },
 });
