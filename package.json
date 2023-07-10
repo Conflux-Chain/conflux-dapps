@@ -49,7 +49,7 @@
         "@types/node": "latest",
         "only-allow": "latest",
         "prettier": "latest",
-        "turbo": "latest",
+        "turbo": "1.10.6",
         "typescript": "latest"
     },
     "engines": {
