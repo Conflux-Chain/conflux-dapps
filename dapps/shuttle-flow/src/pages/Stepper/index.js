@@ -37,7 +37,7 @@ const DetailsContent = () => {
 function Stepper() {
   const [sendStatus, setSendStatus] = useState('')
   return (
-    <div className="flex flex-col items-center mt-[12px] pt-[18px] px-[100px] xl:mt-[74px] xl:pt-[58px] bg-white rounded-[8px]">
+    <div className="flex flex-col items-center mt-[12px] px-[100px] xl:mt-[74px]">
       <StepProvider
         steps={[{title: 'Details'}, {title: 'Review'}, {title: 'Confirm'}]}
       >

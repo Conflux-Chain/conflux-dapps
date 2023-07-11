@@ -3,7 +3,7 @@
 }
 
 .step-navigation-link--active > .step-navigation-circle {
-  @apply bg-black
+  @apply bg-primary
 }
 
 .step-navigation-link--active > .step-navigation-line {
