@@ -193,7 +193,7 @@ function Review({ setSendStatus }) {
           <AccountStatus id="toToken" chain={toChain} />
           {isToChainBtc && <span>{btcToAddress}</span>}
         </div>
-        <div className="flex w-full items-center mt-4 h-[18px]">
+        <div className="flex w-full items-center mt-6 h-[18px]">
           <span className="text-sm text-gray-60 opacity-70 inline-block w-10 mr-14">
             Amount
           </span>

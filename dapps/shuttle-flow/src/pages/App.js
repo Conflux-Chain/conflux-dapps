@@ -66,7 +66,7 @@ function App() {
             {!window.__POWERED_BY_QIANKUN__ && <Header />}
             <TxsUpdater />
             <div className="container mx-auto flex flex-1 justify-center pb-12 h-0">
-              <div className="flex flex-col max-w-[1078px] bg-white rounded-[8px]">
+              <div className="flex flex-col max-w-[1078px] w-[80%] bg-white rounded-[8px]">
                 <div className="flex items-center flex-col mt-8 text-gray-80">
                   <div className="flex items-center">
                     <img src={Logo} alt="logo" className="w-[97px] mr-8" />
