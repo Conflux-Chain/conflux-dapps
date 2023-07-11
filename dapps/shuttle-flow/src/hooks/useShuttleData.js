@@ -29,6 +29,8 @@ export function useCustodianData(chainOfContract, token) {
     minimal_mint_value: token_minimal_mint_value,
     max_mint_fee,
     max_burn_fee,
+    mint_fee_ratio,
+    burn_fee_ratio,
   } = token;
   const isCfxChain = useIsCfxChain(origin);
   let contractAddress = useTokenAddress(token, isCfxChain);
@@ -97,6 +99,8 @@ export function useCustodianData(chainOfContract, token) {
           safe_sponsor_amount: safe_sponsor_amount.div(getExponent(18)),
           max_mint_fee: Big(max_mint_fee),
           max_burn_fee: Big(max_burn_fee),
+          mint_fee_ratio: Big(mint_fee_ratio),
+          burn_fee_ratio: Big(burn_fee_ratio),
         });
       })
       .catch(() => {
@@ -157,17 +161,21 @@ export function useSponsorData(chainOfContract, token) {
 export function useShuttleFee(chainOfContract, token, toChain, value) {
   const isToChainCfx = useIsCfxChain(toChain);
   const { decimals } = token;
-  const { burn_fee, mint_fee, max_mint_fee, max_burn_fee } = useCustodianData(
-    chainOfContract,
-    token
-  );
+  const {
+    burn_fee,
+    mint_fee,
+    max_mint_fee,
+    max_burn_fee,
+    burn_fee_ratio,
+    mint_fee_ratio,
+  } = useCustodianData(chainOfContract, token);
   const decimalsNum = decimals && getExponent(decimals);
   //real_mint_fee = max(min(amount * burn_fee / 1e18, max_mint_fee), mint_fee)
   const in_fee =
-    value && burn_fee && max_mint_fee && mint_fee
+    value && mint_fee_ratio && max_mint_fee && mint_fee
       ? Math.max(
           Math.min(
-            Big(value).times(burn_fee).div(1e18).toNumber(),
+            Big(value).times(mint_fee_ratio).div(1e18).toNumber(),
             max_mint_fee.div(`${decimalsNum}`).toNumber()
           ),
           mint_fee.div(`${decimalsNum}`).toNumber()
@@ -175,10 +183,10 @@ export function useShuttleFee(chainOfContract, token, toChain, value) {
       : Big(0);
   //real_burn_fee = max(min(amount * mint_fee / 1e18, max_burn_fee), burn_fee)
   const out_fee =
-    value && mint_fee && max_burn_fee && burn_fee
+    value && burn_fee_ratio && max_burn_fee && burn_fee
       ? Math.max(
           Math.min(
-            Big(value).times(mint_fee).div(1e18).toNumber(),
+            Big(value).times(burn_fee_ratio).div(1e18).toNumber(),
             max_burn_fee.div(`${decimalsNum}`).toNumber()
           ),
           burn_fee.div(`${decimalsNum}`).toNumber()
