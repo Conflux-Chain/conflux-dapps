@@ -18,6 +18,7 @@ import {useUpdateTxs} from '../hooks/useTransaction'
 import {useUpdateClaimedTxs} from '../hooks/useClaimedTx'
 import {useMetaMaskHostedByFluent} from '../hooks/useMetaMaskHostedByFluent'
 import {usePendingTransactions} from './components/WalletHub/index'
+import {Logo} from '../assets/svg'
 
 // eslint-disable-next-line no-unused-vars
 import cfx from '../utils/cfx'
@@ -64,33 +65,46 @@ function App() {
           >
             {!window.__POWERED_BY_QIANKUN__ && <Header />}
             <TxsUpdater />
-            <div className="container mx-auto flex flex-1 justify-center pb-[60px] xl:pb-[118px] h-0">
-              <Web3ReactManager>
-                <Switch>
-                  <Route path="/" exact={!!window.__POWERED_BY_QIANKUN__}>
-                    <Stepper />
-                  </Route>
-                  <Route path="/history">
-                    <History />
-                  </Route>
-                  {/* {!window.__POWERED_BY_QIANKUN__ &&
+            <div className="container mx-auto flex flex-1 justify-center pb-12 h-0">
+              <div className="flex flex-col max-w-[1078px] bg-white rounded-[8px]">
+                <div className="flex items-center flex-col mt-8 text-gray-80">
+                  <div className="flex items-center">
+                    <img src={Logo} alt="logo" className="w-[97px] mr-8" />
+                    <span id="title" className="text-2xl tracking-widest">
+                      ZERO GRAVITY
+                    </span>
+                  </div>
+                  <span className="text-base font-medium leading-5 inline-block mt-7 opacity-70">
+                    Make a fast and secure transaction
+                  </span>
+                </div>
+                <Web3ReactManager>
+                  <Switch>
+                    <Route path="/" exact={!!window.__POWERED_BY_QIANKUN__}>
+                      <Stepper />
+                    </Route>
+                    <Route path="/history">
+                      <History />
+                    </Route>
+                    {/* {!window.__POWERED_BY_QIANKUN__ &&
                   <Route path="/" exact>
                     <Home />
                   </Route>
                 } */}
-                  <Route path="/maintenance">
-                    <Maintenance />
-                  </Route>
-                  <Route path="/notfound">
-                    <NotFound />
-                  </Route>
-                  <Route path="*">
-                    <Redirect to="/notfound" />
-                  </Route>
-                </Switch>
-              </Web3ReactManager>
+                    <Route path="/maintenance">
+                      <Maintenance />
+                    </Route>
+                    <Route path="/notfound">
+                      <NotFound />
+                    </Route>
+                    <Route path="*">
+                      <Redirect to="/notfound" />
+                    </Route>
+                  </Switch>
+                </Web3ReactManager>
+              </div>
+              {isMobile && !window.__POWERED_BY_QIANKUN__ && <MobileFooter />}
             </div>
-            {isMobile && !window.__POWERED_BY_QIANKUN__ && <MobileFooter />}
           </div>
         </AliveScope>
       </Router>

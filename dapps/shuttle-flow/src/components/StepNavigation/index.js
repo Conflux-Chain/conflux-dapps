@@ -26,23 +26,23 @@ export const StepNavigation = ({className}) => {
       {steps?.map((step, index) => (
         <Fragment key={step.title}>
           <NavLink
-            className="relative inline-flex flex-col items-center shrink-0 grow-0 text-black pointer-events-none"
+            className="relative inline-flex flex-col items-center shrink-0 grow-0 text-[rgba(66,66,66,0.7)] pointer-events-none"
             activeClassName="step-navigation-link--active !text-white pointer-events-none"
             to={`./${step.path ? step.path : index + 1}${location.search}`}
           >
             {index !== steps.length - 1 && (
-              <span className="absolute w-[calc(50%-10px)] right-0 top-[9px] h-[2px] bg-black pointer-events-none select-none -z-[1]" />
+              <span className="absolute w-[calc(50%-10px)] right-0 top-[9px] h-[2px] bg-[rgba(66,66,66,0.7)] pointer-events-none select-none -z-[1]" />
             )}
             {index !== 0 && (
-              <span className="absolute w-[calc(50%-10px)] left-0  top-[9px] h-[2px] bg-black pointer-events-none select-none -z-[1]" />
+              <span className="absolute w-[calc(50%-10px)] left-0 top-[9px] h-[2px] bg-[rgba(66,66,66,0.7)] pointer-events-none select-none -z-[1]" />
             )}
-            <span className="step-navigation-circle mb-[8px] inline-flex justify-center items-center w-[20px] h-[20px] rounded-full border-[1px] border-black text-inherit z-0">
+            <span className="step-navigation-circle mb-[8px] inline-flex justify-center items-center w-[20px] h-[20px] rounded-full border-[1px] bg-[rgba(66,66,66,0.7)] text-inherit z-0">
               {index + 1}
             </span>
-            <span className="text-black">{step.title}</span>
+            <span className="text-[rgba(66,66,66,0.7)]">{step.title}</span>
           </NavLink>
           {index !== steps.length - 1 && (
-            <div className="w-full mt-[9px] h-[2px] bg-black pointer-events-none select-none" />
+            <div className="w-full mt-[9px] h-[2px] bg-[rgba(66,66,66,0.7)] pointer-events-none select-none" />
           )}
         </Fragment>
       ))}

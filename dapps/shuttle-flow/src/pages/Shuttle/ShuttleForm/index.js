@@ -298,7 +298,7 @@ function ShuttleForm({
           />
           <AccountStatus id="toToken" chain={toChain} />
         </div>
-        <div className="flex w-full items-center">
+        <div className="flex w-full items-center mt-6">
           <span className="text-sm text-gray-60 opacity-70 inline-block w-10 mr-14">
             Amount
           </span>
