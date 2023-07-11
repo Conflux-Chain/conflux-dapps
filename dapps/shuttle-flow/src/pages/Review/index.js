@@ -133,7 +133,7 @@ function Review({ setSendStatus }) {
 
   if (!fromChain) return null;
   return (
-    <div className="flex flex-col flex-1 mt-8 xl:mt-[78px] h-fit items-center">
+    <div className="flex flex-col flex-1 mt-8 xl:mt-[60px] h-fit items-center">
       <div className="flex flex-col w-full border-l-2 border-[#34c759] pl-8">
         <div className="flex w-full items-center">
           <span className="text-sm text-gray-60 opacity-70 inline-block w-10 mr-14">
@@ -227,7 +227,7 @@ function Review({ setSendStatus }) {
       {isFromBtcChain && <BtcConfirmTips />}
 
       <div
-        className={`flex items-end ${isFromBtcChain ? "mt-4" : " mt-[83px]"}`}
+        className={`flex items-end ${isFromBtcChain ? "mt-4" : " mt-[80px]"}`}
       >
         <Button
           className="w-[319px]"
