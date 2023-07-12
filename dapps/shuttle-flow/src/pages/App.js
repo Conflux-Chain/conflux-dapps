@@ -125,7 +125,7 @@ function App() {
         <AliveScope>
           <div
             className={`flex flex-col h-full relative overflow-x-hidden ${
-              !window.__POWERED_BY_QIANKUN__ ? 'bg-image' : ''
+              !window.__POWERED_BY_QIANKUN__ ? '' : ''
             }`}
           >
             {!window.__POWERED_BY_QIANKUN__ && <Header />}
