@@ -31,18 +31,18 @@ export const StepNavigation = ({className}) => {
             to={`./${step.path ? step.path : index + 1}${location.search}`}
           >
             {index !== steps.length - 1 && (
-              <span className="absolute w-[calc(50%-12px)] right-0 top-[11px] h-[2px] bg-[rgba(66,66,66,0.7)] pointer-events-none select-none -z-[1]" />
+              <span className="absolute w-[calc(50%-12px)] right-0 top-[11px] h-[2px] bg-[rgba(66,66,66,0.5)] pointer-events-none select-none -z-[1]" />
             )}
             {index !== 0 && (
-              <span className="absolute w-[calc(50%-12px)] left-0 top-[11px] h-[2px] bg-[rgba(66,66,66,0.7)] pointer-events-none select-none -z-[1]" />
+              <span className="absolute w-[calc(50%-12px)] left-0 top-[11px] h-[2px] bg-[rgba(66,66,66,0.5)] pointer-events-none select-none -z-[1]" />
             )}
-            <span className="step-navigation-circle mb-[8px] inline-flex justify-center items-center w-[26px] h-[26px] rounded-full border-[1px] bg-[rgba(66,66,66,0.7)] text-inherit z-0">
+            <span className="step-navigation-circle mb-[8px] inline-flex justify-center items-center w-[26px] h-[26px] rounded-full border-[1px] bg-[rgba(66,66,66,0.5)] text-inherit z-0">
               {index + 1}
             </span>
             <span className="text-[rgba(66,66,66,0.7)]">{step.title}</span>
           </NavLink>
           {index !== steps.length - 1 && (
-            <div className="w-full mt-[11px] h-[2px] bg-[rgba(66,66,66,0.7)] pointer-events-none select-none" />
+            <div className="w-full mt-[11px] h-[2px] bg-[rgba(66,66,66,0.5)] pointer-events-none select-none" />
           )}
         </Fragment>
       ))}
