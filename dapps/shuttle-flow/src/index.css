@@ -48,6 +48,19 @@ strong {
   @apply text-warning-dark;
 }
 
+input::-input-placeholder {
+  color: rgba(0,0,0,0.9)!important;
+}
+input::-webkit-input-placeholder {
+  color: rgba(0,0,0,0.9)!important;
+}
+input::-moz-input-placeholder {
+  color: rgba(0,0,0,0.9)!important;
+}
+input::-ms-input-placeholder {
+  color: rgba(0,0,0,0.9)!important;
+}
+
 #root {
   @apply font-body;
   display: flex;
