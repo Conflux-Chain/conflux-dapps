@@ -39,9 +39,17 @@ function Header() {
         >
           {t('transfer')}
         </HeaderLink>
-        <span className="text-gray-60 text-base inline-block">
+        <span className="text-gray-60 text-base inline-block mr-9">
           {t('historyMenu')}
         </span>
+        <a
+          className="text-base mr-9 h-6 flex items-center justify-center"
+          id="faq"
+          target="/blank"
+          href="https://www.google.com"
+        >
+          Faq
+        </a>
         {/* {!isMobile &&
           (!isDarkMode ? (
             <Logo className="mr-8" />
