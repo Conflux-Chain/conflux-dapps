@@ -39,9 +39,17 @@ function Header() {
         >
           {t('transfer')}
         </HeaderLink>
-        <span className="text-gray-60 text-base inline-block">
+        <span className="text-gray-60 text-base inline-block mr-9">
           {t('historyMenu')}
         </span>
+        <a
+          className="text-base mr-9 h-6 flex items-center justify-center"
+          id="faq"
+          target="/blank"
+          href="https://battle-muse-fe0.notion.site/Instructions-Of-ZERO-GRAVITY-d59fd10ee5124e9b9970a5e8aa9adc67"
+        >
+          Faq
+        </a>
         {/* {!isMobile &&
           (!isDarkMode ? (
             <Logo className="mr-8" />
