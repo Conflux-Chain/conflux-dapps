@@ -7,7 +7,7 @@ import Cell from 'governance/src/components/Cell';
 import BalanceText from 'common/modules/BalanceText';
 import { useLockedBalance, useVotingRights, startTrackProposalList, startTrackOpenedProposal, startTrackRewardInterestRate } from 'governance/src/store';
 import { startTrack } from 'governance/src/store';
-import { CurrentVotingRightsTipContent } from 'governance/src/modules/Dashboard/Lock';
+import { CurrentVotingRightsTipContent } from 'governance/src/modules/PowStake/Lock';
 import CurrentVotingRights from 'governance/src/assets/goverfnance-CurrentVotingRights.svg';
 import Lock from 'governance/src/assets/governance-Lock.svg';
 import './index.css';

@@ -10,6 +10,7 @@ import CrossSpace from 'cross-space/src/modules';
 import BscEspace from 'bsc-espace/src/modules';
 import Airdrop from 'airdrop/src/modules';
 import GovernanceDashboard from 'governance/src/modules/Dashboard';
+import GovernancePowStake from 'governance/src/modules/PowStake';
 import Vote from 'governance/src/modules/Vote';
 import Proposals from 'governance/src/modules/Vote/Proposals';
 import RewardInterestRate from 'governance/src/modules/Vote/RewardInterestRate';
@@ -163,6 +164,7 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                     <Route key="espace-airdrop" path="espace-airdrop" element={<Airdrop />} />
                     <Route key="governance" path="governance" element={<Outlet />}>
                         <Route key="governance-dashboard" path="dashboard" element={<GovernanceDashboard />} />
+                        <Route key="governance-dashboard-pow-stake" path="pow-stake" element={<GovernancePowStake />} />
                         <Route key="governance-vote" path="vote" element={<Vote />}>
                             <Route index element={<RewardInterestRate />} />
                             <Route key="governance-vote-proposals" path="proposals" element={<Proposals />} />
