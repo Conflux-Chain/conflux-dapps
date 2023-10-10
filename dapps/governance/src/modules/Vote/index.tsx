@@ -20,7 +20,7 @@ const Main: React.FC = () => {
 
     return (
         <div className="mx-auto w-[1140px] pt-[16px] pb-[24px]">
-            <Header />
+            {/* <Header /> */}
             <Tabs />
             <Outlet />
         </div>

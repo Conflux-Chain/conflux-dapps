@@ -19,7 +19,7 @@ CastVotesModal.setListClassName('cast-votes-modal-wrapper');
 CastVotesModal.setItemWrapperClassName('toast-item-wrapper');
 CastVotesModal.setAnimatedSize(false);
 
-const voteTypes = ['PoW block rewards', 'PoS APY'] as const;
+const voteTypes = ['PoW block rewards', 'PoS APY', 'Storage Point'] as const;
 const options = ['Increase', 'Decrease', 'Unchange'] as const;
 
 let hasInit: boolean = false;

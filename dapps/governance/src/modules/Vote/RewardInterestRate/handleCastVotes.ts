@@ -14,6 +14,9 @@ export interface Data {
     'PoW block rewards-Decrease': string;
     'PoW block rewards-Increase': string;
     'PoW block rewards-Unchange': string;
+    'Storage Point-Decrease': string;
+    'Storage Point-Increase': string;
+    'Storage Point-Unchange': string;
 }
 
 const handleCastVotes = async (data: Data, setInVoting: React.Dispatch<React.SetStateAction<boolean>>) => {
@@ -45,6 +48,14 @@ const handleCastVotes = async (data: Data, setInVoting: React.Dispatch<React.Set
                             Unit.fromStandardUnit(data['PoS APY-Unchange'] || 0).toHexMinUnit(),
                             Unit.fromStandardUnit(data['PoS APY-Increase'] || 0).toHexMinUnit(),
                             Unit.fromStandardUnit(data['PoS APY-Decrease'] || 0).toHexMinUnit(),
+                        ],
+                    ],
+                    [
+                        '2',
+                        [
+                            Unit.fromStandardUnit(data['Storage Point-Unchange'] || 0).toHexMinUnit(),
+                            Unit.fromStandardUnit(data['Storage Point-Increase'] || 0).toHexMinUnit(),
+                            Unit.fromStandardUnit(data['Storage Point-Decrease'] || 0).toHexMinUnit(),
                         ],
                     ],
                 ])

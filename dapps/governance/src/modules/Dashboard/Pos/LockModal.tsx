@@ -1,11 +1,12 @@
 import React, { memo, useCallback, useMemo } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { PopupClass } from 'common/components/Popup';
 import { Unit, useAccount } from '@cfxjs/use-wallet-react/ethereum';
+import { Select } from 'antd';
 
 import BalanceText from 'common/modules/BalanceText';
 import { useLockedBalance, useAvailableStakedBalance, useGapBlockNumber, BLOCK_SPEED, calVotingRightsPerCfx } from 'governance/src/store';
-import Slider, { convertPeriodValueToGapBlockNumber, convertCurrentGapBlockNumberToPeriodValue } from '../../PowStake/Lock/Slider';
+import { convertPeriodValueToGapBlockNumber, convertCurrentGapBlockNumberToPeriodValue } from '../../PowStake/Lock/Slider';
 import { calRemainTime } from 'common/utils/time';
 import { AuthCoreSpace } from 'common/modules/AuthConnectButton';
 import Button from 'common/components/Button';
@@ -15,6 +16,8 @@ import InputCFXPrefixSuffix from 'common/components/Input/suffixes/CFXPrefix';
 import Close from 'common/assets/icons//close.svg';
 import Input from 'common/components/Input';
 import CFX from 'common/assets/tokens/CFX.svg';
+
+const { Option } = Select;
 
 const LockModal = new PopupClass();
 LockModal.setListStyle({
@@ -33,7 +36,9 @@ const title = {
 
 const LockModalContent: React.FC<{ type: Type }> = memo(({ type }) => {
     const account = useAccount();
-    const { register, handleSubmit: withForm, setValue, watch } = useForm();
+    const { register, handleSubmit: withForm, control, watch } = useForm();
+
+    // cfxtest:acgwa148z517jj15w9je5sdzn8p8j044kjrvjz92c1 test pos pool
 
     const currentGapBlockNumber = useGapBlockNumber();
     const lockedBalance = useLockedBalance();
@@ -66,8 +71,8 @@ const LockModalContent: React.FC<{ type: Type }> = memo(({ type }) => {
 
 
     const onSubmit = useCallback(withForm(async (data) => {
-        const { amount } = data;
-        console.log(amount)
+        // const { amount, select } = data;
+        console.log(data)
     }), []);
 
     return (
@@ -115,7 +120,7 @@ const LockModalContent: React.FC<{ type: Type }> = memo(({ type }) => {
                     <Input
                         id="governance-lock-pos-input"
                         {...register('amount', {
-                            required: true,
+                            required: false,
                             min: Unit.fromMinUnit(1).toDecimalStandardUnit(),
                             max: availableStakedBalance?.toDecimalStandardUnit(),
                         })}
@@ -135,12 +140,22 @@ const LockModalContent: React.FC<{ type: Type }> = memo(({ type }) => {
                     <div className="mb-[12px] text-[14px] leading-[18px] text-[#898D9A]">
                         Voting rights is given when CFX are locked for at least a quarter.
                     </div>
-                    <Slider
-                        id="governance-lock-pos-period"
-                        currentGapBlockNumber={currentGapBlockNumber}
-                        {...register('period', {
+                    <Controller
+                        name="select"
+                        control={control}
+                        rules={{
                             required: true,
-                        })}
+                        }}
+                        render={({field}) => (
+                            <Select className='w-full' onChange={(value) => field.onChange(value)}>
+                                <Option key={1} value={1}>
+                                    1
+                                </Option>
+                                <Option key={2} value={2}>
+                                   2
+                                </Option>
+                            </Select>
+                        )}
                     />
                 </div>
                 <div className="flex flex-row justify-between items-center">
