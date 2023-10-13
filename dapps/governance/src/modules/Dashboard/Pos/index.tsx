@@ -1,8 +1,9 @@
 import React from 'react';
 
 import Table from '../../../components/Table';
-
 import CFX from 'common/assets/tokens/CFX.svg';
+
+import { showLockModal } from '../Pos/LockModal';
 
 const StakePos: React.FC = () => {
 
@@ -22,13 +23,25 @@ const StakePos: React.FC = () => {
                             '100,000 CFX',
                         <div>
                             <div>100,000 CFX</div>
-                            <div className='text-[#808BE7] cursor-pointer'>Lock</div>
+                            <div className='text-[#808BE7] cursor-pointer' onClick={() => showLockModal('more')}>Lock</div>
                         </div>,
                         <div>
                             <div>123 Days</div>
-                            <div className='text-[#808BE7] cursor-pointer'>Extend</div>
+                            <div className='text-[#808BE7] cursor-pointer' onClick={() => showLockModal('extend')}>Extend</div>
+                        </div>, '100,000'],
+                        [<div className='flex'>
+                            <img className='w-[24px] h-[24px] rounded-[50px]' src={CFX} alt="" />
+                            <span className='ml-[8px]'>PHX POS Pool</span>
                         </div>,
-                            '100,000'],
+                            '100,000 CFX',
+                        <div>
+                            <div>100,000 CFX</div>
+                            <div className='text-[#808BE7] cursor-pointer' onClick={() => showLockModal('lock')}>Create Lock</div>
+                        </div>,
+                        <div>
+                            <div>123 Days</div>
+                            <div className='text-[#808BE7] cursor-pointer' onClick={() => showLockModal('extend')}>Extend</div>
+                        </div>, '100,000'],
                     ]}
                 />
             </div>

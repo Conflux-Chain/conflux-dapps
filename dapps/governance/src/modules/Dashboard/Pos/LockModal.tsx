@@ -5,7 +5,7 @@ import { Unit, useAccount } from '@cfxjs/use-wallet-react/ethereum';
 import { Select } from 'antd';
 
 import BalanceText from 'common/modules/BalanceText';
-import { useLockedBalance, useAvailableStakedBalance, useGapBlockNumber, BLOCK_SPEED, calVotingRightsPerCfx } from 'governance/src/store';
+import { useLockedBalance, useAvailableStakedBalance, useGapBlockNumber, usePosStakeAmount, BLOCK_SPEED, calVotingRightsPerCfx } from 'governance/src/store';
 import { convertPeriodValueToGapBlockNumber, convertCurrentGapBlockNumberToPeriodValue } from '../../PowStake/Lock/Slider';
 import { calRemainTime } from 'common/utils/time';
 import { AuthCoreSpace } from 'common/modules/AuthConnectButton';
@@ -20,9 +20,7 @@ import CFX from 'common/assets/tokens/CFX.svg';
 const { Option } = Select;
 
 const LockModal = new PopupClass();
-LockModal.setListStyle({
-    top: '440px',
-});
+
 LockModal.setItemWrapperClassName('toast-item-wrapper');
 LockModal.setAnimatedSize(false);
 
@@ -39,6 +37,8 @@ const LockModalContent: React.FC<{ type: Type }> = memo(({ type }) => {
     const { register, handleSubmit: withForm, control, watch } = useForm();
 
     // cfxtest:acgwa148z517jj15w9je5sdzn8p8j044kjrvjz92c1 test pos pool
+
+    const posStakeAmount = usePosStakeAmount();
 
     const currentGapBlockNumber = useGapBlockNumber();
     const lockedBalance = useLockedBalance();
@@ -75,6 +75,15 @@ const LockModalContent: React.FC<{ type: Type }> = memo(({ type }) => {
         console.log(data)
     }), []);
 
+    const option = (lockNumber: string, lockTime: string) => {
+        return (
+            <div className='w-full h-[62px] leading-[62px] ml-[1px] flex flex-col justify-center'>
+                <div className='h-[16px] leading-[16px] text-[12px] text-[#898D9A]'>Lock to block number: {lockNumber}</div>
+                <div className='mt-[4px] h-[18px] leading-[18px] text-[14px] text-[#3D3F4C]'>Est. unlock at: {lockTime}</div>
+            </div>
+        )
+    }
+
     return (
         <div className="relative w-[440px] p-[24px] bg-white rounded-[4px]">
             <img
@@ -101,64 +110,109 @@ const LockModalContent: React.FC<{ type: Type }> = memo(({ type }) => {
 
                     </div>
                 </div>
-                <div className="mt-[16px] flex justify-between items-center">
-                    <div className='text-[16px] text-[#3D3F4C]'>Lock for Voting Power</div>
-                    <div className='text-[14px] text=[#3D3F4C] flex items-center'>
-                        <div className='text-[#898D9A]'>Available:</div>
-                        <BalanceText
-                            className="ml-[4px] text-[#3D3F4C]"
-                            id={`modal-lock-available-balance`}
-                            balance={availableStakedBalance}
-                            symbol="CFX"
-                            placement="bottom"
-                            decimals={18}
-                        />
-                    </div>
-                </div>
-                <div className='mt-[16px]'>
 
-                    <Input
-                        id="governance-lock-pos-input"
-                        {...register('amount', {
-                            required: false,
-                            min: Unit.fromMinUnit(1).toDecimalStandardUnit(),
-                            max: availableStakedBalance?.toDecimalStandardUnit(),
-                        })}
-                        placeholder="Amount you want to lock"
-                        type="number"
-                        step={1e-18}
-                        min={Unit.fromMinUnit(1).toDecimalStandardUnit()}
-                        max={availableStakedBalance?.toDecimalStandardUnit()}
-                        bindAccout={account}
-                        disabled={!isAvailableBalanceGreaterThan0}
-                        suffix={[<InputMAXSuffix id="governance-lock-max" />, <InputCFXPrefixSuffix />]}
-                    />
-
-                </div>
-                <div className="mt-[16px]">
-                    <div className="mb-[4px] text-[16px] leading-[22px] text-[#3D3F4C] font-medium">Locking Period</div>
-                    <div className="mb-[12px] text-[14px] leading-[18px] text-[#898D9A]">
-                        Voting rights is given when CFX are locked for at least a quarter.
+                {
+                    ['extend', 'more'].includes(type) &&
+                    <div className="mt-[12px] p-[12px] border-[1px] border-[#EAECEF] rounded-[4px] bg-[#FAFBFD]">
+                        <div className="text-[14px] flex justify-between">
+                            <div className="text-[#898D9A]">Current Voting Power</div>
+                            <div className="text-[#3D3F4C]">100,000 CFX</div>
+                        </div>
+                        <div className="mt-[12px] text-[14px] flex justify-between">
+                            <div className="text-[#898D9A]">Current Locked</div>
+                            <div className="text-[#3D3F4C]">100,000 CFX</div>
+                        </div>
+                        <div className="mt-[12px] text-[14px] flex justify-between">
+                            <div className="text-[#898D9A]">Locked until</div>
+                            <div className="text-[#3D3F4C]">2023-09-28 10:00:00</div>
+                        </div>
                     </div>
-                    <Controller
-                        name="select"
-                        control={control}
-                        rules={{
-                            required: true,
-                        }}
-                        render={({field}) => (
-                            <Select className='w-full' onChange={(value) => field.onChange(value)}>
-                                <Option key={1} value={1}>
-                                    1
-                                </Option>
-                                <Option key={2} value={2}>
-                                   2
-                                </Option>
-                            </Select>
-                        )}
-                    />
-                </div>
-                <div className="flex flex-row justify-between items-center">
+                }
+
+                {
+                    ['lock', 'more'].includes(type) &&
+                    <>
+                        <div className="mt-[16px] flex justify-between items-center">
+                            <div className='text-[16px] text-[#3D3F4C]'>Lock for Voting Power</div>
+                            <div className='text-[14px] text=[#3D3F4C] flex items-center'>
+                                <div className='text-[#898D9A]'>Available:</div>
+                                <BalanceText
+                                    className="ml-[4px] text-[#3D3F4C]"
+                                    id={`modal-lock-available-balance`}
+                                    balance={posStakeAmount}
+                                    symbol="CFX"
+                                    placement="bottom"
+                                    decimals={18}
+                                />
+                            </div>
+                        </div>
+                        <div className='mt-[16px]'>
+
+                            <Input
+                                id="governance-lock-pos-input"
+                                {...register('amount', {
+                                    required: false,
+                                    min: Unit.fromMinUnit(1).toDecimalStandardUnit(),
+                                    max: availableStakedBalance?.toDecimalStandardUnit(),
+                                })}
+                                placeholder="Amount you want to lock"
+                                type="number"
+                                step={1e-18}
+                                min={Unit.fromMinUnit(1).toDecimalStandardUnit()}
+                                max={availableStakedBalance?.toDecimalStandardUnit()}
+                                bindAccout={account}
+                                disabled={!isAvailableBalanceGreaterThan0}
+                                suffix={[<InputMAXSuffix id="governance-lock-max" />, <InputCFXPrefixSuffix />]}
+                            />
+
+                        </div>
+                    </>
+
+                }
+
+                {
+                    ['lock', 'extend'].includes(type) &&
+                    <>
+                        <div className="mt-[16px]">
+                            <div className="mb-[4px] text-[16px] leading-[22px] text-[#3D3F4C] font-medium">Locking Period</div>
+                            <div className="mb-[12px] text-[14px] leading-[18px] text-[#898D9A]">
+                                Voting rights is given when CFX are locked for at least a quarter.
+                            </div>
+                            <Controller
+                                name="select"
+                                control={control}
+                                rules={{
+                                    required: true,
+                                }}
+                                render={({ field }) => (
+                                    <Select
+                                        className='w-full select-h-62px'
+                                        onChange={(value) => field.onChange(value)}
+                                        optionLabelProp="label"
+                                    >
+                                        {
+                                            [1, 2, 3, 4].map(e => <Option key={'select-lock-' + e} value={e} label={option(String(e), String(e))}>
+                                                {option(String(e), String(e))}
+                                            </Option>)
+                                        }
+
+                                    </Select>
+                                )}
+                            />
+                        </div>
+                        <div className="mt-[16px] text-[14px] flex justify-between">
+                            <div className="text-[#898D9A]">Your voting power:</div>
+                            <div className="text-[#3D3F4C]">100,000</div>
+                        </div>
+                        <div className="mt-[8px] text-[14px] flex justify-between">
+                            <div className="text-[#898D9A]">Est. unlock at:</div>
+                            <div className="text-[#3D3F4C]">2023-12-01 08:00</div>
+                        </div>
+                    </>
+                }
+
+
+                {/* <div className="mt-[16px] flex flex-row justify-between items-center">
                     <div>
                         <div className="text-[14px] leading-[18px] text-[#808BE7] font-medium">
                             <BalanceText id="estimate voting rights" balance={estimateVotingRights} symbol="" decimals={18} />
@@ -178,7 +232,7 @@ const LockModalContent: React.FC<{ type: Type }> = memo(({ type }) => {
                             {estimateVotingRightsPerCfx} voting rights/CFX
                         </div>
                     </div>
-                </div>
+                </div> */}
                 <div className='mt-[16px] bg-[#FCF1E8] px-[16px] py-[12px]'>
                     <div className='text-[#3D3F4C] text-[14px] font-bold'>
                         I Understand

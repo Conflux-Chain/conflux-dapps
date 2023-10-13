@@ -32,6 +32,7 @@ interface Voting {
     powBaseReward: [Unit, Unit, Unit];
     interestRate: [Unit, Unit, Unit];
     storagePoint: [Unit, Unit, Unit];
+    proposals?: [Unit, Unit, Unit];
 }
 
 interface Vote {

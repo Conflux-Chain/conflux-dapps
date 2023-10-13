@@ -23,8 +23,9 @@ import {
 import Arrow from 'governance/src/assets/Arrow.svg';
 import Close from 'governance/src/assets/Close.svg';
 import QuestionMark from 'common/assets/icons/QuestionMark.svg';
-import handleVote from './handleVote';
+
 import './index.css';
+import { showCastVotesModal } from '../RewardInterestRate/CastVotesModal';
 
 const Proposals: React.FC = () => {
     const proposalList = useProposalList();
@@ -119,7 +120,7 @@ const OpenedProposalDetail: React.FC = () => {
 
         if (typeof currentProposalIndex !== 'number' || currentProposalIndex === -1 || !proposalList) return { pre: null, next: null };
         return {
-            pre: currentProposalIndex === 0 ? null: proposalList[currentProposalIndex - 1].id,
+            pre: currentProposalIndex === 0 ? null : proposalList[currentProposalIndex - 1].id,
             next: currentProposalIndex === proposalList?.length - 1 ? null : proposalList[(currentProposalIndex + 1)].id
         }
     }, [openedProposalId, proposalList]);
@@ -186,7 +187,15 @@ const OpenedProposalDetail: React.FC = () => {
                                 size="large"
                                 className="mt-[24px] w-[486px]"
                                 disabled={!isVotingRightsGraterThan0 || selectOption === null}
-                                onClick={() => handleVote({ proposalId: id, optionId: selectOption! })}
+                                onClick={() => showCastVotesModal({
+                                    type: 'Proposals',
+                                    proposal: {
+                                        proposalId: id,
+                                        optionId: selectOption!,
+                                        power: ''
+                                    }
+                                })
+                                }
                             >
                                 Vote
                             </Button>
@@ -251,11 +260,9 @@ const VotingCountsTipContent: React.FC = memo(() => {
         <>
             <div className="text-[16px] leading-[22px] font-medium text-[#3D3F4C]">Deadline extend tip</div>
             <div className="mt-[8px] text-[14px] leading-[21px] text-[#898D9A]">
-                {`If the voting result changes within ${extendDay?.blockNumber ?? '--'} blocks (about ${
-                    extendDay?.intervalMinutes ?? '--'
-                } minutes) before the deadline, the deadline will be extended to the current block plus ${extendDay?.blockNumber ?? '--'} blocks (about ${
-                    extendDay?.intervalMinutes ?? '--'
-                } minutes).`}
+                {`If the voting result changes within ${extendDay?.blockNumber ?? '--'} blocks (about ${extendDay?.intervalMinutes ?? '--'
+                    } minutes) before the deadline, the deadline will be extended to the current block plus ${extendDay?.blockNumber ?? '--'} blocks (about ${extendDay?.intervalMinutes ?? '--'
+                    } minutes).`}
             </div>
         </>
     );

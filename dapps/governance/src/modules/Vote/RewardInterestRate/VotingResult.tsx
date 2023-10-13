@@ -2,7 +2,7 @@ import React, { useMemo, memo } from 'react';
 import cx from 'clsx';
 import dayjs from 'dayjs';
 import { Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
-import { useCurrentVote, usePreVote, usePrePreVote,  usePosStakeForVotes, useCurrentVotingRound, useVotingRights } from 'governance/src/store';
+import { useCurrentVote, usePreVote, usePrePreVote, usePosStakeForVotes, useCurrentVotingRound, useVotingRights } from 'governance/src/store';
 import QuestionMark from 'common/assets/icons/QuestionMark.svg';
 import VoteUp from 'governance/src/assets/VoteUp.svg';
 import VoteDown from 'governance/src/assets/VoteDown.svg';
@@ -14,6 +14,7 @@ import SuccessIcon from 'pos/src/assets/success.svg';
 import { AuthCoreSpace } from 'common/modules/AuthConnectButton';
 import Button from 'common/components/Button';
 import { showCastVotesModal } from './CastVotesModal';
+import ToolTip from 'common/components/Tooltip';
 
 const options = [
     {
@@ -43,19 +44,24 @@ interface VoteDetail {
 }
 
 const TypeTitle = {
-    'Reward of block': 'PoW Base Block Reward',
-    'Interest rate': 'Interest rate',
-    'Storage point': 'Storage Point Porp',
+    'PoW block rewards': 'PoW Base Block Reward',
+    'PoS APY': 'Interest rate',
+    'Storage Point': 'Storage Point Porp',
+    'Proposals': 'Proposals'
 }
 
 const TypeUnit = {
-    'Reward of block': ' CFX/Block',
-    'Interest rate': '%',
-    'Storage point': '',
+    'PoW block rewards': ' CFX/Block',
+    'PoS APY': '%',
+    'Storage Point': '',
+    'Proposals': 'Proposals'
 }
 
+const voteTypes = ['PoW block rewards', 'PoS APY', 'Storage Point', 'Proposals'] as const;
+type VoteTypes = typeof voteTypes[number]; 
+
 const Result: React.FC<{
-    type: 'Reward of block' | 'Interest rate' | 'Storage point';
+    type: VoteTypes;
     voteDetail?: VoteDetail;
     preVoteDetail?: VoteDetail;
     prepreVoteDetail?: VoteDetail;
@@ -101,10 +107,13 @@ const Result: React.FC<{
                         {TypeTitle[type]}
                     </div>
                     {
-                        EffectiveThreshold ? 
-                        <img className="w-[20px] h-[20px]" src={SuccessIcon} alt="" />
-                        :
-                        <SvgLoading className="animate-spin text-gray-20 w-[20px] h-[20px]" />
+                        EffectiveThreshold ?
+                            <img className="w-[20px] h-[20px]" src={SuccessIcon} alt="" />
+                            :
+                            <ToolTip text={'Effective threshold'}>
+                                <SvgLoading className="animate-spin text-gray-20 w-[20px] h-[20px]" />
+                            </ToolTip>
+
 
                     }
 
@@ -138,9 +147,9 @@ const Result: React.FC<{
                         Current value:
                     </div>
                     <div className="leading-[28px] text-[14px] text-[#1B1B1C] font-medium">
-                        {type === 'Reward of block' && displayPowBaseReward(prepreVoteDetail?.value)}
-                        {type === 'Interest rate' && displayInterestRate(prepreVoteDetail?.value)}
-                        {type === 'Storage point' && displayStoragePoint(prepreVoteDetail?.value)}
+                        {type === 'PoW block rewards' && displayPowBaseReward(prepreVoteDetail?.value)}
+                        {type === 'PoS APY' && displayInterestRate(prepreVoteDetail?.value)}
+                        {type === 'Storage Point' && displayStoragePoint(prepreVoteDetail?.value)}
                         {unit}
                     </div>
                 </div>
@@ -149,9 +158,9 @@ const Result: React.FC<{
                         Coming effective:
                     </div>
                     <div className="leading-[28px] text-[14px] text-[#1B1B1C] font-medium">
-                        {type === 'Reward of block' && displayPowBaseReward(preVoteDetail?.value)}
-                        {type === 'Interest rate' && displayInterestRate(preVoteDetail?.value)}
-                        {type === 'Storage point' && displayStoragePoint(preVoteDetail?.value)}
+                        {type === 'PoW block rewards' && displayPowBaseReward(preVoteDetail?.value)}
+                        {type === 'PoS APY' && displayInterestRate(preVoteDetail?.value)}
+                        {type === 'Storage Point' && displayStoragePoint(preVoteDetail?.value)}
                         {unit}
                     </div>
                 </div>
@@ -164,9 +173,9 @@ const Result: React.FC<{
                     In voting:
                 </div>
                 <div className="leading-[28px] text-[18px] text-[#808BE7]">
-                    {type === 'Reward of block' && displayPowBaseReward(voteDetail?.value)}
-                    {type === 'Interest rate' && displayInterestRate(voteDetail?.value)}
-                    {type === 'Storage point' && displayStoragePoint(voteDetail?.value)}
+                    {type === 'PoW block rewards' && displayPowBaseReward(voteDetail?.value)}
+                    {type === 'PoS APY' && displayInterestRate(voteDetail?.value)}
+                    {type === 'Storage Point' && displayStoragePoint(voteDetail?.value)}
                     {unit}
                 </div>
             </div>
@@ -174,7 +183,7 @@ const Result: React.FC<{
             {/* <div className="mb-[24px] flex justify-between items-center">
                 <div>
                     <div className="mb-[4px] flex items-center text-[14px] text-[#898D9A]">
-                        Previous voting {type === 'Reward of block' ? 'reward' : 'APY'}
+                        Previous voting {type === 'PoW block rewards' ? 'reward' : 'APY'}
                         <img
                             src={QuestionMark}
                             alt="question mark"
@@ -190,7 +199,7 @@ const Result: React.FC<{
 
                 <div className="px-[12px] py-[8px] rounded-[4px] bg-[#F0F3FF]">
                     <div className="mb-[4px] flex items-center text-[14px] text-[#898D9A]">
-                        {type === 'Reward of block' ? 'Reward' : 'APY'} in voting
+                        {type === 'PoW block rewards' ? 'Reward' : 'APY'} in voting
                         <img
                             src={QuestionMark}
                             alt="question mark"
@@ -249,8 +258,8 @@ const Result: React.FC<{
                         id="RewardInterestRate-costVotes"
                         className="mt-[26px] !flex w-[96px]  !h-[32px] !text-[12px]"
                         size="large"
-                        onClick={showCastVotesModal}
-                        loading={!votingRights}
+                        onClick={() => showCastVotesModal({ type })}
+                        // loading={!votingRights}
                         disabled={votingRights && !isVotingRightsGreaterThan0}
                     >
                         Vote
@@ -291,31 +300,31 @@ const Index: React.FC = () => {
     return (
         <>
             <Result
-                type="Reward of block"
+                type="PoW block rewards"
                 voteDetail={currentVote?.powBaseReward}
                 preVoteDetail={preVote?.powBaseReward}
                 prepreVoteDetail={prepreVote?.powBaseReward}
                 posStakeForVotes={posStakeForVotes}
-                // onClickPreValTip={() => showTipModal(<PowPreviousVotingRewardTipContent />)}
-                // onClickVotingValTip={() => showTipModal(<PowVotingRewardTipContent />)}
+            // onClickPreValTip={() => showTipModal(<PowPreviousVotingRewardTipContent />)}
+            // onClickVotingValTip={() => showTipModal(<PowVotingRewardTipContent />)}
             />
             <Result
-                type="Interest rate"
+                type="PoS APY"
                 voteDetail={currentVote?.interestRate}
                 preVoteDetail={preVote?.interestRate}
                 prepreVoteDetail={prepreVote?.interestRate}
                 posStakeForVotes={posStakeForVotes}
-                // onClickPreValTip={() => showTipModal(<PosPreviousVotingAPYTipContent />)}
-                // onClickVotingValTip={() => showTipModal(<PosVotingAPYTipContent />)}
+            // onClickPreValTip={() => showTipModal(<PosPreviousVotingAPYTipContent />)}
+            // onClickVotingValTip={() => showTipModal(<PosVotingAPYTipContent />)}
             />
             <Result
-                type="Storage point"
+                type="Storage Point"
                 voteDetail={currentVote?.storagePoint}
                 preVoteDetail={preVote?.storagePoint}
                 prepreVoteDetail={prepreVote?.storagePoint}
                 posStakeForVotes={posStakeForVotes}
-                // onClickPreValTip={() => showTipModal(<StoragePointPreviousVotingTipContent />)}
-                // onClickVotingValTip={() => showTipModal(<StoragePointTipContent />)}
+            // onClickPreValTip={() => showTipModal(<StoragePointPreviousVotingTipContent />)}
+            // onClickVotingValTip={() => showTipModal(<StoragePointTipContent />)}
             />
         </>
     );
@@ -403,7 +412,7 @@ const Index: React.FC = () => {
 // });
 
 // const EffectiveVotingRightsContent: React.FC<{
-//     type: 'Reward of block' | 'Interest rate' | 'Storage point';
+//     type: 'PoW block rewards' | 'Interest rate' | 'Storage point';
 //     totalVotingRights?: Unit;
 //     posStakeForVotes?: Unit;
 // }> = memo(({ type, totalVotingRights, posStakeForVotes }) => {

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
-import { Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { Unit, store as fluentStore } from '@cfxjs/use-wallet-react/conflux/Fluent';
 import LocalStorage from 'localstorage-enhance';
 import { validateHexAddress, convertHexToCfx } from 'common/utils/addressUtils';
 import { intervalFetchChain, fetchChain } from 'common/utils/fetchChain';
@@ -10,6 +10,7 @@ import { governanceContract, governanceContractAddress } from './contracts';
 import { getCurrentBlockNumber, BLOCK_SPEED } from './index';
 import { calRemainTime } from 'common/utils/time';
 import { clamp } from 'lodash-es';
+import { convertCfxToHex } from 'common/utils/addressUtils';
 
 export interface Option {
     content: string;
@@ -39,23 +40,25 @@ interface ProposalListStore {
     extendDelay?: {
         blockNumber: string;
         intervalMinutes: string;
-    }
+    },
+    activeProposalUserVote?: Array<Array<Unit>>;
 }
 
 
 export const proposalListStore = create(
     subscribeWithSelector(
         () =>
-            ({
-                proposalList: LocalStorage.getItem(`proposalList-${Networks.core.chainId}`, 'governance') ?? undefined,
-                proposalCount: LocalStorage.getItem(`proposalCount-${Networks.core.chainId}`, 'governance') ?? 0,
-                currentPage: 1,
-                pageSize: LocalStorage.getItem(`pageSize-${Networks.core.chainId}`, 'governance') ?? 7,
-                pageCount: LocalStorage.getItem(`pageCount-${Networks.core.chainId}`, 'governance') ?? 1,
-                openedProposalId: LocalStorage.getItem(`openedProposalId-${Networks.core.chainId}`, 'governance') ?? undefined,
-                openedProposal: LocalStorage.getItem(`openedProposal-${Networks.core.chainId}`, 'governance') ?? undefined,
-                extendDelay: LocalStorage.getItem(`extendDelay-${Networks.core.chainId}`, 'governance') ?? undefined,
-            } as ProposalListStore)
+        ({
+            proposalList: LocalStorage.getItem(`proposalList-${Networks.core.chainId}`, 'governance') ?? undefined,
+            proposalCount: LocalStorage.getItem(`proposalCount-${Networks.core.chainId}`, 'governance') ?? 0,
+            currentPage: 1,
+            pageSize: LocalStorage.getItem(`pageSize-${Networks.core.chainId}`, 'governance') ?? 7,
+            pageCount: LocalStorage.getItem(`pageCount-${Networks.core.chainId}`, 'governance') ?? 1,
+            openedProposalId: LocalStorage.getItem(`openedProposalId-${Networks.core.chainId}`, 'governance') ?? undefined,
+            openedProposal: LocalStorage.getItem(`openedProposal-${Networks.core.chainId}`, 'governance') ?? undefined,
+            extendDelay: LocalStorage.getItem(`extendDelay-${Networks.core.chainId}`, 'governance') ?? undefined,
+            activeProposalUserVote: LocalStorage.getItem(`activeProposalUserVote-${Networks.core.chainId}`, 'governance') ?? undefined,
+        } as ProposalListStore)
     )
 );
 
@@ -96,7 +99,7 @@ export const startTrackProposalList = intervalFetchChain(
             const proposalCount = Number(res);
             LocalStorage.setItem({ key: `proposalCount-${Networks.core.chainId}`, data: proposalCount, namespace: 'governance' });
             proposalListStore.setState({ proposalCount });
-            
+
             fetchChain({
                 rpcUrl: Networks.core.rpcUrls[0],
                 method: 'cfx_call',
@@ -117,8 +120,57 @@ export const startTrackProposalList = intervalFetchChain(
                 const proposalList = formatProposalList(proposalListOrigin);
                 LocalStorage.setItem({ key: `proposalList-${Networks.core.chainId}`, data: proposalList, namespace: 'governance' });
                 proposalListStore.setState({ proposalList });
+
+                const unsubCurrentAccount: VoidFunction | null = fluentStore.subscribe(
+                    (state) => state.accounts,
+                    (accounts) => {
+                        const account = accounts?.[0];
+                        if (!account) return;
+                        let activeProposalUserVote: Array<Array<Unit>> = [];
+
+                        let promises = proposalList.flatMap((proposal, proposalIndex) => {
+                            if (proposal.status === "Active") {
+                                activeProposalUserVote[proposalIndex] = [];
+                                return proposal.options.map((_, optionsIndex) => {
+                                    return fetchChain({
+                                        rpcUrl: Networks.core.rpcUrls[0],
+                                        method: 'cfx_call',
+                                        params: [
+                                            {
+                                                to: governanceContractAddress,
+                                                data: governanceContract.getVoteForProposal(proposalIndex, convertCfxToHex(account), optionsIndex).encodeABI(),
+                                            },
+                                            'latest_state',
+                                        ],
+                                    })
+                                        .then((res) => {
+                                            const amount = decodeHexResult(governanceContract.getVoteForProposal(proposalIndex, convertCfxToHex(account), optionsIndex)._method.outputs, res)?.[0];
+                                            activeProposalUserVote[proposalIndex][optionsIndex] = Unit.fromMinUnit(amount);
+                                        })
+                                        .catch((error) => {
+                                            console.error(`Error fetching data for proposal ${proposalIndex} option ${optionsIndex}: ${error}`);
+                                        });
+                                });
+                            } else {
+                                return [];
+                            }
+                        });
+
+                        Promise.all(promises)
+                            .then(() => {
+                                proposalListStore.setState({ activeProposalUserVote });
+                            })
+                            .catch((error) => {
+                                console.error(`Error fetching data: ${error}`);
+                            });
+
+                    },
+                    { fireImmediately: true }
+                );
+                unsubCurrentAccount?.();
+
             });
-            
+
         },
     }
 );
@@ -235,6 +287,7 @@ const selectors = {
     openedProposalId: (state: ProposalListStore) => state.openedProposalId,
     openedProposal: (state: ProposalListStore) => state.openedProposal,
     extendDelay: (state: ProposalListStore) => state.extendDelay,
+    activeProposalUserVote: (state: ProposalListStore) => state.activeProposalUserVote,
 };
 
 export const usePageSize = () => proposalListStore(selectors.pageSize);
@@ -256,5 +309,6 @@ export const setOpenedProposalId = (id?: number) => {
 };
 export const useOpenedProposal = () => proposalListStore(selectors.openedProposal);
 export const useExtendDelay = () => proposalListStore(selectors.extendDelay);
+export const useActiveProposalUserVote = () => proposalListStore(selectors.activeProposalUserVote);
 
 setCurrentPage(Number(LocalStorage.getItem(`currentPage-${Networks.core.chainId}`, 'governance') ?? 1))

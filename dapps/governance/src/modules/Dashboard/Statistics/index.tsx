@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 
 import Button from 'common/components/Button';
 import { Link } from 'react-router-dom';
-import { showLockModal } from '../Pos/LockModal';
 
 
 type ToolTipProps = {
@@ -36,16 +35,18 @@ const Statistics: React.FC = () => {
                 <div className='text-[16px] text-[#3D3F4C]'>0.00 CFX</div>
                 <div className='flex mt-[16px]'>
 
-                    <Button
-                        className='w-[100px] relative'
-                        onClick={() => showLockModal('lock')}
-                        onMouseMove={() => setApyShow(true)}
-                        onMouseOut={() => setApyShow(false)}>
-                        {
-                            apyShow && <ToolTip des="APY: ~12.3%" />
-                        }
-                        <span>PoS Stake</span>
-                    </Button>
+                    <Link to="https://www.conflux-pos-validators.com/" target='_block'>
+                        <Button
+                            className='w-[100px] relative'
+                            onMouseMove={() => setApyShow(true)}
+                            onMouseOut={() => setApyShow(false)}>
+                            {
+                                apyShow && <ToolTip des="APY: ~10%" />
+                            }
+                            <span>PoS Stake</span>
+                        </Button>
+                    </Link>
+
 
 
                     <Link to="/governance/pow-stake">

@@ -8,15 +8,16 @@ import Networks from 'common/conf/Networks';
 import { hideCastVotesModal } from './CastVotesModal';
 
 export interface Data {
-    'PoS APY-Decrease': string;
-    'PoS APY-Increase': string;
-    'PoS APY-Unchange': string;
-    'PoW block rewards-Decrease': string;
-    'PoW block rewards-Increase': string;
-    'PoW block rewards-Unchange': string;
-    'Storage Point-Decrease': string;
-    'Storage Point-Increase': string;
-    'Storage Point-Unchange': string;
+    'Type Count': number;
+    'PoS APY-Decrease'?: string;
+    'PoS APY-Increase'?: string;
+    'PoS APY-Unchange'?: string;
+    'PoW block rewards-Decrease'?: string;
+    'PoW block rewards-Increase'?: string;
+    'PoW block rewards-Unchange'?: string;
+    'Storage Point-Decrease'?: string;
+    'Storage Point-Increase'?: string;
+    'Storage Point-Unchange'?: string;
 }
 
 const handleCastVotes = async (data: Data, setInVoting: React.Dispatch<React.SetStateAction<boolean>>) => {
@@ -30,35 +31,37 @@ const handleCastVotes = async (data: Data, setInVoting: React.Dispatch<React.Set
     try {
         setInVoting(true);
         waitFluentKey = showWaitWallet('Fluent', { key: 'Vote' });
+        const AllVoting: [string, [string, string, string]][] = [
+            [
+                '0',
+                [
+                    Unit.fromStandardUnit(data['PoW block rewards-Unchange'] || 0).toHexMinUnit(),
+                    Unit.fromStandardUnit(data['PoW block rewards-Increase'] || 0).toHexMinUnit(),
+                    Unit.fromStandardUnit(data['PoW block rewards-Decrease'] || 0).toHexMinUnit(),
+                ],
+            ],
+            [
+                '1',
+                [
+                    Unit.fromStandardUnit(data['PoS APY-Unchange'] || 0).toHexMinUnit(),
+                    Unit.fromStandardUnit(data['PoS APY-Increase'] || 0).toHexMinUnit(),
+                    Unit.fromStandardUnit(data['PoS APY-Decrease'] || 0).toHexMinUnit(),
+                ],
+            ],
+            [
+                '2',
+                [
+                    Unit.fromStandardUnit(data['Storage Point-Unchange'] || 0).toHexMinUnit(),
+                    Unit.fromStandardUnit(data['Storage Point-Increase'] || 0).toHexMinUnit(),
+                    Unit.fromStandardUnit(data['Storage Point-Decrease'] || 0).toHexMinUnit(),
+                ],
+            ]
+        ]
+        
         const TxnHash = await sendTransaction({
             to: paramsControlContractAddress,
             data: paramsControlContract
-                .castVote('0x' + currentVotingRound.toString(16), [
-                    [
-                        '0',
-                        [
-                            Unit.fromStandardUnit(data['PoW block rewards-Unchange'] || 0).toHexMinUnit(),
-                            Unit.fromStandardUnit(data['PoW block rewards-Increase'] || 0).toHexMinUnit(),
-                            Unit.fromStandardUnit(data['PoW block rewards-Decrease'] || 0).toHexMinUnit(),
-                        ],
-                    ],
-                    [
-                        '1',
-                        [
-                            Unit.fromStandardUnit(data['PoS APY-Unchange'] || 0).toHexMinUnit(),
-                            Unit.fromStandardUnit(data['PoS APY-Increase'] || 0).toHexMinUnit(),
-                            Unit.fromStandardUnit(data['PoS APY-Decrease'] || 0).toHexMinUnit(),
-                        ],
-                    ],
-                    [
-                        '2',
-                        [
-                            Unit.fromStandardUnit(data['Storage Point-Unchange'] || 0).toHexMinUnit(),
-                            Unit.fromStandardUnit(data['Storage Point-Increase'] || 0).toHexMinUnit(),
-                            Unit.fromStandardUnit(data['Storage Point-Decrease'] || 0).toHexMinUnit(),
-                        ],
-                    ],
-                ])
+                .castVote('0x' + currentVotingRound.toString(16), [AllVoting[data['Type Count']]])
                 .encodeABI(),
         });
         hideCastVotesModal();
