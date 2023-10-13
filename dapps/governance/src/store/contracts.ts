@@ -5,6 +5,7 @@ import GovernanceContract from 'governance/src/contracts/governance.json';
 import PosContract from 'governance/src/contracts/pos.json';
 import ParamsControlContract from 'governance/src/contracts/paramsControl.json';
 import PosLockContract from 'governance/src/contracts/posLock.json';
+import UtilContract from 'governance/src/contracts/util.json';
 import { isProduction } from 'common/conf/Networks';
 import createContract from 'common/utils/Contract';
 
@@ -44,6 +45,11 @@ interface Contracts {
         userStakeAmount(account: string): { encodeABI: () => string; _method: { outputs: Array<any> }; };
         userLockInfo(account: string): { encodeABI: () => string; _method: { outputs: Array<any> }; };
     }
+
+    utilContract: {
+        getSelfStakeInfo(account: string): { encodeABI: () => string; _method: { outputs: Array<any> }; };
+        getStakeInfos(pool: string[], account: string): { encodeABI: () => string; _method: { outputs: Array<any> }; };
+    }
 }
 
 export const stakingContract = createContract<Contracts['stakingContract']>(StakingContract.abi);
@@ -55,5 +61,7 @@ export const posContractAddress = convertHexToCfx('0x088800000000000000000000000
 export const paramsControlContract = createContract<Contracts['paramsControlContract']>(ParamsControlContract.abi);
 export const paramsControlContractAddress = convertHexToCfx('0x0888000000000000000000000000000000000007', +Networks.core.chainId);
 export const posLockContract = createContract<Contracts['posLockContract']>(PosLockContract.abi);
+export const utilContractAddress = isProduction ? '' : 'cfxtest:acebc46nn3v2xbh3z9ceaf1k395y5nn7v6vgu1fsfe';
+export const utilContract = createContract<Contracts['utilContract']>(UtilContract.abi);
 
 export default Contracts;
