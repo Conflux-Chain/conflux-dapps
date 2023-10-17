@@ -44,6 +44,9 @@ interface Contracts {
     posLockContract: {
         userStakeAmount(account: string): { encodeABI: () => string; _method: { outputs: Array<any> }; };
         userLockInfo(account: string): { encodeABI: () => string; _method: { outputs: Array<any> }; };
+        createLock(amount: string, unlockBlockNumber: string): { encodeABI: () => string; };
+        increaseLock(amount: string): { encodeABI: () => string; };
+        extendLockTime(unlockBlockNumber: string): { encodeABI: () => string; };
     }
 
     utilContract: {

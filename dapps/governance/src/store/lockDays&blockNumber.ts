@@ -4,6 +4,7 @@ import { subscribeWithSelector } from 'zustand/middleware';
 import { intervalFetchChain } from 'common/utils/fetchChain';
 import Networks from 'common/conf/Networks';
 import { calRemainTime } from 'common/utils/time';
+import dayjs from 'dayjs';
 import { posLockContract, utilContractAddress, utilContract } from './contracts';
 import { decodeHexResult } from 'common/utils/Contract';
 import { convertCfxToHex, validateCfxAddress } from 'common/utils/addressUtils';
@@ -25,12 +26,15 @@ export const calVotingRightsPerCfx = (gapBlockNumber: Unit) => {
     return power;
 }
 interface PosLockOrigin {
-    apy: string,
+    contractAddress?: string,
+    apy: Unit,
     lockAmount: Unit,
     name: string,
     pool: string,
     stakeAmount: Unit,
-    unlockBlock?: string,
+    unlockBlock?: Unit,
+    unlockBlockDay?: string,
+    unlockBlockTime?:number,
     votePower: Unit,
 }
 interface LockDaysAndBlockNumberStore {
@@ -160,6 +164,15 @@ export const startTrackPosLockAmount = () => {
                     return '0'
                 }
             };
+            const calcCurrentVotingRoundEndTimestamp = (endBlockNumber: Unit) => {
+                const { currentBlockNumber } = lockDaysAndBlockNumberStore.getState();
+                if (!currentBlockNumber) {
+                    return 0;
+                }
+                return dayjs().add(+endBlockNumber.sub(currentBlockNumber).div(BLOCK_SPEED).toDecimalMinUnit(0), 'second').unix() * 1000;
+            }
+            
+
             unsubFetchPosLockData = intervalFetchChain(
                 {
                     rpcUrl: Networks.core.rpcUrls[0],
@@ -179,13 +192,17 @@ export const startTrackPosLockAmount = () => {
                         const result = decodeHexResult(utilContract.getStakeInfos([convertCfxToHex('cfxtest:acgwa148z517jj15w9je5sdzn8p8j044kjrvjz92c1')], account)._method.outputs, hexRes)?.[0];
                         const posLockArrOrigin: PosLockOrigin[] = [];
                         result?.forEach((item: PosLockOrigin, index: number) => {
+                            const unlockBlock = Unit.fromMinUnit(item?.unlockBlock ?? '0');
                             posLockArrOrigin[index] = {
-                                apy: item?.apy,
+                                contractAddress: 'cfxtest:acdx0r6vjm83j0950p0yr2fvgm29wa3zra3shurfz6', // votingEscrow
+                                apy: Unit.fromMinUnit(item?.apy),
                                 name: item?.name,
                                 pool: item?.pool,
                                 lockAmount: Unit.fromMinUnit(item?.lockAmount ?? 0),
                                 stakeAmount: Unit.fromMinUnit(item?.stakeAmount ?? 0),
-                                unlockBlock: calTimeToUnlock(Unit.fromMinUnit(item?.unlockBlock ?? '0')),
+                                unlockBlock: unlockBlock,
+                                unlockBlockDay: calTimeToUnlock(unlockBlock),
+                                unlockBlockTime: calcCurrentVotingRoundEndTimestamp(unlockBlock),
                                 votePower: Unit.fromMinUnit(item?.votePower ?? 0),
                             }
                         })

@@ -341,6 +341,7 @@ rewardRateStore.subscribe(
         const currentVotingRoundEffectiveBlockNumber = currentDataConfig.start.add(Unit.fromMinUnit(currentVotingRound + 1).mul(currentDataConfig.duration));
 
         const currentBlockNumber = getCurrentBlockNumber();
+        
         const calcCurrentVotingRoundEndTimestamp = (currentBlockNumber: Unit) =>
             dayjs().add(+currentVotingRoundEndBlockNumber.sub(currentBlockNumber).div(BLOCK_SPEED).toDecimalMinUnit(0), 'second').unix() * 1000;
         const calcCurrentVotingRoundStartTimestamp = (currentBlockNumber: Unit) =>
