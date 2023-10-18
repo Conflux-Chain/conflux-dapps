@@ -2,13 +2,7 @@ import React, { useMemo, memo } from 'react';
 import cx from 'clsx';
 import dayjs from 'dayjs';
 import { Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
-import { useCurrentVote, usePreVote, usePrePreVote, usePosStakeForVotes, useCurrentVotingRound, useVotingRights } from 'governance/src/store';
-import QuestionMark from 'common/assets/icons/QuestionMark.svg';
-import VoteUp from 'governance/src/assets/VoteUp.svg';
-import VoteDown from 'governance/src/assets/VoteDown.svg';
-import { showTipModal } from 'governance/src/components/TipModal';
-import { NumFormatWithEllipsis } from 'common/utils/numFormat';
-import MathTex from './MathTex';
+import { useCurrentVote, usePreVote, usePrePreVote, usePosStakeForVotes, usePosLockArrOrigin, useVotingRights } from 'governance/src/store';
 import SvgLoading from 'pos/src/assets/Loading';
 import SuccessIcon from 'pos/src/assets/success.svg';
 import { AuthCoreSpace } from 'common/modules/AuthConnectButton';
@@ -71,9 +65,6 @@ const Result: React.FC<{
 }> = ({ type, voteDetail, preVoteDetail, prepreVoteDetail, posStakeForVotes, onClickPreValTip, onClickVotingValTip }) => {
     const unit = TypeUnit[type];
 
-    const currentVotingRound = useCurrentVotingRound();
-
-
     const totalVotingRights = useMemo(() => {
         const voting = voteDetail?.voting;
         if (!voting?.length) return Unit.fromMinUnit(0);
@@ -89,7 +80,9 @@ const Result: React.FC<{
     }, [voteDetail?.voting]);
 
     const votingRights = useVotingRights();
-    const isVotingRightsGreaterThan0 = votingRights && Unit.greaterThan(votingRights, Unit.fromStandardUnit(0));
+    const isVotingPowRightsGreaterThan0 = votingRights && Unit.greaterThan(votingRights, Unit.fromStandardUnit(0));
+    const posLockArrOrigin = usePosLockArrOrigin();
+    const isVotingPosRightsGreaterThan0 = posLockArrOrigin && posLockArrOrigin?.filter(e => e.votePower.greaterThan(Unit.fromStandardUnit(0))).length > 0;
 
     // When PoW Voting rights >= Total PoS Staking * 5%, the voting result takes effect.
     const EffectiveThreshold = totalVotingRights && posStakeForVotes && totalVotingRights.toDecimalMinUnit() > posStakeForVotes.mul(Unit.fromMinUnit(0.05)).toDecimalMinUnit()
@@ -119,26 +112,6 @@ const Result: React.FC<{
 
                 </div>
 
-
-                {/* {currentVotingRound! > 1 && (
-                    <div className="flex items-center ml-[16px] text-[12px] text-[#898D9A] whitespace-nowrap">
-                        Effective voting rights
-                        <img
-                            src={QuestionMark}
-                            alt="question mark"
-                            className="ml-[4px] cursor-pointer hover:scale-110 transition-transform select-none"
-                            onClick={() =>
-                                showTipModal(
-                                    <EffectiveVotingRightsContent type={type} totalVotingRights={totalVotingRights} posStakeForVotes={posStakeForVotes} />
-                                )
-                            }
-                        />
-                        <span className="ml-[8px]">
-                            {totalVotingRights ? <NumFormatWithEllipsis value={totalVotingRights.toDecimalStandardUnit()} /> : '--'} /{' '}
-                            {posStakeForVotes ? <NumFormatWithEllipsis value={posStakeForVotes.mul(Unit.fromMinUnit(0.05)).toDecimalStandardUnit()} /> : '--'}
-                        </span>
-                    </div>
-                )} */}
             </div>
 
             <div className='mb-[24px]'>
@@ -260,7 +233,7 @@ const Result: React.FC<{
                         size="large"
                         onClick={() => showCastVotesModal({ type })}
                         // loading={!votingRights}
-                        disabled={votingRights && !isVotingRightsGreaterThan0}
+                        disabled={(votingRights && !isVotingPowRightsGreaterThan0) && (posLockArrOrigin && !isVotingPosRightsGreaterThan0)}
                     >
                         Vote
                     </Button>

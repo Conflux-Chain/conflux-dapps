@@ -11,6 +11,7 @@ import { getCurrentBlockNumber, BLOCK_SPEED } from './index';
 import { calRemainTime } from 'common/utils/time';
 import { clamp } from 'lodash-es';
 import { convertCfxToHex } from 'common/utils/addressUtils';
+import { getPosLockArrOrigin } from './lockDays&blockNumber';
 
 export interface Option {
     content: string;
@@ -41,7 +42,8 @@ interface ProposalListStore {
         blockNumber: string;
         intervalMinutes: string;
     },
-    activeProposalUserVote?: Array<Array<Unit>>;
+    activeProposalUserVotePow?: Array<Array<Unit>>; // [proposalIndex][optionIndex]
+    activeProposalUserVotePos?: Array<Array<Array<Unit>>>; // [proposalIndex][poolIndex][optionIndex]
 }
 
 
@@ -57,7 +59,8 @@ export const proposalListStore = create(
             openedProposalId: LocalStorage.getItem(`openedProposalId-${Networks.core.chainId}`, 'governance') ?? undefined,
             openedProposal: LocalStorage.getItem(`openedProposal-${Networks.core.chainId}`, 'governance') ?? undefined,
             extendDelay: LocalStorage.getItem(`extendDelay-${Networks.core.chainId}`, 'governance') ?? undefined,
-            activeProposalUserVote: LocalStorage.getItem(`activeProposalUserVote-${Networks.core.chainId}`, 'governance') ?? undefined,
+            activeProposalUserVotePow: LocalStorage.getItem(`activeProposalUserVotePow-${Networks.core.chainId}`, 'governance') ?? undefined,
+            activeProposalUserVotePos: LocalStorage.getItem(`activeProposalUserVotePos-${Networks.core.chainId}`, 'governance') ?? undefined,
         } as ProposalListStore)
     )
 );
@@ -121,36 +124,34 @@ export const startTrackProposalList = intervalFetchChain(
                 LocalStorage.setItem({ key: `proposalList-${Networks.core.chainId}`, data: proposalList, namespace: 'governance' });
                 proposalListStore.setState({ proposalList });
 
-                const unsubCurrentAccount: VoidFunction | null = fluentStore.subscribe(
+                const unsubProposalUserVotePow: VoidFunction | null = fluentStore.subscribe(
                     (state) => state.accounts,
                     (accounts) => {
                         const account = accounts?.[0];
                         if (!account) return;
-                        let activeProposalUserVote: Array<Array<Unit>> = [];
+                        let activeProposalUserVotePow: Array<Array<Unit>> = [];
 
                         let promises = proposalList.flatMap((proposal, proposalIndex) => {
                             if (proposal.status === "Active") {
-                                activeProposalUserVote[proposalIndex] = [];
-                                return proposal.options.map((_, optionsIndex) => {
-                                    return fetchChain({
-                                        rpcUrl: Networks.core.rpcUrls[0],
-                                        method: 'cfx_call',
-                                        params: [
-                                            {
-                                                to: governanceContractAddress,
-                                                data: governanceContract.getVoteForProposal(proposalIndex, convertCfxToHex(account), optionsIndex).encodeABI(),
-                                            },
-                                            'latest_state',
-                                        ],
+                                activeProposalUserVotePow[proposalIndex] = [];
+                                fetchChain({
+                                    rpcUrl: Networks.core.rpcUrls[0],
+                                    method: 'cfx_call',
+                                    params: [
+                                        {
+                                            to: governanceContractAddress,
+                                            data: governanceContract.getVoteForProposal(proposalIndex, convertCfxToHex(account)).encodeABI(),
+                                        },
+                                        'latest_state',
+                                    ],
+                                })
+                                    .then((res) => {
+                                        const amountList = decodeHexResult(governanceContract.getVoteForProposal(proposalIndex, convertCfxToHex(account))._method.outputs, res)?.[0];
+                                        activeProposalUserVotePow[proposalIndex] = amountList.map((e: string) => Unit.fromMinUnit(e));
                                     })
-                                        .then((res) => {
-                                            const amount = decodeHexResult(governanceContract.getVoteForProposal(proposalIndex, convertCfxToHex(account), optionsIndex)._method.outputs, res)?.[0];
-                                            activeProposalUserVote[proposalIndex][optionsIndex] = Unit.fromMinUnit(amount);
-                                        })
-                                        .catch((error) => {
-                                            console.error(`Error fetching data for proposal ${proposalIndex} option ${optionsIndex}: ${error}`);
-                                        });
-                                });
+                                    .catch((error) => {
+                                        console.error(`Error fetching data for proposal ${proposalIndex}: ${error}`);
+                                    });
                             } else {
                                 return [];
                             }
@@ -158,7 +159,7 @@ export const startTrackProposalList = intervalFetchChain(
 
                         Promise.all(promises)
                             .then(() => {
-                                proposalListStore.setState({ activeProposalUserVote });
+                                proposalListStore.setState({ activeProposalUserVotePow });
                             })
                             .catch((error) => {
                                 console.error(`Error fetching data: ${error}`);
@@ -167,8 +168,59 @@ export const startTrackProposalList = intervalFetchChain(
                     },
                     { fireImmediately: true }
                 );
-                unsubCurrentAccount?.();
+                unsubProposalUserVotePow?.();
 
+                const unsubProposalUserVotePos: VoidFunction | null = fluentStore.subscribe(
+                    (state) => state.accounts,
+                    (accounts) => {
+                        const account = accounts?.[0];
+                        if (!account) return;
+                        let activeProposalUserVotePos: Array<Array<Array<Unit>>> = [];
+
+                        let promises = proposalList.flatMap((proposal, proposalIndex) => {
+                            if (proposal.status === "Active") {
+                                activeProposalUserVotePos[proposalIndex] = [];
+                                let posLockArr = getPosLockArrOrigin()
+
+                                return posLockArr ? posLockArr.map((pool, poolIndex) => {
+                                    const poolContractAddress = pool.poolContractAddress;
+                                    return poolContractAddress && fetchChain({
+                                        rpcUrl: Networks.core.rpcUrls[0],
+                                        method: 'cfx_call',
+                                        params: [
+                                            {
+                                                to: governanceContractAddress,
+                                                data: governanceContract.getPoolVoteForProposal(proposalIndex, convertCfxToHex(poolContractAddress), convertCfxToHex(account)).encodeABI(),
+                                            },
+                                            'latest_state',
+                                        ],
+                                    })
+                                        .then((res) => {
+                                            const amountList = decodeHexResult(governanceContract.getPoolVoteForProposal(proposalIndex, convertCfxToHex(poolContractAddress), convertCfxToHex(account))._method.outputs, res)?.[0];
+                                            activeProposalUserVotePos[proposalIndex][poolIndex] = amountList.map((e: string) => Unit.fromMinUnit(e));
+                                        })
+                                        .catch((error) => {
+                                            console.error(`Error fetching data for proposal ${proposalIndex} option ${poolIndex}: ${error}`);
+                                        });
+                                }) : [];
+
+                            } else {
+                                return [];
+                            }
+                        });
+
+                        Promise.all(promises)
+                            .then(() => {
+                                console.log(activeProposalUserVotePos)
+                                proposalListStore.setState({ activeProposalUserVotePos });
+                            })
+                            .catch((error) => {
+                                console.error(`Error fetching data: ${error}`);
+                            });
+                    },
+                    { fireImmediately: true }
+                );
+                unsubProposalUserVotePos?.();
             });
 
         },
@@ -287,7 +339,8 @@ const selectors = {
     openedProposalId: (state: ProposalListStore) => state.openedProposalId,
     openedProposal: (state: ProposalListStore) => state.openedProposal,
     extendDelay: (state: ProposalListStore) => state.extendDelay,
-    activeProposalUserVote: (state: ProposalListStore) => state.activeProposalUserVote,
+    activeProposalUserVotePow: (state: ProposalListStore) => state.activeProposalUserVotePow,
+    activeProposalUserVotePos: (state: ProposalListStore) => state.activeProposalUserVotePos,
 };
 
 export const usePageSize = () => proposalListStore(selectors.pageSize);
@@ -309,6 +362,7 @@ export const setOpenedProposalId = (id?: number) => {
 };
 export const useOpenedProposal = () => proposalListStore(selectors.openedProposal);
 export const useExtendDelay = () => proposalListStore(selectors.extendDelay);
-export const useActiveProposalUserVote = () => proposalListStore(selectors.activeProposalUserVote);
+export const useActiveProposalUserVotePow = () => proposalListStore(selectors.activeProposalUserVotePow);
+export const useActiveProposalUserVotePos = () => proposalListStore(selectors.activeProposalUserVotePos);
 
 setCurrentPage(Number(LocalStorage.getItem(`currentPage-${Networks.core.chainId}`, 'governance') ?? 1))

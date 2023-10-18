@@ -55,16 +55,16 @@ const LockModalContent: React.FC<{ type: Type, index: number }> = memo(({ type, 
 
     const onSubmit = useCallback(withForm(async (data) => {
         const { amount, select } = data;
-        if (posLockArrOriginIndex && posLockArrOriginIndex.contractAddress) {
+        if (posLockArrOriginIndex && posLockArrOriginIndex.votingEscrowAddress) {
             if (type === 'more') {
-                handleIncreaseLock({ contractAddress: posLockArrOriginIndex.contractAddress, amount })
+                handleIncreaseLock({ contractAddress: posLockArrOriginIndex.votingEscrowAddress, amount })
             }
             else if (type === 'lock') {
-                handleLock({ contractAddress: posLockArrOriginIndex.contractAddress, amount, unlockBlockNumber: timeToUnlock[select].unLockNumber.toDecimalMinUnit() })
+                handleLock({ contractAddress: posLockArrOriginIndex.votingEscrowAddress, amount, unlockBlockNumber: timeToUnlock[select].unLockNumber.toDecimalMinUnit() })
             }
             else if (type === 'extend') {
                 
-                handleExtendLock({ contractAddress: posLockArrOriginIndex.contractAddress, unlockBlockNumber: timeToUnlock[select].unLockNumber.toDecimalMinUnit() })
+                handleExtendLock({ contractAddress: posLockArrOriginIndex.votingEscrowAddress, unlockBlockNumber: timeToUnlock[select].unLockNumber.toDecimalMinUnit() })
 
             }
 
@@ -90,9 +90,11 @@ const LockModalContent: React.FC<{ type: Type, index: number }> = memo(({ type, 
         }
         return obj;
     }, [])
+    
 
     useEffect(() => {
         let activeIndex = timeToUnlock.findIndex(e => e.greaterUnLockNumber);
+        if(selectIndex < 0) return;
         setSelectIndex(activeIndex)
     }, [timeToUnlock])
 
@@ -244,7 +246,7 @@ const LockModalContent: React.FC<{ type: Type, index: number }> = memo(({ type, 
                                             return field.onChange(value)
                                         }}
                                         optionLabelProp="label"
-                                        defaultValue={timeToUnlock.findIndex(e => e.greaterUnLockNumber)}
+                                        defaultValue={timeToUnlock.findIndex(e => e.greaterUnLockNumber) >= 0 ? timeToUnlock.findIndex(e => e.greaterUnLockNumber) : 3}
                                     >
                                         {
                                             timeToUnlock.map((e, i) =>
@@ -272,7 +274,7 @@ const LockModalContent: React.FC<{ type: Type, index: number }> = memo(({ type, 
                         </div>
                         <div className="mt-[8px] text-[14px] flex justify-between">
                             <div className="text-[#898D9A]">Est. unlock at:</div>
-                            <div className="text-[#3D3F4C]">{timeToUnlock[selectIndex].unLockTime}</div>
+                            <div className="text-[#3D3F4C]">{selectIndex >= 0 ? timeToUnlock[selectIndex]?.unLockTime : '--'}</div>
                         </div>
                     </>
                 }

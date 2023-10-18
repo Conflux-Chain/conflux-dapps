@@ -2,12 +2,10 @@ import React, { useEffect } from 'react';
 import Stake from './Stake';
 import Unstake from './Unstake';
 import Lock from './Lock';
-import { startTrack } from 'governance/src/store';
 import Expand from 'hub/src/assets/expand.svg';
 import { Link } from 'react-router-dom';
 
 const Dashboard: React.FC = () => {
-    useEffect(startTrack, []);
 
     return (
         <div className='mx-auto w-[1140px] h-[718px] pt-[16px] '>

@@ -4,7 +4,8 @@ import StakingContract from 'governance/src/contracts/staking.json';
 import GovernanceContract from 'governance/src/contracts/governance.json';
 import PosContract from 'governance/src/contracts/pos.json';
 import ParamsControlContract from 'governance/src/contracts/paramsControl.json';
-import PosLockContract from 'governance/src/contracts/posLock.json';
+import PosPoolContract from 'governance/src/contracts/posPool.json';
+import posLockVotingEscrow from 'governance/src/contracts/posLockVotingEscrow.json';
 import UtilContract from 'governance/src/contracts/util.json';
 import { isProduction } from 'common/conf/Networks';
 import createContract from 'common/utils/Contract';
@@ -25,7 +26,8 @@ interface Contracts {
         vote(proposalId: number, optionId: number, power: string): { encodeABI: () => string; };
         voteThroughPosPool(pool: string, proposalId: number, optionId: number, power: string) : { encodeABI: () => string; };
         extendDelay(): { encodeABI: () => string; };
-        getVoteForProposal(proposalId: number, voter: string, option: number): { encodeABI: () => string; _method: { outputs: Array<any> }; };
+        getVoteForProposal(proposalId: number, voter: string, option?: number): { encodeABI: () => string; _method: { outputs: Array<any> }; };
+        getPoolVoteForProposal(proposalId: number, pool: string, voter: string): { encodeABI: () => string; _method: { outputs: Array<any> }; };
     };
 
     posContract: {
@@ -41,12 +43,17 @@ interface Contracts {
         castVote(round: string, vote_data: [[string, [string, string, string]]]): { encodeABI: () => string; };
     }
 
-    posLockContract: {
+    posPoolContract: {
+        votingEscrow(): { encodeABI: () => string; _method: { outputs: Array<any> }; };
+    }
+
+    posLockVotingEscrowContract: {
         userStakeAmount(account: string): { encodeABI: () => string; _method: { outputs: Array<any> }; };
         userLockInfo(account: string): { encodeABI: () => string; _method: { outputs: Array<any> }; };
         createLock(amount: string, unlockBlockNumber: string): { encodeABI: () => string; };
         increaseLock(amount: string): { encodeABI: () => string; };
         extendLockTime(unlockBlockNumber: string): { encodeABI: () => string; };
+        castVote(round: string, topicIndex: number, vote_data: [string, string, string]): { encodeABI: () => string; };
     }
 
     utilContract: {
@@ -58,12 +65,13 @@ interface Contracts {
 export const stakingContract = createContract<Contracts['stakingContract']>(StakingContract.abi);
 export const stakingContractAddress = convertHexToCfx('0x0888000000000000000000000000000000000002', +Networks.core.chainId);
 export const governanceContract = createContract<Contracts['governanceContract']>(GovernanceContract.abi);
-export const governanceContractAddress = isProduction ? 'cfx:acev1c6tz2gu832fwdj45vxm71sffpat4yewvpteau' : (Networks.core.chainId === '8888' ? 'net8888:acf2rctm2gdgfccfg252tx00dd152gp28uf5w53at3' : 'cfxtest:acayg9f8j5ctwy1bcbtmtj510tbusj73a6efsb07f3');// cfxtest:acfwmpvz4f2wwhsmbja5n3vbr5ma568fg652szuugc
+export const governanceContractAddress = isProduction ? 'cfx:acev1c6tz2gu832fwdj45vxm71sffpat4yewvpteau' : (Networks.core.chainId === '8888' ? 'net8888:acf2rctm2gdgfccfg252tx00dd152gp28uf5w53at3' : 'cfxtest:acd1t8edcjgfpt3vdus9h1srfj4490uu4y2v1rrynx');// cfxtest:acfwmpvz4f2wwhsmbja5n3vbr5ma568fg652szuugc
 export const posContract = createContract<Contracts['posContract']>(PosContract.abi);
 export const posContractAddress = convertHexToCfx('0x0888000000000000000000000000000000000005', +Networks.core.chainId);
 export const paramsControlContract = createContract<Contracts['paramsControlContract']>(ParamsControlContract.abi);
 export const paramsControlContractAddress = convertHexToCfx('0x0888000000000000000000000000000000000007', +Networks.core.chainId);
-export const posLockContract = createContract<Contracts['posLockContract']>(PosLockContract.abi);
+export const posPoolContract = createContract<Contracts['posPoolContract']>(PosPoolContract.abi);
+export const posLockVotingEscrowContract = createContract<Contracts['posLockVotingEscrowContract']>(posLockVotingEscrow.abi);
 export const utilContractAddress = isProduction ? '' : 'cfxtest:acebc46nn3v2xbh3z9ceaf1k395y5nn7v6vgu1fsfe';
 export const utilContract = createContract<Contracts['utilContract']>(UtilContract.abi);
 

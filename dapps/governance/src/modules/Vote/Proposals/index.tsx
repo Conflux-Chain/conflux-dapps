@@ -17,6 +17,7 @@ import {
     setOpenedProposalId,
     useVotingRights,
     useExtendDelay,
+    usePosLockArrOrigin,
     type Proposal,
     type Option,
 } from 'governance/src/store';
@@ -100,6 +101,8 @@ const OpenedProposalDetail: React.FC = () => {
     const { proposer, proposalDiscussion, votesAtTime, options, id, status } = openedProposal! || {};
     const votingRights = useVotingRights();
     const isVotingRightsGraterThan0 = votingRights && votingRights.greaterThan(Unit.fromMinUnit(0));
+    const posLockArrOrigin = usePosLockArrOrigin();
+    const isVotingPosRightsGreaterThan0 = posLockArrOrigin && posLockArrOrigin?.filter(e => e.votePower.greaterThan(Unit.fromStandardUnit(0))).length > 0;
 
     const [selectOption, setSelectOption] = useState<number | null>(null);
     useEffect(() => setSelectOption(null), [openedProposalId])
@@ -186,10 +189,11 @@ const OpenedProposalDetail: React.FC = () => {
                                 id={`proposer-${id}-vote`}
                                 size="large"
                                 className="mt-[24px] w-[486px]"
-                                disabled={!isVotingRightsGraterThan0 || selectOption === null}
+                                disabled={(!isVotingRightsGraterThan0 && !isVotingPosRightsGreaterThan0) || selectOption === null}
                                 onClick={() => showCastVotesModal({
                                     type: 'Proposals',
                                     proposal: {
+                                        poolAddress: undefined,
                                         proposalId: id,
                                         optionId: selectOption!,
                                         power: ''

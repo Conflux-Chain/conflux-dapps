@@ -3,21 +3,23 @@ import { showWaitWallet, showActionSubmitted, hideWaitWallet } from 'common/comp
 import { showToast } from 'common/components/showPopup/Toast';
 import { governanceContract, governanceContractAddress } from "governance/src/store/contracts";
 import Networks from "common/conf/Networks";
+import { convertCfxToHex } from 'common/utils/addressUtils';
 
-export interface ProposalType { proposalId: number; optionId: number; power: string }
+export interface ProposalType { poolAddress: string | undefined, proposalId: number; optionId: number; power: string }
 
-const handleVote = async ({ proposalId, optionId, power }: ProposalType) => {
+const handleVote = async ({ poolAddress, proposalId, optionId, power }: ProposalType) => {
     if (typeof proposalId !== 'number' || typeof optionId !== 'number') return;
     let waitFluentKey: string | number = null!;
     let transactionSubmittedKey: string | number = null!;
 
     try {
         waitFluentKey = showWaitWallet('Fluent', { key: 'Vote' });
-        console.log(proposalId, optionId, power)
+        console.log(poolAddress, proposalId, optionId, power)
         const TxnHash = await sendTransaction({
             to: governanceContractAddress,
-            data: governanceContract.vote(proposalId, optionId, power).encodeABI(),
-        });
+            data: poolAddress ? governanceContract.voteThroughPosPool(convertCfxToHex(poolAddress), proposalId, optionId, power).encodeABI()
+                : governanceContract.vote(proposalId, optionId, power).encodeABI(),
+        })
         transactionSubmittedKey = showActionSubmitted(TxnHash, 'Vote', { duration: 6666, blockExplorerUrl: Networks.core.blockExplorerUrls[0] });
         return true;
     } catch (err) {

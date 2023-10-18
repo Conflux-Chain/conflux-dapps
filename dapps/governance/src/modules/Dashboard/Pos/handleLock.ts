@@ -1,6 +1,6 @@
 import { sendTransaction, store, Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
 import { showWaitWallet, showActionSubmitted, hideWaitWallet } from 'common/components/showPopup/Modal';
-import { posLockContract } from 'governance/src/store/contracts';
+import { posLockVotingEscrowContract } from 'governance/src/store/contracts';
 import Networks from 'common/conf/Networks';
 import { showToast } from 'common/components/showPopup/Toast';
 
@@ -10,12 +10,12 @@ export const handleIncreaseLock = async ({ contractAddress, amount }: { contract
 
     let waitFluentKey: string | number = null!;
     let transactionSubmittedKey: string | number = null!;
-
+    console.log(contractAddress)
     try {
         waitFluentKey = showWaitWallet('Fluent');
         const TxnHash = await sendTransaction({
             to: contractAddress,
-            data: posLockContract.increaseLock(Unit.fromStandardUnit(amount).toHexMinUnit()).encodeABI(),
+            data: posLockVotingEscrowContract.increaseLock(Unit.fromStandardUnit(amount).toHexMinUnit()).encodeABI(),
         });
         transactionSubmittedKey = showActionSubmitted(TxnHash, 'Lock more', {
             blockExplorerUrl: Networks.core.blockExplorerUrls[0],
@@ -49,7 +49,7 @@ export const handleLock = async ({ contractAddress, amount, unlockBlockNumber }:
         waitFluentKey = showWaitWallet('Fluent');
         const TxnHash = await sendTransaction({
             to: contractAddress,
-            data: posLockContract.createLock(Unit.fromStandardUnit(amount).toHexMinUnit(), unlockBlockNumber).encodeABI(),
+            data: posLockVotingEscrowContract.createLock(Unit.fromStandardUnit(amount).toHexMinUnit(), unlockBlockNumber).encodeABI(),
         });
         transactionSubmittedKey = showActionSubmitted(TxnHash, 'Lock more', {
             blockExplorerUrl: Networks.core.blockExplorerUrls[0],
@@ -83,7 +83,7 @@ export const handleExtendLock = async ({ contractAddress, unlockBlockNumber }: {
         waitFluentKey = showWaitWallet('Fluent');
         const TxnHash = await sendTransaction({
             to: contractAddress,
-            data: posLockContract.extendLockTime(unlockBlockNumber).encodeABI(),
+            data: posLockVotingEscrowContract.extendLockTime(unlockBlockNumber).encodeABI(),
         });
         transactionSubmittedKey = showActionSubmitted(TxnHash, 'Lock more', {
             blockExplorerUrl: Networks.core.blockExplorerUrls[0],
