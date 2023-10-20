@@ -14,7 +14,6 @@ const handleVote = async ({ poolAddress, proposalId, optionId, power }: Proposal
 
     try {
         waitFluentKey = showWaitWallet('Fluent', { key: 'Vote' });
-        console.log(poolAddress, proposalId, optionId, power)
         const TxnHash = await sendTransaction({
             to: governanceContractAddress,
             data: poolAddress ? governanceContract.voteThroughPosPool(convertCfxToHex(poolAddress), proposalId, optionId, power).encodeABI()

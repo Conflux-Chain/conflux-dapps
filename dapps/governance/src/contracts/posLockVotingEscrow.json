@@ -397,6 +397,11 @@
                     "internalType": "address",
                     "name": "user",
                     "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "blockNumber",
+                    "type": "uint256"
                 }
             ],
             "name": "userVotePower",

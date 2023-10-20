@@ -36,6 +36,19 @@ interface Voting {
 }
 
 let hasInit: boolean = false;
+const option = (e: PosLockOrigin) => {
+    return (
+        <div className='w-full h-[48px] leading-[48px] ml-[1px] flex justify-center'>
+            <div className='flex items-center'>
+                <img className='w-[24px] h-[24px] rounded-[50px]' src={e.icon || CFX} alt="" />
+            </div>
+            <div className='flex-1 ml-[8px]'>
+                <div>{e.name}</div>
+            </div>
+        </div>
+    )
+}
+const uintZero = Unit.fromStandardUnit(0);
 const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, proposal?: ProposalType }) => {
     const { register, handleSubmit: withForm, control, watch } = useForm();
     const [inVoting, setInVoting] = useState(false);
@@ -55,27 +68,28 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
     const posLockArrOrigin = usePosLockArrOrigin();
 
     const remainingVotePow = useMemo(() => {
-        if (proposal && activeProposalUserVotePow && activeProposalUserVotePow[proposal.proposalId]) {
-            const total = activeProposalUserVotePow[proposal.proposalId].reduce((a, b) => a.add(b), Unit.fromStandardUnit(0));
-            return total?.sub(activeProposalUserVotePow[proposal.proposalId][proposal?.optionId] || Unit.fromStandardUnit(0))
+        if (proposal && activeProposalUserVotePow && activeProposalUserVotePow[proposal.proposalId] && activeProposalUserVotePow[proposal.proposalId][proposal?.optionId]) {
+            const total = activeProposalUserVotePow[proposal.proposalId].reduce((a, b) => a.add(b), uintZero);
+            return total?.sub(activeProposalUserVotePow[proposal.proposalId][proposal?.optionId] || uintZero)
         }
-        return Unit.fromStandardUnit(0);
-    }, [activeProposalUserVotePow])
+        return uintZero;
+    }, [])
 
     // Number of votes remaining after users vote
-    const votingRemainRights = votingRights ? votingRights.sub(remainingVotePow) : Unit.fromStandardUnit(0);
+    const votingRemainRights = votingRights && votingRights.sub(remainingVotePow).greaterThan(uintZero) ? votingRights.sub(remainingVotePow) : uintZero;
 
 
 
     const remainingVotePos = useMemo(() => {
-        if (proposal && activeProposalUserVotePos && activeProposalUserVotePos[proposal.proposalId]) {
-            const total = activeProposalUserVotePos[proposal.proposalId][posPoolIndex].reduce((a, b) => a.add(b), Unit.fromStandardUnit(0));
-            return total?.sub(activeProposalUserVotePos[proposal.proposalId][posPoolIndex][proposal?.optionId] || Unit.fromStandardUnit(0))
+        if (proposal && activeProposalUserVotePos && activeProposalUserVotePos[proposal.proposalId] && activeProposalUserVotePos[proposal.proposalId][posPoolIndex]) {
+            const total = activeProposalUserVotePos[proposal.proposalId][posPoolIndex].reduce((a, b) => a.add(b), uintZero);
+            const remain = total?.sub(activeProposalUserVotePos[proposal.proposalId][posPoolIndex][proposal?.optionId] || uintZero)
+            return remain.greaterThan(uintZero) ? remain : uintZero;
         }
-        return Unit.fromStandardUnit(0);
+        return uintZero;
     }, [activeProposalUserVotePos])
     // Number of votes remaining after users vote
-    const votingPosRemainRights = posLockArrOrigin ? posLockArrOrigin[posPoolIndex]?.votePower?.sub(remainingVotePos) : Unit.fromStandardUnit(0);
+    const votingPosRemainRights = posLockArrOrigin ? posLockArrOrigin[posPoolIndex]?.votePower?.sub(remainingVotePos) : uintZero;
 
     const inputMaxAmount =
         ticket === 'pow' ?
@@ -85,8 +99,15 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
 
     const isValueRightsThanRemainingVote =
         ticket === 'pow' ?
-        remainingVotePow && votingRights && voteValue && votingRemainRights.greaterThanOrEqualTo(Unit.fromStandardUnit(voteValue))
+            remainingVotePow && votingRights && voteValue && votingRemainRights.greaterThanOrEqualTo(Unit.fromStandardUnit(voteValue))
             : posLockArrOrigin && voteValue ? votingPosRemainRights.greaterThanOrEqualTo(Unit.fromStandardUnit(voteValue)) : false;
+
+    const futureUserVotePower = useMemo(() => {
+        return posLockArrOrigin && posLockArrOrigin[posPoolIndex]?.futureUserVotePower ? posLockArrOrigin[posPoolIndex]?.futureUserVotePower : uintZero;
+    }, [posPoolIndex])
+    const isRightVoteValueGreaterFutureUserVotePower = useMemo(() => {
+        return futureUserVotePower && voteValue <= futureUserVotePower?.toDecimalStandardUnit()
+    }, [voteValue])
 
     const proposalList = useProposalList();
     const currentPage = useCurrentPage();
@@ -105,6 +126,7 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
     useEffect(() => {
         setVoteValue(defaultValue(options[0]) || '')
     }, [currentAccountVoted])
+
     useEffect(() => {
         hasInit = true;
         return () => {
@@ -152,19 +174,6 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
 
         }
         hideCastVotesModal();
-    }
-
-    const option = (e: PosLockOrigin) => {
-        return (
-            <div className='w-full h-[48px] leading-[48px] ml-[1px] flex justify-center'>
-                <div className='flex items-center'>
-                    <img className='w-[24px] h-[24px] rounded-[50px]' src={e.icon || CFX} alt="" />
-                </div>
-                <div className='flex-1 ml-[8px]'>
-                    <div>{e.name}</div>
-                </div>
-            </div>
-        )
     }
 
     const defaultValue = (radio: string) => {
@@ -313,10 +322,14 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
                         suffix={[<></>, <><InputMAXSuffix className='!right-[113px]' /><InputTextLastfix text={'Voting Power'} /> </>]}
                     />
                 </div>
-                <div className='mt-[16px] bg-[#FCF1E8] px-[16px] py-[12px] text-[12px]'>
-                    As the remaining lock time decreases, when the current round ends, your effective voting power is only <span className='text-[#808BE7]'>500</span>.<br />
-                    You can increase your voting power by extending the lock period.
-                </div>
+                {
+                    !isRightVoteValueGreaterFutureUserVotePower && ticket === 'pos' && type !== 'Proposals' &&
+                    <div className='mt-[16px] bg-[#FCF1E8] px-[16px] py-[12px] text-[12px]'>
+                        As the remaining lock time decreases, when the current round ends, your effective voting power is only <span className='text-[#808BE7]'>{futureUserVotePower?.toDecimalStandardUnit()}</span>.<br />
+                        You can increase your voting power by extending the lock period.
+                    </div>
+                }
+
                 {
                     voteValue !== '' && !isValueRightsThanRemainingVote && <div className='mt-[16px] text-[12px] leading-[16px] text-[#E96170] text-right transition-opacity opacity-100'> Not enough votes, you can redistribute or get more votes. </div>
                 }

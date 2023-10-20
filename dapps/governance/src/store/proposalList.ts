@@ -89,7 +89,7 @@ export const startTrackProposalList = intervalFetchChain(
         ],
     },
     {
-        intervalTime: 30000,
+        intervalTime: 10000,
         callback: (res) => {
             if (typeof res !== 'string' || res === '0x') {
                 proposalListStore.setState({ proposalCount: undefined, proposalList: [], openedProposalId: undefined, openedProposal: undefined });
@@ -124,7 +124,7 @@ export const startTrackProposalList = intervalFetchChain(
                 LocalStorage.setItem({ key: `proposalList-${Networks.core.chainId}`, data: proposalList, namespace: 'governance' });
                 proposalListStore.setState({ proposalList });
 
-                const unsubProposalUserVotePow: VoidFunction | null = fluentStore.subscribe(
+                const fetchActiveProposalForUserVotePow = fluentStore.subscribe(
                     (state) => state.accounts,
                     (accounts) => {
                         const account = accounts?.[0];
@@ -134,7 +134,7 @@ export const startTrackProposalList = intervalFetchChain(
                         let promises = proposalList.flatMap((proposal, proposalIndex) => {
                             if (proposal.status === "Active") {
                                 activeProposalUserVotePow[proposalIndex] = [];
-                                fetchChain({
+                                return fetchChain({
                                     rpcUrl: Networks.core.rpcUrls[0],
                                     method: 'cfx_call',
                                     params: [
@@ -153,10 +153,10 @@ export const startTrackProposalList = intervalFetchChain(
                                         console.error(`Error fetching data for proposal ${proposalIndex}: ${error}`);
                                     });
                             } else {
-                                return [];
+                                return Promise.resolve();
                             }
                         });
-
+                        if (promises.length === 0) return;
                         Promise.all(promises)
                             .then(() => {
                                 proposalListStore.setState({ activeProposalUserVotePow });
@@ -168,9 +168,9 @@ export const startTrackProposalList = intervalFetchChain(
                     },
                     { fireImmediately: true }
                 );
-                unsubProposalUserVotePow?.();
+                fetchActiveProposalForUserVotePow();
 
-                const unsubProposalUserVotePos: VoidFunction | null = fluentStore.subscribe(
+                const fetchActiveProposalForUserVotePos = fluentStore.subscribe(
                     (state) => state.accounts,
                     (accounts) => {
                         const account = accounts?.[0];
@@ -205,13 +205,12 @@ export const startTrackProposalList = intervalFetchChain(
                                 }) : [];
 
                             } else {
-                                return [];
+                                return Promise.resolve();
                             }
                         });
 
                         Promise.all(promises)
                             .then(() => {
-                                console.log(activeProposalUserVotePos)
                                 proposalListStore.setState({ activeProposalUserVotePos });
                             })
                             .catch((error) => {
@@ -220,7 +219,7 @@ export const startTrackProposalList = intervalFetchChain(
                     },
                     { fireImmediately: true }
                 );
-                unsubProposalUserVotePos?.();
+                fetchActiveProposalForUserVotePos();
             });
 
         },
@@ -270,7 +269,7 @@ export const startTrackOpenedProposal = () => {
             });
         }
         fetchOpenedProposal();
-        interval = setInterval(fetchOpenedProposal, 2000) as unknown as number;
+        interval = setInterval(fetchOpenedProposal, 5000) as unknown as number;
     }, { fireImmediately: true });
 
     return () => {

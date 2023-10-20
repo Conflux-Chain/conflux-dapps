@@ -54,6 +54,7 @@ interface Contracts {
         increaseLock(amount: string): { encodeABI: () => string; };
         extendLockTime(unlockBlockNumber: string): { encodeABI: () => string; };
         castVote(round: string, topicIndex: number, vote_data: [string, string, string]): { encodeABI: () => string; };
+        userVotePower(account: string, currentBlockNumber: string): { encodeABI: () => string; _method: { outputs: Array<any> }; };
     }
 
     utilContract: {
@@ -72,7 +73,7 @@ export const paramsControlContract = createContract<Contracts['paramsControlCont
 export const paramsControlContractAddress = convertHexToCfx('0x0888000000000000000000000000000000000007', +Networks.core.chainId);
 export const posPoolContract = createContract<Contracts['posPoolContract']>(PosPoolContract.abi);
 export const posLockVotingEscrowContract = createContract<Contracts['posLockVotingEscrowContract']>(posLockVotingEscrow.abi);
-export const utilContractAddress = isProduction ? '' : 'cfxtest:acebc46nn3v2xbh3z9ceaf1k395y5nn7v6vgu1fsfe';
+export const utilContractAddress = isProduction ? '' : 'cfxtest:acc8c30wra8czb9ajz8sj6ug3x0u9vzsvuncee39mg';
 export const utilContract = createContract<Contracts['utilContract']>(UtilContract.abi);
 
 export default Contracts;

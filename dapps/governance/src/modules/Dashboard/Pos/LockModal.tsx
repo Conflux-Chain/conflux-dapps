@@ -6,11 +6,11 @@ import { Select } from 'antd';
 import dayjs from 'dayjs';
 
 import BalanceText from 'common/modules/BalanceText';
-import { BLOCK_SPEED, usePosLockArrOrigin, getCurrentBlockNumber } from 'governance/src/store';
+import { usePosLockArrOrigin, getCurrentBlockNumber } from 'governance/src/store';
 import { AuthCoreSpace } from 'common/modules/AuthConnectButton';
 import Button from 'common/components/Button';
 import { handleIncreaseLock, handleExtendLock, handleLock } from './handleLock';
-import Networks from 'common/conf/Networks';
+
 
 import InputMAXSuffix from 'common/components/Input/suffixes/MAX';
 import InputCFXPrefixSuffix from 'common/components/Input/suffixes/CFXPrefix';
@@ -35,7 +35,25 @@ const title = {
 };
 const tenTousands = Unit.fromMinUnit(10000);
 const displayInterestRate = (value?: Unit) => Number(value?.div(tenTousands).toDecimalMinUnit()).toFixed(2) ?? '--';
-const deltaBlockNumber = Networks.core.chainId === '8888' ? Unit.fromMinUnit(79) : Unit.fromMinUnit(24 * 60 * 60 * 2);
+
+const option = (lockNumber: string, lockTime: string, greaterUnLockNumber: boolean | undefined) => {
+    return (
+        <div className='w-full h-[62px] leading-[62px] ml-[1px] flex flex-col justify-center'>
+
+            {
+                !greaterUnLockNumber && <img className="absolute right-[20px]" src={StopIcon} />
+            }
+            <div className='h-[16px] leading-[16px] text-[12px] text-[#898D9A]'>Lock to block number: {lockNumber}</div>
+
+            {
+                greaterUnLockNumber ?
+                    <div className='mt-[4px] h-[18px] leading-[18px] text-[14px] text-[#3D3F4C]'>Est. unlock at: {lockTime}</div>
+                    :
+                    <div className='mt-[4px] h-[18px] leading-[18px] text-[14px] text-[#898D9A]'>Est. unlock at: {lockTime}</div>
+            }
+        </div>
+    )
+}
 
 const LockModalContent: React.FC<{ type: Type, index: number }> = memo(({ type, index }) => {
     const account = useAccount();
@@ -49,7 +67,9 @@ const LockModalContent: React.FC<{ type: Type, index: number }> = memo(({ type, 
     const posLockArrOrigin = usePosLockArrOrigin();
     const posLockArrOriginIndex = posLockArrOrigin && posLockArrOrigin[index];
 
-    const isAvailableBalanceGreaterThan0 = posLockArrOriginIndex?.votePower && Unit.greaterThan(posLockArrOriginIndex.votePower, Unit.fromStandardUnit(0));
+    const isAvailableBalanceGreaterThan0 =
+        type === 'lock' ? posLockArrOriginIndex?.stakeAmount && Unit.greaterThan(posLockArrOriginIndex.stakeAmount, Unit.fromStandardUnit(0))
+            : posLockArrOriginIndex?.votePower && Unit.greaterThan(posLockArrOriginIndex.votePower, Unit.fromStandardUnit(0));
 
     const availableBalance = posLockArrOriginIndex?.stakeAmount.sub(posLockArrOriginIndex?.lockAmount);
 
@@ -60,51 +80,73 @@ const LockModalContent: React.FC<{ type: Type, index: number }> = memo(({ type, 
                 handleIncreaseLock({ contractAddress: posLockArrOriginIndex.votingEscrowAddress, amount })
             }
             else if (type === 'lock') {
-                handleLock({ contractAddress: posLockArrOriginIndex.votingEscrowAddress, amount, unlockBlockNumber: timeToUnlock[select].unLockNumber.toDecimalMinUnit() })
+                handleLock({ contractAddress: posLockArrOriginIndex.votingEscrowAddress, amount, unlockBlockNumber: TimeToUnlock[select].unLockNumber })
             }
             else if (type === 'extend') {
-                
-                handleExtendLock({ contractAddress: posLockArrOriginIndex.votingEscrowAddress, unlockBlockNumber: timeToUnlock[select].unLockNumber.toDecimalMinUnit() })
+                handleExtendLock({ contractAddress: posLockArrOriginIndex.votingEscrowAddress, unlockBlockNumber: TimeToUnlock[select].unLockNumber })
 
             }
-
             hideLockModal()
         }
-
     }), []);
 
 
 
-    // 一个季度的区块
-    const timeToUnlock = useMemo(() => {
-        const obj = []
-        const q = 365 / 4;
-        for (let i = 1; i <= 4; i++) {
-            const block = currentBlockNumber?.add((deltaBlockNumber.mul(q).mul(i))) || Unit.fromMinUnit(0);
-            const time = (+new Date()) + (q * 24 * 60 * 60 * i * 1000);
-            obj.push({
-                unLockNumber: block,
-                unLockTime: dayjs(time).format('YYYY-MM-DD HH:mm:ss'),
-                greaterUnLockNumber: posLockArrOriginIndex?.unlockBlock && Unit.greaterThan(block, posLockArrOriginIndex.unlockBlock)
-            })
+    // quarterly block
+    const TimeToUnlock = useMemo(() => {
+        const FourQuarters = [];
+        const QuartersBlockNumber = 15768000; // 2 * 3600 * 24 * 365 / 4
+
+        if (currentBlockNumber) {
+            // Calculate the number of blocks until the next quarter
+            // Refer: https://github.com/conflux-fans/pos-pool/blob/daovote2/contract/docs/HowToSupportGovernanceZH.md
+            const coefficient = Math.ceil(+currentBlockNumber?.toDecimalMinUnit() / QuartersBlockNumber) - (+currentBlockNumber?.toDecimalMinUnit() / QuartersBlockNumber)
+            const gapBlock = parseInt(QuartersBlockNumber * coefficient + '');
+
+            for (let i = 1; i <= 4; i++) {
+                const blockUnit = currentBlockNumber?.add((Unit.fromMinUnit(QuartersBlockNumber).mul(i))).add(Unit.fromMinUnit(gapBlock)) || Unit.fromMinUnit(0);
+                const blockNumber = Unit.fromStandardUnit(blockUnit.toDecimalStandardUnit(18)).toDecimalMinUnit();
+                /* 
+                    Refer to the integer multiple of 15768000, with a 3-digit precision deviation, and is backward compatible with 1000 blocks, 
+                    Such as 252287501 - 252288500 -> 252288000
+                */
+                const unLockNumber = Math.ceil((+blockNumber - 500) / 1000) * 1000 + '';
+                
+                const time = (+new Date()) + (365 / 4 * i * 24 * 60 * 60 * 1000) + (gapBlock / 2 * 1000);
+
+                FourQuarters.push({
+                    unLockNumber: unLockNumber,
+                    unLockTime: dayjs(time).format('YYYY-MM-DD HH:mm:ss'),
+                    greaterUnLockNumber: posLockArrOriginIndex?.unlockBlock && Unit.greaterThan(blockUnit, posLockArrOriginIndex.unlockBlock)
+                })
+            }
+            return FourQuarters;
+        } else {
+            return [];
         }
-        return obj;
+
+
     }, [])
-    
+
 
     useEffect(() => {
-        let activeIndex = timeToUnlock.findIndex(e => e.greaterUnLockNumber);
-        if(selectIndex < 0) return;
+        let activeIndex = TimeToUnlock.findIndex(e => e.greaterUnLockNumber);
+        if (activeIndex < 0) {
+            setSelectIndex(3)
+            return;
+        }
         setSelectIndex(activeIndex)
-    }, [timeToUnlock])
+    }, [TimeToUnlock])
 
     const calcPowerLock = useMemo(() => {
+        // Refer: https://github.com/conflux-fans/pos-pool/blob/daovote2/contract/docs/HowToSupportGovernanceZH.md
+        const QuarterlyVotingCoefficient = [0.25, 0.5, 0.5, 1];
+
         if (type === 'lock') {
-            return Unit.fromStandardUnit(+amount / 4 * (selectIndex + 1));
+            return Unit.fromStandardUnit(+amount).mul(QuarterlyVotingCoefficient[selectIndex]);
         }
         else if (type === 'extend') {
-            let range = timeToUnlock.filter(e => e.greaterUnLockNumber).length;
-            return posLockArrOriginIndex?.votePower.div(4 - range).mul(selectIndex + 1);
+            return posLockArrOriginIndex?.lockAmount.mul(QuarterlyVotingCoefficient[selectIndex]);
         }
         else if (type === 'more') {
 
@@ -112,27 +154,6 @@ const LockModalContent: React.FC<{ type: Type, index: number }> = memo(({ type, 
 
         return Unit.fromMinUnit(0)
     }, [selectIndex, amount])
-
-
-
-    const option = (lockNumber: Unit, lockTime: string, greaterUnLockNumber: boolean | undefined) => {
-        return (
-            <div className='w-full h-[62px] leading-[62px] ml-[1px] flex flex-col justify-center'>
-
-                {
-                    !greaterUnLockNumber && <img className="absolute right-[20px]" src={StopIcon} />
-                }
-                <div className='h-[16px] leading-[16px] text-[12px] text-[#898D9A]'>Lock to block number: {lockNumber.toDecimalMinUnit(0)}</div>
-
-                {
-                    greaterUnLockNumber ?
-                        <div className='mt-[4px] h-[18px] leading-[18px] text-[14px] text-[#3D3F4C]'>Est. unlock at: {lockTime}</div>
-                        :
-                        <div className='mt-[4px] h-[18px] leading-[18px] text-[14px] text-[#898D9A]'>Est. unlock at: {lockTime}</div>
-                }
-            </div>
-        )
-    }
 
     return (
         posLockArrOrigin &&
@@ -152,7 +173,7 @@ const LockModalContent: React.FC<{ type: Type, index: number }> = memo(({ type, 
                     <div className='mt-[12px] border-[1px] border-[#EAECEF] flex items-center p-[12px]'>
 
                         <div className='flex items-center'>
-                            <img className='w-[24px] h-[24px] rounded-[50px]' src={CFX} alt="" />
+                            <img className='w-[24px] h-[24px] rounded-[50px]' src={posLockArrOriginIndex && posLockArrOriginIndex.icon || CFX} alt="" />
                         </div>
                         <div className='flex-1 ml-[8px]'>
                             <div>{posLockArrOriginIndex?.name}</div>
@@ -236,7 +257,8 @@ const LockModalContent: React.FC<{ type: Type, index: number }> = memo(({ type, 
                             <Controller
                                 control={control}
                                 {...register('select', {
-                                    required: ['lock', 'extend'].includes(type),
+                                    required: ['extend'].includes(type),
+                                    value: TimeToUnlock.findIndex(e => e.greaterUnLockNumber) >= 0 ? TimeToUnlock.findIndex(e => e.greaterUnLockNumber) : 3
                                 })}
                                 render={({ field }) => (
                                     <Select
@@ -246,12 +268,12 @@ const LockModalContent: React.FC<{ type: Type, index: number }> = memo(({ type, 
                                             return field.onChange(value)
                                         }}
                                         optionLabelProp="label"
-                                        defaultValue={timeToUnlock.findIndex(e => e.greaterUnLockNumber) >= 0 ? timeToUnlock.findIndex(e => e.greaterUnLockNumber) : 3}
+                                        defaultValue={TimeToUnlock.findIndex(e => e.greaterUnLockNumber) >= 0 ? TimeToUnlock.findIndex(e => e.greaterUnLockNumber) : 3}
                                     >
                                         {
-                                            timeToUnlock.map((e, i) =>
+                                            TimeToUnlock.map((e, i) =>
                                                 <Option
-                                                    key={'select-lock-' + e.unLockNumber.toDecimalMinUnit(0)}
+                                                    key={'select-lock-' + e.unLockNumber}
                                                     value={i}
                                                     label={option(e.unLockNumber, e.unLockTime, e.greaterUnLockNumber)}
                                                     disabled={!e.greaterUnLockNumber}>
@@ -274,7 +296,7 @@ const LockModalContent: React.FC<{ type: Type, index: number }> = memo(({ type, 
                         </div>
                         <div className="mt-[8px] text-[14px] flex justify-between">
                             <div className="text-[#898D9A]">Est. unlock at:</div>
-                            <div className="text-[#3D3F4C]">{selectIndex >= 0 ? timeToUnlock[selectIndex]?.unLockTime : '--'}</div>
+                            <div className="text-[#3D3F4C]">{selectIndex >= 0 ? TimeToUnlock[selectIndex]?.unLockTime : '--'}</div>
                         </div>
                     </>
                 }
@@ -291,8 +313,8 @@ const LockModalContent: React.FC<{ type: Type, index: number }> = memo(({ type, 
                     <div className="text-right">
                         <div className="text-[14px] leading-[18px] text-[#3D3F4C] font-medium">
                             About{' '}
-                            <span id="timeToUnlock" className="text-[#808BE7]">
-                                {timeToUnlock ?? '--'}
+                            <span id="TimeToUnlock" className="text-[#808BE7]">
+                                {TimeToUnlock ?? '--'}
                             </span>{' '}
                             to unlock
                         </div>

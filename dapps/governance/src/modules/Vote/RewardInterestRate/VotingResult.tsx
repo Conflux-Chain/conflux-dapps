@@ -153,59 +153,6 @@ const Result: React.FC<{
                 </div>
             </div>
 
-            {/* <div className="mb-[24px] flex justify-between items-center">
-                <div>
-                    <div className="mb-[4px] flex items-center text-[14px] text-[#898D9A]">
-                        Previous voting {type === 'PoW block rewards' ? 'reward' : 'APY'}
-                        <img
-                            src={QuestionMark}
-                            alt="question mark"
-                            className="ml-[4px] cursor-pointer hover:scale-110 transition-transform select-none"
-                            onClick={onClickPreValTip}
-                        />
-                    </div>
-                    <div className="leading-[28px] text-[20px] text-[#1B1B1C] font-medium">
-                        {type === 'Interest rate' ? displayInterestRate(preVoteDetail?.value) : displayPowBaseReward(preVoteDetail?.value)}
-                        {unit}
-                    </div>
-                </div>
-
-                <div className="px-[12px] py-[8px] rounded-[4px] bg-[#F0F3FF]">
-                    <div className="mb-[4px] flex items-center text-[14px] text-[#898D9A]">
-                        {type === 'PoW block rewards' ? 'Reward' : 'APY'} in voting
-                        <img
-                            src={QuestionMark}
-                            alt="question mark"
-                            className="ml-[4px] cursor-pointer hover:scale-110 transition-transform select-none"
-                            onClick={onClickVotingValTip}
-                        />
-                    </div>
-                    <div className="flex items-center leading-[28px] text-[20px] text-[#1B1B1C] font-medium">
-                        {type === 'Interest rate' ? displayInterestRate(voteDetail?.value) : displayPowBaseReward(voteDetail?.value)}
-                        {unit}
-
-                        {preVoteDetail?.value && voteDetail?.value && !preVoteDetail.value.equals(voteDetail.value) && (
-                            <img
-                                src={preVoteDetail.value.lessThan(voteDetail.value) ? VoteUp : VoteDown}
-                                alt=""
-                                className="ml-[6px] w-[16px] h-[16px] select-none"
-                            />
-                        )}
-                    </div>
-                </div>
-            </div> */}
-
-            {/* <div className="relative flex justify-between items-center">
-                <span className="absolute left-[0px] -top-[26px] text-[10px] text-[#898D9A] font-normal">
-                    Estimated execution at {currentVotingRoundEndTimestamp ? dayjs(currentVotingRoundEndTimestamp).format('YYYY-MM-DD HH:mm:ss') : '--'}
-                </span>
-                {options.map(({ name, color }) => (
-                    <div key={name} className="text-[12px] leading-[12px] text-[#3D3F4C]">
-                        <span className="mr-[4px] inline-block w-[8px] h-[8px] rounded-full select-none" style={{ backgroundColor: color }} />
-                        {name}
-                    </div>
-                ))}
-            </div> */}
             <div className="my-[12px] flex h-[12px] rounded-[6px] overflow-hidden">
                 {options.map(({ name, color }, index) => (
                     <div key={name} className="flex-auto h-full transition-all" style={{ width: proportions[index], backgroundColor: color }} />
@@ -229,7 +176,7 @@ const Result: React.FC<{
                 authContent={() => (
                     <Button
                         id="RewardInterestRate-costVotes"
-                        className="mt-[26px] !flex w-[96px]  !h-[32px] !text-[12px]"
+                        className="mt-[26px] !flex min-w-[96px]  !h-[32px] !text-[12px]"
                         size="large"
                         onClick={() => showCastVotesModal({ type })}
                         // loading={!votingRights}
@@ -240,26 +187,6 @@ const Result: React.FC<{
                 )}
             />
 
-
-            {/* <div className="mb-[24px] flex justify-between">
-                {options.map(({ name, color }, index) => (
-                    <div key={name} className="">
-                        <div className="mb-[4px] text-[12px] leading-[16px] text-[#939393]">Voting power</div>
-                        <div className="mb-[12px] text-[14px] leading-[18px] font-medium" style={{ color: index === 1 ? '#3D3F4C' : color }}>
-                            {voteDetail?.voting?.[index]?.toDecimalStandardUnit() ? (
-                                <NumFormatWithEllipsis value={voteDetail?.voting?.[index]?.toDecimalStandardUnit()} />
-                            ) : (
-                                0
-                            )}
-                        </div>
-
-                        <div className="mb-[4px] text-[12px] leading-[16px] text-[#939393]">Proportion</div>
-                        <div className="mb-[12px] text-[14px] leading-[18px] font-medium" style={{ color: index === 1 ? '#3D3F4C' : color }}>
-                            {proportions[index]}
-                        </div>
-                    </div>
-                ))}
-            </div> */}
         </div>
     );
 };

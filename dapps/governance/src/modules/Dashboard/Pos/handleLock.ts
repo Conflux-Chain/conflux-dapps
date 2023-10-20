@@ -10,7 +10,7 @@ export const handleIncreaseLock = async ({ contractAddress, amount }: { contract
 
     let waitFluentKey: string | number = null!;
     let transactionSubmittedKey: string | number = null!;
-    console.log(contractAddress)
+
     try {
         waitFluentKey = showWaitWallet('Fluent');
         const TxnHash = await sendTransaction({
@@ -75,7 +75,7 @@ export const handleLock = async ({ contractAddress, amount, unlockBlockNumber }:
 export const handleExtendLock = async ({ contractAddress, unlockBlockNumber }: { contractAddress: string,  unlockBlockNumber: string }) => {
     const account = store.getState().accounts?.[0];
     if (!account) return;
-    console.log({ contractAddress, unlockBlockNumber })
+
     let waitFluentKey: string | number = null!;
     let transactionSubmittedKey: string | number = null!;
 
