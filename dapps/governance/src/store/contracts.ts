@@ -39,7 +39,6 @@ interface Contracts {
         totalVotes(round: string): { encodeABI: () => string; _method: { outputs: Array<any> }; };
         readVote(account: string): { encodeABI: () => string; _method: { outputs: Array<any> }; };
         posStakeForVotes(round: string): { encodeABI: () => string; _method: { outputs: Array<any> }; };
-        // castVote(round: string, vote_data: [[string, [string, string, string]], [string, [string, string, string]], [string, [string, string, string]]]): { encodeABI: () => string; };
         castVote(round: string, vote_data: [[string, [string, string, string]]]): { encodeABI: () => string; };
     }
 

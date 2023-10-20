@@ -10,7 +10,6 @@ export * from './rewardInterestRate';
 
 export const startTrack = () => {
     const unstakes: Array<() => void> = [];
-    // startTrackBalance(), startTrackPosAccount(), startTrackBlockNumber(), startTrackDaysToUnlock(), startTrackUnlockBlockNumber(), 
     unstakes.push(startTrackBalance(), startTrackPosAccount(), startTrackBlockNumber(), startTrackDaysToUnlock(), startTrackUnlockBlockNumber(), startTrackPowLockAmount(), startTrackPosLockAmount());
     return () => {
         unstakes.forEach((unstake) => unstake());

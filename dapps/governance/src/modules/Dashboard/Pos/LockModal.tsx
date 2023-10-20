@@ -61,8 +61,6 @@ const LockModalContent: React.FC<{ type: Type, index: number }> = memo(({ type, 
     const [selectIndex, setSelectIndex] = useState(0);
     const [amount, setAmount] = useState('');
 
-    // cfxtest:acgwa148z517jj15w9je5sdzn8p8j044kjrvjz92c1 test pos pool
-
     const currentBlockNumber = getCurrentBlockNumber();
     const posLockArrOrigin = usePosLockArrOrigin();
     const posLockArrOriginIndex = posLockArrOrigin && posLockArrOrigin[index];
@@ -147,9 +145,6 @@ const LockModalContent: React.FC<{ type: Type, index: number }> = memo(({ type, 
         }
         else if (type === 'extend') {
             return posLockArrOriginIndex?.lockAmount.mul(QuarterlyVotingCoefficient[selectIndex]);
-        }
-        else if (type === 'more') {
-
         }
 
         return Unit.fromMinUnit(0)
@@ -301,28 +296,6 @@ const LockModalContent: React.FC<{ type: Type, index: number }> = memo(({ type, 
                     </>
                 }
 
-
-                {/* <div className="mt-[16px] flex flex-row justify-between items-center">
-                    <div>
-                        <div className="text-[14px] leading-[18px] text-[#808BE7] font-medium">
-                            <BalanceText id="estimate voting rights" balance={estimateVotingRights} symbol="" decimals={18} />
-                        </div>
-                        <div className="mt-[4px] text-[12px] leading-[16px] text-[#898D9A]">Final voting rights</div>
-                    </div>
-
-                    <div className="text-right">
-                        <div className="text-[14px] leading-[18px] text-[#3D3F4C] font-medium">
-                            About{' '}
-                            <span id="TimeToUnlock" className="text-[#808BE7]">
-                                {TimeToUnlock ?? '--'}
-                            </span>{' '}
-                            to unlock
-                        </div>
-                        <div className="mt-[4px] text-[12px] leading-[16px] text-[#898D9A]" id="estimate voting rightsPerCfx">
-                            {estimateVotingRightsPerCfx} voting rights/CFX
-                        </div>
-                    </div>
-                </div> */}
                 <div className='mt-[16px] bg-[#FCF1E8] px-[16px] py-[12px]'>
                     <div className='text-[#3D3F4C] text-[14px] font-bold'>
                         I Understand

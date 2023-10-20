@@ -179,7 +179,6 @@ const Result: React.FC<{
                         className="mt-[26px] !flex min-w-[96px]  !h-[32px] !text-[12px]"
                         size="large"
                         onClick={() => showCastVotesModal({ type })}
-                        // loading={!votingRights}
                         disabled={(votingRights && !isVotingPowRightsGreaterThan0) && (posLockArrOrigin && !isVotingPosRightsGreaterThan0)}
                     >
                         Vote
@@ -205,8 +204,6 @@ const Index: React.FC = () => {
                 preVoteDetail={preVote?.powBaseReward}
                 prepreVoteDetail={prepreVote?.powBaseReward}
                 posStakeForVotes={posStakeForVotes}
-            // onClickPreValTip={() => showTipModal(<PowPreviousVotingRewardTipContent />)}
-            // onClickVotingValTip={() => showTipModal(<PowVotingRewardTipContent />)}
             />
             <Result
                 type="PoS APY"
@@ -214,8 +211,6 @@ const Index: React.FC = () => {
                 preVoteDetail={preVote?.interestRate}
                 prepreVoteDetail={prepreVote?.interestRate}
                 posStakeForVotes={posStakeForVotes}
-            // onClickPreValTip={() => showTipModal(<PosPreviousVotingAPYTipContent />)}
-            // onClickVotingValTip={() => showTipModal(<PosVotingAPYTipContent />)}
             />
             <Result
                 type="Storage Point"
@@ -223,113 +218,10 @@ const Index: React.FC = () => {
                 preVoteDetail={preVote?.storagePoint}
                 prepreVoteDetail={prepreVote?.storagePoint}
                 posStakeForVotes={posStakeForVotes}
-            // onClickPreValTip={() => showTipModal(<StoragePointPreviousVotingTipContent />)}
-            // onClickVotingValTip={() => showTipModal(<StoragePointTipContent />)}
             />
         </>
     );
 };
 
-// const PowPreviousVotingRewardTipContent: React.FC = memo(() => {
-//     return (
-//         <>
-//             <div className="text-[16px] leading-[22px] font-medium text-[#3D3F4C]">Previous voting reward (PoW):</div>
-//             <div className="mt-[8px] text-[14px] leading-[21px] text-[#898D9A]">The PoW block rewards of the most recent voting,</div>
-//             <div className="text-[14px] leading-[21px] text-[#898D9A]">calculated from the previous round of voting.</div>
-//         </>
-//     );
-// });
-
-// const PosPreviousVotingAPYTipContent: React.FC = memo(() => {
-//     return (
-//         <>
-//             <div className="text-[16px] leading-[22px] font-medium text-[#3D3F4C]">Previous voting APY (PoS):</div>
-//             <div className="mt-[8px] text-[14px] leading-[21px] text-[#898D9A]">The PoS rewards rate of the most recent voting,</div>
-//             <div className="text-[14px] leading-[21px] text-[#898D9A]">calculated from the previous round of voting.</div>
-//         </>
-//     );
-// });
-
-// const StoragePointPreviousVotingTipContent: React.FC = memo(() => {
-//     return (
-//         <>
-//             <div className="text-[16px] leading-[22px] font-medium text-[#3D3F4C]">3</div>
-//             <div className="mt-[8px] text-[14px] leading-[21px] text-[#898D9A]">3</div>
-//             <div className="text-[14px] leading-[21px] text-[#898D9A]">3</div>
-//         </>
-//     );
-// });
-
-// const PowVotingRewardTipContent: React.FC = memo(() => {
-//     return (
-//         <>
-//             <div className="text-[16px] leading-[22px] font-medium text-[#3D3F4C]">Reward in voting (PoW):</div>
-//             <div className="mt-[8px] text-[14px] leading-[21px] text-[#898D9A]">
-//                 During the voting period, the current PoW block rewards is obtained according to the voting distribution statistics and calculated from:
-//             </div>
-//             <div className="mt-[6px] text-[14px] leading-[21px] text-[#898D9A]">
-//                 <MathTex type="reward" />
-//             </div>
-//             <div className="mt-[14px] text-[14px] leading-[21px] text-[#898D9A]">
-//                 After the voting ends, the voting result will be applied to the PoW block reward when the next voting starts.
-//             </div>
-//         </>
-//     );
-// });
-
-// const PosVotingAPYTipContent: React.FC = memo(() => {
-//     return (
-//         <>
-//             <div className="text-[16px] leading-[22px] font-medium text-[#3D3F4C]">APY in voting (PoS):</div>
-//             <div className="mt-[8px] text-[14px] leading-[21px] text-[#898D9A]">
-//                 During the voting period, the current PoS reward interest rate is obtained according to the voting distribution statistics and calculated from:
-//             </div>
-//             <div className="mt-[6px] text-[14px] leading-[21px] text-[#898D9A]">
-//                 <MathTex type="rate" />
-//             </div>
-//             <div className="mt-[14px] text-[14px] leading-[21px] text-[#898D9A]">
-//                 After the voting ends, the voting result will be applied to the PoS reward interest rate when the next voting starts.
-//             </div>
-//         </>
-//     );
-// });
-
-// const StoragePointTipContent: React.FC = memo(() => {
-//     return (
-//         <>
-//             <div className="text-[16px] leading-[22px] font-medium text-[#3D3F4C]">33:</div>
-//             <div className="mt-[8px] text-[14px] leading-[21px] text-[#898D9A]">
-//                 33:
-//             </div>
-//             <div className="mt-[6px] text-[14px] leading-[21px] text-[#898D9A]">
-//                 <MathTex type="result" />
-//             </div>
-//             <div className="mt-[14px] text-[14px] leading-[21px] text-[#898D9A]">
-//                 33.
-//             </div>
-//         </>
-//     );
-// });
-
-// const EffectiveVotingRightsContent: React.FC<{
-//     type: 'PoW block rewards' | 'Interest rate' | 'Storage point';
-//     totalVotingRights?: Unit;
-//     posStakeForVotes?: Unit;
-// }> = memo(({ type, totalVotingRights, posStakeForVotes }) => {
-//     return (
-//         <>
-//             <div className="text-[16px] leading-[22px] font-medium text-[#3D3F4C]">Effective voting rights:</div>
-//             <div className="mt-[8px] text-[14px] leading-[21px] text-[#898D9A]">
-//                 {type} Voting rights: <span className="text-[#808BE7]">{totalVotingRights ? totalVotingRights.toDecimalStandardUnit() : '--'}</span>
-//             </div>
-//             <div className="text-[14px] leading-[21px] text-[#898D9A]">
-//                 Circulating Total PoS Staking: <span className="text-[#808BE7]">{posStakeForVotes ? posStakeForVotes.toDecimalStandardUnit() : '--'}</span>
-//             </div>
-//             <div className="text-[14px] leading-[21px] text-[#898D9A]">
-//                 {`When PoW Voting rights >= Total PoS Staking * 5%, the voting result takes effect.`}
-//             </div>
-//         </>
-//     );
-// });
 
 export default Index;
