@@ -1,49 +1,122 @@
-import React, { memo, useState, useCallback, useEffect } from 'react';
-import cx from 'clsx';
-import { useForm } from 'react-hook-form';
+import React, { memo, useState, useMemo, useEffect } from 'react';
+import { Radio, Select } from 'antd';
+import { useForm, Controller } from 'react-hook-form';
 import { useAccount, Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
 import Button from 'common/components/Button';
 import Input from 'common/components/Input';
-import InputTextPrefix from 'common/components/Input/suffixes/TextPrefix';
+import InputTextLastfix from 'common/components/Input/suffixes/TextLastfix';
 import InputMAXSuffix from 'common/components/Input/suffixes/MAX';
 import { PopupClass } from 'common/components/Popup';
 import { AuthCoreSpace } from 'common/modules/AuthConnectButton';
-import { useVotingRights, useCurrentAccountVoted } from 'governance/src/store';
+import { useVotingRights, useCurrentAccountVoted, useCurrentVotingRound, useProposalList, useCurrentPage, usePageSize, useActiveProposalUserVotePow, useActiveProposalUserVotePos, usePosLockArrOrigin } from 'governance/src/store';
 import Close from 'common/assets/icons//close.svg';
-import MathTex from '../MathTex';
-import handleCastVotes, { type Data } from '../handleCastVotes';
+import { handlePowCastVotes, handlePosCastVotes, type Data } from '../handleCastVotes';
+import CFX from 'common/assets/tokens/CFX.svg';
 import './index.css';
+import handleVote, { ProposalType } from '../../Proposals/handleVote';
+import { ethers } from 'ethers';
+import { PosLockOrigin } from 'governance/src/store/lockDays&blockNumber';
 
 const CastVotesModal = new PopupClass();
 CastVotesModal.setListClassName('cast-votes-modal-wrapper');
 CastVotesModal.setItemWrapperClassName('toast-item-wrapper');
 CastVotesModal.setAnimatedSize(false);
 
-const voteTypes = ['PoW block rewards', 'PoS APY'] as const;
+const { Option } = Select;
+
+const voteTypes = ['PoW block rewards', 'PoS APY', 'Storage Point', 'Proposals'] as const;
 const options = ['Increase', 'Decrease', 'Unchange'] as const;
+type VoteTypes = typeof voteTypes[number];
+type ticketTypes = 'pow' | 'pos';
+interface Voting {
+    powBaseReward: [Unit, Unit, Unit];
+    interestRate: [Unit, Unit, Unit];
+    storagePoint: [Unit, Unit, Unit];
+    proposals?: [Unit, Unit, Unit];
+}
 
 let hasInit: boolean = false;
-const CastVotesModalContent: React.FC = memo(({}) => {
-    const { register, handleSubmit: withForm, watch } = useForm();
+const option = (e: PosLockOrigin) => {
+    return (
+        <div className='w-full h-[48px] leading-[48px] ml-[1px] flex justify-center'>
+            <div className='flex items-center'>
+                <img className='w-[24px] h-[24px] rounded-[50px]' src={e.icon || CFX} alt="" />
+            </div>
+            <div className='flex-1 ml-[8px]'>
+                <div>{e.name}</div>
+            </div>
+        </div>
+    )
+}
+const uintZero = Unit.fromStandardUnit(0);
+const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, proposal?: ProposalType }) => {
+    const { register, handleSubmit: withForm, control, watch } = useForm();
     const [inVoting, setInVoting] = useState(false);
+    const [ticket, setTicket] = useState<ticketTypes>('pow');
+    const [voteRadio, setVoteRadio] = useState(options[0]);
+    const [voteValue, setVoteValue] = useState('');
+    const [posPoolIndex, setPosPoolIndex] = useState(0);
 
     const account = useAccount();
+
     const votingRights = useVotingRights();
     const currentAccountVoted = useCurrentAccountVoted();
+    const currentVotingRound = useCurrentVotingRound();
+    const activeProposalUserVotePow = useActiveProposalUserVotePow();
+    const activeProposalUserVotePos = useActiveProposalUserVotePos();
 
-    const isVotingRightsGreaterThan0 = votingRights && Unit.greaterThan(votingRights, Unit.fromStandardUnit(0));
-    const isBlockRewardRightsLtVotingRights =
-        votingRights &&
-        Unit.fromStandardUnit(watch('PoW block rewards-Increase') || 0)
-            .add(Unit.fromStandardUnit(watch('PoW block rewards-Decrease') || 0))
-            .add(Unit.fromStandardUnit(watch('PoW block rewards-Unchange') || 0))
-            .lessThanOrEqualTo(votingRights);
-    const isPosAPYRightsLtVotingRights =
-        votingRights &&
-        Unit.fromStandardUnit(watch('PoS APY-Increase') || 0)
-            .add(Unit.fromStandardUnit(watch('PoS APY-Decrease') || 0))
-            .add(Unit.fromStandardUnit(watch('PoS APY-Unchange') || 0))
-            .lessThanOrEqualTo(votingRights);
+    const posLockArrOrigin = usePosLockArrOrigin();
+
+    const remainingVotePow = useMemo(() => {
+        if (proposal && activeProposalUserVotePow && activeProposalUserVotePow[proposal.proposalId] && activeProposalUserVotePow[proposal.proposalId][proposal?.optionId]) {
+            const total = activeProposalUserVotePow[proposal.proposalId].reduce((a, b) => a.add(b), uintZero);
+            return total?.sub(activeProposalUserVotePow[proposal.proposalId][proposal?.optionId] || uintZero)
+        }
+        return uintZero;
+    }, [])
+
+    // Number of votes remaining after users vote
+    const votingRemainRights = votingRights && votingRights.sub(remainingVotePow).greaterThan(uintZero) ? votingRights.sub(remainingVotePow) : uintZero;
+
+
+
+    const remainingVotePos = useMemo(() => {
+        if (proposal && activeProposalUserVotePos && activeProposalUserVotePos[proposal.proposalId] && activeProposalUserVotePos[proposal.proposalId][posPoolIndex]) {
+            const total = activeProposalUserVotePos[proposal.proposalId][posPoolIndex].reduce((a, b) => a.add(b), uintZero);
+            const remain = total?.sub(activeProposalUserVotePos[proposal.proposalId][posPoolIndex][proposal?.optionId] || uintZero)
+            return remain.greaterThan(uintZero) ? remain : uintZero;
+        }
+        return uintZero;
+    }, [activeProposalUserVotePos])
+    // Number of votes remaining after users vote
+    const votingPosRemainRights = posLockArrOrigin ? posLockArrOrigin[posPoolIndex]?.votePower?.sub(remainingVotePos) : uintZero;
+
+    const inputMaxAmount =
+        ticket === 'pow' ?
+            votingRemainRights?.toDecimalStandardUnit()
+            :
+            votingPosRemainRights?.toDecimalStandardUnit()
+
+    const isValueRightsThanRemainingVote =
+        ticket === 'pow' ?
+            remainingVotePow && votingRights && voteValue && votingRemainRights.greaterThanOrEqualTo(Unit.fromStandardUnit(voteValue))
+            : posLockArrOrigin && voteValue ? votingPosRemainRights.greaterThanOrEqualTo(Unit.fromStandardUnit(voteValue)) : false;
+
+    const futureUserVotePower = useMemo(() => {
+        return posLockArrOrigin && posLockArrOrigin[posPoolIndex]?.futureUserVotePower ? posLockArrOrigin[posPoolIndex]?.futureUserVotePower : uintZero;
+    }, [posPoolIndex])
+    const isRightVoteValueGreaterFutureUserVotePower = useMemo(() => {
+        return futureUserVotePower && voteValue <= futureUserVotePower?.toDecimalStandardUnit()
+    }, [voteValue])
+
+    const proposalList = useProposalList();
+    const currentPage = useCurrentPage();
+    const pageSize = usePageSize();
+    const filterLst = useMemo(() => {
+        if (!proposalList) return [];
+        return proposalList.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+    }, [proposalList, currentPage, pageSize]);
+
 
     useEffect(() => {
         if (hasInit) {
@@ -51,18 +124,73 @@ const CastVotesModalContent: React.FC = memo(({}) => {
         }
     }, [account]);
     useEffect(() => {
+        setVoteValue(defaultValue(options[0]) || '')
+    }, [currentAccountVoted])
+
+    useEffect(() => {
         hasInit = true;
         return () => {
             hasInit = false;
         };
     }, []);
 
-    const onSubmit = useCallback(
-        withForm(async (data) => {
-            handleCastVotes(data as Data, setInVoting);
-        }),
-        []
-    );
+    const onSubmit = () => {
+        // for PoW block rewards, PoS APY, Storage Point Vote
+        if (['PoW block rewards', 'PoS APY', 'Storage Point'].includes(type) && type !== 'Proposals') {
+
+            if (ticket === 'pow') {
+                let data: Data = {
+                    'Type Count': voteTypes.indexOf(type)
+                }
+                data[`${type}-${voteRadio}`] = voteValue
+
+                handlePowCastVotes(data as Data, setInVoting);
+                return;
+            }
+
+            else if (ticket === 'pos') {
+                let data: Data = {
+                    'Type Count': voteTypes.indexOf(type)
+                }
+                data[`${type}-${voteRadio}`] = voteValue
+
+                const votingEscrowAddress = posLockArrOrigin && posLockArrOrigin[posPoolIndex]?.votingEscrowAddress
+                const topicIndex = voteTypes.indexOf(type);
+                handlePosCastVotes(topicIndex, votingEscrowAddress, data as Data, setInVoting);
+
+            }
+
+        }
+        // for Proposals Vote
+        if (['Proposals'].includes(type) && proposal) {
+            const power = ethers.utils.parseUnits(voteValue, 18).toString();
+            if (ticket === 'pow') {
+                handleVote({ poolAddress: undefined, proposalId: proposal.proposalId, optionId: proposal.optionId, power: power })
+            }
+            else if (ticket === 'pos') {
+                const poolContractAddress = posLockArrOrigin && posLockArrOrigin[posPoolIndex]?.poolContractAddress;
+                handleVote({ poolAddress: poolContractAddress, proposalId: proposal.proposalId, optionId: proposal.optionId, power: power })
+            }
+
+        }
+        hideCastVotesModal();
+    }
+
+    const defaultValue = (radio: string) => {
+
+        const filterType = {
+            'PoS APY': 'interestRate',
+            'PoW block rewards': 'powBaseReward',
+            'Storage Point': 'storagePoint',
+            'Proposals': 'proposals'
+        }
+        const filterIndex = options.map((e, i) => e === radio ? i : 0).filter(e => e !== 0)[0] || 0;
+
+        const value = currentAccountVoted?.[filterType[type] as keyof Voting]?.[filterIndex]?.toDecimalStandardUnit();
+
+        return value === '0' ? 0 : value;
+    }
+
 
     return (
         <div className="cast-votes-modal relative w-[444px] p-[24px] bg-white rounded-[4px]">
@@ -72,78 +200,159 @@ const CastVotesModalContent: React.FC = memo(({}) => {
                 src={Close}
                 alt="close icon"
             />
-            <div className="mb-[24px] text-[24px] leading-[32px] font-medium text-[#1B1B1C] text-center">Cast votes</div>
+            <div className="mb-[24px] text-[24px] leading-[32px] font-medium text-[#1B1B1C] text-center">Vote</div>
 
-            <div className="cast-votes-modal-vote-area flex flex-col gap-[16px]">
-                {voteTypes.map((voteType) => (
-                    <div className={'relative p-[12px] pb-[24px] rounded-[4px] border-[1px] border-[#EAECEF] bg-[#FAFBFD]'} key={voteType}>
-                        <div className="mb-[12px] flex items-center justify-between text-[16px] leading-[22px] font-medium text-[#383838]">
-                            Change {voteType}
-                            <span className="text-[12px] leading-[16px] text-[#898D9A] font-normal translate-y-[1px]">
-                                Total voting rights: {votingRights?.toDecimalStandardUnit() ?? '...'}
-                            </span>
-                        </div>
-
-                        <div className="flex flex-col gap-[8px] pl-[1px]">
-                            {options.map((option, index) => (
-                                <Input
-                                    key={option}
-                                    id={`${voteType}-${option}-input`}
-                                    size="small"
-                                    {...register(`${voteType}-${option}`, {
-                                        required: true,
-                                        min: 0,
-                                        max: votingRights?.toDecimalStandardUnit(),
-                                    })}
-                                    type="number"
-                                    step={1e-18}
-                                    min={0}
-                                    max={votingRights?.toDecimalStandardUnit()}
-                                    defaultValue={currentAccountVoted?.[voteType === 'PoS APY' ? 'interestRate' : 'powBaseReward']?.[index]?.toDecimalStandardUnit() ?? 0}
-                                    bindAccout={account}
-                                    suffix={[<InputTextPrefix text={option} />, <InputMAXSuffix />]}
-                                />
-                            ))}
-                        </div>
-
-                        <div
-                            className={cx(
-                                'absolute right-[12px] -bottom-[8px] text-[12px] leading-[16px] text-[#E96170] text-right opacity-0 transition-opacity',
-                                (voteType === 'PoW block rewards' ? !isBlockRewardRightsLtVotingRights : !isPosAPYRightsLtVotingRights) && 'opacity-100'
-                            )}
-                        >
-                            Not enough votes, you can redistribute or get more votes.
-                        </div>
-                    </div>
-                ))}
+            <div className='w-full h-[48px] mb-[24px] flex text-[16px]'>
+                <div
+                    className='flex-1 flex justify-center items-center border-l-[1px] border-t-[1px] border-b-[1px] border-[#808BE7] rounded-l-[4px] cursor-pointer'
+                    style={{
+                        color: ticket === 'pow' ? '#FFF' : '#808BE7',
+                        backgroundColor: ticket === 'pow' ? '#808BE7' : '#FFF'
+                    }}
+                    onClick={() => setTicket('pow')}>
+                    Vote
+                </div>
+                <div
+                    className='flex-1 flex justify-center items-center  border-r-[1px] border-t-[1px] border-b-[1px] border-[#808BE7] rounded-r-[4px] cursor-pointer'
+                    style={{
+                        color: ticket === 'pos' ? '#FFF' : '#808BE7',
+                        backgroundColor: ticket === 'pos' ? '#808BE7' : '#FFF'
+                    }}
+                    onClick={() => setTicket('pos')}>
+                    Proxy Vote</div>
             </div>
 
-            <div className="mt-[16px] mb-[24px] px-[16px] py-[12px] rounded-[4px] text-[14px] leading-[18px] text-[#3D3F4C] bg-[#FCF1E8]">
-                <div>
-                    1. The total voting rights is votes you have locked. You can freely distribute votes on the POW and POS rewards rate parameters. The new
-                    rewards is according to: <MathTex type='result'/>
+            {
+                ticket === 'pos' &&
+                <div className='mb-[8px]'>
+                    <div className='text-[#3D3F4C] text-[16px] mb-[12px]'>Choose a PoS Validators</div>
+                    <Controller
+                        control={control}
+                        {...register('select', {
+                            required: true,
+                        })}
+                        render={({ field }) => (
+                            <Select
+                                className='w-full select-h-48px'
+                                onChange={(value) => {
+                                    setPosPoolIndex(value)
+                                    return field.onChange(value);
+                                }}
+                                optionLabelProp="label"
+                                defaultValue={0}
+                            >
+                                {
+                                    posLockArrOrigin && posLockArrOrigin.length > 0 && posLockArrOrigin.map((e, i) => <Option key={'select-lock-' + e.name + i} value={i} label={option(e)}>
+                                        {option(e)}
+                                    </Option>)
+                                }
+
+                            </Select>
+                        )}
+                    />
                 </div>
-                <div className="mt-[10px]">2. The previous rate is calculated from the previous round of voting.</div>
-                <div className="mt-[4px]">3. During the valid voting period, you can reassign your votes at any time.</div>
+            }
+
+
+            <div className='flex'>
+                <div className='text-[#898D9A]'>Available Voting Power: </div>
+                {
+                    ticket === 'pow' ?
+                        <div className='text-[#3D3F4C]'> {votingRemainRights?.toDecimalStandardUnit() ?? '...'}</div>
+                        :
+                        <div className='text-[#3D3F4C]'> {votingPosRemainRights?.toDecimalStandardUnit() ?? '...'}</div>
+                }
+
+
+
+            </div>
+
+
+            <div className='mt-[24px] border-dashed border-t-[1px]'></div>
+
+            <div className='mt-[24px] p-[12px] border-[1px] border-[#EAECEF] rounded-[4px] bg-[#FAFBFD]'>
+                {
+                    type !== 'Proposals' &&
+                    <>
+                        <div className='flex'>
+                            <div className="px-[10px] min-w-[40px] h-[28px] leading-[28px] rounded-[4px] text-[14px] text-[#808BE7] font-medium bg-[#F0F3FF] text-center">
+                                Round {currentVotingRound}
+                            </div>
+                            <div className="ml-[8px] text-[16px] text-[#3D3F4C] font-medium">{type}</div>
+                        </div>
+                        <div className='mt-[12px] w-full'>
+                            <Radio.Group className='w-full !flex justify-between' value={voteRadio} onChange={(e) => {
+                                setVoteRadio(e.target.value)
+
+                                setVoteValue(defaultValue(e.target.value) || '')
+                            }}>
+                                {
+                                    options.map((option, index) => <Radio key={`vote-radio-${index}`} value={option}> {option} </Radio>)
+                                }
+                            </Radio.Group>
+                        </div>
+                    </>
+                }
+
+                {
+                    type === 'Proposals' && proposal &&
+                    <div className='text-[#3D3F4C] text-[16px]'>
+                        <div>#{filterLst[proposal.proposalId].id} {filterLst[proposal.proposalId].title}</div>
+                    </div>
+
+                }
+
+                <div className='mt-[16px]'>
+                    <Input
+                        className='pr-[150px]'
+                        size="small"
+                        {...register(`${type}-${voteRadio}`, {
+                            required: true,
+                            min: 0,
+                            max: inputMaxAmount,
+
+                        })}
+                        type="number"
+                        step={1e-18}
+                        min={0}
+                        max={inputMaxAmount}
+                        value={voteValue}
+                        bindAccout={account}
+                        onChange={(e) => setVoteValue(e.target.value)}
+                        suffix={[<></>, <><InputMAXSuffix className='!right-[113px]' /><InputTextLastfix text={'Voting Power'} /> </>]}
+                    />
+                </div>
+                {
+                    !isRightVoteValueGreaterFutureUserVotePower && ticket === 'pos' && type !== 'Proposals' &&
+                    <div className='mt-[16px] bg-[#FCF1E8] px-[16px] py-[12px] text-[12px]'>
+                        As the remaining lock time decreases, when the current round ends, your effective voting power is only <span className='text-[#808BE7]'>{futureUserVotePower?.toDecimalStandardUnit()}</span>.<br />
+                        You can increase your voting power by extending the lock period.
+                    </div>
+                }
+
+                {
+                    voteValue !== '' && !isValueRightsThanRemainingVote && <div className='mt-[16px] text-[12px] leading-[16px] text-[#E96170] text-right transition-opacity opacity-100'> Not enough votes, you can redistribute or get more votes. </div>
+                }
+
             </div>
 
             <AuthCoreSpace
                 id="RewardInterestRate-vote-auth"
-                className="max-w-[396px] mx-auto"
+                className="max-w-[396px] mx-auto mt-[24px]"
                 size="large"
                 fullWidth
                 type="button"
                 authContent={() => (
                     <Button
                         id="RewardInterestRate-vote"
-                        className="max-w-[396px] mx-auto"
+                        className="max-w-[396px] mx-auto mt-[24px]"
                         fullWidth
                         size="large"
                         onClick={onSubmit}
-                        loading={!votingRights || inVoting}
-                        disabled={(votingRights && !isVotingRightsGreaterThan0) || !isBlockRewardRightsLtVotingRights || !isPosAPYRightsLtVotingRights}
+                        loading={inVoting}
+                        disabled={!isValueRightsThanRemainingVote}
                     >
-                        Vote
+                        Change Vote
                     </Button>
                 )}
             />
@@ -151,9 +360,9 @@ const CastVotesModalContent: React.FC = memo(({}) => {
     );
 });
 
-export const showCastVotesModal = () =>
+export const showCastVotesModal = ({ type, proposal }: { type: VoteTypes, proposal?: ProposalType }) =>
     CastVotesModal.show({
-        Content: <CastVotesModalContent />,
+        Content: <CastVotesModalContent type={type} proposal={proposal} />,
         duration: 0,
         showMask: true,
         animationType: 'door',
