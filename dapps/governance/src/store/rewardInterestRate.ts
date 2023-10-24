@@ -14,7 +14,7 @@ import { getCurrentBlockNumber, lockDaysAndBlockNumberStore } from './lockDays&b
 
 const dateConfigs = {
     '8888': {
-        start: Unit.fromMinUnit('360000'),
+        start: Unit.fromMinUnit('100000'),
         duration: Unit.fromMinUnit('3600'),
     },
     '1': {
@@ -201,10 +201,16 @@ rewardRateStore.subscribe(
             },
             {
                 intervalTime: 20000,
-                callback: (currentExecValueOrigin: { powBaseReward: string; interestRate: string; storagePoint: string; }) => {
-                    if (typeof currentExecValueOrigin !== 'object') return;
-                    //  Burn x/(1+x), keep 1/(1+x)
-                    currentExecValueOrigin.storagePoint = String(1/(1+1)*1e18); // mock
+                callback: (result: { powBaseReward: string; interestRate: string; storagePointProp: string; }) => {
+                    if (typeof result !== 'object') return;
+                    //  currentExecValueOrigin.storagePoint = String(1/(1+1)*1e18); // Mock: Burn x/(1+x), keep 1/(1+x) 
+                    
+                    const currentExecValueOrigin = {
+                        powBaseReward: result.powBaseReward,
+                        interestRate: result.interestRate,
+                        storagePoint: result.storagePointProp
+                    }
+
                     rewardRateStore.setState({ currentExecValueOrigin });
                     rewardRateStore.setState({
                         prepreVote: {
@@ -342,7 +348,7 @@ rewardRateStore.subscribe(
         const currentVotingRoundEffectiveBlockNumber = currentDataConfig.start.add(Unit.fromMinUnit(currentVotingRound + 1).mul(currentDataConfig.duration));
 
         const currentBlockNumber = getCurrentBlockNumber();
-        
+
         const calcCurrentVotingRoundEndTimestamp = (currentBlockNumber: Unit) =>
             dayjs().add(+currentVotingRoundEndBlockNumber.sub(currentBlockNumber).div(BLOCK_SPEED).toDecimalMinUnit(0), 'second').unix() * 1000;
         const calcCurrentVotingRoundStartTimestamp = (currentBlockNumber: Unit) =>

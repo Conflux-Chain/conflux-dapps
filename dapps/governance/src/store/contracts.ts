@@ -65,14 +65,14 @@ interface Contracts {
 export const stakingContract = createContract<Contracts['stakingContract']>(StakingContract.abi);
 export const stakingContractAddress = convertHexToCfx('0x0888000000000000000000000000000000000002', +Networks.core.chainId);
 export const governanceContract = createContract<Contracts['governanceContract']>(GovernanceContract.abi);
-export const governanceContractAddress = isProduction ? 'cfx:acev1c6tz2gu832fwdj45vxm71sffpat4yewvpteau' : (Networks.core.chainId === '8888' ? 'net8888:acf2rctm2gdgfccfg252tx00dd152gp28uf5w53at3' : 'cfxtest:acd1t8edcjgfpt3vdus9h1srfj4490uu4y2v1rrynx');// cfxtest:acfwmpvz4f2wwhsmbja5n3vbr5ma568fg652szuugc
+export const governanceContractAddress = isProduction ? 'cfx:acev1c6tz2gu832fwdj45vxm71sffpat4yewvpteau' : (Networks.core.chainId === '8888' ? 'NET8888:ACB7V6XWTWKXRVE9CBZFBASYJFUGGM57AA8YGT7DVK' : 'cfxtest:acd1t8edcjgfpt3vdus9h1srfj4490uu4y2v1rrynx');
 export const posContract = createContract<Contracts['posContract']>(PosContract.abi);
 export const posContractAddress = convertHexToCfx('0x0888000000000000000000000000000000000005', +Networks.core.chainId);
 export const paramsControlContract = createContract<Contracts['paramsControlContract']>(ParamsControlContract.abi);
 export const paramsControlContractAddress = convertHexToCfx('0x0888000000000000000000000000000000000007', +Networks.core.chainId);
 export const posPoolContract = createContract<Contracts['posPoolContract']>(PosPoolContract.abi);
 export const posLockVotingEscrowContract = createContract<Contracts['posLockVotingEscrowContract']>(posLockVotingEscrow.abi);
-export const utilContractAddress = isProduction ? '' : 'cfxtest:acc8c30wra8czb9ajz8sj6ug3x0u9vzsvuncee39mg';
+export const utilContractAddress = isProduction ? '' : (Networks.core.chainId === '8888' ? 'NET8888:ACDWRU2F4FY3YZXN958FUBRSM62T0D90D2KG9449XG' : 'cfxtest:acc8c30wra8czb9ajz8sj6ug3x0u9vzsvuncee39mg');
 export const utilContract = createContract<Contracts['utilContract']>(UtilContract.abi);
 
 export default Contracts;

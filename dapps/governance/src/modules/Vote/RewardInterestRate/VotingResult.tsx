@@ -83,9 +83,9 @@ const Result: React.FC<{
     const isVotingPowRightsGreaterThan0 = votingRights && Unit.greaterThan(votingRights, Unit.fromStandardUnit(0));
     const posLockArrOrigin = usePosLockArrOrigin();
     const isVotingPosRightsGreaterThan0 = posLockArrOrigin && posLockArrOrigin?.filter(e => e.votePower.greaterThan(Unit.fromStandardUnit(0))).length > 0;
-
+    
     // When PoW Voting rights >= Total PoS Staking * 5%, the voting result takes effect.
-    const EffectiveThreshold = totalVotingRights && posStakeForVotes && totalVotingRights.toDecimalMinUnit() > posStakeForVotes.mul(Unit.fromMinUnit(0.05)).toDecimalMinUnit()
+    const EffectiveThreshold = totalVotingRights && posStakeForVotes && totalVotingRights.greaterThanOrEqualTo(posStakeForVotes?.mul(Unit.fromMinUnit(0.05)));
 
 
     return (
