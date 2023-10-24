@@ -25,7 +25,7 @@ CastVotesModal.setAnimatedSize(false);
 const { Option } = Select;
 
 const voteTypes = ['PoW block rewards', 'PoS APY', 'Storage Point', 'Proposals'] as const;
-const options = ['Increase', 'Decrease', 'Unchange'] as const;
+const options = ['Increase', 'Unchange', 'Decrease'] as const;
 type VoteTypes = typeof voteTypes[number];
 type ticketTypes = 'pow' | 'pos';
 interface Voting {
@@ -282,6 +282,7 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
                         </div>
                         <div className='mt-[12px] w-full'>
                             <Radio.Group className='w-full !flex justify-between' value={voteRadio} onChange={(e) => {
+                                console.log(e)
                                 setVoteRadio(e.target.value)
 
                                 setVoteValue(defaultValue(e.target.value) || '')

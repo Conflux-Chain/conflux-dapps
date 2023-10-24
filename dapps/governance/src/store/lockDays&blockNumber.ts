@@ -265,7 +265,16 @@ export const startTrackPosLockAmount = () => {
                 try {
                     const result = await fetch('https://raw.githubusercontent.com/conflux-fans/pos-pool/main/contract/gov_pools.json').then((response) => response.json());
 
-                    let posPool: PosPool[] = isProduction ? result.mainnet : result.testnet;
+                    const result8888 = [
+                        {
+                            "name": "test8888",
+                            "address": 'NET8888:ACATSCT5M6P0D5YMK6P11NDHRZAFH4P52EV7HNZ3G5',
+                            "icon": "https://confluxnetwork.org/favicon.ico",
+                            "website": ""
+                        }
+                    ];
+                    
+                    let posPool: PosPool[] = isProduction ? result.mainnet : Networks.core.chainId === '8888' ? result8888 : result.testnet;
 
                     // fetch posLock
                     unsubFetchPosLockData = intervalFetchChain(

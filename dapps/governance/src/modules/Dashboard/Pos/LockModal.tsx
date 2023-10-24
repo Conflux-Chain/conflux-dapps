@@ -5,6 +5,7 @@ import { Unit, useAccount } from '@cfxjs/use-wallet-react/ethereum';
 import { Select } from 'antd';
 import dayjs from 'dayjs';
 
+import Networks from 'common/conf/Networks';
 import BalanceText from 'common/modules/BalanceText';
 import { usePosLockArrOrigin, getCurrentBlockNumber } from 'governance/src/store';
 import { AuthCoreSpace } from 'common/modules/AuthConnectButton';
@@ -35,6 +36,8 @@ const title = {
 };
 const tenTousands = Unit.fromMinUnit(10000);
 const displayInterestRate = (value?: Unit) => Number(value?.div(tenTousands).toDecimalMinUnit()).toFixed(2) ?? '--';
+const BlOCK_AMOUNT_QUARTER = Networks.core.chainId === '8888' ? 7200 : 15768000; // 365 / 4 * 2 * 24 * 60 * 60
+const BlOCK_TIME_QUARTER = Networks.core.chainId === '8888' ? 3600 : 7884000; // 365 / 4 * 24 * 60 * 60
 
 const option = (lockNumber: string, lockTime: string, greaterUnLockNumber: boolean | undefined) => {
     return (
@@ -93,24 +96,24 @@ const LockModalContent: React.FC<{ type: Type, index: number }> = memo(({ type, 
     // quarterly block
     const TimeToUnlock = useMemo(() => {
         const FourQuarters = [];
-        const QuartersBlockNumber = 15768000; // 2 * 3600 * 24 * 365 / 4
 
         if (currentBlockNumber) {
             // Calculate the number of blocks until the next quarter
             // Refer: https://github.com/conflux-fans/pos-pool/blob/daovote2/contract/docs/HowToSupportGovernanceZH.md
-            const coefficient = Math.ceil(+currentBlockNumber?.toDecimalMinUnit() / QuartersBlockNumber) - (+currentBlockNumber?.toDecimalMinUnit() / QuartersBlockNumber)
-            const gapBlock = parseInt(QuartersBlockNumber * coefficient + '');
+            const coefficient = Math.ceil(+currentBlockNumber?.toDecimalMinUnit() / BlOCK_AMOUNT_QUARTER) - (+currentBlockNumber?.toDecimalMinUnit() / BlOCK_AMOUNT_QUARTER)
+            const gapBlock = parseInt(BlOCK_AMOUNT_QUARTER * coefficient + '');
 
             for (let i = 1; i <= 4; i++) {
-                const blockUnit = currentBlockNumber?.add((Unit.fromMinUnit(QuartersBlockNumber).mul(i))).add(Unit.fromMinUnit(gapBlock)) || Unit.fromMinUnit(0);
+                const blockUnit = currentBlockNumber?.add((Unit.fromMinUnit(BlOCK_AMOUNT_QUARTER).mul(i))).add(Unit.fromMinUnit(gapBlock)) || Unit.fromMinUnit(0);
                 const blockNumber = Unit.fromStandardUnit(blockUnit.toDecimalStandardUnit(18)).toDecimalMinUnit();
                 /* 
-                    Refer to the integer multiple of 15768000, with a 3-digit precision deviation, and is backward compatible with 1000 blocks, 
-                    Such as 252287501 - 252288500 -> 252288000
+                    testnet: Refer to the integer multiple of 15768000, with a 3-digit precision deviation, and is backward compatible with 1000 blocks, 
+                    testnet: Such as 252287501 - 252288500 -> 252288000,
+                    testnet8888: Refer to the integer multiple of 3600, with a 3-digit precision deviation, and is backward compatible with 1000 blocks,
                 */
                 const unLockNumber = Math.ceil((+blockNumber - 500) / 1000) * 1000 + '';
                 
-                const time = (+new Date()) + (365 / 4 * i * 24 * 60 * 60 * 1000) + (gapBlock / 2 * 1000);
+                const time = (+new Date()) + (BlOCK_TIME_QUARTER * i * 1000) + (gapBlock / 2 * 1000);
 
                 FourQuarters.push({
                     unLockNumber: unLockNumber,
