@@ -2,36 +2,55 @@ import PropTypes from 'prop-types'
 import {NavLink} from 'react-router-dom'
 import {useLocation, useSearchParam} from 'react-use'
 import {useTranslation} from 'react-i18next'
-import {Logo, DarkLogo, MobileLogo, DarkMobileLogo} from '../../../assets/svg'
-import {useIsMobile} from '../../../hooks'
-import useTheme from '../../../hooks/useTheme'
-import {WalletHub, LanguageButton, ThemeButton} from '../../components'
+// import {Logo, DarkLogo, MobileLogo, DarkMobileLogo} from '../../../assets/svg'
+// import {useIsMobile} from '../../../hooks'
+// import useTheme from '../../../hooks/useTheme'
+// import {WalletHub, LanguageButton, ThemeButton} from '../../components'
+// import {Logo} from '../../../assets/svg'
 import './header.css'
+
 function Header() {
-  const {t, i18n} = useTranslation()
-  const {language} = i18n
+  const {t} = useTranslation()
+  // const {language} = i18n
   const {pathname} = useLocation()
   const fromChain = useSearchParam('fromChain')
   const toChain = useSearchParam('toChain')
   const fromTokenAddress = useSearchParam('fromTokenAddress')
-  const isMobile = useIsMobile()
-  const {value: isDarkMode} = useTheme()
-  
+  // const isMobile = useIsMobile()
+  // const {value: isDarkMode} = useTheme()
+
   if (pathname === '/maintenance' || pathname === '/notfound') {
     return null
   }
-  if (pathname === '/') {
-    return (
-      <div className="h-16 px-3 md:px-8 bg-transparent flex justify-between items-center w-full">
-        {!isMobile ? <DarkLogo /> : <DarkMobileLogo />}
-        <LanguageButton />
-      </div>
-    )
-  }
+  // if (pathname === '/') {
+  //   return (
+  //     <div className="h-16 px-3 md:px-8 bg-transparent flex justify-between items-center w-full">
+  //       {!isMobile ? <DarkLogo /> : <DarkMobileLogo />}
+  //       <LanguageButton />
+  //     </div>
+  //   )
+  // }
   return (
-    <div className="h-12 md:h-16 px-3 md:px-8 bg-transparent flex justify-between items-center w-full">
-      <div className="flex items-center justify-between w-full md:w-auto md:justify-start">
-        {!isMobile &&
+    <div className="mt-8 px-8 bg-transparent flex flex-col justify-center items-center w-full">
+      <div className="flex items-center justify-end w-full">
+        <HeaderLink
+          id="transfer"
+          to={`/?fromChain=${fromChain}&toChain=${toChain}&fromTokenAddress=${fromTokenAddress}`}
+        >
+          {t('transfer')}
+        </HeaderLink>
+        <span className="text-gray-60 text-base inline-block mr-9">
+          {t('historyMenu')}
+        </span>
+        <a
+          className="text-base mr-9 h-6 flex items-center justify-center"
+          id="faq"
+          target="/blank"
+          href="https://battle-muse-fe0.notion.site/Instructions-Of-ZERO-GRAVITY-d59fd10ee5124e9b9970a5e8aa9adc67"
+        >
+          Faq
+        </a>
+        {/* {!isMobile &&
           (!isDarkMode ? (
             <Logo className="mr-8" />
           ) : (
@@ -43,10 +62,10 @@ function Header() {
           to={`/shuttle?fromChain=${fromChain}&toChain=${toChain}&fromTokenAddress=${fromTokenAddress}`}
         >
           {t('app')}
-        </HeaderLink>
+        </HeaderLink> */}
       </div>
-      {!isMobile && (
-        <div className="flex items-center">
+      {/* {!isMobile && (
+        <div className="flex items-center flex-col mt-8 text-gray-80">
           <a
             className="flex items-center justify-center h-8 px-4 bg-gray-20 text-gray-100 rounded-full mr-6"
             href={
@@ -62,8 +81,17 @@ function Header() {
           <WalletHub />
           <ThemeButton />
           <LanguageButton />
+          <div className="flex items-center">
+            <img src={Logo} alt="logo" className="w-[97px] mr-8" />
+            <span id="title" className="text-2xl tracking-widest">
+              ZERO GRAVITY
+            </span>
+          </div>
+          <span className="text-base font-medium leading-5 inline-block mt-7 opacity-70">
+            Make a fast and secure transaction
+          </span>
         </div>
-      )}
+      )} */}
     </div>
   )
 }
@@ -71,11 +99,11 @@ function Header() {
 function HeaderLink({to, children, disabled = false, ...props}) {
   const getStyle = () => {
     if (disabled) return 'text-gray-40'
-    return 'text-gray-60'
+    return 'text-gray-80'
   }
   return (
     <NavLink
-      className={`text-base mr-6 w-8 h-6 flex items-center justify-center ${getStyle()}`}
+      className={`text-base mr-9 h-6 flex items-center justify-center ${getStyle()}`}
       to={to}
       {...props}
     >

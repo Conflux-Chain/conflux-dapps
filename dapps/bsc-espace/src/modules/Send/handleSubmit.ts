@@ -1,9 +1,8 @@
 import { store as walletStore, sendTransaction, Unit } from '@cfxjs/use-wallet-react/ethereum';
-import { tokenStore, recheckApproval, Contracts, trackBalanceChangeOnce, checkNeedApprove, networkStore } from 'bsc-espace/src/store/index';
+import { tokenStore, recheckApproval, trackBalanceChangeOnce, checkNeedApprove, networkStore, contractStore } from 'bsc-espace/src/store/index';
 import { showWaitWallet, showActionSubmitted, hideWaitWallet, hideActionSubmitted } from 'common/components/showPopup/Modal';
 import { showToast } from 'common/components/showPopup/Toast';
 import { addTempDepositToList } from 'bsc-espace/src/modules/Claim/depositStore';
-
 
 // return value === true means need clear input transfer amount;
 const handleSubmit = async (amount: string) => {
@@ -27,7 +26,7 @@ const handleSubmit = async (amount: string) => {
 };
 
 const handleDeposit = async (amount: string) => {
-    const { eSpaceBridgeContractAddress, crossChainBridgeContractAddress, bridgeContract } = Contracts;
+    const { eSpaceBridgeContractAddress, crossChainBridgeContractAddress, bridgeContract } = contractStore.getState();
     const { currentFrom, eSpace, crossChain } = networkStore.getState();
     const { accounts } = walletStore.getState();
     const { token } = tokenStore.getState();
@@ -46,8 +45,10 @@ const handleDeposit = async (amount: string) => {
         const timestamp = parseInt(Date.now() / 1000 + '');
         const TxnHash = await sendTransaction({
             to: bridgeContractAddress,
-            data: bridgeContract.deposit(token.address, Unit.fromStandardUnit(amount).toHexMinUnit(), currentToNetwork.chainId, account, timestamp.toString()).encodeABI(),
-            value: token.isNative ? Unit.fromStandardUnit(amount).toHexMinUnit() : '0x0'
+            data: bridgeContract
+                .deposit(token.address, Unit.fromStandardUnit(amount).toHexMinUnit(), currentToNetwork.chainId, account, timestamp.toString())
+                .encodeABI(),
+            value: token.isNative ? Unit.fromStandardUnit(amount).toHexMinUnit() : '0x0',
         });
 
         addTempDepositToList({
@@ -56,9 +57,9 @@ const handleDeposit = async (amount: string) => {
             amount: Unit.fromStandardUnit(amount).toDecimalMinUnit(),
             token_abbr: 'CFX',
             src_chain_id: currentFromNetwork.chainId,
-            dest_chain_id: currentToNetwork.chainId
+            dest_chain_id: currentToNetwork.chainId,
         });
-        
+
         transactionSubmittedKey = showActionSubmitted(TxnHash);
         trackBalanceChangeOnce.balance(() => hideActionSubmitted(transactionSubmittedKey));
     } catch (err) {
@@ -79,7 +80,7 @@ const handleDeposit = async (amount: string) => {
 };
 
 const handleApproveCRC20 = async () => {
-    const { eSpaceBridgeContractAddress, crossChainBridgeContractAddress, tokenContract } = Contracts;
+    const { eSpaceBridgeContractAddress, crossChainBridgeContractAddress, tokenContract } = contractStore.getState();
     const { currentFrom } = networkStore.getState();
     const { token } = tokenStore.getState();
 

@@ -5,7 +5,15 @@ import {Account, ConnectWallet, AccountError} from '../../components'
 import {TypeAccountStatus} from '../../../constants'
 import {getChainIdRight} from '../../../utils'
 
-function AccountStatus({chain, size = 'medium', className = '', id, onClose}) {
+function AccountStatus({
+  chain,
+  size = 'large',
+  className = '',
+  id,
+  onClose,
+  iconClassName = '',
+  addressClassName = '',
+}) {
   const {address, error, chainId, type, tryActivate} = useWallet(chain)
   const isChainIdRight = getChainIdRight(chain, chainId, address)
   const {type: accountType, errorType} = useAccountStatus(
@@ -23,6 +31,8 @@ function AccountStatus({chain, size = 'medium', className = '', id, onClose}) {
           chain={chain}
           size={size}
           address={address}
+          iconClassName={iconClassName}
+          addressClassName={addressClassName}
         />
       )}
       {accountType === TypeAccountStatus.unconnected && (
@@ -45,6 +55,8 @@ AccountStatus.propTypes = {
   chain: PropTypes.oneOf(SupportedChains).isRequired,
   size: PropTypes.oneOf(['medium', 'large']),
   className: PropTypes.string,
+  iconClassName: PropTypes.string,
+  addressClassName: PropTypes.string,
   id: PropTypes.string,
   onClose: PropTypes.func,
 }

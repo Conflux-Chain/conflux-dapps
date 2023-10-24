@@ -20,7 +20,7 @@ export const isProduction =
     !location.host.startsWith('dev-internal');
 
 export const isStage = location.host.startsWith('stage');
-    
+
 const AllNetworks: Record<string, Network> = {
     '1029': {
         chainId: '1029',
@@ -91,11 +91,22 @@ const AllNetworks: Record<string, Network> = {
     '8888': {
         chainId: '8888',
         chainName: 'Conflux 8888',
-        rpcUrls: ['https://net8888cfx.confluxrpc.com'],
+        rpcUrls: ['http://net8888cfx.confluxrpc.com'],
         blockExplorerUrls: ['https://net8888cfx.confluxscan.net'],
         nativeCurrency: {
             name: 'Conflux',
             symbol: 'CFX',
+            decimals: 18,
+        },
+    },
+    '63': {
+        chainId: '63',
+        chainName: 'ETC Mordor',
+        rpcUrls: ['https://www.ethercluster.com/mordor'],
+        blockExplorerUrls: ['https://blockexplorer.one/ethereum-classic/mordor'],
+        nativeCurrency: {
+            name: 'Ethereum Classic',
+            symbol: 'ETC',
             decimals: 18,
         },
     },
@@ -105,6 +116,7 @@ const Networks = {
     core: AllNetworks[isProduction ? '1029' : location.host.startsWith('net8888') ? '8888' : import.meta.env.VITE_CORE_NETWORK || '1'],
     eSpace: AllNetworks[isProduction ? '1030' : '71'],
     bsc: AllNetworks[isProduction ? '56' : '97'],
+    etc: AllNetworks[isProduction ? '63' : '63'],
 } as const;
 
 export default Networks;

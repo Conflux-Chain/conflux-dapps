@@ -10,6 +10,7 @@ import Expand from 'hub/src/assets/expand.svg';
 import { dapps } from 'hub/src/App';
 import { useNotSupportMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFluent';
 import './index.css';
+import { useExpand, changeExpand } from './sideBarStore';
 
 const dappsSupportMetaMaskHostedByFluent = ['eSpace Bridge', 'Governance', 'Web3 Paywall', 'Bridge', 'Pos'];
 
@@ -18,21 +19,18 @@ const Sidebar: React.FC = () => {
     const currentDapp = useCurrentDapp();
     useNotSupportMetaMaskHostedByFluent(dappsSupportMetaMaskHostedByFluent.includes(currentDapp?.name) ? undefined : currentDapp?.name);
 
-    const [expand, setExpand] = useState(() => {
-        const last = (localStorage.getItem('ConfluxHub-drawer-expand') as 'true') || 'false';
-        if (last === 'true' || last === 'false') return last === 'true';
-        return true;
-    });
+    const expand = useExpand();
 
     const triggerExpand = useCallback(() => {
-        setExpand((pre) => {
-            localStorage.setItem('ConfluxHub-drawer-expand', !pre ? 'true' : 'false');
-            return !pre;
-        });
+        changeExpand();
     }, []);
 
+    const isMobile = () => {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    };
+
     const drawerStyle = useSpring({
-        width: expand ? 222 : 72,
+        width: expand ? (isMobile() ? 300 : 222) : isMobile() ? 0 : 72,
         config: config.stiff,
     });
 
@@ -49,7 +47,14 @@ const Sidebar: React.FC = () => {
     });
 
     return (
-        <a.div className={'leftbar-container relative flex-shrink-0 flex flex-col px-[8px] pb-[36px] bg-white z-10 select-none'} style={drawerStyle}>
+        <a.div
+            className={cx(
+                'leftbar-container flex-shrink-0 flex flex-col pb-[36px]  bg-white z-20 select-none h-[100vh] rounded-none',
+                (expand || !isMobile()) && 'px-[8px]',
+                isMobile() && 'absolute px-0 rounded-r-[12px]'
+            )}
+            style={drawerStyle}
+        >
             <div className="relative flex items-center h-[64px]">
                 <div className="ml-[12px] flex items-center overflow-hidden">
                     <img src={ConfluxHub} className="w-[32px] h-[32px] mr-[2px]" alt="logo" draggable="false" />
@@ -65,7 +70,8 @@ const Sidebar: React.FC = () => {
                 <div
                     className={cx(
                         'absolute top-[50%] -translate-y-[50%] expand-button flex items-center justify-center w-[24px] h-[24px] rounded-full bg-white transition-all cursor-pointer',
-                        expand ? '-right-[20px]' : '-right-[44px]'
+                        expand ? 'md:-right-[20px] right-[12px]' : '-right-[44px]',
+                        !expand && isMobile() && 'hidden'
                     )}
                     onClick={triggerExpand}
                 >
@@ -78,13 +84,19 @@ const Sidebar: React.FC = () => {
                 </div>
             </div>
 
-            <div className="mt-[32px] mb-[8px] ml-[17.62px] text-[12px] leading-[16px] text-[#A9ABB2]">APP</div>
+            <div className={cx('mt-[32px] mb-[8px] ml-[17.62px] text-[12px] leading-[16px] text-[#A9ABB2] ', isMobile() && 'hidden')}>APP</div>
             {dapps
                 .filter((dapp) => dapp.name !== 'ShuttleFlow')
                 .map((dapp, index) => (
                     <Fragment key={dapp.name}>
                         {dapp.name === 'Pos' && (
-                            <div className={cx('mt-[32px] mb-[8px] text-[12px] leading-[16px] text-[#A9ABB2]', expand ? 'ml-[17.62px]' : 'ml-[4px]')}>
+                            <div
+                                className={cx(
+                                    'mt-[32px] mb-[8px] text-[12px] leading-[16px] text-[#A9ABB2]',
+                                    expand ? 'ml-[17.62px]' : 'ml-[4px]',
+                                    isMobile() && 'hidden'
+                                )}
+                            >
                                 Advanced
                             </div>
                         )}
@@ -97,10 +109,10 @@ const Sidebar: React.FC = () => {
                             disabled={expand}
                             animationType="zoom"
                         >
-                            <div className={cx('relative', { 'mt-[12px]': dapp.name !== 'Bridge' && dapp.name !== 'Pos' })}>
+                            <div className={cx('relative', !expand && isMobile() && 'hidden', { 'mt-[12px]': dapp.name !== 'Bridge' && dapp.name !== 'Pos' })}>
                                 <div
                                     className={cx(
-                                        'group flex items-center pl-[8px] h-[48px] rounded-[8px] transition-colors overflow-hidden contain-content',
+                                        'group items-center pl-[8px] h-[48px] rounded-[8px] transition-colors overflow-hidden contain-content flex',
                                         currentDapp.path === dapp.path && 'bg-[#F8F9FE]',
                                         expand && currentDapp.path !== dapp.path && 'hover:bg-[#F8F9FE] cursor-pointer'
                                     )}
@@ -131,7 +143,7 @@ const Sidebar: React.FC = () => {
 
                                 <span
                                     className={cx(
-                                        'absolute right-[-8px] top-[50%] -translate-y-[50%] w-[2px] h-[20px] bg-[#4C70FF] opacity-0 transition-opacity',
+                                        'absolute right-[-8px] top-[50%] -translate-y-[50%] w-[2px] h-[20px] bg-[#4C70FF] opacity-0 transition-opacity ',
                                         !expand && currentDapp.path === dapp.path && 'opacity-100'
                                     )}
                                 />

@@ -29,6 +29,7 @@ function Shuttle() {
   const [confirmModalShow, setConfirmModalShow] = useState(false)
   const [claimModalShow, setClaimModalShow] = useState(false)
   const [value, setValue] = useState('')
+  const [btcAddressVal, setBtcAddressVal] = useState('')
 
   const [txHash, setTxHash] = useState('')
   const {fromChain, toChain, fromTokenAddress, ...others} = queryString.parse(
@@ -102,8 +103,13 @@ function Shuttle() {
     ) {
       nFromTokenAddress = btcTokenPair.address
     }
+    const arr = location.pathname.split('/')
+    const step = Number(arr[arr.length - 1])
     const pathWithQuery = queryString.stringifyUrl({
-      url: location.pathname,
+      url:
+        [1, 2, 3].indexOf(step) > -1
+          ? location.pathname
+          : location.pathname + '1',
       query: {
         ...others,
         fromChain: nFromChain,
@@ -217,9 +223,17 @@ function Shuttle() {
           fromToken={fromToken}
           toToken={toToken}
           onChooseToken={() => setTokenListShow(true)}
-          onNextClick={() => setConfirmModalShow(true)}
+          onNextClick={() =>
+            history.push(
+              `./2${location.search}&value=${value}${
+                btcAddressVal ? '&btcToAddress=' + btcAddressVal : ''
+              }`,
+            )
+          }
           onChangeValue={value => setValue(value)}
           value={value}
+          btcAddressVal={btcAddressVal}
+          setBtcAddressVal={setBtcAddressVal}
           onChangeChain={onChangeChain}
           onInvertChain={onInvertChain}
           fromAddress={fromAddress}

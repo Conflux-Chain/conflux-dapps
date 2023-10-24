@@ -1,0 +1,11 @@
+.step-navigation-circle {
+  @apply bg-transparent
+}
+
+.step-navigation-link--active > .step-navigation-circle {
+  @apply bg-primary
+}
+
+.step-navigation-link--active > .step-navigation-line {
+  @apply !inline-block;
+}

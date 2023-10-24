@@ -13,6 +13,7 @@ function Account({
   chain,
   className,
   iconClassName,
+  addressClassName,
   showIcon = true,
   address,
   size = 'medium',
@@ -24,7 +25,7 @@ function Account({
 
   const iconStyle = useMemo(() => {
     if (size === 'medium') return 'w-4 h-4'
-    if (size === 'large') return 'w-5 h-5'
+    if (size === 'large') return 'w-6 h-6'
   }, [size])
 
   const accountCompStyle = useMemo(() => {
@@ -34,7 +35,7 @@ function Account({
 
   return (
     <div
-      className={`flex items-center text-gray-80 ${accountCompStyle} ${className}`}
+      className={`flex items-center text-black relative ${accountCompStyle} ${className}`}
       {...props}
     >
       {showIcon && !isBtcChain && (
@@ -43,8 +44,10 @@ function Account({
           className={`mr-1 ${iconStyle} ${iconClassName}`}
         />
       )}
-      {!isBtcChain && address && shortenAddress(chain, address)}
-      {isBtcChain && toBtcAddress && shortenAddress(chain, toBtcAddress)}
+      <span className={`ml-1 ${addressClassName}`}>
+        {!isBtcChain && address && shortenAddress(chain, address)}
+        {isBtcChain && toBtcAddress && shortenAddress(chain, toBtcAddress)}
+      </span>
     </div>
   )
 }
@@ -53,6 +56,7 @@ Account.propTypes = {
   chain: PropTypes.oneOf(SupportedChains).isRequired,
   className: PropTypes.string,
   iconClassName: PropTypes.string,
+  addressClassName: PropTypes.string,
   showIcon: PropTypes.bool,
   address: PropTypes.string,
   size: PropTypes.oneOf(['medium', 'large']),

@@ -6,12 +6,12 @@ import {TokenIcon, Account} from '../../components'
 import {useIsCfxChain} from '../../../hooks'
 import {useShuttleFee} from '../../../hooks/useShuttleData'
 
-function ConfirmInfo({fromChain, toChain, fromToken, toAddress}) {
+function ConfirmInfo({fromChain, toChain, fromToken, toAddress, value}) {
   const {display_symbol} = fromToken
   const {t} = useTranslation()
   const isFromChainCfx = useIsCfxChain(fromChain)
   const chainOfContract = isFromChainCfx ? toChain : fromChain
-  const shuttleFee = useShuttleFee(chainOfContract, fromToken, toChain)
+  const shuttleFee = useShuttleFee(chainOfContract, fromToken, toChain, value)
 
   return (
     <div id="confirmInfo" className="flex flex-col w-full">
@@ -46,6 +46,7 @@ ConfirmInfo.propTypes = {
   fromChain: PropTypes.oneOf(SupportedChains).isRequired,
   toChain: PropTypes.oneOf(SupportedChains).isRequired,
   toAddress: PropTypes.string,
+  value:PropTypes.string
 }
 
 export default ConfirmInfo

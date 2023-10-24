@@ -5,6 +5,8 @@
   "shuttleInfo": "Shuttle <strong>{{value}}</strong> {{tokenSymbol}} to {{chain}}",
   "confirm": "Confirm the transaction in {{wallet}}",
   "submitted": "Transaction Submitted",
+  "transfer": "Portal",
+  "historyMenu": "History",
   "viewOnScan": "View on Scan",
   "addTokenToMetaMask": "Add {{tokenSymbol}} to MetaMask",
   "rejected": "Transaction Rejected",
@@ -125,7 +127,7 @@
       "stepOne": "Initiate cross-chain",
       "stepTwo": "Confirm on {{fromChain}} {{fromChainId}}",
       "stepThreeToBtc": "Confirm on ShuttleFlow",
-      "stepThree": "Claim your token and wait for processing",
+      "stepThree": "Confirm on ShuttleFlow",
       "stepFour": "Confirm on {{toChain}} {{toChainId}}"
     }
   },
@@ -138,5 +140,9 @@
     "takeTime": "It may <strong>take a while</strong>, wait here or ",
     "clickSend": "Click Send to continue",
     "clickClaim": "Click Claim to receive your assets"
-  }
+  },
+  "back": "Back",
+  "startOver": "Start Over",
+  "newTx": "New Transaction",
+  "sendToWallet":"Send to Wallet"
 }

@@ -8,7 +8,7 @@ const sizeStyleObj = {
 }
 
 const iconSizeObj = {
-  small: 'w-3 h-3',
+  small: 'w-4 h-4',
   medium: 'w-4 h-4',
   large: 'w-5 h-5',
 }
@@ -50,7 +50,7 @@ function Button({
     } else if (variant === 'contained') {
       if (danger) return 'text-white bg-error hover:bg-error-dark'
       if (color === 'primary')
-        return 'text-white bg-primary hover:bg-primary-dark'
+        return 'text-[#f9f9f9] bg-primary hover:bg-primary-dark'
     }
     return ''
   }, [disabled, variant, color, danger])
@@ -85,7 +85,7 @@ function Button({
       onClick={e => onClick && onClick(e)}
       disabled={disabled}
       className={`
-      flex justify-center items-center focus:outline-none rounded ${disabledStyle} ${colorStyle} ${sizeStyle} ${
+      flex justify-center items-center focus:outline-none rounded-[8px] ${disabledStyle} ${colorStyle} ${sizeStyle} ${
         fullWidth ? 'w-full' : 'px-4'
       } ${className}`}
       {...props}

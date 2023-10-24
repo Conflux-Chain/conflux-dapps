@@ -56,7 +56,7 @@ const Pool: React.FC<{
     const redeemBalance = Unit.lessThan(maximumLiquidity, peggedBalance) ? maximumLiquidity : peggedBalance;
 
     return (
-        <div className="w-full px-[12px] pt-[16px] pb-[24px] rounded-[4px] bg-[#FAFBFD]" id={`bsc-espace-${network.chainName}-pool`}>
+        <div className="w-full px-[12px] pt-[16px] pb-[20px] rounded-[4px] bg-[#FAFBFD]" id={`bsc-espace-${network.chainName}-pool`}>
             <div className="mb-[16px] leading-[28px] text-center text-[20px] text-[#3D3F4C] ">{`${network.chainName} Pool`}</div>
             <div className="mb-[24px] flex justify-between">
                 {maximumLiquidity &&
@@ -95,6 +95,7 @@ const Pool: React.FC<{
                         size="medium"
                         startIcon={<img className="mr-[8px] w-[14px] h-[14px]" src={logo} alt="chain logo" />}
                         loading={inRedeem}
+                        fullWidth
                         disabled={redeemBalance.equalsWith(Unit.fromStandardUnit(0))}
                         onClick={() => handleRedeem(type, setInRedeem)}
                     >

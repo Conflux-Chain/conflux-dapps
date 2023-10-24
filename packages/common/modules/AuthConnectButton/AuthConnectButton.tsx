@@ -12,6 +12,7 @@ const transitions = {
         switchTo: 'Switch {walletName} to {chainName}',
         connect_concise: 'Connect {walletName}',
         connect_specific: 'Connect to {chainName} via {walletName}',
+        connect_wallet: 'Connect Wallet',
         connecting: '{walletName} Connecting...',
         not_installed: '{walletName} Not Installed',
     },
@@ -20,6 +21,7 @@ const transitions = {
         switchTo: '切换 {walletName} 至 {chainName}',
         connect_concise: '连接 {walletName}',
         connect_specific: '通过 {walletName} 连接到 {chainName}',
+        connect_wallet: '连接钱包',
         connecting: '{walletName} 连接中...',
         not_installed: '{walletName} 未安装',
     },
@@ -41,40 +43,46 @@ interface AuthInfo {
 export interface Props extends ButtonProps {
     authInfo: AuthInfo | Array<AuthInfo>;
     authContent: React.ReactNode | Function;
-    connectTextType?: 'concise' | 'specific';
+    connectTextType?: 'concise' | 'specific' | 'wallet';
 }
 
-const checkAuthPass = (authInfo: AuthInfo) => authInfo.currentStatus === 'active' && (authInfo.checkChainMatch ? authInfo.currentChainId === authInfo.network.chainId : true);
+const checkAuthPass = (authInfo: AuthInfo) =>
+    authInfo.currentStatus === 'active' && (authInfo.checkChainMatch ? authInfo.currentChainId === authInfo.network.chainId : true);
 
-const AuthConnectButton: React.FC<Props> = ({
-    authInfo,
-    authContent,
-    connectTextType = 'specific',
-    onClick,
-    ...props
-}) => {
+const AuthConnectButton: React.FC<Props> = ({ authInfo, authContent, connectTextType = 'specific', onClick, ...props }) => {
     const i18n = useI18n(transitions);
-    const currentAuth = Array.isArray(authInfo) ? authInfo.find(auth => !checkAuthPass(auth)) : (checkAuthPass(authInfo) ? undefined : authInfo);
-    
-	const handleClick = useCallback<React.MouseEventHandler<HTMLButtonElement>>((evt) => {
-        if (!currentAuth) return;
-        const { currentStatus, currentChainId, walletName, checkChainMatch, connect, addChain, switchChain, network } = currentAuth;
-		if (currentStatus !== 'active') {
-			evt.preventDefault();
-            connectToWallet({ walletName, connect });
-		} else if (checkChainMatch && network.chainId !== currentChainId) {
-            evt.preventDefault();
-            switchToChain({ walletName, addChain, switchChain, network });
-        } else {
-            onClick?.(evt);
-        }
-	}, [currentAuth, onClick]);
+    const currentAuth = Array.isArray(authInfo) ? authInfo.find((auth) => !checkAuthPass(auth)) : checkAuthPass(authInfo) ? undefined : authInfo;
+
+    const handleClick = useCallback<React.MouseEventHandler<HTMLButtonElement>>(
+        (evt) => {
+            if (!currentAuth) return;
+            const { currentStatus, currentChainId, walletName, checkChainMatch, connect, addChain, switchChain, network } = currentAuth;
+            if (currentStatus !== 'active') {
+                evt.preventDefault();
+                connectToWallet({ walletName, connect });
+            } else if (checkChainMatch && network.chainId !== currentChainId) {
+                evt.preventDefault();
+                switchToChain({ walletName, addChain, switchChain, network });
+            } else {
+                onClick?.(evt);
+            }
+        },
+        [currentAuth, onClick]
+    );
 
     if (!currentAuth) {
         return renderReactNode(authContent);
     }
-    
-    const { currentStatus, currentChainId, network: { chainId, chainName }, walletName, logo, logoClass, checkChainMatch } = currentAuth;
+
+    const {
+        currentStatus,
+        currentChainId,
+        network: { chainId, chainName },
+        walletName,
+        logo,
+        logoClass,
+        checkChainMatch,
+    } = currentAuth;
     const isChainMatch = checkChainMatch ? currentChainId === chainId : true;
 
     return (
@@ -82,16 +90,27 @@ const AuthConnectButton: React.FC<Props> = ({
             {...props}
             disabled={currentStatus !== 'active' && currentStatus !== 'not-active'}
             onClick={handleClick}
-            startIcon={logo ? <img src={logo} alt={`${walletName} logo`} className={typeof logoClass === 'string' ? logoClass : "mr-[4px] w-[14px] h-[14px]"} draggable="false" /> : undefined}
+            startIcon={
+                logo ? (
+                    <img
+                        src={logo}
+                        alt={`${walletName} logo`}
+                        className={typeof logoClass === 'string' ? logoClass : 'mr-[4px] w-[14px] h-[14px]'}
+                        draggable="false"
+                    />
+                ) : undefined
+            }
         >
             {currentStatus === 'active' && !isChainMatch && connectTextType === 'specific' && `${compiled(i18n.switchTo, { walletName, chainName })}`}
             {currentStatus === 'active' && !isChainMatch && connectTextType === 'concise' && `Switch Network`}
+            {currentStatus === 'active' && !isChainMatch && connectTextType === 'wallet' && `${compiled(i18n.switchTo, { walletName, chainName })}`}
             {currentStatus === 'not-active' && connectTextType === 'specific' && `${compiled(i18n.connect_specific, { walletName, chainName })}`}
             {currentStatus === 'not-active' && connectTextType === 'concise' && `${compiled(i18n.connect_concise, { walletName })}`}
+            {currentStatus === 'not-active' && connectTextType === 'wallet' && `${i18n.connect_wallet}`}
             {currentStatus === 'in-activating' && `${compiled(i18n.connecting, { walletName })}`}
             {currentStatus === 'not-installed' && `${compiled(i18n.not_installed, { walletName })}`}
         </Button>
     );
-}
+};
 
 export default AuthConnectButton;
