@@ -38,7 +38,7 @@ const Statistics: React.FC = () => {
 
     const balance = useBalance();
 
-    const totalBalance = balance?.add(totalStaked || 0)?.add(totalLocked || 0);
+    const totalBalance = balance?.add(totalStaked || 0);
 
     return (
         <div className='mt-[16px] flex gap-[24px]'>
