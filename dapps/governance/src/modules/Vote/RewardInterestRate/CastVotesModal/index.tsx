@@ -56,6 +56,7 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
     const [ticket, setTicket] = useState<ticketTypes>('pow');
     const [voteRadio, setVoteRadio] = useState(options[0]);
     const [voteValue, setVoteValue] = useState('');
+    const [voted, setVoted] = useState(false);
     const [posPoolIndex, setPosPoolIndex] = useState(0);
 
     const account = useAccount();
@@ -125,8 +126,19 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
         }
     }, [account]);
     useEffect(() => {
-        setVoteValue(defaultValue(options[0]) || '')
-    }, [currentAccountVoted])
+        selectDefaultValue();
+    }, [currentAccountVoted]);
+
+    const selectDefaultValue = (value?: string) => {
+        const voted = value ? defaultValue(value) : defaultValue(options[0]);
+        if (voted) {
+            setVoteValue(voted);
+            setVoted(true);
+        } else {
+            setVoteValue('');
+            setVoted(false);
+        }
+    }
 
     useEffect(() => {
         hasInit = true;
@@ -286,7 +298,7 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
                             <Radio.Group className='w-full !flex justify-between' value={voteRadio} onChange={(e) => {
                                 setVoteRadio(e.target.value)
 
-                                setVoteValue(defaultValue(e.target.value) || '')
+                                selectDefaultValue(e.target.value);
                             }}>
                                 {
                                     options.map((option, index) => <Radio key={`vote-radio-${index}`} value={option}> {option} </Radio>)
@@ -354,7 +366,10 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
                         loading={inVoting}
                         disabled={!isValueRightsThanRemainingVote}
                     >
-                        Change Vote
+                        {
+                            voted ? 'Change Vote' : 'Vote'
+                        }
+
                     </Button>
                 )}
             />

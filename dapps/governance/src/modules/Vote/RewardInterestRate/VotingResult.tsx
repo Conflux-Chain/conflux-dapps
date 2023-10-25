@@ -170,13 +170,13 @@ const Result: React.FC<{
             </div>
 
             <AuthCoreSpace
-                className="mt-[26px] !flex w-[96px] !h-[32px]"
+                className="mt-[26px] !flex min-w-[96px] !h-[32px]"
                 size="large"
                 type="button"
                 authContent={() => (
                     <Button
                         id="RewardInterestRate-costVotes"
-                        className="mt-[26px] !flex min-w-[96px]  !h-[32px] !text-[12px]"
+                        className="mt-[26px] !flex min-w-[96px] !h-[32px] !text-[12px]"
                         size="large"
                         onClick={() => showCastVotesModal({ type })}
                         disabled={(votingRights && !isVotingPowRightsGreaterThan0) && (posLockArrOrigin && !isVotingPosRightsGreaterThan0)}
