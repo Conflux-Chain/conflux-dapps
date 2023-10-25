@@ -98,7 +98,7 @@ const ProposalItem: React.FC<Proposal & { isOpen: boolean }> = ({ id, title, sta
 const OpenedProposalDetail: React.FC = () => {
     const openedProposalId = useOpenedProposalId();
     const openedProposal = useOpenedProposal();
-    const { proposer, proposalDiscussion, votesAtTime, options, id, status } = openedProposal! || {};
+    const { proposer, description, proposalDiscussion, votesAtTime, options, id, status } = openedProposal! || {};
     const votingRights = useVotingRights();
     const isVotingRightsGraterThan0 = votingRights && votingRights.greaterThan(Unit.fromMinUnit(0));
     const posLockArrOrigin = usePosLockArrOrigin();
@@ -134,6 +134,12 @@ const OpenedProposalDetail: React.FC = () => {
         <div className="proposal-itemWrapper absolute min-h-[560px] left-0 top-0 rounded-[8px] rounded-tl-none bg-white" id={`proposer-${id}`}>
             <ProposalItem {...openedProposal} isOpen={true} />
             <div className={cx('pl-[24px] pr-[34px] pt-[4px]', proposer ? 'opacity-100' : 'opacity-0', status === 'Closed' ? 'pb-[60px]' : 'pb-[24px]')}>
+                {
+                    description && <div className="text-[14px] text-[#898D9A] mb-[16px]">
+                        {description}
+                    </div>
+                }
+
                 <div className="relative h-[24px] leading-[24px]">
                     <span className="text-[14px] text-[#898D9A]">Proposer:</span>
                     <a

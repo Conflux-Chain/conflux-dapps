@@ -172,7 +172,7 @@ export const startTrackPosLockAmount = () => {
                 if (unlockBlock.greaterThan(currentBlockNumber)) {
                     const timestampToUnlock = gapBlockNumber.div(BLOCK_SPEED).mul(Unit.fromMinUnit(1000)).toDecimalMinUnit();
                     
-                    const timeToUnlock = calRemainTime(timestampToUnlock);
+                    const timeToUnlock = calRemainTime(timestampToUnlock, 'only day');
                     
                     return timeToUnlock;
                 } else {
@@ -350,7 +350,7 @@ export const startTrackDaysToUnlock = () => {
             const gapBlockNumber = unlockBlockNumber.greaterThanOrEqualTo(currentBlockNumber) ? unlockBlockNumber.sub(currentBlockNumber) : Unit.fromMinUnit(0);
             if (unlockBlockNumber.greaterThan(currentBlockNumber)) {
                 const timestampToUnlock = gapBlockNumber.div(BLOCK_SPEED).mul(Unit.fromMinUnit(1000)).toDecimalMinUnit();
-                const timeToUnlock = calRemainTime(timestampToUnlock);
+                const timeToUnlock = calRemainTime(timestampToUnlock, 'only day');
                 const votingRightsPerCfx = calVotingRightsPerCfx(gapBlockNumber);
                 lockDaysAndBlockNumberStore.setState({ gapBlockNumber, timestampToUnlock, timeToUnlock, votingRightsPerCfx });
             } else {

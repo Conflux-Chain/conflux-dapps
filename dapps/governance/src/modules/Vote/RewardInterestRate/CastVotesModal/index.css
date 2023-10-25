@@ -33,3 +33,13 @@
         @apply flex-1;
     }
 }
+
+.dapp-modal::-webkit-scrollbar {
+    width: 6px;
+    margin-left: -6px;
+    background: transparent
+}
+.dapp-modal::-webkit-scrollbar-thumb {
+    background: #666;
+    border-radius: 10px;
+}

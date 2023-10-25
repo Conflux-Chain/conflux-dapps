@@ -21,6 +21,7 @@ export interface Option {
 
 export interface Proposal {
     title: string;
+    description: string;
     proposer: string;
     proposalDiscussion: string;
     options: Array<Option>;
@@ -305,18 +306,19 @@ const formatProposal = (proposal: any, currentBlockNumber = getCurrentBlockNumbe
     const res = {
         title: proposal[0],
         proposalDiscussion: proposal[1],
-        votesAtBlockNumber: proposal[2],
+        description: proposal[2],
+        votesAtBlockNumber: proposal[3],
         votesAtTime: calRemainTime(
-            currentBlockNumber.sub(Unit.fromMinUnit(proposal[2])).div(BLOCK_SPEED).mul(Unit.fromMinUnit(1000)).toDecimalMinUnit(),
+            currentBlockNumber.sub(Unit.fromMinUnit(proposal[3])).div(BLOCK_SPEED).mul(Unit.fromMinUnit(1000)).toDecimalMinUnit(),
             'all-without-seconds'
         ),
-        options: proposal[3]?.map?.((option: string, index: number) => ({
+        options: proposal[4]?.map?.((option: string, index: number) => ({
             content: option,
-            amount: Unit.fromMinUnit(proposal[4]?.[index] ?? 0).toDecimalStandardUnit(),
+            amount: Unit.fromMinUnit(proposal[5]?.[index] ?? 0).toDecimalStandardUnit(),
         })),
-        status: proposal[5],
-        proposer: validateHexAddress(proposal[6]) ? convertHexToCfx(proposal[6], Networks.core.chainId) : proposal[6],
-        id: Number(proposal[7]),
+        status: proposal[6],
+        proposer: validateHexAddress(proposal[7]) ? convertHexToCfx(proposal[7], Networks.core.chainId) : proposal[7],
+        id: Number(proposal[8]),
     } as Proposal;
     const allVotes = res.options?.reduce?.((acc, cur) => acc.add(Unit.fromMinUnit(cur.amount)), Unit.fromMinUnit(0));
     res.options.forEach(

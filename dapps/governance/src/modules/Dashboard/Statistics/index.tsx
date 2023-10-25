@@ -23,7 +23,6 @@ const ToolTip = ({ des, ...props }: ToolTipProps) => {
 
 const Statistics: React.FC = () => {
 
-    const [apyShow, setApyShow] = useState(false)
     const posLockArrOrigin = usePosLockArrOrigin();
     const powLockOrigin = usePowLockOrigin();
 
@@ -38,7 +37,7 @@ const Statistics: React.FC = () => {
 
     const balance = useBalance();
 
-    const totalBalance = balance?.add(totalStaked || 0)?.add(totalLocked || 0);
+    const totalBalance = balance?.add(totalStaked || 0);
 
     return (
         <div className='mt-[16px] flex gap-[24px]'>
@@ -59,12 +58,8 @@ const Statistics: React.FC = () => {
 
                     <Link to="https://www.conflux-pos-validators.com/" target='_block'>
                         <Button
-                            className='w-[100px] relative'
-                            onMouseMove={() => setApyShow(true)}
-                            onMouseOut={() => setApyShow(false)}>
-                            {
-                                apyShow && <ToolTip des="APY: ~10%" />
-                            }
+                            className='w-[100px] relative'>
+                            <ToolTip des="APY: ~10%+" />
                             <span>PoS Stake</span>
                         </Button>
                     </Link>

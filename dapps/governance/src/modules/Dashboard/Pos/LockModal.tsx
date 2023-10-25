@@ -66,7 +66,9 @@ const LockModalContent: React.FC<{ type: Type, index: number }> = memo(({ type, 
 
     const currentBlockNumber = getCurrentBlockNumber();
     const posLockArrOrigin = usePosLockArrOrigin();
-    const posLockArrOriginIndex = posLockArrOrigin && posLockArrOrigin[index];
+    const posLockArrOriginIndex = useMemo(() => {
+        return posLockArrOrigin && posLockArrOrigin[index];
+    },[])
 
     const isAvailableBalanceGreaterThan0 =
         type === 'lock' ? posLockArrOriginIndex?.stakeAmount && Unit.greaterThan(posLockArrOriginIndex.stakeAmount, Unit.fromStandardUnit(0))
@@ -189,7 +191,7 @@ const LockModalContent: React.FC<{ type: Type, index: number }> = memo(({ type, 
                     <div className="mt-[12px] p-[12px] border-[1px] border-[#EAECEF] rounded-[4px] bg-[#FAFBFD]">
                         <div className="text-[14px] flex justify-between">
                             <div className="text-[#898D9A]">Current Voting Power</div>
-                            <BalanceText className='text-[#3D3F4C]' id="Lock Pos Voting Power" balance={posLockArrOriginIndex?.votePower} symbol="CFX" />
+                            <BalanceText className='text-[#3D3F4C]' id="Lock Pos Voting Power" balance={posLockArrOriginIndex?.votePower} symbol="" />
                         </div>
                         <div className="mt-[12px] text-[14px] flex justify-between">
                             <div className="text-[#898D9A]">Current Locked</div>
