@@ -45,7 +45,7 @@ const StakePos: React.FC = () => {
                             <div>
                                 <div>{item.unlockBlockDay?.toString()}</div>
                                 {
-                                    item.unlockBlock && item.unlockBlock !== zero &&
+                                    item.unlockBlock && item.unlockBlock.greaterThan(zero) &&
                                     <div className='text-[#808BE7] cursor-pointer' onClick={() => showLockModal('extend', index)}>Extend</div>
                                 }
 

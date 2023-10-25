@@ -198,8 +198,13 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
             'Proposals': 'proposals'
         }
         const filterIndex = options.map((e, i) => e === radio ? i : 0).filter(e => e !== 0)[0] || 0;
+        
+        // UI ['Increase', 'Unchange', 'Decrease']
+        // Chain Data ['Increase', 'Decrease', 'Unchange']
+        // So change the last two digits
+        const realIndex = [0, 2, 1][filterIndex];
 
-        const value = currentAccountVoted?.[filterType[type] as keyof Voting]?.[filterIndex]?.toDecimalStandardUnit();
+        const value = currentAccountVoted?.[filterType[type] as keyof Voting]?.[realIndex]?.toDecimalStandardUnit();
 
         return value === '0' ? 0 : value;
     }
