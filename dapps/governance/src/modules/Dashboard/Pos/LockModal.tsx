@@ -66,7 +66,9 @@ const LockModalContent: React.FC<{ type: Type, index: number }> = memo(({ type, 
 
     const currentBlockNumber = getCurrentBlockNumber();
     const posLockArrOrigin = usePosLockArrOrigin();
-    const posLockArrOriginIndex = posLockArrOrigin && posLockArrOrigin[index];
+    const posLockArrOriginIndex = useMemo(() => {
+        return posLockArrOrigin && posLockArrOrigin[index];
+    },[])
 
     const isAvailableBalanceGreaterThan0 =
         type === 'lock' ? posLockArrOriginIndex?.stakeAmount && Unit.greaterThan(posLockArrOriginIndex.stakeAmount, Unit.fromStandardUnit(0))

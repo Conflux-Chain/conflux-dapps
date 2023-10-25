@@ -214,45 +214,6 @@
         },
         {
             "inputs": [],
-            "name": "PARAMS_CONTROL",
-            "outputs": [
-                {
-                    "internalType": "contract ParamsControl",
-                    "name": "",
-                    "type": "address"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "POS_REGISTER",
-            "outputs": [
-                {
-                    "internalType": "contract PoSRegister",
-                    "name": "",
-                    "type": "address"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "PROPOSAL_ROLE",
-            "outputs": [
-                {
-                    "internalType": "bytes32",
-                    "name": "",
-                    "type": "bytes32"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [],
             "name": "RATIO_BASE",
             "outputs": [
                 {
@@ -262,80 +223,6 @@
                 }
             ],
             "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "STAKING",
-            "outputs": [
-                {
-                    "internalType": "contract Staking",
-                    "name": "",
-                    "type": "address"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "proposalId",
-                    "type": "uint256"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "optionId",
-                    "type": "uint256"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "power",
-                    "type": "uint256"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "availableVotePower",
-                    "type": "uint256"
-                }
-            ],
-            "name": "_vote",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "proposalId",
-                    "type": "uint256"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "optionId",
-                    "type": "uint256"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "power",
-                    "type": "uint256"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "availableVotePower",
-                    "type": "uint256"
-                },
-                {
-                    "internalType": "address",
-                    "name": "pool",
-                    "type": "address"
-                }
-            ],
-            "name": "_voteThroughPos",
-            "outputs": [],
-            "stateMutability": "nonpayable",
             "type": "function"
         },
         {
@@ -442,6 +329,11 @@
                             "type": "string"
                         },
                         {
+                            "internalType": "string",
+                            "name": "description",
+                            "type": "string"
+                        },
+                        {
                             "internalType": "uint256",
                             "name": "deadline",
                             "type": "uint256"
@@ -505,6 +397,11 @@
                         {
                             "internalType": "string",
                             "name": "discussion",
+                            "type": "string"
+                        },
+                        {
+                            "internalType": "string",
+                            "name": "description",
                             "type": "string"
                         },
                         {
@@ -746,6 +643,11 @@
                     "type": "string"
                 },
                 {
+                    "internalType": "string",
+                    "name": "description",
+                    "type": "string"
+                },
+                {
                     "internalType": "uint256",
                     "name": "deadline",
                     "type": "uint256"
@@ -873,6 +775,11 @@
                     "internalType": "string[]",
                     "name": "options",
                     "type": "string[]"
+                },
+                {
+                    "internalType": "string",
+                    "name": "description",
+                    "type": "string"
                 }
             ],
             "name": "submit",
@@ -911,6 +818,11 @@
                     "internalType": "address",
                     "name": "proposer",
                     "type": "address"
+                },
+                {
+                    "internalType": "string",
+                    "name": "description",
+                    "type": "string"
                 }
             ],
             "name": "submitHistoryProposalByWhitelist",
@@ -939,6 +851,11 @@
                     "internalType": "string[]",
                     "name": "options",
                     "type": "string[]"
+                },
+                {
+                    "internalType": "string",
+                    "name": "description",
+                    "type": "string"
                 }
             ],
             "name": "submitProposal",
@@ -972,6 +889,11 @@
                     "internalType": "address",
                     "name": "proposer",
                     "type": "address"
+                },
+                {
+                    "internalType": "string",
+                    "name": "description",
+                    "type": "string"
                 }
             ],
             "name": "submitProposalByWhitelist",

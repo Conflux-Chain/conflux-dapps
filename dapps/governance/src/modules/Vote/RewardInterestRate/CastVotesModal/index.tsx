@@ -16,6 +16,7 @@ import './index.css';
 import handleVote, { ProposalType } from '../../Proposals/handleVote';
 import { ethers } from 'ethers';
 import { PosLockOrigin } from 'governance/src/store/lockDays&blockNumber';
+import BalanceText from 'common/modules/BalanceText';
 
 const CastVotesModal = new PopupClass();
 CastVotesModal.setListClassName('cast-votes-modal-wrapper');
@@ -89,7 +90,7 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
         return uintZero;
     }, [activeProposalUserVotePos])
     // Number of votes remaining after users vote
-    const votingPosRemainRights = posLockArrOrigin ? posLockArrOrigin[posPoolIndex]?.votePower?.sub(remainingVotePos) : uintZero;
+    const votingPosRemainRights = posLockArrOrigin && posLockArrOrigin.length > 0 ? posLockArrOrigin[posPoolIndex]?.votePower?.sub(remainingVotePos) : uintZero;
 
     const inputMaxAmount =
         ticket === 'pow' ?
@@ -239,7 +240,8 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
                                     return field.onChange(value);
                                 }}
                                 optionLabelProp="label"
-                                defaultValue={0}
+                                disabled={!(posLockArrOrigin && posLockArrOrigin.length > 0)}
+                                defaultValue={posLockArrOrigin && posLockArrOrigin.length > 0 ? 0 : undefined}
                             >
                                 {
                                     posLockArrOrigin && posLockArrOrigin.length > 0 && posLockArrOrigin.map((e, i) => <Option key={'select-lock-' + e.name + i} value={i} label={option(e)}>
@@ -258,9 +260,9 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
                 <div className='text-[#898D9A]'>Available Voting Power: </div>
                 {
                     ticket === 'pow' ?
-                        <div className='text-[#3D3F4C]'> {votingRemainRights?.toDecimalStandardUnit() ?? '...'}</div>
+                        <BalanceText className="text-[#3D3F4C]" balance={votingRemainRights} symbol={''} decimals={18} />
                         :
-                        <div className='text-[#3D3F4C]'> {votingPosRemainRights?.toDecimalStandardUnit() ?? '...'}</div>
+                        <BalanceText className="text-[#3D3F4C]" balance={votingPosRemainRights} symbol={''} decimals={18} />
                 }
 
 
@@ -282,7 +284,6 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
                         </div>
                         <div className='mt-[12px] w-full'>
                             <Radio.Group className='w-full !flex justify-between' value={voteRadio} onChange={(e) => {
-                                console.log(e)
                                 setVoteRadio(e.target.value)
 
                                 setVoteValue(defaultValue(e.target.value) || '')
