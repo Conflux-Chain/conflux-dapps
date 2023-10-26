@@ -209,7 +209,7 @@ const Result: React.FC<{
                 )}
             />
 
-        </div >
+        </div>
     );
 };
 
