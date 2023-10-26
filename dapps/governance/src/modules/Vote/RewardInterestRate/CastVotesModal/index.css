@@ -37,7 +37,6 @@
     overflow-y: auto;
 }
 .dapp-modal .toast-item-wrapper::-webkit-scrollbar {
-    
     width: 6px;
     margin-left: -6px;
     background: transparent

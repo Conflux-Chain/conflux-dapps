@@ -191,7 +191,7 @@ export const startTrackPosLockAmount = () => {
     const fetchPosLockData = async () => {
         unsubFetchPosLockData?.()
 
-        const account = getAccount();
+        const account = getAccount(); // 'net8888:aap7yfv4bhh5db8xrnu3w27v8dcjzwavtyjjatxkcw';
         if (!account || !validateCfxAddress(account)) {
             return;
         }
@@ -333,19 +333,24 @@ export const startTrackPosLockAmount = () => {
             {
                 intervalTime: 3000,
                 callback: (hexRes: string) => {
+                    const { posLockArrOrigin } = lockDaysAndBlockNumberStore.getState();
+
                     let result = decodeHexResult(utilContract.getStakeInfos(posPool.map(e => convertCfxToHex(e.address)), account)._method.outputs, hexRes)?.[0];
 
                     if (!result || result.length === 0) return;
 
                     let resultFilter = result.filter((item: any) => item.stakeAmount > 0);
-                    const posLockArrOrigin: PosLockOrigin[] = resultFilter.map((item: PosLockOrigin, index: number) => {
+                    const posLockArrOriginNew: PosLockOrigin[] = resultFilter.map((item: PosLockOrigin, index: number) => {
                         // stakeAmount is greater than 0 valid
                         const unlockBlock = Unit.fromMinUnit(item?.unlockBlock ?? '0');
 
                         const posPoolFilter: PosPool | undefined = posPool.find((e: PosPool) => convertCfxToHex(e.address).toLocaleLowerCase() === item?.pool.toLocaleLowerCase());
+                        
+                        const havePosLockArrOrigin = posLockArrOrigin && posLockArrOrigin[index]; // votingEscrow and futureUserVotePower needs to be obtained separately, so the previous default value is given
+
                         return {
                             poolContractAddress: posPoolFilter && posPoolFilter.address,
-                            votingEscrowAddress: '', // votingEscrow
+                            votingEscrowAddress: havePosLockArrOrigin ? posLockArrOrigin[index]?.votingEscrowAddress : '', // votingEscrow
                             apy: Unit.fromMinUnit(item?.apy),
                             name: posPoolFilter && posPoolFilter.name || item?.name,
                             icon: posPoolFilter && posPoolFilter.icon,
@@ -357,16 +362,17 @@ export const startTrackPosLockAmount = () => {
                             unlockBlockDay: calTimeToUnlock(unlockBlock),
                             unlockBlockTime: calcCurrentVotingRoundEndTimestamp(unlockBlock),
                             votePower: Unit.fromMinUnit(item?.votePower ?? 0),
+                            futureUserVotePower: havePosLockArrOrigin ? posLockArrOrigin[index]?.futureUserVotePower : Unit.fromMinUnit(0), // futureUserVotePower
                         }
                     })
-                    lockDaysAndBlockNumberStore.setState({ posLockArrOrigin });
+                    lockDaysAndBlockNumberStore.setState({ posLockArrOrigin: posLockArrOriginNew });
                     fetchVotingEscrow?.()
 
                 },
             }
         )();
     }
-
+   
     unSubExec.push(confluxStore.subscribe(
         (state) => state.accounts,
         () => {

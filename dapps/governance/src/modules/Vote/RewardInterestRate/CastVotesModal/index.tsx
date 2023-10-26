@@ -104,12 +104,14 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
             remainingVotePow && votingRights && voteValue && votingRemainRights.greaterThanOrEqualTo(Unit.fromStandardUnit(voteValue))
             : posLockArrOrigin && voteValue ? votingPosRemainRights.greaterThanOrEqualTo(Unit.fromStandardUnit(voteValue)) : false;
 
-    const futureUserVotePower = useMemo(() => {
-        return posLockArrOrigin && posLockArrOrigin[posPoolIndex]?.futureUserVotePower ? posLockArrOrigin[posPoolIndex]?.futureUserVotePower : uintZero;
-    }, [posPoolIndex])
+    const futureUserVotePower = posLockArrOrigin && posLockArrOrigin[posPoolIndex]?.futureUserVotePower;
+   
     const isRightVoteValueGreaterFutureUserVotePower = useMemo(() => {
-        return futureUserVotePower && voteValue <= futureUserVotePower?.toDecimalStandardUnit()
-    }, [voteValue])
+        if (voteValue !== '' && !isValueRightsThanRemainingVote) {
+            return true
+        }
+        return futureUserVotePower && voteValue && Unit.fromStandardUnit(voteValue).lessThanOrEqualTo(futureUserVotePower)
+    }, [voteValue, futureUserVotePower])
 
     const proposalList = useProposalList();
     const currentPage = useCurrentPage();
@@ -342,16 +344,18 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
                     />
                 </div>
                 {
-                    !isRightVoteValueGreaterFutureUserVotePower && ticket === 'pos' && type !== 'Proposals' &&
+                    voteValue !== '' && !isValueRightsThanRemainingVote && <div className='mt-[16px] text-[12px] leading-[16px] text-[#E96170] text-right transition-opacity opacity-100'> Not enough votes, you can redistribute or get more votes. </div>
+                }
+
+                {
+                    !isRightVoteValueGreaterFutureUserVotePower && ticket === 'pos' && type !== 'Proposals' && voteValue !== '' && 
                     <div className='mt-[16px] bg-[#FCF1E8] px-[16px] py-[12px] text-[12px]'>
                         As the remaining lock time decreases, when the current round ends, your effective voting power is only <span className='text-[#808BE7]'>{futureUserVotePower?.toDecimalStandardUnit()}</span>.<br />
                         You can increase your voting power by extending the lock period.
                     </div>
                 }
 
-                {
-                    voteValue !== '' && !isValueRightsThanRemainingVote && <div className='mt-[16px] text-[12px] leading-[16px] text-[#E96170] text-right transition-opacity opacity-100'> Not enough votes, you can redistribute or get more votes. </div>
-                }
+                
 
             </div>
 
