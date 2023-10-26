@@ -33,13 +33,16 @@
         @apply flex-1;
     }
 }
-
-.dapp-modal::-webkit-scrollbar {
+.dapp-modal .toast-item-wrapper {
+    overflow-y: auto;
+}
+.dapp-modal .toast-item-wrapper::-webkit-scrollbar {
+    
     width: 6px;
     margin-left: -6px;
     background: transparent
 }
-.dapp-modal::-webkit-scrollbar-thumb {
+.dapp-modal .toast-item-wrapper::-webkit-scrollbar-thumb {
     background: #666;
     border-radius: 10px;
 }

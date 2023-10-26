@@ -1,5 +1,6 @@
 import React, { useMemo, memo } from 'react';
 import cx from 'clsx';
+import { Progress } from 'antd';
 import dayjs from 'dayjs';
 import { Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
 import { useCurrentVote, usePreVote, usePrePreVote, usePosStakeForVotes, usePosLockArrOrigin, useVotingRights } from 'governance/src/store';
@@ -8,7 +9,8 @@ import SuccessIcon from 'pos/src/assets/success.svg';
 import { AuthCoreSpace } from 'common/modules/AuthConnectButton';
 import Button from 'common/components/Button';
 import { showCastVotesModal } from './CastVotesModal';
-import ToolTip from 'common/components/Tooltip';
+import Popper from 'common/components/Popper';
+import numFormat from 'common/utils/numFormat';
 
 const options = [
     {
@@ -52,7 +54,7 @@ const TypeUnit = {
 }
 
 const voteTypes = ['PoW block rewards', 'PoS APY', 'Storage Point', 'Proposals'] as const;
-type VoteTypes = typeof voteTypes[number]; 
+type VoteTypes = typeof voteTypes[number];
 
 const Result: React.FC<{
     type: VoteTypes;
@@ -83,10 +85,13 @@ const Result: React.FC<{
     const isVotingPowRightsGreaterThan0 = votingRights && Unit.greaterThan(votingRights, Unit.fromStandardUnit(0));
     const posLockArrOrigin = usePosLockArrOrigin();
     const isVotingPosRightsGreaterThan0 = posLockArrOrigin && posLockArrOrigin?.filter(e => e.votePower.greaterThan(Unit.fromStandardUnit(0))).length > 0;
-    
+
     // When PoW Voting rights >= Total PoS Staking * 5%, the voting result takes effect.
     const EffectiveThreshold = totalVotingRights && posStakeForVotes && totalVotingRights.greaterThanOrEqualTo(posStakeForVotes?.mul(Unit.fromMinUnit(0.05)));
 
+    const percentUnit = posStakeForVotes && totalVotingRights && totalVotingRights.div(posStakeForVotes?.mul(Unit.fromMinUnit(0.05)));
+
+    const percentNumber = percentUnit ? Number(percentUnit.toDecimalMinUnit()) * 100 : 0;
 
     return (
         <div className="w-full flex-1 border-[1px] border-solid rounded-[4px] p-[16px]">
@@ -99,16 +104,34 @@ const Result: React.FC<{
                     >
                         {TypeTitle[type]}
                     </div>
-                    {
-                        EffectiveThreshold ?
-                            <img className="w-[20px] h-[20px]" src={SuccessIcon} alt="" />
-                            :
-                            <ToolTip text={'Effective threshold'}>
-                                <SvgLoading className="animate-spin text-gray-20 w-[20px] h-[20px]" />
-                            </ToolTip>
+
+                    <Popper
+                        className="voting-result-tooltip"
+                        placement={'top'}
+                        animationType={'zoom'}
+                        arrow={true}
+                        Content={<div className='w-[210px] bg-[#1B1B1C] text-white py-[4px] px-[8px] text-[12px] leading-[16px]'>Current voting power: {numFormat(Unit.fromMinUnit(totalVotingRights ?? '0').toDecimalStandardUnit())} <br />
+                            Required voting power: {numFormat(Unit.fromMinUnit(posStakeForVotes?.mul(Unit.fromMinUnit(0.05)) ?? '0').toDecimalStandardUnit())} <br /><br />
+
+                            When the current required vp, the voting results take effect.</div>}
+                        delay={180}
+                    >
+                        <div>
+                            {
+                                EffectiveThreshold ?
+                                    <img className="w-[20px] h-[20px]" src={SuccessIcon} alt="" />
+                                    :
+                                    <div className="voting-result-progress">
+                                        <Progress type="circle" percent={percentNumber} strokeWidth={15} strokeColor="#808BE7" showInfo={false}/>
+                                    </div>
+
+                            }
+                        </div>
+                    </Popper>
 
 
-                    }
+
+
 
                 </div>
 
