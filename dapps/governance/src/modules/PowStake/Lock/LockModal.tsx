@@ -17,9 +17,6 @@ import Warning from 'common/assets/icons/warning3.svg';
 import handleLock from './handleLock';
 
 const LockModal = new PopupClass();
-LockModal.setListStyle({
-    top: '206px',
-});
 LockModal.setItemWrapperClassName('toast-item-wrapper');
 LockModal.setAnimatedSize(false);
 
@@ -96,7 +93,7 @@ const LockModalContent: React.FC<{ type: Type }> = memo(({ type }) => {
     );
 
     return (
-        <div className="relative w-[444px] p-[24px] bg-white rounded-[4px]">
+        <div className="relative w-[444px] min-h-[400px] p-[24px] bg-white rounded-[4px]">
             <img
                 className="absolute right-[12px] top-[13px] w-[16px] h-[16px] cursor-pointer hover:scale-110 transition-transform select-none z-20"
                 onClick={hideLockModal}
@@ -153,7 +150,7 @@ const LockModalContent: React.FC<{ type: Type }> = memo(({ type }) => {
                     )}
 
                     {type !== 'add' && (
-                        <div className="mb-[16px]">
+                        <div className="mb-[36px]">
                             <div className="mb-[4px] text-[16px] leading-[22px] text-[#3D3F4C] font-medium">Locking Period</div>
                             <div className="mb-[12px] text-[14px] leading-[18px] text-[#898D9A]">
                                 Voting rights is given when CFX are locked for at least a quarter.

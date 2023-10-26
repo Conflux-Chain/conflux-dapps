@@ -109,233 +109,289 @@ export const startTrackUnlockBlockNumber = () => {
 
 let unsubFetchPowLockData: VoidFunction | null = null;
 export const startTrackPowLockAmount = () => {
-    return confluxStore.subscribe(
-        (state) => state.accounts,
-        (accounts) => {
-            const account = accounts?.[0];
-            unsubFetchPowLockData?.();
-            if (!account || !validateCfxAddress(account)) {
-                return;
+    const unSubExec: Function[] = [];
+    const getAccount = () => confluxStore.getState().accounts?.[0];
+
+    const fetchPowLockData = async () => {
+        const account = getAccount();
+        unsubFetchPowLockData?.();
+        if (!account || !validateCfxAddress(account)) {
+            return;
+        }
+        const chainId = confluxStore.getState().chainId;
+        if (Networks.core.chainId != chainId) {
+            lockDaysAndBlockNumberStore.setState({
+                powLockOrigin: {
+                    lockAmount: Unit.fromMinUnit(0),
+                    stakeAmount: Unit.fromMinUnit(0),
+                    unlockBlock: Unit.fromMinUnit(0), // interface not support
+                    votePower: Unit.fromMinUnit(0),
+                }
+            });
+            return;
+        }
+
+        unsubFetchPowLockData = intervalFetchChain(
+            {
+                rpcUrl: Networks.core.rpcUrls[0],
+                method: 'cfx_call',
+                params: [
+                    {
+                        to: utilContractAddress,
+                        data: utilContract.getSelfStakeInfo(convertCfxToHex(account)).encodeABI(),
+                    },
+                    'latest_state',
+                ],
+                equalKey: `Pos:lockAmount-${account}`,
+            },
+            {
+                intervalTime: 20000,
+                callback: (hexRes: string) => {
+                    const result = decodeHexResult(utilContract.getSelfStakeInfo(account)._method.outputs, hexRes)?.[0];
+                    lockDaysAndBlockNumberStore.setState({
+                        powLockOrigin: {
+                            lockAmount: Unit.fromMinUnit(result?.lockAmount ?? 0),
+                            stakeAmount: Unit.fromMinUnit(result?.stakeAmount ?? 0),
+                            unlockBlock: Unit.fromMinUnit(0), // interface not support
+                            votePower: Unit.fromMinUnit(result?.votePower ?? 0),
+                        }
+                    });
+                },
             }
-            unsubFetchPowLockData = intervalFetchChain(
-                {
+        )();
+    }
+    unSubExec.push(confluxStore.subscribe(
+        (state) => state.accounts,
+        () => {
+            fetchPowLockData()
+        },
+        { fireImmediately: true }
+    ));
+
+    unSubExec.push(confluxStore.subscribe(
+        (state) => state.chainId,
+        () => {
+            fetchPowLockData()
+        },
+        { fireImmediately: true }
+    ));
+
+    return () => {
+        unSubExec.forEach((unsub) => unsub());
+    };
+
+}
+
+let unsubFetchPosLockData: VoidFunction | null;
+export const startTrackPosLockAmount = () => {
+    const unSubExec: Function[] = [];
+    const getAccount = () => confluxStore.getState().accounts?.[0];
+
+
+    const fetchPosLockData = async () => {
+        unsubFetchPosLockData?.()
+
+        const account = getAccount(); // 'net8888:aap7yfv4bhh5db8xrnu3w27v8dcjzwavtyjjatxkcw';
+        if (!account || !validateCfxAddress(account)) {
+            return;
+        }
+        const chainId = confluxStore.getState().chainId;
+        if (Networks.core.chainId != chainId) {
+            lockDaysAndBlockNumberStore.setState({
+                posLockArrOrigin: undefined
+            });
+            return;
+        }
+
+        const calTimeToUnlock = (unlockBlock: Unit) => {
+            const { currentBlockNumber } = lockDaysAndBlockNumberStore.getState();
+            if (!unlockBlock || !currentBlockNumber) {
+                return '0';
+            }
+
+            const gapBlockNumber = unlockBlock.greaterThanOrEqualTo(currentBlockNumber) ? unlockBlock.sub(currentBlockNumber) : Unit.fromMinUnit(0);
+
+            if (unlockBlock.greaterThan(currentBlockNumber)) {
+                const timestampToUnlock = gapBlockNumber.div(BLOCK_SPEED).mul(Unit.fromMinUnit(1000)).toDecimalMinUnit();
+
+                const timeToUnlock = calRemainTime(timestampToUnlock, 'only day');
+
+                return timeToUnlock;
+            } else {
+                return '0'
+            }
+        };
+        const calcCurrentVotingRoundEndTimestamp = (endBlockNumber: Unit) => {
+            const { currentBlockNumber } = lockDaysAndBlockNumberStore.getState();
+            if (!currentBlockNumber) {
+                return 0;
+            }
+            return dayjs().add(+endBlockNumber.sub(currentBlockNumber).div(BLOCK_SPEED).toDecimalMinUnit(0), 'second').unix() * 1000;
+        }
+
+        // fetch votingEscrow
+        const fetchVotingEscrow = async () => {
+
+            const { posLockArrOrigin } = lockDaysAndBlockNumberStore.getState();
+
+            let promises: Promise<any>[] | undefined = posLockArrOrigin?.map((item: PosLockOrigin) => {
+                return fetchChain({
                     rpcUrl: Networks.core.rpcUrls[0],
                     method: 'cfx_call',
                     params: [
                         {
-                            to: utilContractAddress,
-                            data: utilContract.getSelfStakeInfo(convertCfxToHex(account)).encodeABI(),
+                            to: item.poolContractAddress,
+                            data: posPoolContract.votingEscrow().encodeABI(),
                         },
                         'latest_state',
                     ],
-                    equalKey: `Pos:lockAmount-${account}`,
-                },
-                {
-                    intervalTime: 20000,
-                    callback: (hexRes: string) => {
-                        const result = decodeHexResult(utilContract.getSelfStakeInfo(account)._method.outputs, hexRes)?.[0];
-                        lockDaysAndBlockNumberStore.setState({
-                            powLockOrigin: {
-                                lockAmount: Unit.fromMinUnit(result?.lockAmount ?? 0),
-                                stakeAmount: Unit.fromMinUnit(result?.stakeAmount ?? 0),
-                                unlockBlock: Unit.fromMinUnit(0), // interface not support
-                                votePower: Unit.fromMinUnit(result?.votePower ?? 0),
-                            }
-                        });
-                    },
-                }
-            )();
-        },
-        { fireImmediately: true }
-    );
-}
-let unsubFetchPosLockData: VoidFunction | null;
-export const startTrackPosLockAmount = () => {
-    return confluxStore.subscribe(
-        (state) => state.accounts,
-        (accounts) => {
-            unsubFetchPosLockData?.()
-
-            const account = accounts?.[0];
-            if (!account || !validateCfxAddress(account)) {
-                return;
-            }
-
-            const calTimeToUnlock = (unlockBlock: Unit) => {
-                const { currentBlockNumber } = lockDaysAndBlockNumberStore.getState();
-                if (!unlockBlock || !currentBlockNumber) {
-                    return '0';
-                }
-                
-                const gapBlockNumber = unlockBlock.greaterThanOrEqualTo(currentBlockNumber) ? unlockBlock.sub(currentBlockNumber) : Unit.fromMinUnit(0);
-
-                if (unlockBlock.greaterThan(currentBlockNumber)) {
-                    const timestampToUnlock = gapBlockNumber.div(BLOCK_SPEED).mul(Unit.fromMinUnit(1000)).toDecimalMinUnit();
-                    
-                    const timeToUnlock = calRemainTime(timestampToUnlock);
-                    
-                    return timeToUnlock;
-                } else {
-                    return '0'
-                }
-            };
-            const calcCurrentVotingRoundEndTimestamp = (endBlockNumber: Unit) => {
-                const { currentBlockNumber } = lockDaysAndBlockNumberStore.getState();
-                if (!currentBlockNumber) {
-                    return 0;
-                }
-                return dayjs().add(+endBlockNumber.sub(currentBlockNumber).div(BLOCK_SPEED).toDecimalMinUnit(0), 'second').unix() * 1000;
-            }
-
-            // fetch votingEscrow
-            const fetchVotingEscrow = async () => {
-
-                const { posLockArrOrigin } = lockDaysAndBlockNumberStore.getState();
-
-                let promises: Promise<any>[] | undefined = posLockArrOrigin?.map((item: PosLockOrigin) => {
-                    return fetchChain({
-                        rpcUrl: Networks.core.rpcUrls[0],
-                        method: 'cfx_call',
-                        params: [
-                            {
-                                to: item.poolContractAddress,
-                                data: posPoolContract.votingEscrow().encodeABI(),
-                            },
-                            'latest_state',
-                        ],
-                    }).then((item) => {
-                        const result = decodeHexResult(posPoolContract.votingEscrow()._method.outputs, item)?.[0];
-                        return convertHexToCfx(result, +Networks.core.chainId);
-                    });
+                }).then((item) => {
+                    const result = decodeHexResult(posPoolContract.votingEscrow()._method.outputs, item)?.[0];
+                    return convertHexToCfx(result, +Networks.core.chainId);
                 });
-                promises && Promise.all(promises)
-                    .then((results) => {
-                        results.forEach((result, index) => {
-                            if (posLockArrOrigin) {
-                                posLockArrOrigin[index].votingEscrowAddress = result;
-                            }
-                        });
-                        lockDaysAndBlockNumberStore.setState({ posLockArrOrigin });
-                        fetchFutureUserVotePower?.();
-                    })
-                    .catch((error) => {
-                        console.error(`Error fetching data: ${error}`);
-                    });
-
-            }
-
-            // fetch futureUserVotePower
-            const fetchFutureUserVotePower = async () => {
-                const { posLockArrOrigin } = lockDaysAndBlockNumberStore.getState();
-
-                let promises: Promise<any>[] | undefined = posLockArrOrigin?.map((item: PosLockOrigin) => {
-
-                    const unlockBlock = Unit.fromStandardUnit(currentVotingRoundEndBlockNumber() || 0).toString();
-                    return fetchChain({
-                        rpcUrl: Networks.core.rpcUrls[0],
-                        method: 'cfx_call',
-                        params: [
-                            {
-                                to: item.votingEscrowAddress,
-                                data: posLockVotingEscrowContract.userVotePower(convertCfxToHex(account), unlockBlock).encodeABI(),
-                            },
-                            'latest_state',
-                        ],
-                    }).then((item) => {
-                        const result = decodeHexResult(posLockVotingEscrowContract.userVotePower(convertCfxToHex(account), unlockBlock)._method.outputs, item)?.[0];
-                        return result;
-                    });
-                });
-                promises && Promise.all(promises)
-                    .then((results) => {
-                        results.forEach((result, index) => {
-                            if (posLockArrOrigin) {
-                                posLockArrOrigin[index].futureUserVotePower = Unit.fromMinUnit(result);
-                            }
-                        });
-                        lockDaysAndBlockNumberStore.setState({ posLockArrOrigin });
-                    })
-                    .catch((error) => {
-                        console.error(`Error fetching data: ${error}`);
-                    });
-            }
-
-            // fetch posPool
-            const fetchPosPool = async () => {
-                try {
-                    const result = await fetch('https://raw.githubusercontent.com/conflux-fans/pos-pool/main/contract/gov_pools.json').then((response) => response.json());
-
-                    const result8888 = [
-                        {
-                            "name": "test8888",
-                            "address": 'NET8888:ACATSCT5M6P0D5YMK6P11NDHRZAFH4P52EV7HNZ3G5',
-                            "icon": "https://confluxnetwork.org/favicon.ico",
-                            "website": ""
+            });
+            promises && Promise.all(promises)
+                .then((results) => {
+                    results.forEach((result, index) => {
+                        if (posLockArrOrigin) {
+                            posLockArrOrigin[index].votingEscrowAddress = result;
                         }
-                    ];
-                    
-                    let posPool: PosPool[] = isProduction ? result.mainnet : Networks.core.chainId === '8888' ? result8888 : result.testnet;
+                    });
+                    lockDaysAndBlockNumberStore.setState({ posLockArrOrigin });
+                    fetchFutureUserVotePower?.();
+                })
+                .catch((error) => {
+                    console.error(`Error fetching data: ${error}`);
+                });
 
-                    // fetch posLock
-                    unsubFetchPosLockData = intervalFetchChain(
+        }
+
+        // fetch futureUserVotePower
+        const fetchFutureUserVotePower = async () => {
+            const { posLockArrOrigin } = lockDaysAndBlockNumberStore.getState();
+
+            let promises: Promise<any>[] | undefined = posLockArrOrigin?.map((item: PosLockOrigin) => {
+
+                const unlockBlock = Unit.fromStandardUnit(currentVotingRoundEndBlockNumber() || 0).toString();
+                return fetchChain({
+                    rpcUrl: Networks.core.rpcUrls[0],
+                    method: 'cfx_call',
+                    params: [
                         {
-                            rpcUrl: Networks.core.rpcUrls[0],
-                            method: 'cfx_call',
-                            params: [
-                                {
-                                    to: utilContractAddress,
-                                    data: utilContract.getStakeInfos(posPool.map(e => convertCfxToHex(e.address)), convertCfxToHex(account)).encodeABI(),
-                                },
-                                'latest_state',
-                            ],
-                            equalKey: `Pos:lockAmount-${account}`,
+                            to: item.votingEscrowAddress,
+                            data: posLockVotingEscrowContract.userVotePower(convertCfxToHex(account), unlockBlock).encodeABI(),
                         },
-                        {
-                            intervalTime: 3000,
-                            callback: (hexRes: string) => {
-                                let result = decodeHexResult(utilContract.getStakeInfos(posPool.map(e => convertCfxToHex(e.address)), account)._method.outputs, hexRes)?.[0];
-
-                                if (!result || result.length === 0) return;
-
-                                let resultFilter = result.filter((item: any) => item.stakeAmount > 0);
-                                const posLockArrOrigin: PosLockOrigin[] = resultFilter.map((item: PosLockOrigin, index: number) => {
-                                    // stakeAmount is greater than 0 valid
-                                    const unlockBlock = Unit.fromMinUnit(item?.unlockBlock ?? '0');
-
-                                    const posPoolFilter: PosPool | undefined = posPool.find((e: PosPool) => convertCfxToHex(e.address).toLocaleLowerCase() === item?.pool.toLocaleLowerCase());
-                                    return {
-                                        poolContractAddress: posPoolFilter && posPoolFilter.address,
-                                        votingEscrowAddress: '', // votingEscrow
-                                        apy: Unit.fromMinUnit(item?.apy),
-                                        name: posPoolFilter && posPoolFilter.name || item?.name,
-                                        icon: posPoolFilter && posPoolFilter.icon,
-                                        website: posPoolFilter && posPoolFilter.website,
-                                        pool: item?.pool,
-                                        lockAmount: Unit.fromMinUnit(item?.lockAmount ?? 0),
-                                        stakeAmount: Unit.fromMinUnit(item?.stakeAmount ?? 0),
-                                        unlockBlock: unlockBlock,
-                                        unlockBlockDay: calTimeToUnlock(unlockBlock),
-                                        unlockBlockTime: calcCurrentVotingRoundEndTimestamp(unlockBlock),
-                                        votePower: Unit.fromMinUnit(item?.votePower ?? 0),
-                                    }
-                                })
-                                lockDaysAndBlockNumberStore.setState({ posLockArrOrigin });
-                                fetchVotingEscrow?.()
-
-                            },
+                        'latest_state',
+                    ],
+                }).then((item) => {
+                    const result = decodeHexResult(posLockVotingEscrowContract.userVotePower(convertCfxToHex(account), unlockBlock)._method.outputs, item)?.[0];
+                    return result;
+                });
+            });
+            promises && Promise.all(promises)
+                .then((results) => {
+                    results.forEach((result, index) => {
+                        if (posLockArrOrigin) {
+                            posLockArrOrigin[index].futureUserVotePower = Unit.fromMinUnit(result);
                         }
-                    )();
+                    });
+                    lockDaysAndBlockNumberStore.setState({ posLockArrOrigin });
+                })
+                .catch((error) => {
+                    console.error(`Error fetching data: ${error}`);
+                });
+        }
 
-                } catch (error) {
-                    console.log(error)
-                }
+        // fetch posPool
+        const result = await fetch('https://raw.githubusercontent.com/conflux-fans/pos-pool/main/contract/gov_pools.json').then((response) => response.json());
 
+        const result8888 = [
+            {
+                "name": "test8888",
+                "address": 'NET8888:ACATSCT5M6P0D5YMK6P11NDHRZAFH4P52EV7HNZ3G5',
+                "icon": "https://confluxnetwork.org/favicon.ico",
+                "website": ""
             }
-            fetchPosPool();
+        ];
 
+        let posPool: PosPool[] = isProduction ? result.mainnet : Networks.core.chainId === '8888' ? result8888 : result.testnet;
+        unsubFetchPosLockData?.()
+        // fetch posLock
+        unsubFetchPosLockData = intervalFetchChain(
+            {
+                rpcUrl: Networks.core.rpcUrls[0],
+                method: 'cfx_call',
+                params: [
+                    {
+                        to: utilContractAddress,
+                        data: utilContract.getStakeInfos(posPool.map(e => convertCfxToHex(e.address)), convertCfxToHex(account)).encodeABI(),
+                    },
+                    'latest_state',
+                ],
+                equalKey: `Pos:lockAmount-${account}`,
+            },
+            {
+                intervalTime: 3000,
+                callback: (hexRes: string) => {
+                    const { posLockArrOrigin } = lockDaysAndBlockNumberStore.getState();
+
+                    let result = decodeHexResult(utilContract.getStakeInfos(posPool.map(e => convertCfxToHex(e.address)), account)._method.outputs, hexRes)?.[0];
+
+                    if (!result || result.length === 0) return;
+
+                    let resultFilter = result.filter((item: any) => item.stakeAmount > 0);
+                    const posLockArrOriginNew: PosLockOrigin[] = resultFilter.map((item: PosLockOrigin, index: number) => {
+                        // stakeAmount is greater than 0 valid
+                        const unlockBlock = Unit.fromMinUnit(item?.unlockBlock ?? '0');
+
+                        const posPoolFilter: PosPool | undefined = posPool.find((e: PosPool) => convertCfxToHex(e.address).toLocaleLowerCase() === item?.pool.toLocaleLowerCase());
+                        
+                        const havePosLockArrOrigin = posLockArrOrigin && posLockArrOrigin[index]; // votingEscrow and futureUserVotePower needs to be obtained separately, so the previous default value is given
+
+                        return {
+                            poolContractAddress: posPoolFilter && posPoolFilter.address,
+                            votingEscrowAddress: havePosLockArrOrigin ? posLockArrOrigin[index]?.votingEscrowAddress : '', // votingEscrow
+                            apy: Unit.fromMinUnit(item?.apy),
+                            name: posPoolFilter && posPoolFilter.name || item?.name,
+                            icon: posPoolFilter && posPoolFilter.icon,
+                            website: posPoolFilter && posPoolFilter.website,
+                            pool: item?.pool,
+                            lockAmount: Unit.fromMinUnit(item?.lockAmount ?? 0),
+                            stakeAmount: Unit.fromMinUnit(item?.stakeAmount ?? 0),
+                            unlockBlock: unlockBlock,
+                            unlockBlockDay: calTimeToUnlock(unlockBlock),
+                            unlockBlockTime: calcCurrentVotingRoundEndTimestamp(unlockBlock),
+                            votePower: Unit.fromMinUnit(item?.votePower ?? 0),
+                            futureUserVotePower: havePosLockArrOrigin ? posLockArrOrigin[index]?.futureUserVotePower : Unit.fromMinUnit(0), // futureUserVotePower
+                        }
+                    })
+                    lockDaysAndBlockNumberStore.setState({ posLockArrOrigin: posLockArrOriginNew });
+                    fetchVotingEscrow?.()
+
+                },
+            }
+        )();
+    }
+   
+    unSubExec.push(confluxStore.subscribe(
+        (state) => state.accounts,
+        () => {
+            fetchPosLockData()
         },
         { fireImmediately: true }
-    );
+    ));
+
+    unSubExec.push(confluxStore.subscribe(
+        (state) => state.chainId,
+        () => {
+            fetchPosLockData()
+        },
+        { fireImmediately: true }
+    ));
+
+    return () => {
+        unSubExec.forEach((unsub) => unsub());
+    };
 }
 
 
@@ -350,7 +406,7 @@ export const startTrackDaysToUnlock = () => {
             const gapBlockNumber = unlockBlockNumber.greaterThanOrEqualTo(currentBlockNumber) ? unlockBlockNumber.sub(currentBlockNumber) : Unit.fromMinUnit(0);
             if (unlockBlockNumber.greaterThan(currentBlockNumber)) {
                 const timestampToUnlock = gapBlockNumber.div(BLOCK_SPEED).mul(Unit.fromMinUnit(1000)).toDecimalMinUnit();
-                const timeToUnlock = calRemainTime(timestampToUnlock);
+                const timeToUnlock = calRemainTime(timestampToUnlock, 'only day');
                 const votingRightsPerCfx = calVotingRightsPerCfx(gapBlockNumber);
                 lockDaysAndBlockNumberStore.setState({ gapBlockNumber, timestampToUnlock, timeToUnlock, votingRightsPerCfx });
             } else {

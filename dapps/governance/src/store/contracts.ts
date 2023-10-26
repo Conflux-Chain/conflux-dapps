@@ -65,7 +65,7 @@ interface Contracts {
 export const stakingContract = createContract<Contracts['stakingContract']>(StakingContract.abi);
 export const stakingContractAddress = convertHexToCfx('0x0888000000000000000000000000000000000002', +Networks.core.chainId);
 export const governanceContract = createContract<Contracts['governanceContract']>(GovernanceContract.abi);
-export const governanceContractAddress = isProduction ? 'cfx:acev1c6tz2gu832fwdj45vxm71sffpat4yewvpteau' : (Networks.core.chainId === '8888' ? 'NET8888:ACB7V6XWTWKXRVE9CBZFBASYJFUGGM57AA8YGT7DVK' : 'cfxtest:acd1t8edcjgfpt3vdus9h1srfj4490uu4y2v1rrynx');
+export const governanceContractAddress = isProduction ? 'cfx:acev1c6tz2gu832fwdj45vxm71sffpat4yewvpteau' : (Networks.core.chainId === '8888' ? 'NET8888:ACB7V6XWTWKXRVE9CBZFBASYJFUGGM57AA8YGT7DVK' : 'cfxtest:achxp4p0bcsngpz6b5mv11p2wsn2u51sdjuyzjfm8f');
 export const posContract = createContract<Contracts['posContract']>(PosContract.abi);
 export const posContractAddress = convertHexToCfx('0x0888000000000000000000000000000000000005', +Networks.core.chainId);
 export const paramsControlContract = createContract<Contracts['paramsControlContract']>(ParamsControlContract.abi);

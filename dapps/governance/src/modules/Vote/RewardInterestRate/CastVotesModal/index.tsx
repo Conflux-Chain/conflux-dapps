@@ -16,6 +16,7 @@ import './index.css';
 import handleVote, { ProposalType } from '../../Proposals/handleVote';
 import { ethers } from 'ethers';
 import { PosLockOrigin } from 'governance/src/store/lockDays&blockNumber';
+import BalanceText from 'common/modules/BalanceText';
 
 const CastVotesModal = new PopupClass();
 CastVotesModal.setListClassName('cast-votes-modal-wrapper');
@@ -55,6 +56,7 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
     const [ticket, setTicket] = useState<ticketTypes>('pow');
     const [voteRadio, setVoteRadio] = useState(options[0]);
     const [voteValue, setVoteValue] = useState('');
+    const [voted, setVoted] = useState(false);
     const [posPoolIndex, setPosPoolIndex] = useState(0);
 
     const account = useAccount();
@@ -89,7 +91,7 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
         return uintZero;
     }, [activeProposalUserVotePos])
     // Number of votes remaining after users vote
-    const votingPosRemainRights = posLockArrOrigin ? posLockArrOrigin[posPoolIndex]?.votePower?.sub(remainingVotePos) : uintZero;
+    const votingPosRemainRights = posLockArrOrigin && posLockArrOrigin.length > 0 ? posLockArrOrigin[posPoolIndex]?.votePower?.sub(remainingVotePos) : uintZero;
 
     const inputMaxAmount =
         ticket === 'pow' ?
@@ -102,12 +104,14 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
             remainingVotePow && votingRights && voteValue && votingRemainRights.greaterThanOrEqualTo(Unit.fromStandardUnit(voteValue))
             : posLockArrOrigin && voteValue ? votingPosRemainRights.greaterThanOrEqualTo(Unit.fromStandardUnit(voteValue)) : false;
 
-    const futureUserVotePower = useMemo(() => {
-        return posLockArrOrigin && posLockArrOrigin[posPoolIndex]?.futureUserVotePower ? posLockArrOrigin[posPoolIndex]?.futureUserVotePower : uintZero;
-    }, [posPoolIndex])
+    const futureUserVotePower = posLockArrOrigin && posLockArrOrigin[posPoolIndex]?.futureUserVotePower;
+   
     const isRightVoteValueGreaterFutureUserVotePower = useMemo(() => {
-        return futureUserVotePower && voteValue <= futureUserVotePower?.toDecimalStandardUnit()
-    }, [voteValue])
+        if (voteValue !== '' && !isValueRightsThanRemainingVote) {
+            return true
+        }
+        return futureUserVotePower && voteValue && Unit.fromStandardUnit(voteValue).lessThanOrEqualTo(futureUserVotePower)
+    }, [voteValue, futureUserVotePower])
 
     const proposalList = useProposalList();
     const currentPage = useCurrentPage();
@@ -124,8 +128,19 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
         }
     }, [account]);
     useEffect(() => {
-        setVoteValue(defaultValue(options[0]) || '')
-    }, [currentAccountVoted])
+        selectDefaultValue();
+    }, [currentAccountVoted]);
+
+    const selectDefaultValue = (value?: string) => {
+        const voted = value ? defaultValue(value) : defaultValue(options[0]);
+        if (voted) {
+            setVoteValue(voted);
+            setVoted(true);
+        } else {
+            setVoteValue('');
+            setVoted(false);
+        }
+    }
 
     useEffect(() => {
         hasInit = true;
@@ -185,8 +200,13 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
             'Proposals': 'proposals'
         }
         const filterIndex = options.map((e, i) => e === radio ? i : 0).filter(e => e !== 0)[0] || 0;
+        
+        // UI ['Increase', 'Unchange', 'Decrease']
+        // Chain Data ['Increase', 'Decrease', 'Unchange']
+        // So change the last two digits
+        const realIndex = [0, 2, 1][filterIndex];
 
-        const value = currentAccountVoted?.[filterType[type] as keyof Voting]?.[filterIndex]?.toDecimalStandardUnit();
+        const value = currentAccountVoted?.[filterType[type] as keyof Voting]?.[realIndex]?.toDecimalStandardUnit();
 
         return value === '0' ? 0 : value;
     }
@@ -239,7 +259,8 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
                                     return field.onChange(value);
                                 }}
                                 optionLabelProp="label"
-                                defaultValue={0}
+                                disabled={!(posLockArrOrigin && posLockArrOrigin.length > 0)}
+                                defaultValue={posLockArrOrigin && posLockArrOrigin.length > 0 ? 0 : undefined}
                             >
                                 {
                                     posLockArrOrigin && posLockArrOrigin.length > 0 && posLockArrOrigin.map((e, i) => <Option key={'select-lock-' + e.name + i} value={i} label={option(e)}>
@@ -258,9 +279,9 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
                 <div className='text-[#898D9A]'>Available Voting Power: </div>
                 {
                     ticket === 'pow' ?
-                        <div className='text-[#3D3F4C]'> {votingRemainRights?.toDecimalStandardUnit() ?? '...'}</div>
+                        <BalanceText className="text-[#3D3F4C]" balance={votingRemainRights} symbol={''} decimals={18} />
                         :
-                        <div className='text-[#3D3F4C]'> {votingPosRemainRights?.toDecimalStandardUnit() ?? '...'}</div>
+                        <BalanceText className="text-[#3D3F4C]" balance={votingPosRemainRights} symbol={''} decimals={18} />
                 }
 
 
@@ -282,10 +303,9 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
                         </div>
                         <div className='mt-[12px] w-full'>
                             <Radio.Group className='w-full !flex justify-between' value={voteRadio} onChange={(e) => {
-                                console.log(e)
                                 setVoteRadio(e.target.value)
 
-                                setVoteValue(defaultValue(e.target.value) || '')
+                                selectDefaultValue(e.target.value);
                             }}>
                                 {
                                     options.map((option, index) => <Radio key={`vote-radio-${index}`} value={option}> {option} </Radio>)
@@ -324,16 +344,18 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
                     />
                 </div>
                 {
-                    !isRightVoteValueGreaterFutureUserVotePower && ticket === 'pos' && type !== 'Proposals' &&
+                    voteValue !== '' && !isValueRightsThanRemainingVote && <div className='mt-[16px] text-[12px] leading-[16px] text-[#E96170] text-right transition-opacity opacity-100'> Not enough votes, you can redistribute or get more votes. </div>
+                }
+
+                {
+                    !isRightVoteValueGreaterFutureUserVotePower && ticket === 'pos' && type !== 'Proposals' && voteValue !== '' && 
                     <div className='mt-[16px] bg-[#FCF1E8] px-[16px] py-[12px] text-[12px]'>
                         As the remaining lock time decreases, when the current round ends, your effective voting power is only <span className='text-[#808BE7]'>{futureUserVotePower?.toDecimalStandardUnit()}</span>.<br />
                         You can increase your voting power by extending the lock period.
                     </div>
                 }
 
-                {
-                    voteValue !== '' && !isValueRightsThanRemainingVote && <div className='mt-[16px] text-[12px] leading-[16px] text-[#E96170] text-right transition-opacity opacity-100'> Not enough votes, you can redistribute or get more votes. </div>
-                }
+                
 
             </div>
 
@@ -353,7 +375,10 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
                         loading={inVoting}
                         disabled={!isValueRightsThanRemainingVote}
                     >
-                        Change Vote
+                        {
+                            voted ? 'Change Vote' : 'Vote'
+                        }
+
                     </Button>
                 )}
             />

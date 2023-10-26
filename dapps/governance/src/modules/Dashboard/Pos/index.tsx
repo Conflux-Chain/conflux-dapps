@@ -8,11 +8,13 @@ import CFX from 'common/assets/tokens/CFX.svg';
 import BalanceText from 'common/modules/BalanceText';
 import { showLockModal } from '../Pos/LockModal';
 
+const zero = Unit.fromMinUnit('0');
+
 const StakePos: React.FC = () => {
 
     const posLockArrOrigin = usePosLockArrOrigin();
-    
-    const isShowPosLock =  posLockArrOrigin && posLockArrOrigin.length > 0;
+
+    const isShowPosLock = posLockArrOrigin && posLockArrOrigin.length > 0;
 
     return (
         isShowPosLock ?
@@ -41,8 +43,12 @@ const StakePos: React.FC = () => {
 
                             </div>,
                             <div>
-                                <div>{item.unlockBlockDay?.toString()} Days</div>
-                                <div className='text-[#808BE7] cursor-pointer' onClick={() => showLockModal('extend', index)}>Extend</div>
+                                <div>{item.unlockBlockDay?.toString()}</div>
+                                {
+                                    item.unlockBlock && item.unlockBlock.greaterThan(zero) &&
+                                    <div className='text-[#808BE7] cursor-pointer' onClick={() => showLockModal('extend', index)}>Extend</div>
+                                }
+
                             </div>,
                             <BalanceText id="Pos Voting Power" balance={item.votePower} symbol="" />
                         ])}
