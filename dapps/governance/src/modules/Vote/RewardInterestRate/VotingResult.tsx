@@ -113,7 +113,7 @@ const Result: React.FC<{
                         Content={<div className='w-[210px] bg-[#1B1B1C] text-white py-[4px] px-[8px] text-[12px] leading-[16px]'>Current voting power: {numFormat(Unit.fromMinUnit(totalVotingRights ?? '0').toDecimalStandardUnit())} <br />
                             Required voting power: {numFormat(Unit.fromMinUnit(posStakeForVotes?.mul(Unit.fromMinUnit(0.05)) ?? '0').toDecimalStandardUnit())} <br /><br />
 
-                            When the current required vp, the voting results take effect.</div>}
+                            When the current {'>='} required vp, the voting results take effect.</div>}
                         delay={180}
                     >
                         <div>
@@ -176,7 +176,7 @@ const Result: React.FC<{
                 </div>
             </div>
 
-            <div className="my-[12px] flex h-[12px] rounded-[6px] overflow-hidden">
+            <div className="my-[8px] flex h-[8px] rounded-[6px] overflow-hidden">
                 {options.map(({ name, color }, index) => (
                     <div key={name} className="flex-auto h-full transition-all" style={{ width: proportions[index], backgroundColor: color }} />
                 ))}
@@ -199,7 +199,7 @@ const Result: React.FC<{
                 authContent={() => (
                     <Button
                         id="RewardInterestRate-costVotes"
-                        className="mt-[26px] !flex min-w-[96px] !h-[32px] !text-[12px]"
+                        className="mt-[26px] !flex min-w-[96px] !h-[32px] !text-[14px]"
                         size="large"
                         onClick={() => showCastVotesModal({ type })}
                         disabled={(votingRights && !isVotingPowRightsGreaterThan0) && (posLockArrOrigin && !isVotingPosRightsGreaterThan0)}

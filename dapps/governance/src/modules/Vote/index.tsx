@@ -25,7 +25,7 @@ const Main: React.FC = () => {
 
 
 const tabs = [
-    { name: 'On-chain DAO voting', path: 'onchain-dao-voting' },
+    { name: 'Chain Param Votings', path: 'onchain-dao-voting' },
     { name: 'Proposals', path: 'proposals' },
 ] as const;
 
