@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 
-import { Unit, useBalance } from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { Unit, useBalance, store, connect} from '@cfxjs/use-wallet-react/conflux/Fluent';
 import Button from 'common/components/Button';
 import { Link } from 'react-router-dom';
 import { usePosLockArrOrigin, usePowLockOrigin } from 'governance/src/store/lockDays&blockNumber';
 import BalanceText from 'common/modules/BalanceText';
+import NotConnected from 'governance/src/assets//notConnected.svg';
+import TotalStake0 from 'governance/src/assets//totalStake0.svg';
 
 type ToolTipProps = {
     des: string;
@@ -21,7 +23,11 @@ const ToolTip = ({ des, ...props }: ToolTipProps) => {
     )
 };
 
+const zero = Unit.fromMinUnit(0);
+
 const Statistics: React.FC = () => {
+    const getAccount = () => store.getState().accounts?.[0];
+    const account = getAccount();
 
     const posLockArrOrigin = usePosLockArrOrigin();
     const powLockOrigin = usePowLockOrigin();
@@ -40,51 +46,63 @@ const Statistics: React.FC = () => {
     const totalBalance = balance?.add(totalStaked || 0);
 
     return (
-        <div className='mt-[16px] flex gap-[24px]'>
-            <div className='w-full p-[16px] rounded-[8px] bg-white shadow-md'>
-                <div className='text-[12px] text-[#898D9A]'>Total Balance</div>
-                <BalanceText className='text-[16px] text-[#1B1B1C]' id="Dashboard Total Balance" balance={totalBalance} symbol="CFX" decimals={18} />
-            </div>
-            <div className='w-full p-[16px] rounded-[8px] bg-white shadow-md'>
-                <div className='text-[13px] text-[#898D9A]'>Available Balance</div>
-                <BalanceText
-                    className="text-[16px] text-[#3D3F4C]"
-                    id="Dashboard Available Balance"
-                    balance={balance}
-                    symbol={'CFX'}
-                    decimals={18}
-                />
-                <div className='flex mt-[16px]'>
-
-                    <Link to="https://www.conflux-pos-validators.com/" target='_block'>
-                        <Button
-                            className='w-[100px] relative'>
-                            <ToolTip des="APY: ~10%+" />
-                            <span>PoS Stake</span>
-                        </Button>
-                    </Link>
-
-
-
-                    <Link to="/governance/pow-stake">
-                        <Button className='w-[100px] ml-[16px]' variant='outlined'>PoW Stake</Button>
-                    </Link>
+        <div>
+            <div className='mt-[16px] flex gap-[24px]'>
+                <div className='w-full p-[16px] rounded-[8px] bg-white shadow-md'>
+                    <div className='text-[12px] text-[#898D9A]'>Total Balance</div>
+                    <BalanceText className='text-[16px] text-[#1B1B1C]' id="Dashboard Total Balance" balance={totalBalance} symbol="CFX" decimals={18} />
                 </div>
+                <div className='w-full p-[16px] rounded-[8px] bg-white shadow-md'>
+                    <div className='text-[13px] text-[#898D9A]'>Available Balance</div>
+                    <BalanceText
+                        className="text-[16px] text-[#3D3F4C]"
+                        id="Dashboard Available Balance"
+                        balance={balance}
+                        symbol={'CFX'}
+                        decimals={18}
+                    />
+                    <div className='flex mt-[16px]'>
 
-            </div>
-            <div className='w-full p-[16px] rounded-[8px] bg-white shadow-md'>
-                <div className='text-[12px] text-[#898D9A]'>Total Staked</div>
-                <BalanceText className='text-[16px] text-[#1B1B1C]' id="Dashboard Total Staked" balance={totalStaked} symbol="CFX" decimals={18} />
-            </div>
-            <div className='w-full p-[16px] rounded-[8px] bg-white shadow-md'>
-                <div className='text-[12px] text-[#898D9A]'>Total Locked</div>
-                <BalanceText className='text-[16px] text-[#1B1B1C]' id="Dashboard Total Locked" balance={totalLocked} symbol="CFX" decimals={18} />
-                <div className='mt-[16px] text-[14px]'>
-                    <span className='text-[#898D9A]'>Voting Power:</span>
-                    <BalanceText className='text-[#3D3F4C]' id="Dashboard Voting Power" balance={totalPower} symbol="" />
+                        <Link to="https://www.conflux-pos-validators.com/" target='_block'>
+                            <Button
+                                className='w-[100px] relative'>
+                                <ToolTip des="APY: ~10%+" />
+                                <span>PoS Stake</span>
+                            </Button>
+                        </Link>
+
+                        <Link to="/governance/pow-stake">
+                            <Button className='w-[100px] ml-[16px]' variant='outlined'>PoW Stake</Button>
+                        </Link>
+                    </div>
+
                 </div>
+                <div className='w-full p-[16px] rounded-[8px] bg-white shadow-md'>
+                    <div className='text-[12px] text-[#898D9A]'>Total Staked</div>
+                    <BalanceText className='text-[16px] text-[#1B1B1C]' id="Dashboard Total Staked" balance={totalStaked} symbol="CFX" decimals={18} />
+                </div>
+                <div className='w-full p-[16px] rounded-[8px] bg-white shadow-md'>
+                    <div className='text-[12px] text-[#898D9A]'>Total Locked</div>
+                    <BalanceText className='text-[16px] text-[#1B1B1C]' id="Dashboard Total Locked" balance={totalLocked} symbol="CFX" decimals={18} />
+                    <div className='mt-[16px] text-[14px]'>
+                        <span className='text-[#898D9A]'>Voting Power:</span>
+                        <BalanceText className='text-[#3D3F4C]' id="Dashboard Voting Power" balance={totalPower} symbol="" />
+                    </div>
+                </div>
+            </div>
+            <div className='w-full flex justify-center my-[48px]'>
+                {
+                    totalLocked?.equals(zero) && <img src={TotalStake0} alt="total stake 0" />
+                }
+                {
+                    !account && <div>
+                        <img src={NotConnected} alt="Not connected" />
+                        <p className='mt-[12px] text-[16px] text-[#898D9A] text-center'><span className='text-[#808BE7] cursor-pointer' onClick={connect}>Connect Fluent Wallet</span> to see more</p>
+                    </div>
+                }
             </div>
         </div>
+
     );
 };
 

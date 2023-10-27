@@ -162,7 +162,12 @@ export const startTrackPowLockAmount = () => {
     }
     unSubExec.push(confluxStore.subscribe(
         (state) => state.accounts,
-        () => {
+        (accounts) => {
+            if(!accounts || !accounts[0]) {
+                unsubFetchPowLockData?.();
+                lockDaysAndBlockNumberStore.setState({ powLockOrigin: undefined });
+                return;
+            }
             fetchPowLockData()
         },
         { fireImmediately: true }
@@ -191,7 +196,7 @@ export const startTrackPosLockAmount = () => {
     const fetchPosLockData = async () => {
         unsubFetchPosLockData?.()
 
-        const account = getAccount(); // 'net8888:aap7yfv4bhh5db8xrnu3w27v8dcjzwavtyjjatxkcw';
+        const account = getAccount();
         if (!account || !validateCfxAddress(account)) {
             return;
         }
@@ -375,7 +380,12 @@ export const startTrackPosLockAmount = () => {
    
     unSubExec.push(confluxStore.subscribe(
         (state) => state.accounts,
-        () => {
+        (accounts) => {
+            if(!accounts || !accounts[0]) {
+                unsubFetchPosLockData?.()
+                lockDaysAndBlockNumberStore.setState({ posLockArrOrigin: undefined });
+                return;
+            }
             fetchPosLockData()
         },
         { fireImmediately: true }

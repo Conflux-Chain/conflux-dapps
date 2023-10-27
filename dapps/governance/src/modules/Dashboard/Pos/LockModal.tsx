@@ -59,7 +59,7 @@ const option = (lockNumber: string, lockTime: string, greaterUnLockNumber: boole
 
 const LockModalContent: React.FC<{ type: Type, index: number }> = memo(({ type, index }) => {
     const account = useAccount();
-    const { register, handleSubmit: withForm, control, watch } = useForm();
+    const { register, handleSubmit: withForm, control, setValue } = useForm();
     const [selectIndex, setSelectIndex] = useState(0);
     const [amount, setAmount] = useState('');
 
@@ -69,6 +69,7 @@ const LockModalContent: React.FC<{ type: Type, index: number }> = memo(({ type, 
         return posLockArrOrigin && posLockArrOrigin[index];
     }, [])
 
+
     const isAvailableBalanceGreaterThan0 =
         type === 'lock' ? posLockArrOriginIndex?.stakeAmount && Unit.greaterThan(posLockArrOriginIndex.stakeAmount, Unit.fromStandardUnit(0))
             : posLockArrOriginIndex?.votePower && Unit.greaterThan(posLockArrOriginIndex.votePower, Unit.fromStandardUnit(0));
@@ -77,6 +78,7 @@ const LockModalContent: React.FC<{ type: Type, index: number }> = memo(({ type, 
 
     const onSubmit = useCallback(withForm(async (data) => {
         const { amount, select } = data;
+
         if (posLockArrOriginIndex && posLockArrOriginIndex.votingEscrowAddress) {
             if (type === 'more') {
                 handleIncreaseLock({ contractAddress: posLockArrOriginIndex.votingEscrowAddress, amount })
@@ -108,7 +110,7 @@ const LockModalContent: React.FC<{ type: Type, index: number }> = memo(({ type, 
                 const unLockNumber = i * BlOCK_AMOUNT_QUARTER + nextLockBlock;
                 const time = dayjs().add(+Unit.fromMinUnit(unLockNumber).sub(currentBlockNumber).div(BLOCK_SPEED).toDecimalMinUnit(0), 'second').unix() * 1000;
                 FourQuarters.push({
-                    unLockNumber: unLockNumber+'',
+                    unLockNumber: unLockNumber + '',
                     unLockTime: dayjs(time).format('YYYY-MM-DD HH:mm:ss'),
                     greaterUnLockNumber: posLockArrOriginIndex?.unlockBlock && Unit.greaterThan(unLockNumber, posLockArrOriginIndex.unlockBlock)
                 })
@@ -120,6 +122,7 @@ const LockModalContent: React.FC<{ type: Type, index: number }> = memo(({ type, 
 
     }, [])
 
+    useEffect(() => setValue('amount', amount), [amount])
 
     useEffect(() => {
         let activeIndex = TimeToUnlock.findIndex(e => e.greaterUnLockNumber);
@@ -143,6 +146,10 @@ const LockModalContent: React.FC<{ type: Type, index: number }> = memo(({ type, 
 
         return Unit.fromMinUnit(0)
     }, [selectIndex, amount])
+
+    const isRightExtendLock = TimeToUnlock.filter(e => e.greaterUnLockNumber).length > 0;
+    const isRightAmount = Unit.greaterThan(+amount, Unit.fromMinUnit(0));
+
     return (
         posLockArrOrigin &&
         <div className="relative w-[440px] p-[24px] bg-white rounded-[4px]">
@@ -218,7 +225,7 @@ const LockModalContent: React.FC<{ type: Type, index: number }> = memo(({ type, 
                                     min: Unit.fromMinUnit(1).toDecimalStandardUnit(),
                                     max: availableBalance?.toDecimalStandardUnit(),
                                 })}
-                                
+                                onChange={(e) => setAmount(e.target.value)}
                                 placeholder="Amount you want to lock"
                                 type="number"
                                 step={1e-18}
@@ -228,7 +235,7 @@ const LockModalContent: React.FC<{ type: Type, index: number }> = memo(({ type, 
                                 disabled={!isAvailableBalanceGreaterThan0}
                                 suffix={[<InputMAXSuffix id="governance-lock-max" onChange={() => {
                                     setAmount(availableBalance?.toDecimalStandardUnit() ?? '')
-                                }}/>, <InputCFXPrefixSuffix />]}
+                                }} />, <InputCFXPrefixSuffix />]}
                             />
 
                         </div>
@@ -306,7 +313,8 @@ const LockModalContent: React.FC<{ type: Type, index: number }> = memo(({ type, 
                     fullWidth
                     type="button"
                     authContent={() => (
-                        <Button id="governance-lock" className="mt-[24px]" size="large" fullWidth>
+                        <Button id="governance-lock" className="mt-[24px]" size="large" fullWidth 
+                        disabled={['lock', 'extend'].includes(type) ? (!isRightAmount && !isRightExtendLock) : !isRightAmount}>
                             Lock
                         </Button>
                     )}

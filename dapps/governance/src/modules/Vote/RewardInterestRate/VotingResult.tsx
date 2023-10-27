@@ -113,7 +113,7 @@ const Result: React.FC<{
                         Content={<div className='w-[210px] bg-[#1B1B1C] text-white py-[4px] px-[8px] text-[12px] leading-[16px]'>Current voting power: {numFormat(Unit.fromMinUnit(totalVotingRights ?? '0').toDecimalStandardUnit())} <br />
                             Required voting power: {numFormat(Unit.fromMinUnit(posStakeForVotes?.mul(Unit.fromMinUnit(0.05)) ?? '0').toDecimalStandardUnit())} <br /><br />
 
-                            When the current required vp, the voting results take effect.</div>}
+                            When the current {'>='} required vp, the voting results take effect.</div>}
                         delay={180}
                     >
                         <div>
