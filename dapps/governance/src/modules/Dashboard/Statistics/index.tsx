@@ -90,22 +90,20 @@ const Statistics: React.FC = () => {
                     </div>
                 </div>
             </div>
-            <div className='w-full flex justify-center'>
-                {
-                    !account ?
-                        <div className='my-[48px]'>
-                            <img src={NotConnected} alt="Not connected" />
-                            <p className='mt-[12px] text-[16px] text-[#898D9A] text-center'><span className='text-[#808BE7] cursor-pointer' onClick={connect}>Connect Fluent Wallet</span> to see more</p>
+            {
+                !account ?
+                    <div className='w-full flex flex-col justify-center my-[48px]'>
+                        <img className='w-fit m-auto' src={NotConnected} alt="Not connected" />
+                        <p className='mt-[12px] text-[16px] text-[#898D9A] text-center'><span className='text-[#808BE7] cursor-pointer' onClick={connect}>Connect Fluent Wallet</span> to see more</p>
+                    </div>
+                    :
+                    totalStaked?.equals(zero) ?
+                        <div className='w-full flex flex-col justify-center my-[48px]'>
+                            <img className='w-fit m-auto' src={TotalStake0} alt="total stake 0" />
                         </div>
                         :
-                        totalStaked?.equals(zero) ?
-                            <div className='my-[48px]'>
-                                <img className='my-[48px]' src={TotalStake0} alt="total stake 0" />
-                            </div>
-                            :
-                            <></>
-                }
-            </div>
+                        <></>
+            }
         </div>
 
     );
