@@ -90,12 +90,12 @@ const Statistics: React.FC = () => {
                     </div>
                 </div>
             </div>
-            <div className='w-full flex justify-center my-[48px]'>
+            <div className='w-full flex justify-center'>
                 {
-                    totalLocked?.equals(zero) && <img src={TotalStake0} alt="total stake 0" />
+                    totalStaked?.equals(zero) && <img className='my-[48px]' src={TotalStake0} alt="total stake 0" />
                 }
                 {
-                    !account && <div>
+                    !account && <div className='my-[48px]'>
                         <img src={NotConnected} alt="Not connected" />
                         <p className='mt-[12px] text-[16px] text-[#898D9A] text-center'><span className='text-[#808BE7] cursor-pointer' onClick={connect}>Connect Fluent Wallet</span> to see more</p>
                     </div>

@@ -352,6 +352,7 @@ export const setCurrentPage = (currentPage: number) => {
     const { pageCount } = proposalListStore.getState();
     const clampedCurrentPage = clamp(currentPage, 1, pageCount);
     LocalStorage.setItem({ key: `currentPage-${Networks.core.chainId}`, data: clampedCurrentPage, namespace: 'governance' });
+    console.log(clampedCurrentPage)
     proposalListStore.setState({ currentPage: clampedCurrentPage });
 };
 export const useOpenedProposalId = () => proposalListStore(selectors.openedProposalId);
