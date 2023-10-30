@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { Unit, useBalance, store, connect} from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { Unit, useBalance, store, connect } from '@cfxjs/use-wallet-react/conflux/Fluent';
 import Button from 'common/components/Button';
 import { Link } from 'react-router-dom';
 import { usePosLockArrOrigin, usePowLockOrigin } from 'governance/src/store/lockDays&blockNumber';
@@ -92,13 +92,18 @@ const Statistics: React.FC = () => {
             </div>
             <div className='w-full flex justify-center'>
                 {
-                    totalStaked?.equals(zero) && <img className='my-[48px]' src={TotalStake0} alt="total stake 0" />
-                }
-                {
-                    !account && <div className='my-[48px]'>
-                        <img src={NotConnected} alt="Not connected" />
-                        <p className='mt-[12px] text-[16px] text-[#898D9A] text-center'><span className='text-[#808BE7] cursor-pointer' onClick={connect}>Connect Fluent Wallet</span> to see more</p>
-                    </div>
+                    !account ?
+                        <div className='my-[48px]'>
+                            <img src={NotConnected} alt="Not connected" />
+                            <p className='mt-[12px] text-[16px] text-[#898D9A] text-center'><span className='text-[#808BE7] cursor-pointer' onClick={connect}>Connect Fluent Wallet</span> to see more</p>
+                        </div>
+                        :
+                        totalStaked?.equals(zero) ?
+                            <div className='my-[48px]'>
+                                <img className='my-[48px]' src={TotalStake0} alt="total stake 0" />
+                            </div>
+                            :
+                            <></>
                 }
             </div>
         </div>

@@ -125,7 +125,6 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
     
     const proposalActive: Proposal | undefined = useMemo(() => {
         if (!proposalList || !proposal) return undefined;
-        console.log(proposalList)
         const active = proposalList?.find(e => e.id == proposal.proposalId);
         return active;
     }, [proposalList, currentPage]);
