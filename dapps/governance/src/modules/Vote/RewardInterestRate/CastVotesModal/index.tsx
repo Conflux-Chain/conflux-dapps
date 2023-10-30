@@ -17,6 +17,7 @@ import handleVote, { ProposalType } from '../../Proposals/handleVote';
 import { ethers } from 'ethers';
 import { PosLockOrigin } from 'governance/src/store/lockDays&blockNumber';
 import BalanceText from 'common/modules/BalanceText';
+import { Proposal } from "governance/src/store/proposalList"
 
 const CastVotesModal = new PopupClass();
 CastVotesModal.setListClassName('cast-votes-modal-wrapper');
@@ -121,11 +122,12 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
 
     const proposalList = useProposalList();
     const currentPage = useCurrentPage();
-    const pageSize = usePageSize();
-    const filterLst = useMemo(() => {
-        if (!proposalList) return [];
-        return proposalList.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-    }, [proposalList, currentPage, pageSize]);
+    
+    const proposalActive: Proposal | undefined = useMemo(() => {
+        if (!proposalList || !proposal) return undefined;
+        const active = proposalList?.find(e => e.id == proposal.proposalId);
+        return active;
+    }, [proposalList, currentPage]);
 
 
     useEffect(() => {
@@ -149,7 +151,7 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
 
     useEffect(() => {
         selectDefaultValue(voteRadio)
-    },[ticket])
+    }, [ticket])
 
     const selectDefaultValue = (value: OptionsTypes) => {
         setVoteRadio(value)
@@ -339,9 +341,9 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
                 }
 
                 {
-                    type === 'Proposals' && proposal &&
+                    type === 'Proposals' && proposalActive && 
                     <div className='text-[#3D3F4C] text-[16px]'>
-                        <div>#{filterLst[proposal.proposalId].id} {filterLst[proposal.proposalId].title}</div>
+                        <div>#{proposalActive.id} {proposalActive.title}</div>
                     </div>
 
                 }

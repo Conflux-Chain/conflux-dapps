@@ -4,9 +4,6 @@ import Close from 'common/assets/icons//close.svg';
 import renderReactNode from 'common/utils/renderReactNode';
 
 const TipModal = new PopupClass();
-TipModal.setListStyle({
-    top: '260px',
-});
 TipModal.setItemWrapperClassName('toast-item-wrapper');
 TipModal.setAnimatedSize(false);
 
