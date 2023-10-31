@@ -20,14 +20,14 @@ function Header() {
   if (pathname === '/maintenance' || pathname === '/notfound') {
     return null
   }
-  if (pathname === '/') {
-    return (
-      <div className="h-16 px-3 md:px-8 bg-transparent flex justify-between items-center w-full">
-        {!isMobile ? <DarkLogo /> : <DarkMobileLogo />}
-        <LanguageButton />
-      </div>
-    )
-  }
+  // if (pathname === '/') {
+  //   return (
+  //     <div className="h-16 px-3 md:px-8 bg-transparent flex justify-between items-center w-full">
+  //       {!isMobile ? <DarkLogo /> : <DarkMobileLogo />}
+  //       <LanguageButton />
+  //     </div>
+  //   )
+  // }
   return (
     <div className="h-12 md:h-16 px-3 md:px-8 bg-transparent flex justify-between items-center w-full">
       <div className="flex items-center justify-between w-full md:w-auto md:justify-start">
