@@ -141,7 +141,8 @@
             "screen"
           ]
         }
-      ]
+      ],
+      "declaration-empty-line-before": "never"
     }
   }
 }

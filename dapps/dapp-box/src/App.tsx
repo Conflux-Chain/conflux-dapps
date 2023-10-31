@@ -10,16 +10,15 @@ import CrossSpace from 'cross-space/src/modules';
 import BscEspace from 'bsc-espace/src/modules';
 import Airdrop from 'airdrop/src/modules';
 import GovernanceDashboard from 'governance/src/modules/Dashboard';
+import GovernancePowStake from 'governance/src/modules/PowStake';
 import Vote from 'governance/src/modules/Vote';
 import Proposals from 'governance/src/modules/Vote/Proposals';
 import RewardInterestRate from 'governance/src/modules/Vote/RewardInterestRate';
 import Bridge from 'bridge/src/modules';
 import ESpaceBridgeEnter from 'hub/src/modules/ESpaceBridgeEnter';
-import ShuttleFlowNavbarEnhance from 'hub/src/modules/NavbarEnhance/ShuttleFlow';
 import GovernanceNavbarEnhance from 'hub/src/modules/NavbarEnhance/Governance';
 import useCurrentDapp from 'hub/src/hooks/useCurrentDapp';
 import BridgeIcon from 'hub/src/assets/Bridge.svg';
-import ShuttleFlowIcon from 'hub/src/assets/shuttle-flow.svg';
 import GovernanceIcon from 'hub/src/assets/governance.svg';
 import PosIcon from 'hub/src/assets/Pos.svg';
 import AirdropIcon from 'hub/src/assets/Airdrop.svg';
@@ -44,15 +43,6 @@ export const dapps = [
         icon: AirdropIcon,
         path: 'espace-airdrop',
         element: <Airdrop />,
-    },
-    {
-        name: 'ShuttleFlow',
-        icon: ShuttleFlowIcon,
-        path: 'shuttle-flow',
-        NavbarEnhance: {
-            type: 'childRoutes' as 'childRoutes',
-            Content: <ShuttleFlowNavbarEnhance />,
-        },
     },
     {
         name: 'Governance',
@@ -163,6 +153,7 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                     <Route key="espace-airdrop" path="espace-airdrop" element={<Airdrop />} />
                     <Route key="governance" path="governance" element={<Outlet />}>
                         <Route key="governance-dashboard" path="dashboard" element={<GovernanceDashboard />} />
+                        <Route key="governance-dashboard-pow-stake" path="pow-stake" element={<GovernancePowStake />} />
                         <Route key="governance-vote" path="vote" element={<Vote />}>
                             <Route index element={<RewardInterestRate />} />
                             <Route key="governance-vote-proposals" path="proposals" element={<Proposals />} />
@@ -173,7 +164,6 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                     <Route path="governance/*" element={<Navigate to="/governance/dashboard" />} />
                     <Route path="bridge" element={<Bridge />} />
 
-                    <Route key="shuttle-flow" path="shuttle-flow/*" element={<div id="shuttle-flow" />} />
                     <Route key="payment" path="payment/*" element={<Payment />} />
                     <Route key="pos" path="pos/*" element={<Pos />} />
                     <Route path="*" element={<Navigate to="bridge" />} />

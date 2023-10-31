@@ -107,7 +107,7 @@ const DropdownContent: React.FC<{ visible: boolean; hideDropdown: () => void } &
             )}
 
             <CustomScrollbar className="token-list">
-                {filteredData.map((item, index) => (
+                {filteredData?.map?.((item, index) => (
                     <div
                         key={typeof item === 'string' ? item : index}
                         className={cx(
