@@ -25,7 +25,6 @@
         "build": "turbo run build --scope=cross-space --scope=hub --scope=shuttle-flow",
         "lint": "turbo run lint",
         "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-        "preinstall": "npx only-allow yarn",
         "dev": "turbo run dev --scope=hub",
         "dev:hub-shuttle-flow": "turbo run dev --scope=hub --scope=shuttle-flow",
         "dev:dapp-box": "turbo run dev --scope=hub",
@@ -47,9 +46,8 @@
     },
     "devDependencies": {
         "@types/node": "latest",
-        "only-allow": "latest",
         "prettier": "latest",
-        "turbo": "latest",
+        "turbo": "1.10.6",
         "typescript": "latest"
     },
     "engines": {

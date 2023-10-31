@@ -52,6 +52,13 @@ function History() {
         open={true}
         type="warning"
         closable={false}
+        content="Shuttleflow will gradually cease its services. Please claim your assets as soon as possible. We recommend using ZeroGravity and Celerbridge."
+        width="w-full"
+      />
+      <Alert
+        open={true}
+        type="warning"
+        closable={false}
         content={t('cfxAddressRecord')}
         width="w-full"
       />

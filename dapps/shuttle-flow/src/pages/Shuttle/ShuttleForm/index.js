@@ -84,7 +84,13 @@ function ShuttleForm({
     toToken,
   )
   const balanceVal = balance
-    ? new Big(convertDecimal(balance, 'divide', isFromChainCfx ? Decimal18 : decimals)).toString()
+    ? new Big(
+        convertDecimal(
+          balance,
+          'divide',
+          isFromChainCfx ? Decimal18 : decimals,
+        ),
+      ).toString()
     : null
   const maxAmount = (
     balanceVal

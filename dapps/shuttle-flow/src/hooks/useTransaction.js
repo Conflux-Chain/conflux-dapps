@@ -230,7 +230,9 @@ export function mapData(item = {}, tokenList) {
   data.toAddress = to_addr
   data.tx_type = TypeTransaction.transaction
   data.hash = nonce_or_txid?.split('_')[0]
-  data.amount = new Big(convertDecimal(amount || 0, 'divide', data.decimals)).toString()
+  data.amount = new Big(
+    convertDecimal(amount || 0, 'divide', data.decimals),
+  ).toString()
   data.tx_to = tx_to
   data.tx_input = tx_input
   data.cfxAddress = user_addr

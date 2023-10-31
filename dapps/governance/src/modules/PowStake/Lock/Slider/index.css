@@ -1,0 +1,46 @@
+.governance-slider > input[type='range'] {
+    @apply appearance-none w-full h-[16px] outline-none cursor-pointer;
+}
+
+.governance-slider > input[type='range']::-webkit-slider-thumb {
+    @apply appearance-none w-[16px] h-[16px] rounded-full bg-[#808BE7] -mt-[6px];
+    border: 2px solid white;
+    box-shadow: 0px 0px 4px rgba(75, 100, 233, 0.4);
+}
+
+.governance-slider > input[type='range']::-moz-range-thumb {
+    @apply appearance-none w-[16px] h-[16px] rounded-full bg-[#808BE7] -mt-[6px];
+    border: 2px solid white;
+    box-shadow: 0px 0px 4px rgba(75, 100, 233, 0.4);
+}
+
+.governance-slider > input[type='range']::-webkit-slider-runnable-track {  
+    @apply appearance-none h-[4px] rounded-[6px] transition-all;
+}
+
+.governance-slider > input[type='range'][data-progress='0'][data-min-valid-value='0']::-webkit-slider-runnable-track {  
+    background: linear-gradient(to right, #eee 0%, #eee 100%); 
+}
+
+.governance-slider > input[type='range'][data-progress='1'][data-min-valid-value='0']::-webkit-slider-runnable-track {  
+    background: linear-gradient(to right, #808BE7 0%, #808BE7 50%, #eee 50%, #eee 100%); 
+}
+
+.governance-slider > input[type='range'][data-progress='2'][data-min-valid-value='0']::-webkit-slider-runnable-track {  
+    background: linear-gradient(to right, #808BE7 0%, #808BE7 100%); 
+}
+
+.governance-slider > input[type='range'][data-progress='0'][data-min-valid-value='1']::-webkit-slider-runnable-track,
+.governance-slider > input[type='range'][data-progress='1'][data-min-valid-value='1']::-webkit-slider-runnable-track {  
+    background: linear-gradient(to right, #A9ABB2 0%, #A9ABB2 50%, #eee 50%, #eee 100%); 
+}
+
+.governance-slider > input[type='range'][data-progress='2'][data-min-valid-value='1']::-webkit-slider-runnable-track {  
+    background: linear-gradient(to right, #A9ABB2 0%, #A9ABB2 50%, #808BE7 50%, #808BE7 100%); 
+}
+
+.governance-slider > input[type='range'][data-progress='0'][data-min-valid-value='2']::-webkit-slider-runnable-track,
+.governance-slider > input[type='range'][data-progress='1'][data-min-valid-value='2']::-webkit-slider-runnable-track,
+.governance-slider > input[type='range'][data-progress='2'][data-min-valid-value='2']::-webkit-slider-runnable-track {  
+    background: linear-gradient(to right, #A9ABB2 0%, #A9ABB2); 
+}
