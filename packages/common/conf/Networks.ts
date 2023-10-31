@@ -91,7 +91,7 @@ const AllNetworks: Record<string, Network> = {
     '8888': {
         chainId: '8888',
         chainName: 'Conflux 8888',
-        rpcUrls: ['http://net8888cfx.confluxrpc.com'],
+        rpcUrls: ['https://net8888cfx.confluxrpc.com'],
         blockExplorerUrls: ['https://net8888cfx.confluxscan.net'],
         nativeCurrency: {
             name: 'Conflux',

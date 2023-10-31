@@ -14,7 +14,7 @@ import { getCurrentBlockNumber, lockDaysAndBlockNumberStore } from './lockDays&b
 
 const dateConfigs = {
     '8888': {
-        start: Unit.fromMinUnit('100000'),
+        start: Unit.fromMinUnit('360000'),
         duration: Unit.fromMinUnit('3600'),
     },
     '1': {
@@ -31,8 +31,6 @@ const currentDataConfig = dateConfigs[Networks.core.chainId as keyof typeof date
 interface Voting {
     powBaseReward: [Unit, Unit, Unit];
     interestRate: [Unit, Unit, Unit];
-    storagePoint: [Unit, Unit, Unit];
-    proposals?: [Unit, Unit, Unit];
 }
 
 interface Vote {
@@ -44,10 +42,6 @@ interface Vote {
         voting: [Unit, Unit, Unit];
         value: Unit;
     };
-    storagePoint: {
-        voting: [Unit, Unit, Unit];
-        value: Unit;
-    };
 }
 
 interface RewardRateStore {
@@ -56,26 +50,18 @@ interface RewardRateStore {
     currentVotingOrigin?: {
         powBaseReward: [string, string, string];
         interestRate: [string, string, string];
-        storagePoint: [string, string, string];
     };
     currentVote?: Vote;
-    currentVotingRoundStartBlockNumber?: Unit;
-    currentVotingRoundStartTimestamp?: number;
     currentVotingRoundEndBlockNumber?: Unit;
     currentVotingRoundEndTimestamp?: number;
-    currentVotingRoundEffectiveBlockNumber?: Unit;
-    currentVotingRoundEffectiveTimestamp?: number;
     preVote?: Vote;
-    prepreVote?: Vote;
     currentExecValueOrigin?: {
         powBaseReward: string;
         interestRate: string;
-        storagePoint: string;
     };
     preVotingOrigin?: {
         powBaseReward: [string, string, string];
         interestRate: [string, string, string];
-        storagePoint: [string, string, string];
     };
     currentAccountVoted: Voting | undefined;
     posStakeForVotes?: Unit;
@@ -90,14 +76,9 @@ const initState = {
     currentVoting: undefined,
     currentVote: undefined,
     currentVotingOrigin: undefined,
-    currentVotingRoundStartBlockNumber: undefined,
-    currentVotingRoundStartTimestamp: undefined,
     currentVotingRoundEndBlockNumber: undefined,
     currentVotingRoundEndTimestamp: undefined,
-    currentVotingRoundEffectiveBlockNumber: undefined,
-    currentVotingRoundEffectiveTimestamp: undefined,
     preVote: undefined,
-    prepreVote: undefined,
     currentExecValueOrigin: undefined,
     preVotingOrigin: undefined,
     currentAccountVoted: undefined,
@@ -156,12 +137,10 @@ rewardRateStore.subscribe(
                     const currentVotingOrigin = {
                         powBaseReward: [res[0][1][1], res[0][1][0], res[0][1][2]] as [string, string, string],
                         interestRate: [res[1][1][1], res[1][1][0], res[1][1][2]] as [string, string, string],
-                        storagePoint: [res[2][1][1], res[2][1][0], res[2][1][2]] as [string, string, string],
                     };
                     const currentVoting = {
                         powBaseReward: currentVotingOrigin.powBaseReward.map((val: string) => Unit.fromMinUnit(val)) as [Unit, Unit, Unit],
                         interestRate: currentVotingOrigin.interestRate.map((val: string) => Unit.fromMinUnit(val)) as [Unit, Unit, Unit],
-                        storagePoint: currentVotingOrigin.storagePoint.map((val: string) => Unit.fromMinUnit(val)) as [Unit, Unit, Unit],
                     };
 
                     rewardRateStore.setState({ currentVotingOrigin, currentVoting });
@@ -192,6 +171,22 @@ rewardRateStore.subscribe(
             }
         )();
 
+        fetchChain({
+            rpcUrl: Networks.core.rpcUrls[0],
+            method: 'cfx_call',
+            params: [
+                {
+                    to: paramsControlContractAddress,
+                    data: paramsControlContract.posStakeForVotes('0x' + Number(currentVotingRound - 1).toString(16)).encodeABI(),
+                },
+                'latest_state',
+            ],
+        }).then((r) => {
+            if (!r) return;
+            const res = decodeHexResult(paramsControlContract.posStakeForVotes('0x' + Number(currentVotingRound - 1).toString(16))._method.outputs, r)?.[0];
+            rewardRateStore.setState({ posStakeForPreVotes: Unit.fromMinUnit(res) });
+        });
+
         // fetch currentExecValue
         unsubFetchCurrentExecValue = intervalFetchChain(
             {
@@ -201,33 +196,9 @@ rewardRateStore.subscribe(
             },
             {
                 intervalTime: 20000,
-                callback: (result: { powBaseReward: string; interestRate: string; storagePointProp: string; }) => {
-                    if (typeof result !== 'object') return;
-                    //  currentExecValueOrigin.storagePoint = String(1/(1+1)*1e18); // Mock: Burn x/(1+x), keep 1/(1+x) 
-                    
-                    const currentExecValueOrigin = {
-                        powBaseReward: result.powBaseReward,
-                        interestRate: result.interestRate,
-                        storagePoint: result.storagePointProp
-                    }
-
+                callback: (currentExecValueOrigin: { powBaseReward: string; interestRate: string }) => {
+                    if (typeof currentExecValueOrigin !== 'object') return;
                     rewardRateStore.setState({ currentExecValueOrigin });
-                    rewardRateStore.setState({
-                        prepreVote: {
-                            powBaseReward: {
-                                voting: [zero, zero, zero],
-                                value:  Unit.fromMinUnit(currentExecValueOrigin.powBaseReward ?? 0),
-                            },
-                            interestRate: {
-                                voting: [zero, zero, zero],
-                                value: Unit.fromMinUnit(currentExecValueOrigin.interestRate ?? 0),
-                            },
-                            storagePoint: {
-                                voting: [zero, zero, zero],
-                                value: Unit.fromMinUnit(currentExecValueOrigin.storagePoint ?? 0),
-                            },
-                        }
-                    })
                 },
             }
         )();
@@ -262,12 +233,10 @@ rewardRateStore.subscribe(
                             const currentAccountVotedOrigin = {
                                 powBaseReward: [res[0][1][1], res[0][1][2], res[0][1][0]] as [string, string, string],
                                 interestRate: [res[1][1][1], res[1][1][2], res[1][1][0]] as [string, string, string],
-                                storagePoint: [res[2][1][1], res[2][1][2], res[2][1][0]] as [string, string, string],
                             };
                             const currentAccountVoted = {
                                 powBaseReward: currentAccountVotedOrigin.powBaseReward.map((val: string) => Unit.fromMinUnit(val)) as [Unit, Unit, Unit],
                                 interestRate: currentAccountVotedOrigin.interestRate.map((val: string) => Unit.fromMinUnit(val)) as [Unit, Unit, Unit],
-                                storagePoint: currentAccountVotedOrigin.storagePoint.map((val: string) => Unit.fromMinUnit(val)) as [Unit, Unit, Unit],
                             };
                             rewardRateStore.setState({ currentAccountVoted });
                         },
@@ -301,7 +270,6 @@ rewardRateStore.subscribe(
                     const preVotingOrigin = {
                         powBaseReward: [preVotingR[0][1][1], preVotingR[0][1][0], preVotingR[0][1][2]] as [string, string, string],
                         interestRate: [preVotingR[1][1][1], preVotingR[1][1][0], preVotingR[1][1][2]] as [string, string, string],
-                        storagePoint: [preVotingR[2][1][1], preVotingR[2][1][0], preVotingR[2][1][2]] as [string, string, string],
                     };
 
                     rewardRateStore.setState({ preVotingOrigin });
@@ -325,44 +293,15 @@ rewardRateStore.subscribe(
             { fireImmediately: true }
         );
 
-        // fetch posStakeForPreVotes
-        fetchChain({
-            rpcUrl: Networks.core.rpcUrls[0],
-            method: 'cfx_call',
-            params: [
-                {
-                    to: paramsControlContractAddress,
-                    data: paramsControlContract.posStakeForVotes('0x' + Number(currentVotingRound - 1).toString(16)).encodeABI(),
-                },
-                'latest_state',
-            ],
-        }).then((r) => {
-            if (!r) return;
-            const res = decodeHexResult(paramsControlContract.posStakeForVotes('0x' + Number(currentVotingRound - 1).toString(16))._method.outputs, r)?.[0];
-            rewardRateStore.setState({ posStakeForPreVotes: Unit.fromMinUnit(res) });
-        });
-
-        // calc Timestamp
-        const currentVotingRoundStartBlockNumber = currentDataConfig.start.add(Unit.fromMinUnit(currentVotingRound - 1).mul(currentDataConfig.duration));
+        // calc currentVotingRoundEndBlockNumber
         const currentVotingRoundEndBlockNumber = currentDataConfig.start.add(Unit.fromMinUnit(currentVotingRound).mul(currentDataConfig.duration));
-        const currentVotingRoundEffectiveBlockNumber = currentDataConfig.start.add(Unit.fromMinUnit(currentVotingRound + 1).mul(currentDataConfig.duration));
-
         const currentBlockNumber = getCurrentBlockNumber();
-
         const calcCurrentVotingRoundEndTimestamp = (currentBlockNumber: Unit) =>
             dayjs().add(+currentVotingRoundEndBlockNumber.sub(currentBlockNumber).div(BLOCK_SPEED).toDecimalMinUnit(0), 'second').unix() * 1000;
-        const calcCurrentVotingRoundStartTimestamp = (currentBlockNumber: Unit) =>
-            dayjs().add(+currentVotingRoundStartBlockNumber.sub(currentBlockNumber).div(BLOCK_SPEED).toDecimalMinUnit(0), 'second').unix() * 1000;
-        const calcCurrentVotingRoundEffectiveTimestamp = (currentBlockNumber: Unit) =>
-            dayjs().add(+currentVotingRoundEffectiveBlockNumber.sub(currentBlockNumber).div(BLOCK_SPEED).toDecimalMinUnit(0), 'second').unix() * 1000;
         if (currentBlockNumber) {
             rewardRateStore.setState({
-                currentVotingRoundStartBlockNumber,
-                currentVotingRoundStartTimestamp: calcCurrentVotingRoundStartTimestamp(currentBlockNumber),
                 currentVotingRoundEndBlockNumber,
                 currentVotingRoundEndTimestamp: calcCurrentVotingRoundEndTimestamp(currentBlockNumber),
-                currentVotingRoundEffectiveBlockNumber,
-                currentVotingRoundEffectiveTimestamp: calcCurrentVotingRoundEffectiveTimestamp(currentBlockNumber),
             });
         } else {
             unsubCurrentBlockNumber = lockDaysAndBlockNumberStore.subscribe(
@@ -371,12 +310,8 @@ rewardRateStore.subscribe(
                     if (!currentBlockNumber) return;
                     unsubCurrentBlockNumber?.();
                     rewardRateStore.setState({
-                        currentVotingRoundStartBlockNumber,
-                        currentVotingRoundStartTimestamp: calcCurrentVotingRoundStartTimestamp(currentBlockNumber),
                         currentVotingRoundEndBlockNumber,
                         currentVotingRoundEndTimestamp: calcCurrentVotingRoundEndTimestamp(currentBlockNumber),
-                        currentVotingRoundEffectiveBlockNumber,
-                        currentVotingRoundEffectiveTimestamp: calcCurrentVotingRoundEffectiveTimestamp(currentBlockNumber),
                     });
                 }
             );
@@ -392,13 +327,11 @@ const calcPreVote = (currentVotingRound: number) => {
     const currentExecValue = {
         powBaseReward: Unit.fromMinUnit(currentExecValueOrigin?.powBaseReward ?? 0),
         interestRate: Unit.fromMinUnit(currentExecValueOrigin?.interestRate ?? 0),
-        storagePoint: Unit.fromMinUnit(currentExecValueOrigin?.storagePoint ?? 0),
     };
 
     const preVoting = {
         powBaseReward: preVotingOrigin?.powBaseReward.map((val: string) => Unit.fromMinUnit(val)) as [Unit, Unit, Unit],
         interestRate: preVotingOrigin?.interestRate.map((val: string) => Unit.fromMinUnit(val)) as [Unit, Unit, Unit],
-        storagePoint: preVotingOrigin?.storagePoint.map((val: string) => Unit.fromMinUnit(val)) as [Unit, Unit, Unit],
     } as Voting;
 
     if (currentVotingRound > 1) {
@@ -412,10 +345,6 @@ const calcPreVote = (currentVotingRound: number) => {
                     interestRate: {
                         voting: [zero, zero, zero],
                         value: currentExecValue.interestRate,
-                    },
-                    storagePoint: {
-                        voting: [zero, zero, zero],
-                        value: currentExecValue.storagePoint,
                     },
                 },
                 preVoting,
@@ -433,10 +362,6 @@ const calcPreVote = (currentVotingRound: number) => {
                     voting: [zero, zero, zero],
                     value: currentExecValue.interestRate,
                 },
-                storagePoint: {
-                    voting: [zero, zero, zero],
-                    value: currentExecValue.storagePoint,
-                },
             },
             currentExecValueOrigin,
         });
@@ -445,7 +370,6 @@ const calcPreVote = (currentVotingRound: number) => {
 
 const calcCurrentVote = () => {
     const { currentVoting, preVote } = rewardRateStore.getState();
-    
     if (!currentVoting || !preVote) {
         rewardRateStore.setState({ currentVote: undefined });
         return;
@@ -456,7 +380,7 @@ rewardRateStore.subscribe((state) => state.currentVoting, calcCurrentVote, { fir
 rewardRateStore.subscribe((state) => state.preVote, calcCurrentVote, { fireImmediately: true });
 
 const calcNextVotingValue = (curVote: Vote, nextVoting: Voting, posStakeForPreVotes?: Unit): Vote => {
-    const calcValue = (type: 'powBaseReward' | 'interestRate' | 'storagePoint') => {
+    const calcValue = (type: 'powBaseReward' | 'interestRate') => {
         const totalOptionVotes = nextVoting[type][0].add(nextVoting[type][1]).add(nextVoting[type][2]);
         if (posStakeForPreVotes && totalOptionVotes.lessThan(posStakeForPreVotes.mul(Unit.fromMinUnit(0.05)))) {
             return curVote[type].value;
@@ -468,15 +392,8 @@ const calcNextVotingValue = (curVote: Vote, nextVoting: Voting, posStakeForPreVo
                 totalOptionVotes.greaterThan(zero) ? (nextVoting[type][0].sub(nextVoting[type][2]).div(totalOptionVotes) as any).value : (zero as any).value
             )
         );
-        if(type === 'storagePoint') {
-            const _decimal = curVote[type].value.toDecimal();
-            if(_decimal.equals(0)) {
-                console.log('first')
-            }
-        }
         return curVote[type].value.mul(product);
     };
-   
     return {
         powBaseReward: {
             value: calcValue('powBaseReward'),
@@ -485,10 +402,6 @@ const calcNextVotingValue = (curVote: Vote, nextVoting: Voting, posStakeForPreVo
         interestRate: {
             value: calcValue('interestRate'),
             voting: nextVoting.interestRate,
-        },
-        storagePoint: {
-            value: calcValue('storagePoint'),
-            voting: nextVoting.storagePoint,
         },
     };
 };
@@ -522,30 +435,18 @@ export const fetchCurrentRound = () => {
 const selectors = {
     currentVotingRound: (state: RewardRateStore) => state.currentVotingRound,
     currentVote: (state: RewardRateStore) => state.currentVote,
-    currentVotingRoundStartBlockNumber: (state: RewardRateStore) => state.currentVotingRoundStartBlockNumber,
-    currentVotingRoundStartTimestamp: (state: RewardRateStore) => state.currentVotingRoundStartTimestamp,
     currentVotingRoundEndBlockNumber: (state: RewardRateStore) => state.currentVotingRoundEndBlockNumber,
     currentVotingRoundEndTimestamp: (state: RewardRateStore) => state.currentVotingRoundEndTimestamp,
-    currentVotingRoundEffectiveBlockNumber: (state: RewardRateStore) => state.currentVotingRoundEffectiveBlockNumber,
-    currentVotingRoundEffectiveTimestamp: (state: RewardRateStore) => state.currentVotingRoundEffectiveTimestamp,
     preVote: (state: RewardRateStore) => state.preVote,
-    prepreVote: (state: RewardRateStore) => state.prepreVote,
     currentAccountVoted: (state: RewardRateStore) => state.currentAccountVoted,
     posStakeForVotes: (state: RewardRateStore) => state.posStakeForVotes,
 };
 
-
 export const useCurrentVotingRound = () => rewardRateStore(selectors.currentVotingRound);
-export const usePrePreVote = () => rewardRateStore(selectors.prepreVote);
 export const usePreVote = () => rewardRateStore(selectors.preVote);
 export const useCurrentVote = () => rewardRateStore(selectors.currentVote);
-export const useCurrentVotingRoundStartBlockNumber = () => rewardRateStore(selectors.currentVotingRoundStartBlockNumber);
-export const useCurrentVotingRoundStartTimestamp = () => rewardRateStore(selectors.currentVotingRoundStartTimestamp);
 export const useCurrentVotingRoundEndBlockNumber = () => rewardRateStore(selectors.currentVotingRoundEndBlockNumber);
 export const useCurrentVotingRoundEndTimestamp = () => rewardRateStore(selectors.currentVotingRoundEndTimestamp);
-export const useCurrentVotingRoundEffectiveBlockNumber = () => rewardRateStore(selectors.currentVotingRoundEffectiveBlockNumber);
-export const useCurrentVotingRoundEffectiveTimestamp = () => rewardRateStore(selectors.currentVotingRoundEffectiveTimestamp);
 export const useCurrentAccountVoted = () => rewardRateStore(selectors.currentAccountVoted);
 export const usePosStakeForVotes = () => rewardRateStore(selectors.posStakeForVotes);
 export const trackCurrentAccountVotedChangeOnce = createTrackStoreChangeOnce(rewardRateStore, 'currentAccountVoted');
-export const currentVotingRoundEndBlockNumber = () => rewardRateStore.getState().currentVotingRoundEndBlockNumber;
