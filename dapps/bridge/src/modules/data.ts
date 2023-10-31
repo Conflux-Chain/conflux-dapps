@@ -137,6 +137,10 @@ fetch(crossSpaceTokenListUrl)
         if (!isEqual(preSourceChains, sourceChains)) {
             dataStore.setState({ sourceChains });
             LocalStorage.setItem({ data: sourceChains, key: 'sourceChains', namespace });
+            dataStore.setState({ sourceChain: 'Conflux Core' });
+            LocalStorage.setItem({ data: 'Conflux Core', key: 'sourceChain', namespace });
+            const destinationChain = resetDestinationChains('Conflux Core')!;
+            resetTokens('Conflux Core', destinationChain);
         }
 
         if (!preSourceChain || !sourceChains.includes(preSourceChain)) {
