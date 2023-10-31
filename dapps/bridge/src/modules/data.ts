@@ -76,32 +76,28 @@ fetch(crossSpaceTokenListUrl)
         const data: any = {
             'Conflux eSpace': {
                 Ethereum: {
-                    CFX: [['Space Bridge']],
-                    ETH: [['Space Bridge']],
                     WETH: ['cBridge'],
-                    USDT: [['Space Bridge'], 'cBridge'],
-                    USDC: [['Space Bridge'], 'cBridge'],
-                    WBTC: [['Space Bridge'], 'cBridge'],
-                    DAI: [['Space Bridge'], 'cBridge'],
+                    USDT: ['cBridge'],
+                    USDC: ['cBridge'],
+                    WBTC: ['cBridge'],
+                    DAI: ['cBridge'],
                 },
                 'BSC Chain': {
-                    CFX: ['Chain Bridge', ['Space Bridge']],
+                    CFX: ['Chain Bridge'],
                 },
             },
             'BSC Chain': {
                 'Conflux eSpace': {
-                    CFX: ['Chain Bridge', ['Space Bridge']],
+                    CFX: ['Chain Bridge'],
                 },
             },
             Ethereum: {
                 'Conflux eSpace': {
-                    CFX: [['Space Bridge']],
-                    ETH: [['Space Bridge']],
                     WETH: ['cBridge'],
-                    USDT: [['Space Bridge'], 'cBridge'],
-                    USDC: [['Space Bridge'], 'cBridge'],
-                    WBTC: [['Space Bridge'], 'cBridge'],
-                    DAI: [['Space Bridge'], 'cBridge'],
+                    USDT: ['cBridge'],
+                    USDC: ['cBridge'],
+                    WBTC: ['cBridge'],
+                    DAI: ['cBridge'],
                 },
             },
         };
