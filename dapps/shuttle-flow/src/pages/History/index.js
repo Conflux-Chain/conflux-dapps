@@ -11,6 +11,7 @@ import {TypeTransaction} from '../../constants'
 function History() {
   const historyData = useTxData(
     [
+      ShuttleStatus.waiting,
       ShuttleStatus.pending,
       ShuttleStatus.success,
       ShuttleStatus.error,
@@ -47,6 +48,13 @@ function History() {
         />
         <span className="text-base text-gray-100">{t('history.title')}</span>
       </div>
+      <Alert
+        open={true}
+        type="warning"
+        closable={false}
+        content="Shuttleflow will gradually cease its services. Please claim your assets as soon as possible. We recommend using ZeroGravity and Celerbridge."
+        width="w-full"
+      />
       <Alert
         open={true}
         type="warning"

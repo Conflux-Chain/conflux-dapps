@@ -8,8 +8,7 @@ import {checkCfxTokenAddress} from './address'
 
 export const IS_DEV =
   window.location.hostname === 'localhost' ||
-  window.location.hostname.indexOf('test') > -1 ||
-  window.location.hostname.indexOf('zglabs') > -1
+  window.location.hostname.indexOf('test') > -1
 
 export const getEllipsStr = (str, frontNum, endNum) => {
   if (str) {
@@ -32,10 +31,14 @@ export function isNumber(value) {
 
 export function isHexPrefixed(str) {
   if (typeof str !== 'string') {
-    throw new Error("[is-hex-prefixed] value must be type 'string', is currently type " + (typeof str) + ", while checking isHexPrefixed.");
+    throw new Error(
+      "[is-hex-prefixed] value must be type 'string', is currently type " +
+        typeof str +
+        ', while checking isHexPrefixed.',
+    )
   }
 
-  return str.slice(0, 2) === '0x';
+  return str.slice(0, 2) === '0x'
 }
 
 export const addHexPrefix = function (str) {
@@ -60,7 +63,8 @@ export const getMaxAmount = (chain, amount) => {
 export function calculateGasMargin(value, margin = 0.1) {
   const addedValue = BigNumber.from(value?.toString(10))
     .mul(BigNumber.from(10000).add(BigNumber.from(10000 * margin)))
-    .div(BigNumber.from(10000)).toString()
+    .div(BigNumber.from(10000))
+    .toString()
   return addHexPrefix(new BN(addedValue, 10).toString(16))
 }
 
