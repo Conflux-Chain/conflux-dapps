@@ -7,12 +7,16 @@ import Spin from 'common/components/Spin';
 import { isMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFluent';
 
 const WaitWalletModal = new PopupClass();
-
+WaitWalletModal.setListStyle({
+    top: '320px',
+});
 WaitWalletModal.setItemWrapperClassName('toast-item-wrapper');
 WaitWalletModal.setAnimatedSize(false);
 
 const TransactionSubmittedModal = new PopupClass();
-
+TransactionSubmittedModal.setListStyle({
+    top: '280px',
+})
 TransactionSubmittedModal.setItemWrapperClassName('toast-item-wrapper');
 TransactionSubmittedModal.setAnimatedSize(false);
 

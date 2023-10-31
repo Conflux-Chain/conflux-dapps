@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
-import { Unit, store as fluentStore } from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
 import LocalStorage from 'localstorage-enhance';
 import { validateHexAddress, convertHexToCfx } from 'common/utils/addressUtils';
 import { intervalFetchChain, fetchChain } from 'common/utils/fetchChain';
@@ -10,8 +10,6 @@ import { governanceContract, governanceContractAddress } from './contracts';
 import { getCurrentBlockNumber, BLOCK_SPEED } from './index';
 import { calRemainTime } from 'common/utils/time';
 import { clamp } from 'lodash-es';
-import { convertCfxToHex } from 'common/utils/addressUtils';
-import { getPosLockArrOrigin } from './lockDays&blockNumber';
 
 export interface Option {
     content: string;
@@ -21,7 +19,6 @@ export interface Option {
 
 export interface Proposal {
     title: string;
-    description: string;
     proposer: string;
     proposalDiscussion: string;
     options: Array<Option>;
@@ -42,27 +39,23 @@ interface ProposalListStore {
     extendDelay?: {
         blockNumber: string;
         intervalMinutes: string;
-    },
-    activeProposalUserVotePow?: Array<Array<Unit>>; // [proposalIndex][optionIndex]
-    activeProposalUserVotePos?: Array<Array<Array<Unit>>>; // [proposalIndex][poolIndex][optionIndex]
+    }
 }
 
 
 export const proposalListStore = create(
     subscribeWithSelector(
         () =>
-        ({
-            proposalList: LocalStorage.getItem(`proposalList-${Networks.core.chainId}`, 'governance') ?? undefined,
-            proposalCount: LocalStorage.getItem(`proposalCount-${Networks.core.chainId}`, 'governance') ?? 0,
-            currentPage: 1,
-            pageSize: LocalStorage.getItem(`pageSize-${Networks.core.chainId}`, 'governance') ?? 7,
-            pageCount: LocalStorage.getItem(`pageCount-${Networks.core.chainId}`, 'governance') ?? 1,
-            openedProposalId: LocalStorage.getItem(`openedProposalId-${Networks.core.chainId}`, 'governance') ?? undefined,
-            openedProposal: LocalStorage.getItem(`openedProposal-${Networks.core.chainId}`, 'governance') ?? undefined,
-            extendDelay: LocalStorage.getItem(`extendDelay-${Networks.core.chainId}`, 'governance') ?? undefined,
-            activeProposalUserVotePow: LocalStorage.getItem(`activeProposalUserVotePow-${Networks.core.chainId}`, 'governance') ?? undefined,
-            activeProposalUserVotePos: LocalStorage.getItem(`activeProposalUserVotePos-${Networks.core.chainId}`, 'governance') ?? undefined,
-        } as ProposalListStore)
+            ({
+                proposalList: LocalStorage.getItem(`proposalList-${Networks.core.chainId}`, 'governance') ?? undefined,
+                proposalCount: LocalStorage.getItem(`proposalCount-${Networks.core.chainId}`, 'governance') ?? 0,
+                currentPage: 1,
+                pageSize: LocalStorage.getItem(`pageSize-${Networks.core.chainId}`, 'governance') ?? 7,
+                pageCount: LocalStorage.getItem(`pageCount-${Networks.core.chainId}`, 'governance') ?? 1,
+                openedProposalId: LocalStorage.getItem(`openedProposalId-${Networks.core.chainId}`, 'governance') ?? undefined,
+                openedProposal: LocalStorage.getItem(`openedProposal-${Networks.core.chainId}`, 'governance') ?? undefined,
+                extendDelay: LocalStorage.getItem(`extendDelay-${Networks.core.chainId}`, 'governance') ?? undefined,
+            } as ProposalListStore)
     )
 );
 
@@ -90,7 +83,7 @@ export const startTrackProposalList = intervalFetchChain(
         ],
     },
     {
-        intervalTime: 10000,
+        intervalTime: 30000,
         callback: (res) => {
             if (typeof res !== 'string' || res === '0x') {
                 proposalListStore.setState({ proposalCount: undefined, proposalList: [], openedProposalId: undefined, openedProposal: undefined });
@@ -103,7 +96,7 @@ export const startTrackProposalList = intervalFetchChain(
             const proposalCount = Number(res);
             LocalStorage.setItem({ key: `proposalCount-${Networks.core.chainId}`, data: proposalCount, namespace: 'governance' });
             proposalListStore.setState({ proposalCount });
-
+            
             fetchChain({
                 rpcUrl: Networks.core.rpcUrls[0],
                 method: 'cfx_call',
@@ -124,105 +117,8 @@ export const startTrackProposalList = intervalFetchChain(
                 const proposalList = formatProposalList(proposalListOrigin);
                 LocalStorage.setItem({ key: `proposalList-${Networks.core.chainId}`, data: proposalList, namespace: 'governance' });
                 proposalListStore.setState({ proposalList });
-
-                const fetchActiveProposalForUserVotePow = fluentStore.subscribe(
-                    (state) => state.accounts,
-                    (accounts) => {
-                        const account = accounts?.[0];
-                        if (!account) return;
-                        let activeProposalUserVotePow: Array<Array<Unit>> = [];
-
-                        let promises = proposalList.flatMap((proposal, proposalIndex) => {
-                            if (proposal.status === "Active") {
-                                activeProposalUserVotePow[proposalIndex] = [];
-                                return fetchChain({
-                                    rpcUrl: Networks.core.rpcUrls[0],
-                                    method: 'cfx_call',
-                                    params: [
-                                        {
-                                            to: governanceContractAddress,
-                                            data: governanceContract.getVoteForProposal(proposalIndex, convertCfxToHex(account)).encodeABI(),
-                                        },
-                                        'latest_state',
-                                    ],
-                                })
-                                    .then((res) => {
-                                        const amountList = decodeHexResult(governanceContract.getVoteForProposal(proposalIndex, convertCfxToHex(account))._method.outputs, res)?.[0];
-                                        activeProposalUserVotePow[proposalIndex] = amountList.map((e: string) => Unit.fromMinUnit(e));
-                                    })
-                                    .catch((error) => {
-                                        console.error(`Error fetching data for proposal ${proposalIndex}: ${error}`);
-                                    });
-                            } else {
-                                return Promise.resolve();
-                            }
-                        });
-                        if (promises.length === 0) return;
-                        Promise.all(promises)
-                            .then(() => {
-                                proposalListStore.setState({ activeProposalUserVotePow });
-                            })
-                            .catch((error) => {
-                                console.error(`Error fetching data: ${error}`);
-                            });
-
-                    },
-                    { fireImmediately: true }
-                );
-                fetchActiveProposalForUserVotePow();
-
-                const fetchActiveProposalForUserVotePos = fluentStore.subscribe(
-                    (state) => state.accounts,
-                    (accounts) => {
-                        const account = accounts?.[0];
-                        if (!account) return;
-                        let activeProposalUserVotePos: Array<Array<Array<Unit>>> = [];
-
-                        let promises = proposalList.flatMap((proposal, proposalIndex) => {
-                            if (proposal.status === "Active") {
-                                activeProposalUserVotePos[proposalIndex] = [];
-                                let posLockArr = getPosLockArrOrigin()
-
-                                return posLockArr ? posLockArr.map((pool, poolIndex) => {
-                                    const poolContractAddress = pool.poolContractAddress;
-                                    return poolContractAddress && fetchChain({
-                                        rpcUrl: Networks.core.rpcUrls[0],
-                                        method: 'cfx_call',
-                                        params: [
-                                            {
-                                                to: governanceContractAddress,
-                                                data: governanceContract.getPoolVoteForProposal(proposalIndex, convertCfxToHex(poolContractAddress), convertCfxToHex(account)).encodeABI(),
-                                            },
-                                            'latest_state',
-                                        ],
-                                    })
-                                        .then((res) => {
-                                            const amountList = decodeHexResult(governanceContract.getPoolVoteForProposal(proposalIndex, convertCfxToHex(poolContractAddress), convertCfxToHex(account))._method.outputs, res)?.[0];
-                                            activeProposalUserVotePos[proposalIndex][poolIndex] = amountList.map((e: string) => Unit.fromMinUnit(e));
-                                        })
-                                        .catch((error) => {
-                                            console.error(`Error fetching data for proposal ${proposalIndex} option ${poolIndex}: ${error}`);
-                                        });
-                                }) : [];
-
-                            } else {
-                                return Promise.resolve();
-                            }
-                        });
-
-                        Promise.all(promises)
-                            .then(() => {
-                                proposalListStore.setState({ activeProposalUserVotePos });
-                            })
-                            .catch((error) => {
-                                console.error(`Error fetching data: ${error}`);
-                            });
-                    },
-                    { fireImmediately: true }
-                );
-                fetchActiveProposalForUserVotePos();
             });
-
+            
         },
     }
 );
@@ -270,7 +166,7 @@ export const startTrackOpenedProposal = () => {
             });
         }
         fetchOpenedProposal();
-        interval = setInterval(fetchOpenedProposal, 5000) as unknown as number;
+        interval = setInterval(fetchOpenedProposal, 2000) as unknown as number;
     }, { fireImmediately: true });
 
     return () => {
@@ -306,19 +202,18 @@ const formatProposal = (proposal: any, currentBlockNumber = getCurrentBlockNumbe
     const res = {
         title: proposal[0],
         proposalDiscussion: proposal[1],
-        description: proposal[2],
-        votesAtBlockNumber: proposal[3],
+        votesAtBlockNumber: proposal[2],
         votesAtTime: calRemainTime(
-            currentBlockNumber.sub(Unit.fromMinUnit(proposal[3])).div(BLOCK_SPEED).mul(Unit.fromMinUnit(1000)).toDecimalMinUnit(),
+            currentBlockNumber.sub(Unit.fromMinUnit(proposal[2])).div(BLOCK_SPEED).mul(Unit.fromMinUnit(1000)).toDecimalMinUnit(),
             'all-without-seconds'
         ),
-        options: proposal[4]?.map?.((option: string, index: number) => ({
+        options: proposal[3]?.map?.((option: string, index: number) => ({
             content: option,
-            amount: Unit.fromMinUnit(proposal[5]?.[index] ?? 0).toDecimalStandardUnit(),
+            amount: Unit.fromMinUnit(proposal[4]?.[index] ?? 0).toDecimalStandardUnit(),
         })),
-        status: proposal[6],
-        proposer: validateHexAddress(proposal[7]) ? convertHexToCfx(proposal[7], Networks.core.chainId) : proposal[7],
-        id: Number(proposal[8]),
+        status: proposal[5],
+        proposer: validateHexAddress(proposal[6]) ? convertHexToCfx(proposal[6], Networks.core.chainId) : proposal[6],
+        id: Number(proposal[7]),
     } as Proposal;
     const allVotes = res.options?.reduce?.((acc, cur) => acc.add(Unit.fromMinUnit(cur.amount)), Unit.fromMinUnit(0));
     res.options.forEach(
@@ -340,8 +235,6 @@ const selectors = {
     openedProposalId: (state: ProposalListStore) => state.openedProposalId,
     openedProposal: (state: ProposalListStore) => state.openedProposal,
     extendDelay: (state: ProposalListStore) => state.extendDelay,
-    activeProposalUserVotePow: (state: ProposalListStore) => state.activeProposalUserVotePow,
-    activeProposalUserVotePos: (state: ProposalListStore) => state.activeProposalUserVotePos,
 };
 
 export const usePageSize = () => proposalListStore(selectors.pageSize);
@@ -363,7 +256,5 @@ export const setOpenedProposalId = (id?: number) => {
 };
 export const useOpenedProposal = () => proposalListStore(selectors.openedProposal);
 export const useExtendDelay = () => proposalListStore(selectors.extendDelay);
-export const useActiveProposalUserVotePow = () => proposalListStore(selectors.activeProposalUserVotePow);
-export const useActiveProposalUserVotePos = () => proposalListStore(selectors.activeProposalUserVotePos);
 
 setCurrentPage(Number(LocalStorage.getItem(`currentPage-${Networks.core.chainId}`, 'governance') ?? 1))

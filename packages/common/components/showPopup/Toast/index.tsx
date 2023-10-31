@@ -12,7 +12,6 @@ const Toast = new PopupClass();
 const SpecialToast = new PopupClass();
 [Toast, SpecialToast].forEach(_Toast => {
     _Toast.setListStyle({
-        justifyContent: 'flex-start',
         top: '80px',
         left: 'unset',
         transform: 'unset',

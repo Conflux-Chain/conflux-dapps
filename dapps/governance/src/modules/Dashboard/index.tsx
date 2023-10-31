@@ -1,20 +1,17 @@
 import React, { useEffect } from 'react';
-
+import Stake from './Stake';
+import Unstake from './Unstake';
+import Lock from './Lock';
 import { startTrack } from 'governance/src/store';
-
-import Statistics from './Statistics'
-import StakePos from './Pos'
-import StakePow from './Pow'
 
 const Dashboard: React.FC = () => {
     useEffect(startTrack, []);
 
     return (
-        <div className="mx-auto w-[1140px] h-[718px] pt-[16px]">
-            <div className='text-[24px] text-[#3D3F4C]'>My Dashboard</div>
-            <Statistics />
-            <StakePow />
-            <StakePos />
+        <div className="mx-auto w-[1140px] h-[718px] pt-[16px] it grid grid-rows-2 grid-cols-2 gap-[24px]">
+            <Stake />
+            <Lock />
+            <Unstake />
         </div>
     );
 };
