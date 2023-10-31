@@ -123,13 +123,20 @@ fetch(crossSpaceTokenListUrl)
             }
         });
 
-        const { data: preData, sourceChain: preSourceChain, sourceChains: preSourceChains } = dataStore.getState();
+        const {
+            data: preData,
+            sourceChain: preSourceChain,
+            sourceChains: preSourceChains,
+            destinationChain: preDestinationChain,
+            token: preToken,
+        } = dataStore.getState();
         if (!isEqual(preData, data)) {
             dataStore.setState({ data });
             LocalStorage.setItem({ data, key: 'data', namespace });
         }
 
         const sourceChains = Object.keys(data);
+        let hasReset = false;
         if (!isEqual(preSourceChains, sourceChains)) {
             dataStore.setState({ sourceChains });
             LocalStorage.setItem({ data: sourceChains, key: 'sourceChains', namespace });
@@ -137,6 +144,7 @@ fetch(crossSpaceTokenListUrl)
             LocalStorage.setItem({ data: 'Conflux Core', key: 'sourceChain', namespace });
             const destinationChain = resetDestinationChains('Conflux Core')!;
             resetTokens('Conflux Core', destinationChain);
+            hasReset = true;
         }
 
         if (!preSourceChain || !sourceChains.includes(preSourceChain)) {
@@ -144,6 +152,11 @@ fetch(crossSpaceTokenListUrl)
             LocalStorage.setItem({ data: 'Conflux Core', key: 'sourceChain', namespace });
             const destinationChain = resetDestinationChains('Conflux Core')!;
             resetTokens('Conflux Core', destinationChain);
+            hasReset = true;
+        }
+
+        if (!hasReset && preSourceChain && preDestinationChain && preToken && !data[preSourceChain][preDestinationChain][preToken]) {
+            resetTokens(preSourceChain, preDestinationChain);
         }
 
         LocalStorage.setItem({ data: map, key: 'maps', namespace });
