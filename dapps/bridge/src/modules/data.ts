@@ -30,13 +30,13 @@ export const dataStore = create(
     subscribeWithSelector(
         () =>
             ({
-                data: (LocalStorage.getItem('data', `bridge-${Networks.core.chainId}`) as Array<any>) ?? undefined,
-                sourceChain: (LocalStorage.getItem('sourceChain', `bridge-${Networks.core.chainId}`) as string) ?? undefined,
-                sourceChains: (LocalStorage.getItem('sourceChains', `bridge-${Networks.core.chainId}`) as Array<string>) ?? undefined,
-                destinationChain: (LocalStorage.getItem('destinationChain', `bridge-${Networks.core.chainId}`) as string) ?? undefined,
-                destinationChains: (LocalStorage.getItem('destinationChains', `bridge-${Networks.core.chainId}`) as Array<string>) ?? undefined,
-                token: (LocalStorage.getItem('token', `bridge-${Networks.core.chainId}`) as string) ?? undefined,
-                tokens: (LocalStorage.getItem('tokens', `bridge-${Networks.core.chainId}`) as Array<string>) ?? undefined,
+                data: (LocalStorage.getItem('data', `bridge-new-${Networks.core.chainId}`) as Array<any>) ?? undefined,
+                sourceChain: (LocalStorage.getItem('sourceChain', `bridge-new-${Networks.core.chainId}`) as string) ?? undefined,
+                sourceChains: (LocalStorage.getItem('sourceChains', `bridge-new-${Networks.core.chainId}`) as Array<string>) ?? undefined,
+                destinationChain: (LocalStorage.getItem('destinationChain', `bridge-new-${Networks.core.chainId}`) as string) ?? undefined,
+                destinationChains: (LocalStorage.getItem('destinationChains', `bridge-new-${Networks.core.chainId}`) as Array<string>) ?? undefined,
+                token: (LocalStorage.getItem('token', `bridge-new-${Networks.core.chainId}`) as string) ?? undefined,
+                tokens: (LocalStorage.getItem('tokens', `bridge-new-${Networks.core.chainId}`) as Array<string>) ?? undefined,
                 commonTokens: commonTokensCache.toArr(),
             } as DataStore)
     )
@@ -50,9 +50,9 @@ export const map: Record<'shuttleFlowChains' | 'shuttleFlowFromTokenAddress' | '
         'Conflux Core': 'cfx',
         Ethereum: 'eth',
         'BSC Chain': 'bsc',
-        OKExChain: 'oec',
-        'HECO Chain': 'heco',
-        Bitcoin: 'btc',
+        // OKExChain: 'oec',
+        // 'HECO Chain': 'heco',
+        // Bitcoin: 'btc',
     },
     shuttleFlowFromTokenAddress: {},
     receiveSymbol: {},
@@ -68,134 +68,84 @@ export const map: Record<'shuttleFlowChains' | 'shuttleFlowFromTokenAddress' | '
     },
 };
 
-Promise.all([
-    fetch(`https://${isProduction ? (isStage ? 'stage' : 'www') : 'test'}.confluxhub.io/rpcsponsor`, {
-        body: JSON.stringify({ id: 1, jsonrpc: '2.0', method: 'getTokenList', params: [] }),
-        headers: { 'content-type': 'application/json' },
-        method: 'POST',
-    })
-        .then((res) => res.json())
-        .then((res) => res?.result),
-    fetch(crossSpaceTokenListUrl).then((res) => res.json()),
-]).then(([sfData, csData]: [any, Record<string, Array<any>>]) => {
-    const data: any = {
-        'Conflux eSpace': {
-            Ethereum: {
-                CFX: [['Space Bridge', 'ShuttleFlow']],
-                ETH: [['Space Bridge', 'ShuttleFlow']],
-                WETH: ['cBridge'],
-                USDT: [['Space Bridge', 'ShuttleFlow'], 'cBridge'],
-                USDC: [['Space Bridge', 'ShuttleFlow'], 'cBridge'],
-                WBTC: [['Space Bridge', 'ShuttleFlow'], 'cBridge'],
-                DAI: [['Space Bridge', 'ShuttleFlow'], 'cBridge'],
+fetch(crossSpaceTokenListUrl)
+    .then((res) => res.json())
+    .then((csData) => {
+        const data: any = {
+            'Conflux eSpace': {
+                Ethereum: {
+                    CFX: [['Space Bridge']],
+                    ETH: [['Space Bridge']],
+                    WETH: ['cBridge'],
+                    USDT: [['Space Bridge'], 'cBridge'],
+                    USDC: [['Space Bridge'], 'cBridge'],
+                    WBTC: [['Space Bridge'], 'cBridge'],
+                    DAI: [['Space Bridge'], 'cBridge'],
+                },
+                'BSC Chain': {
+                    CFX: ['Chain Bridge', ['Space Bridge']],
+                },
             },
             'BSC Chain': {
-                CFX: ['Chain Bridge', ['Space Bridge', 'ShuttleFlow']],
+                'Conflux eSpace': {
+                    CFX: ['Chain Bridge', ['Space Bridge']],
+                },
             },
-        },
-        'BSC Chain': {
-            'Conflux eSpace': {
-                CFX: ['Chain Bridge', ['ShuttleFlow', 'Space Bridge']],
+            Ethereum: {
+                'Conflux eSpace': {
+                    CFX: [['Space Bridge']],
+                    ETH: [['Space Bridge']],
+                    WETH: ['cBridge'],
+                    USDT: [['Space Bridge'], 'cBridge'],
+                    USDC: [['Space Bridge'], 'cBridge'],
+                    WBTC: [['Space Bridge'], 'cBridge'],
+                    DAI: [['Space Bridge'], 'cBridge'],
+                },
             },
-        },
-        Ethereum: {
-            'Conflux eSpace': {
-                CFX: [['ShuttleFlow', 'Space Bridge']],
-                ETH: [['ShuttleFlow', 'Space Bridge']],
-                WETH: ['cBridge'],
-                USDT: [['ShuttleFlow', 'Space Bridge'], 'cBridge'],
-                USDC: [['ShuttleFlow', 'Space Bridge'], 'cBridge'],
-                WBTC: [['ShuttleFlow', 'Space Bridge'], 'cBridge'],
-                DAI: [['ShuttleFlow', 'Space Bridge'], 'cBridge'],
-            },
-        },
-    };
-    Object.keys(map.shuttleFlowChains).forEach((chain) => {
-        if (!data[chain]) {
-            data[chain] = {};
+        };
+        Object.keys(map.shuttleFlowChains).forEach((chain) => {
+            if (!data[chain]) {
+                data[chain] = {};
+            }
+            if (chain === 'Conflux Core') {
+                data['Conflux Core']['Conflux eSpace'] = { CFX: ['Space Bridge'] };
+                data['Conflux eSpace']['Conflux Core'] = { CFX: ['Space Bridge'] };
+                map.receiveSymbol['Conflux Core'] = {};
+                map.receiveSymbol['Conflux eSpace'] = {};
+                map.receiveSymbol['Conflux Core']['Conflux eSpace'] = {};
+                map.receiveSymbol['Conflux eSpace']['Conflux Core'] = {};
+                [...csData.core_native_tokens, ...csData.evm_native_tokens].forEach((item: Record<string, string>) => {
+                    data['Conflux Core']['Conflux eSpace'][item.core_space_symbol] = ['Space Bridge'];
+                    map.receiveSymbol['Conflux Core']['Conflux eSpace'][item.core_space_symbol] = item.evm_space_symbol;
+                    data['Conflux eSpace']['Conflux Core'][item.evm_space_symbol] = ['Space Bridge'];
+                    map.receiveSymbol['Conflux eSpace']['Conflux Core'][item.evm_space_symbol] = item.core_space_symbol;
+                    map.tokensIcon[item.core_space_symbol] = item.icon;
+                    map.tokensIcon[item.evm_space_symbol] = item.icon;
+                });
+            }
+        });
+
+        const { data: preData, sourceChain: preSourceChain, sourceChains: preSourceChains } = dataStore.getState();
+        if (!isEqual(preData, data)) {
+            dataStore.setState({ data });
+            LocalStorage.setItem({ data, key: 'data', namespace: `bridge-${Networks.core.chainId}` });
         }
-        if (chain === 'Conflux Core') {
-            data['Conflux Core']['Conflux eSpace'] = { CFX: ['Space Bridge'] };
-            data['Conflux eSpace']['Conflux Core'] = { CFX: ['Space Bridge'] };
-            map.receiveSymbol['Conflux Core'] = {};
-            map.receiveSymbol['Conflux eSpace'] = {};
-            map.receiveSymbol['Conflux Core']['Conflux eSpace'] = {};
-            map.receiveSymbol['Conflux eSpace']['Conflux Core'] = {};
-            [...csData.core_native_tokens, ...csData.evm_native_tokens].forEach((item: Record<string, string>) => {
-                data['Conflux Core']['Conflux eSpace'][item.core_space_symbol] = ['Space Bridge'];
-                map.receiveSymbol['Conflux Core']['Conflux eSpace'][item.core_space_symbol] = item.evm_space_symbol;
-                data['Conflux eSpace']['Conflux Core'][item.evm_space_symbol] = ['Space Bridge'];
-                map.receiveSymbol['Conflux eSpace']['Conflux Core'][item.evm_space_symbol] = item.core_space_symbol;
-                map.tokensIcon[item.core_space_symbol] = item.icon;
-                map.tokensIcon[item.evm_space_symbol] = item.icon;
-            });
-        } else {
-            const tokens = sfData
-                .filter((item: any) => item.origin === map.shuttleFlowChains[chain] || item.to_chain === map.shuttleFlowChains[chain])
-                .filter((asset: any) => asset.in_token_list === 1 && asset.supported === 1);
 
-            tokens?.forEach((token: any) => {
-                if (!data[chain]['Conflux Core']) {
-                    data[chain]['Conflux Core'] = {};
-                }
-                data[chain]['Conflux Core'][token.reference_symbol] = ['ShuttleFlow'];
-                if (!map.shuttleFlowFromTokenAddress[chain]) {
-                    map.shuttleFlowFromTokenAddress[chain] = {};
-                }
-                map.shuttleFlowFromTokenAddress[chain][token.reference_symbol] = token.reference;
-
-                if (!map.receiveSymbol[chain]) {
-                    map.receiveSymbol[chain] = {};
-                }
-                if (!map.receiveSymbol[chain]['Conflux Core']) {
-                    map.receiveSymbol[chain]['Conflux Core'] = {};
-                }
-                map.receiveSymbol[chain]['Conflux Core'][token.reference_symbol] = token.symbol;
-                map.tokensIcon[token.reference_symbol] = token.icon;
-
-                if (!data['Conflux Core'][chain]) {
-                    data['Conflux Core'][chain] = {};
-                }
-                data['Conflux Core'][chain][token.symbol] = ['ShuttleFlow'];
-
-                if (!map.shuttleFlowFromTokenAddress['Conflux Core']) {
-                    map.shuttleFlowFromTokenAddress['Conflux Core'] = {};
-                }
-                map.shuttleFlowFromTokenAddress['Conflux Core'][token.symbol] = token.ctoken;
-
-                if (!map.receiveSymbol['Conflux Core']) {
-                    map.receiveSymbol['Conflux Core'] = {};
-                }
-                if (!map.receiveSymbol['Conflux Core'][chain]) {
-                    map.receiveSymbol['Conflux Core'][chain] = {};
-                }
-                map.receiveSymbol['Conflux Core'][chain][token.symbol] = token.reference_symbol;
-                map.tokensIcon[token.symbol] = token.icon;
-            });
+        const sourceChains = Object.keys(data);
+        if (!isEqual(preSourceChains, sourceChains)) {
+            dataStore.setState({ sourceChains });
+            LocalStorage.setItem({ data: sourceChains, key: 'sourceChains', namespace: `bridge-${Networks.core.chainId}` });
         }
+
+        if (!preSourceChain || !sourceChains.includes(preSourceChain)) {
+            dataStore.setState({ sourceChain: 'Conflux Core' });
+            LocalStorage.setItem({ data: 'Conflux Core', key: 'sourceChain', namespace: `bridge-${Networks.core.chainId}` });
+            const destinationChain = resetDestinationChains('Conflux Core')!;
+            resetTokens('Conflux Core', destinationChain);
+        }
+
+        LocalStorage.setItem({ data: map, key: 'maps', namespace: `bridge-${Networks.core.chainId}` });
     });
-
-    const { data: preData, sourceChain: preSourceChain, sourceChains: preSourceChains } = dataStore.getState();
-    if (!isEqual(preData, data)) {
-        dataStore.setState({ data });
-        LocalStorage.setItem({ data, key: 'data', namespace: `bridge-${Networks.core.chainId}` });
-    }
-
-    const sourceChains = Object.keys(data);
-    if (!isEqual(preSourceChains, sourceChains)) {
-        dataStore.setState({ sourceChains });
-        LocalStorage.setItem({ data: sourceChains, key: 'sourceChains', namespace: `bridge-${Networks.core.chainId}` });
-    }
-
-    if (!preSourceChain || !sourceChains.includes(preSourceChain)) {
-        dataStore.setState({ sourceChain: 'Conflux Core' });
-        LocalStorage.setItem({ data: 'Conflux Core', key: 'sourceChain', namespace: `bridge-${Networks.core.chainId}` });
-        const destinationChain = resetDestinationChains('Conflux Core')!;
-        resetTokens('Conflux Core', destinationChain);
-    }
-
-    LocalStorage.setItem({ data: map, key: 'maps', namespace: `bridge-${Networks.core.chainId}` });
-});
 
 const resetDestinationChains = (sourceChain: string, resetDestinationChain = true) => {
     const { data } = dataStore.getState();
@@ -320,22 +270,6 @@ export const createHref = ({
         return `https://cbridge.celer.network/${destinationChain === 'Conflux eSpace' ? '1' : '1030'}/${
             destinationChain === 'Conflux eSpace' ? '1030' : '1'
         }/${token}`;
-    }
-    if (route === 'ShuttleFlow') {
-        let fromTokenAddress = map.shuttleFlowFromTokenAddress?.[sourceChain]?.[token];
-        if (!fromTokenAddress) {
-            const allKeys = Object.keys(map.shuttleFlowFromTokenAddress?.[sourceChain]);
-            const matchKey = allKeys.find(
-                (key) => key.search(new RegExp(escapeRegExp(token), 'i')) !== -1 || token.search(new RegExp(escapeRegExp(key), 'i')) !== -1
-            );
-            if (matchKey) {
-                fromTokenAddress = map.shuttleFlowFromTokenAddress?.[sourceChain][matchKey];
-            }
-        }
-        if (!fromTokenAddress) return '';
-        return `https://${isProduction ? (isStage ? 'stage' : 'www') : 'test'}.confluxhub.io/shuttle-flow/?fromChain=${
-            map.shuttleFlowChains[sourceChain]
-        }&fromTokenAddress=${fromTokenAddress}&toChain=${map.shuttleFlowChains[destinationChain]}`;
     }
     return '';
 };
