@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import LocalStorage from 'localstorage-enhance';
 import { innerTokenListUrl as crossSpaceTokenListUrl } from 'cross-space/src/components/TokenList/tokenListStore';
-import { isEqual, escapeRegExp } from 'lodash-es';
+import { isEqual } from 'lodash-es';
 import Cache from 'common/utils/LRUCache';
 import CFXIcon from 'common/assets/chains/Conflux.svg';
 import BSCIcon from 'common/assets/chains/BSC.svg';
@@ -10,7 +10,7 @@ import BTCIcon from 'common/assets/chains/BTC.svg';
 import EthereumIcon from 'common/assets/chains/Ethereum.svg';
 import HECOIcon from 'common/assets/chains/HECO.svg';
 import OECIcon from 'common/assets/chains/OEC.svg';
-import Networks, { isProduction, isStage } from 'common/conf/Networks';
+import Networks from 'common/conf/Networks';
 
 const CommonTokenCount = 16;
 const commonTokensCache = new Cache<string>(CommonTokenCount, 'bridge-common-tokens');
@@ -26,17 +26,19 @@ interface DataStore {
     commonTokens?: Array<string>;
 }
 
+const namespace = `bridge-new1-${Networks.core.chainId}`;
+
 export const dataStore = create(
     subscribeWithSelector(
         () =>
             ({
-                data: (LocalStorage.getItem('data', `bridge-new-${Networks.core.chainId}`) as Array<any>) ?? undefined,
-                sourceChain: (LocalStorage.getItem('sourceChain', `bridge-new-${Networks.core.chainId}`) as string) ?? undefined,
-                sourceChains: (LocalStorage.getItem('sourceChains', `bridge-new-${Networks.core.chainId}`) as Array<string>) ?? undefined,
-                destinationChain: (LocalStorage.getItem('destinationChain', `bridge-new-${Networks.core.chainId}`) as string) ?? undefined,
-                destinationChains: (LocalStorage.getItem('destinationChains', `bridge-new-${Networks.core.chainId}`) as Array<string>) ?? undefined,
-                token: (LocalStorage.getItem('token', `bridge-new-${Networks.core.chainId}`) as string) ?? undefined,
-                tokens: (LocalStorage.getItem('tokens', `bridge-new-${Networks.core.chainId}`) as Array<string>) ?? undefined,
+                data: (LocalStorage.getItem('data', namespace) as Array<any>) ?? undefined,
+                sourceChain: (LocalStorage.getItem('sourceChain', namespace) as string) ?? undefined,
+                sourceChains: (LocalStorage.getItem('sourceChains', namespace) as Array<string>) ?? undefined,
+                destinationChain: (LocalStorage.getItem('destinationChain', namespace) as string) ?? undefined,
+                destinationChains: (LocalStorage.getItem('destinationChains', namespace) as Array<string>) ?? undefined,
+                token: (LocalStorage.getItem('token', namespace) as string) ?? undefined,
+                tokens: (LocalStorage.getItem('tokens', namespace) as Array<string>) ?? undefined,
                 commonTokens: commonTokensCache.toArr(),
             } as DataStore)
     )
@@ -44,7 +46,7 @@ export const dataStore = create(
 
 export const map: Record<'shuttleFlowChains' | 'shuttleFlowFromTokenAddress' | 'receiveSymbol' | 'chainsIcon' | 'tokensIcon', any> = (LocalStorage.getItem(
     'maps',
-    `bridge-${Networks.core.chainId}`
+    namespace
 ) as any) || {
     shuttleFlowChains: {
         'Conflux Core': 'cfx',
@@ -128,23 +130,27 @@ fetch(crossSpaceTokenListUrl)
         const { data: preData, sourceChain: preSourceChain, sourceChains: preSourceChains } = dataStore.getState();
         if (!isEqual(preData, data)) {
             dataStore.setState({ data });
-            LocalStorage.setItem({ data, key: 'data', namespace: `bridge-${Networks.core.chainId}` });
+            LocalStorage.setItem({ data, key: 'data', namespace });
         }
 
         const sourceChains = Object.keys(data);
         if (!isEqual(preSourceChains, sourceChains)) {
             dataStore.setState({ sourceChains });
-            LocalStorage.setItem({ data: sourceChains, key: 'sourceChains', namespace: `bridge-${Networks.core.chainId}` });
-        }
-
-        if (!preSourceChain || !sourceChains.includes(preSourceChain)) {
+            LocalStorage.setItem({ data: sourceChains, key: 'sourceChains', namespace });
             dataStore.setState({ sourceChain: 'Conflux Core' });
-            LocalStorage.setItem({ data: 'Conflux Core', key: 'sourceChain', namespace: `bridge-${Networks.core.chainId}` });
+            LocalStorage.setItem({ data: 'Conflux Core', key: 'sourceChain', namespace });
             const destinationChain = resetDestinationChains('Conflux Core')!;
             resetTokens('Conflux Core', destinationChain);
         }
 
-        LocalStorage.setItem({ data: map, key: 'maps', namespace: `bridge-${Networks.core.chainId}` });
+        if (!preSourceChain || !sourceChains.includes(preSourceChain)) {
+            dataStore.setState({ sourceChain: 'Conflux Core' });
+            LocalStorage.setItem({ data: 'Conflux Core', key: 'sourceChain', namespace });
+            const destinationChain = resetDestinationChains('Conflux Core')!;
+            resetTokens('Conflux Core', destinationChain);
+        }
+
+        LocalStorage.setItem({ data: map, key: 'maps', namespace });
     });
 
 const resetDestinationChains = (sourceChain: string, resetDestinationChain = true) => {
@@ -155,10 +161,10 @@ const resetDestinationChains = (sourceChain: string, resetDestinationChain = tru
     }
     const destinationChains = Object.keys(data[sourceChain] ?? Object.create(null));
     dataStore.setState({ destinationChains });
-    LocalStorage.setItem({ data: destinationChains, key: 'destinationChains', namespace: `bridge-${Networks.core.chainId}` });
+    LocalStorage.setItem({ data: destinationChains, key: 'destinationChains', namespace });
     if (resetDestinationChain) {
         dataStore.setState({ destinationChain: destinationChains[0] });
-        LocalStorage.setItem({ data: destinationChains[0], key: 'destinationChain', namespace: `bridge-${Networks.core.chainId}` });
+        LocalStorage.setItem({ data: destinationChains[0], key: 'destinationChain', namespace });
     }
     return destinationChains[0];
 };
@@ -171,10 +177,10 @@ const resetTokens = (sourceChain: string, destinationChain: string, resetToken =
     }
     const tokens = Object.keys(data[sourceChain]?.[destinationChain] ?? Object.create(null));
     dataStore.setState({ tokens });
-    LocalStorage.setItem({ data: tokens, key: 'tokens', namespace: `bridge-${Networks.core.chainId}` });
+    LocalStorage.setItem({ data: tokens, key: 'tokens', namespace });
     if (resetToken) {
         dataStore.setState({ token: tokens[0] });
-        LocalStorage.setItem({ data: tokens[0], key: 'token', namespace: `bridge-${Networks.core.chainId}` });
+        LocalStorage.setItem({ data: tokens[0], key: 'token', namespace });
     }
     return tokens;
 };
@@ -204,7 +210,7 @@ export const handleSourceChainChange = (sourceChain: string) => {
         handleReverse();
         return;
     }
-    LocalStorage.setItem({ data: sourceChain, key: 'sourceChain', namespace: `bridge-${Networks.core.chainId}` });
+    LocalStorage.setItem({ data: sourceChain, key: 'sourceChain', namespace });
     dataStore.setState({ sourceChain });
     const destinationChain = resetDestinationChains(sourceChain)!;
     resetTokens(sourceChain, destinationChain);
@@ -216,13 +222,13 @@ export const handleDestinationChainChange = (destinationChain: string) => {
         return;
     }
     const sourceChain = dataStore.getState().sourceChain!;
-    LocalStorage.setItem({ data: destinationChain, key: 'destinationChain', namespace: `bridge-${Networks.core.chainId}` });
+    LocalStorage.setItem({ data: destinationChain, key: 'destinationChain', namespace });
     dataStore.setState({ destinationChain });
     resetTokens(sourceChain, destinationChain);
 };
 
 export const handleTokenChange = (token: string) => {
-    LocalStorage.setItem({ data: token, key: 'token', namespace: `bridge-${Networks.core.chainId}` });
+    LocalStorage.setItem({ data: token, key: 'token', namespace });
     dataStore.setState({ token });
 
     commonTokensCache.set(token, token);
@@ -231,15 +237,15 @@ export const handleTokenChange = (token: string) => {
 
 export const handleReverse = () => {
     const { sourceChain, destinationChain, token } = dataStore.getState();
-    LocalStorage.setItem({ data: sourceChain, key: 'destinationChain', namespace: `bridge-${Networks.core.chainId}` });
-    LocalStorage.setItem({ data: destinationChain, key: 'sourceChain', namespace: `bridge-${Networks.core.chainId}` });
+    LocalStorage.setItem({ data: sourceChain, key: 'destinationChain', namespace });
+    LocalStorage.setItem({ data: destinationChain, key: 'sourceChain', namespace });
     dataStore.setState({ sourceChain: destinationChain, destinationChain: sourceChain });
     resetDestinationChains(destinationChain!, false)!;
     const reversedToken = map.receiveSymbol?.[sourceChain!]?.[destinationChain!]?.[token!];
     const newTokens = resetTokens(destinationChain!, sourceChain!, false);
     if (newTokens?.includes(reversedToken)) {
         dataStore.setState({ token: reversedToken });
-        LocalStorage.setItem({ data: reversedToken, key: 'token', namespace: `bridge-${Networks.core.chainId}` });
+        LocalStorage.setItem({ data: reversedToken, key: 'token', namespace });
     }
 };
 
