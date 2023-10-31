@@ -10,13 +10,12 @@ import {
   ChainConfig,
 } from '../../../constants/chainConfig'
 import {Menu, Dropdown} from '../../../components'
-import {ArrowDownOutlined} from '../../../assets/svg'
+import {ArrowDownFilled} from '../../../assets/svg'
 import {ChainItem} from '../../components'
 
-function ChainSelect({type, chain, fromChain, onClick, disabled = false, ...props}) {
+function ChainSelect({type, chain, fromChain, onClick, ...props}) {
   const chainsData = useChainsData(type, chain, fromChain)
   const onClickHandler = key => {
-    if(disabled) return
     onClick && onClick(key, type)
   }
   const menu = (
@@ -37,14 +36,14 @@ function ChainSelect({type, chain, fromChain, onClick, disabled = false, ...prop
   )
 
   return (
-    <Dropdown overlay={menu} disabled={disabled} placement="bottomLeft" trigger={['click']}>
+    <Dropdown overlay={menu} placement="bottomLeft" trigger={['click']}>
       <div
-        className={`p-3 mr-3 flex items-center justify-between ${!disabled ? 'cursor-pointer' : ''} w-[240px]`}
+        className="w-26.5 h-24.5 rounded bg-gray-10 p-3 mr-3 flex items-end justify-between cursor-pointer"
         aria-hidden="true"
         {...props}
       >
         <ChainItem chain={chain} />
-        <ArrowDownOutlined className={`w-4 h-4 text-gray-60 ${!disabled ? '' : 'invisible'}`} />
+        <ArrowDownFilled className="w-4 h-4 text-gray-40" />
       </div>
     </Dropdown>
   )
@@ -55,7 +54,6 @@ ChainSelect.propTypes = {
   chain: PropTypes.oneOf(SupportedChains).isRequired,
   fromChain: PropTypes.oneOf(SupportedChains), // only when type === to need the value
   onClick: PropTypes.func,
-  disabled: PropTypes.bool,
 }
 
 export default ChainSelect

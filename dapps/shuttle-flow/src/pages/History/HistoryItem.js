@@ -19,9 +19,15 @@ import {
 } from '../../assets/svg'
 import {
   ShuttleStatus,
+  ClaimButtonType,
+  TypeAccountStatus,
 } from '../../constants'
 import Progress from './Progress'
-
+import {ClaimButton} from '../components'
+import {useActiveWeb3React} from '../../hooks/useWeb3Network'
+import {useWallet, useAccountStatus} from '../../hooks/useWallet'
+import {getChainIdRight} from '../../utils'
+import {AccountStatus} from '../components'
 
 function TokenInfo({toToken, fromChain, toChain}) {
   const {display_symbol, address} = toToken
@@ -99,7 +105,7 @@ function Status({status}) {
         icon = <ErrorFilled className={iconClassName} />
         break
       case 'pending':
-      // case 'waiting':
+      case 'waiting':
         icon = <PendingFilled className={iconClassName} />
         break
     }
@@ -116,7 +122,7 @@ function Status({status}) {
         color = 'text-error'
         break
       case 'pending':
-      // case 'waiting':
+      case 'waiting':
         color = 'text-warning'
         break
     }
@@ -143,12 +149,22 @@ function HistoryItem({historyItemData}) {
     status,
     toAddress,
     response,
+    hash,
   } = historyItemData
 
   const {t} = useTranslation()
+  const {library} = useActiveWeb3React()
+  const {address: accountAddress, error, chainId} = useWallet(toChain)
+  const isChainIdRight = getChainIdRight(toChain, chainId, accountAddress)
+  const {type: accountType} = useAccountStatus(
+    toChain,
+    accountAddress,
+    error,
+    isChainIdRight,
+  )
 
   const [detailShow, setDetailShow] = useState(
-    status === 'pending' ? true : false,
+    status === 'pending' || status === 'waiting' ? true : false,
   )
 
   return (
@@ -179,7 +195,7 @@ function HistoryItem({historyItemData}) {
               <span className="text-gray-60 mr-2">{t('destination')}</span>
               <Account chain={toChain} address={toAddress} size="large" />
             </div>
-            {/* {accountType === TypeAccountStatus.success &&
+            {accountType === TypeAccountStatus.success &&
               status === 'waiting' && (
                 <ClaimButton
                   hash={hash}
@@ -195,7 +211,7 @@ function HistoryItem({historyItemData}) {
                   accountType !== TypeAccountStatus.success ? 'block' : 'hidden'
                 }
               />
-            )} */}
+            )}
           </div>
           {response && (
             <Progress

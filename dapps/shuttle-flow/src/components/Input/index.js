@@ -82,9 +82,8 @@ function Input({
             setFocused(false)
             onBlur && onBlur()
           }}
-          disabled={disabled}
-          onChange={e => !disabled && onChange && onChange(e)}
-          className={`w-full h-full px-3 text-black opacity-90 placeholder-gray-40 border-0 rounded p-0 outline-none ${inputStyle} ${className}`}
+          onChange={e => onChange && onChange(e)}
+          className={`w-full h-full px-3 text-gray-80 placeholder-gray-40 border-0 rounded p-0 outline-none ${inputStyle} ${className}`}
           {...props}
         />
         {suffix && (

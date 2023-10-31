@@ -1,7 +1,5 @@
 .active {
+  @apply text-gray-100;
   @apply border-b-2;
-  @apply border-[#7c18ca];
-}
-#title {
-  font-family: Audiowide;
+  @apply border-gray-100;
 }
