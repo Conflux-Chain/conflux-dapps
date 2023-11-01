@@ -5,9 +5,9 @@ import {
   Switch,
   Redirect,
 } from 'react-router-dom'
-// import Shuttle from '../pages/Shuttle'
+import Shuttle from '../pages/Shuttle'
 import History from '../pages/History'
-// import Home from '../pages/Home'
+import Home from '../pages/Home'
 import Maintenance from '../pages/Maintenance'
 import NotFound from '../pages/NotFound'
 import {Web3ReactManager, Header, MobileFooter} from '../pages/components'
@@ -69,14 +69,14 @@ function App() {
                   path={window.__POWERED_BY_QIANKUN__ ? '/' : '/shuttle'}
                   exact={!!window.__POWERED_BY_QIANKUN__}
                 >
-                  <History />
+                  <Shuttle />
                 </Route>
                 <Route path="/history">
                   <History />
                 </Route>
                 {!window.__POWERED_BY_QIANKUN__ && (
                   <Route path="/" exact>
-                    <History />
+                    <Home />
                   </Route>
                 )}
                 <Route path="/maintenance">
