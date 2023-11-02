@@ -51,22 +51,30 @@ const Countdown: React.FC = () => {
     }, [currentVotingRoundEndBlockNumber]);
 
     return (
-        <div className="flex justify-center gap-[16px]" ref={domRef}>
-            {units.map(unit => <CountdownUnit key={unit} unit={unit} />)}
+        <div className="flex justify-center gap-[10px]" ref={domRef}>
+            {units.map((unit, index) => <>
+                <CountdownUnit key={unit} unit={unit} />
+                {index < 2 && <span className='mt-[2px] text-[#898D9A]'>:</span>}
+            </>)}
         </div>
     );
 }
 
+const capitalizeFirstLetter = (value: string) => {
+    return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
 const CountdownUnit: React.FC<{ unit: typeof units[number]; }> = ({ unit }) => {
+
     return (
-        <div className='w-[72px] h-[72px] rounded-[8px] overflow-hidden'>
-            <div className={`flex justify-center items-center gap-[1px] governance-countdown-unit relative h-[52px] leading-[52px] text-[32px] text-white font-bold bg-[#808BE7] governance-shadow ${unit}`}>
+        <div className='w-[52px] h-[46px] rounded-[8px] overflow-hidden'>
+            <div className={`flex justify-center items-center gap-[1px]  relative h-[28px] leading-[28px] text-[20px] text-[#808BE7] font-bold ${unit}`}>
                 <span className='text-right'></span>
                 <span className='text-left'></span>
             </div>
 
-            <div className='h-[20px] leading-[20px] text-[12px] text-[#808BE7] text-center bg-[#F8F9FE]'>
-                {unit}
+            <div className='h-[20px] leading-[20px] text-[14px] text-[#898D9A] text-center'>
+                {capitalizeFirstLetter(unit)}
             </div>
         </div>
     );
