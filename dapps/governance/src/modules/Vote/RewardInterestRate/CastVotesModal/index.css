@@ -2,6 +2,13 @@
     top: 108px;
 }
 
+.ant-radio-inner {
+    border-color: #808BE7 !important;
+}
+.ant-radio-inner::after {
+    background-color: #808BE7 !important;
+}
+
 @media screen and (max-height: 1000px) {
     .cast-votes-modal-wrapper {
         top: calc((100vh - 769px) / 2);
@@ -25,4 +32,16 @@
     .cast-votes-modal-vote-area > div {
         @apply flex-1;
     }
+}
+.dapp-modal .toast-item-wrapper {
+    overflow-y: auto;
+}
+.dapp-modal .toast-item-wrapper::-webkit-scrollbar {
+    width: 6px;
+    margin-left: -6px;
+    background: transparent
+}
+.dapp-modal .toast-item-wrapper::-webkit-scrollbar-thumb {
+    background: #666;
+    border-radius: 10px;
 }

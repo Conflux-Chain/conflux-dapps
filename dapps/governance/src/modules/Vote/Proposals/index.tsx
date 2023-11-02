@@ -17,14 +17,16 @@ import {
     setOpenedProposalId,
     useVotingRights,
     useExtendDelay,
+    usePosLockArrOrigin,
     type Proposal,
     type Option,
 } from 'governance/src/store';
 import Arrow from 'governance/src/assets/Arrow.svg';
 import Close from 'governance/src/assets/Close.svg';
 import QuestionMark from 'common/assets/icons/QuestionMark.svg';
-import handleVote from './handleVote';
+
 import './index.css';
+import { showCastVotesModal } from '../RewardInterestRate/CastVotesModal';
 
 const Proposals: React.FC = () => {
     const proposalList = useProposalList();
@@ -96,9 +98,11 @@ const ProposalItem: React.FC<Proposal & { isOpen: boolean }> = ({ id, title, sta
 const OpenedProposalDetail: React.FC = () => {
     const openedProposalId = useOpenedProposalId();
     const openedProposal = useOpenedProposal();
-    const { proposer, proposalDiscussion, votesAtTime, options, id, status } = openedProposal! || {};
+    const { proposer, description, proposalDiscussion, votesAtTime, options, id, status } = openedProposal! || {};
     const votingRights = useVotingRights();
     const isVotingRightsGraterThan0 = votingRights && votingRights.greaterThan(Unit.fromMinUnit(0));
+    const posLockArrOrigin = usePosLockArrOrigin();
+    const isVotingPosRightsGreaterThan0 = posLockArrOrigin && posLockArrOrigin?.filter(e => e.votePower.greaterThan(Unit.fromStandardUnit(0))).length > 0;
 
     const [selectOption, setSelectOption] = useState<number | null>(null);
     useEffect(() => setSelectOption(null), [openedProposalId])
@@ -119,7 +123,7 @@ const OpenedProposalDetail: React.FC = () => {
 
         if (typeof currentProposalIndex !== 'number' || currentProposalIndex === -1 || !proposalList) return { pre: null, next: null };
         return {
-            pre: currentProposalIndex === 0 ? null: proposalList[currentProposalIndex - 1].id,
+            pre: currentProposalIndex === 0 ? null : proposalList[currentProposalIndex - 1].id,
             next: currentProposalIndex === proposalList?.length - 1 ? null : proposalList[(currentProposalIndex + 1)].id
         }
     }, [openedProposalId, proposalList]);
@@ -130,6 +134,12 @@ const OpenedProposalDetail: React.FC = () => {
         <div className="proposal-itemWrapper absolute min-h-[560px] left-0 top-0 rounded-[8px] rounded-tl-none bg-white" id={`proposer-${id}`}>
             <ProposalItem {...openedProposal} isOpen={true} />
             <div className={cx('pl-[24px] pr-[34px] pt-[4px]', proposer ? 'opacity-100' : 'opacity-0', status === 'Closed' ? 'pb-[60px]' : 'pb-[24px]')}>
+                {
+                    description && <div className="text-[14px] text-[#898D9A] mb-[16px]">
+                        {description}
+                    </div>
+                }
+
                 <div className="relative h-[24px] leading-[24px]">
                     <span className="text-[14px] text-[#898D9A]">Proposer:</span>
                     <a
@@ -185,8 +195,17 @@ const OpenedProposalDetail: React.FC = () => {
                                 id={`proposer-${id}-vote`}
                                 size="large"
                                 className="mt-[24px] w-[486px]"
-                                disabled={!isVotingRightsGraterThan0 || selectOption === null}
-                                onClick={() => handleVote({ proposalId: id, optionId: selectOption! })}
+                                disabled={(!isVotingRightsGraterThan0 && !isVotingPosRightsGreaterThan0) || selectOption === null}
+                                onClick={() => showCastVotesModal({
+                                    type: 'Proposals',
+                                    proposal: {
+                                        poolAddress: undefined,
+                                        proposalId: id,
+                                        optionId: selectOption!,
+                                        power: ''
+                                    }
+                                })
+                                }
                             >
                                 Vote
                             </Button>
@@ -251,11 +270,9 @@ const VotingCountsTipContent: React.FC = memo(() => {
         <>
             <div className="text-[16px] leading-[22px] font-medium text-[#3D3F4C]">Deadline extend tip</div>
             <div className="mt-[8px] text-[14px] leading-[21px] text-[#898D9A]">
-                {`If the voting result changes within ${extendDay?.blockNumber ?? '--'} blocks (about ${
-                    extendDay?.intervalMinutes ?? '--'
-                } minutes) before the deadline, the deadline will be extended to the current block plus ${extendDay?.blockNumber ?? '--'} blocks (about ${
-                    extendDay?.intervalMinutes ?? '--'
-                } minutes).`}
+                {`If the voting result changes within ${extendDay?.blockNumber ?? '--'} blocks (about ${extendDay?.intervalMinutes ?? '--'
+                    } minutes) before the deadline, the deadline will be extended to the current block plus ${extendDay?.blockNumber ?? '--'} blocks (about ${extendDay?.intervalMinutes ?? '--'
+                    } minutes).`}
             </div>
         </>
     );
