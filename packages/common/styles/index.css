@@ -61,3 +61,11 @@ button.ant-btn:not(:hover):not(.button-contained):not(.button-outlined) {
     outline: none;
     outline-offset: 0;
 }
+
+.select-h-62px .ant-select-selector {
+    height: 62px !important;
+}
+
+.select-h-48px .ant-select-selector {
+    height: 48px !important;
+}

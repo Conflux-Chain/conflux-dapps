@@ -2,7 +2,7 @@
 const units = ['day', 'hour', 'minute', 'second'] as const;
 const unitsWithoutSeconds = ['day', 'hour', 'minute'] as const;
 
-export const calRemainTime = (_milliseconds: string | number, unit: 'day' | 'hour' | 'minute' | 'second' | 'largest' | 'all' | 'all-without-seconds'= 'largest') => {
+export const calRemainTime = (_milliseconds: string | number, unit: 'day' | 'hour' | 'minute' | 'second' | 'largest' | 'all' | 'only day' | 'all-without-seconds'= 'largest' ) => {
     if (!_milliseconds) return undefined;
     const milliseconds = Number(_milliseconds);
     let day, hour, minute, second;
@@ -22,6 +22,10 @@ export const calRemainTime = (_milliseconds: string | number, unit: 'day' | 'hou
         minute: Math.abs(minute),
         second: Math.abs(second),
     } as const;
+
+    if (unit === 'only day') {
+        return `${remainTime.day} Days`;
+    }
 
     if (unit === 'all-without-seconds') {
         return unitsWithoutSeconds.map((_unit) => `${remainTime[_unit]} ${_unit}s`).join(', ') + ` ${agoOrLater}`;

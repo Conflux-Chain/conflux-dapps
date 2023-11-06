@@ -1,3 +1,10 @@
 .governance-shadow {
     box-shadow: 0px 8px 16px rgba(164, 170, 216, 0.08);
 }
+.voting-result-tooltip .popper-arrow {
+    background-color: #000;
+}
+.voting-result-progress .ant-progress-inner {
+    width: 20px !important;
+    height: 20px !important;
+}
