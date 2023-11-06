@@ -390,11 +390,14 @@ rewardRateStore.subscribe(
 const calcPreVote = (currentVotingRound: number) => {
     const { currentExecValueOrigin, preVotingOrigin, posStakeForPreVotes } = rewardRateStore.getState();
     if (!currentExecValueOrigin || !preVotingOrigin || !posStakeForPreVotes) return;
-
+    
+    const x = Unit.fromMinUnit(currentExecValueOrigin.storagePoint ?? 0);
+    const constant_1 = Unit.fromStandardUnit(1);
+    const storagePoint = Unit.fromStandardUnit(x.div(x.add(constant_1))); // x/(1+x)
     const currentExecValue = {
         powBaseReward: Unit.fromMinUnit(currentExecValueOrigin?.powBaseReward ?? 0),
         interestRate: Unit.fromMinUnit(currentExecValueOrigin?.interestRate ?? 0),
-        storagePoint: Unit.fromMinUnit(currentExecValueOrigin?.storagePoint ?? 0),
+        storagePoint: storagePoint,
     };
 
     const preVoting = {
@@ -463,19 +466,13 @@ const calcNextVotingValue = (curVote: Vote, nextVoting: Voting, posStakeForPreVo
         if (posStakeForPreVotes && totalOptionVotes.lessThan(posStakeForPreVotes.mul(Unit.fromMinUnit(0.05)))) {
             return curVote[type].value;
         }
-
+        
         const product = new Unit(
             Decimal.pow(
                 (two as any).value,
                 totalOptionVotes.greaterThan(zero) ? (nextVoting[type][0].sub(nextVoting[type][2]).div(totalOptionVotes) as any).value : (zero as any).value
             )
         );
-        if (type === 'storagePoint') {
-            const _decimal = curVote[type].value.toDecimal();
-            if (_decimal.equals(0)) {
-                console.log('first')
-            }
-        }
         return curVote[type].value.mul(product);
     };
 
