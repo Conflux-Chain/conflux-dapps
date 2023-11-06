@@ -204,19 +204,21 @@ rewardRateStore.subscribe(
                 callback: (result: { powBaseReward: string; interestRate: string; storagePointProp: string; }) => {
                     if (typeof result !== 'object') return;
                     //  currentExecValueOrigin.storagePoint = String(1/(1+1)*1e18); // Mock: Burn x/(1+x), keep 1/(1+x) 
-                    
+
                     const currentExecValueOrigin = {
                         powBaseReward: result.powBaseReward,
                         interestRate: result.interestRate,
                         storagePoint: result.storagePointProp
                     }
-
+                    const x = Unit.fromMinUnit(currentExecValueOrigin.storagePoint ?? 0);
+                    const constant_1 = Unit.fromStandardUnit(1);
+                    const storagePoint = Unit.fromStandardUnit(x.div(x.add(constant_1))); // x/(1+x)
                     rewardRateStore.setState({ currentExecValueOrigin });
                     rewardRateStore.setState({
                         prepreVote: {
                             powBaseReward: {
                                 voting: [zero, zero, zero],
-                                value:  Unit.fromMinUnit(currentExecValueOrigin.powBaseReward ?? 0),
+                                value: Unit.fromMinUnit(currentExecValueOrigin.powBaseReward ?? 0),
                             },
                             interestRate: {
                                 voting: [zero, zero, zero],
@@ -224,7 +226,7 @@ rewardRateStore.subscribe(
                             },
                             storagePoint: {
                                 voting: [zero, zero, zero],
-                                value: Unit.fromMinUnit(currentExecValueOrigin.storagePoint ?? 0),
+                                value: storagePoint,
                             },
                         }
                     })
@@ -445,7 +447,7 @@ const calcPreVote = (currentVotingRound: number) => {
 
 const calcCurrentVote = () => {
     const { currentVoting, preVote } = rewardRateStore.getState();
-    
+
     if (!currentVoting || !preVote) {
         rewardRateStore.setState({ currentVote: undefined });
         return;
@@ -468,15 +470,15 @@ const calcNextVotingValue = (curVote: Vote, nextVoting: Voting, posStakeForPreVo
                 totalOptionVotes.greaterThan(zero) ? (nextVoting[type][0].sub(nextVoting[type][2]).div(totalOptionVotes) as any).value : (zero as any).value
             )
         );
-        if(type === 'storagePoint') {
+        if (type === 'storagePoint') {
             const _decimal = curVote[type].value.toDecimal();
-            if(_decimal.equals(0)) {
+            if (_decimal.equals(0)) {
                 console.log('first')
             }
         }
         return curVote[type].value.mul(product);
     };
-   
+
     return {
         powBaseReward: {
             value: calcValue('powBaseReward'),
