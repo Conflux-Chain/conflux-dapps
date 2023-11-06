@@ -390,11 +390,14 @@ rewardRateStore.subscribe(
 const calcPreVote = (currentVotingRound: number) => {
     const { currentExecValueOrigin, preVotingOrigin, posStakeForPreVotes } = rewardRateStore.getState();
     if (!currentExecValueOrigin || !preVotingOrigin || !posStakeForPreVotes) return;
-
+    
+    const x = Unit.fromMinUnit(currentExecValueOrigin.storagePoint ?? 0);
+    const constant_1 = Unit.fromStandardUnit(1);
+    const storagePoint = Unit.fromStandardUnit(x.div(x.add(constant_1))); // x/(1+x)
     const currentExecValue = {
         powBaseReward: Unit.fromMinUnit(currentExecValueOrigin?.powBaseReward ?? 0),
         interestRate: Unit.fromMinUnit(currentExecValueOrigin?.interestRate ?? 0),
-        storagePoint: Unit.fromMinUnit(currentExecValueOrigin?.storagePoint ?? 0),
+        storagePoint: storagePoint,
     };
 
     const preVoting = {
