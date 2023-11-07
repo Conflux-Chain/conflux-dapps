@@ -34,8 +34,8 @@ const title = {
     extend: 'Extend',
     more: 'Lock more'
 };
-const tenTousands = Unit.fromMinUnit(10000);
-const displayInterestRate = (value?: Unit) => Number(value?.div(tenTousands).toDecimalMinUnit()).toFixed(2) ?? '--';
+const oneHundred = Unit.fromMinUnit(100);
+const displayInterestRate = (value?: Unit) => Number(value?.div(oneHundred).toDecimalMinUnit()).toFixed(2) ?? '--';
 const BlOCK_AMOUNT_QUARTER = Networks.core.chainId === '8888' ? 7200 : 15768000; // 365 / 4 * 2 * 24 * 60 * 60
 
 const option = (lockNumber: string, lockTime: string, greaterUnLockNumber: boolean | undefined) => {
