@@ -55,7 +55,7 @@ export const startTrackPosAccount = () => {
                         fetchChain({
                             rpcUrl: Networks.core.rpcUrls[0],
                             method: 'pos_getAccount',
-                            params: [posAddressOrigin, 'latest_state'],
+                            params: [posAddressOrigin],
                         })
                             .then((posInfo) => {
                                 const status = posInfo.status || {};
