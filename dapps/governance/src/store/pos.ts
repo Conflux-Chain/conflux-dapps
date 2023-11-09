@@ -66,14 +66,14 @@ export const startTrackPosAccount = () => {
                                 let unlockingTotal = Unit.fromMinUnit(0);
                                 if (inQueue && inQueue.length > 0) {
                                     inQueue.forEach((element) => {
-                                        lockingTotal = lockingTotal.add(Unit.fromMinUnit(element?.power ?? 0));
+                                        lockingTotal = lockingTotal.add(Unit.fromStandardUnit(element?.power ?? 0));
                                     });
                                 }
-                                lockingTotal.add(Unit.fromMinUnit(locked || 0));
+                                lockingTotal = lockingTotal.add(Unit.fromStandardUnit(locked || 0));
                                 lockingTotal = lockingTotal.mul(POS_VOTE_CFX_BASE);
                                 if (outQueue && outQueue.length > 0) {
                                     outQueue.forEach((element) => {
-                                        unlockingTotal = unlockingTotal.add(Unit.fromMinUnit(element?.power).mul(POS_VOTE_CFX_BASE));
+                                        unlockingTotal = unlockingTotal.add(Unit.fromStandardUnit(element?.power).mul(POS_VOTE_CFX_BASE));
                                     });
                                 }
 
