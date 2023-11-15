@@ -277,7 +277,7 @@ const TransferNormalMode: React.FC<{
                             className="ml-[4px]"
                             balance={currentTokenBalance}
                             id="eSpace2core-currentTokenBalance"
-                            symbol={currentToken.core_space_symbol}
+                            symbol={currentToken.evm_space_symbol}
                             decimals={+currentToken.decimals}
                             status={metaMaskStatus}
                         />
