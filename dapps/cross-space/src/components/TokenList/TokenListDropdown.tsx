@@ -364,9 +364,7 @@ const TokenItem = memo<TokenItemProps>(
                             image: icon,
                         },
                     });
-                    // watchAssetMetaMask will instantly resolve the res promise after popup open.
-                    // So Toast only show in fluent.
-                    space === 'core' && showToast(`Add ${symbol} to ${space === 'core' ? 'Fluent' : 'MetaMask'} success!`, { type: 'success' });
+                    showToast(`Add ${symbol} to ${space === 'core' ? 'Fluent' : 'MetaMask'} success!`, { type: 'success' });
                 } catch (err) {
                     console.error(`Add ${symbol} to ${space === 'core' ? 'Fluent' : 'MetaMask'} failed!`);
                 }
