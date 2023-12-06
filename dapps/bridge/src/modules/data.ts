@@ -4,6 +4,7 @@ import LocalStorage from 'localstorage-enhance';
 import { innerTokenListUrl as crossSpaceTokenListUrl } from 'cross-space/src/components/TokenList/tokenListStore';
 import { isEqual } from 'lodash-es';
 import Cache from 'common/utils/LRUCache';
+import DefaultTokenIcon from 'common/assets/tokens/Default.png';
 import CFXIcon from 'common/assets/chains/Conflux.svg';
 import BSCIcon from 'common/assets/chains/BSC.svg';
 import BTCIcon from 'common/assets/chains/BTC.svg';
@@ -26,7 +27,7 @@ interface DataStore {
     commonTokens?: Array<string>;
 }
 
-const namespace = `bridge-new1-${Networks.core.chainId}`;
+const namespace = `bridge-new2-${Networks.core.chainId}`;
 
 export const dataStore = create(
     subscribeWithSelector(
@@ -52,13 +53,15 @@ export const map: Record<'shuttleFlowChains' | 'shuttleFlowFromTokenAddress' | '
         'Conflux Core': 'cfx',
         Ethereum: 'eth',
         'BSC Chain': 'bsc',
-        // OKExChain: 'oec',
+        OKExChain: 'oec',
         // 'HECO Chain': 'heco',
-        // Bitcoin: 'btc',
+        Bitcoin: 'btc',
     },
     shuttleFlowFromTokenAddress: {},
     receiveSymbol: {},
-    tokensIcon: {},
+    tokensIcon: {
+        COMMON_TOKEN: DefaultTokenIcon,
+    },
     chainsIcon: {
         'Conflux eSpace': CFXIcon,
         'Conflux Core': CFXIcon,
@@ -90,6 +93,9 @@ fetch(crossSpaceTokenListUrl)
                 'Conflux eSpace': {
                     CFX: ['Chain Bridge'],
                 },
+                'Conflux Core': {
+                    COMMON_TOKEN: ['ZG Portal'],
+                },
             },
             Ethereum: {
                 'Conflux eSpace': {
@@ -98,6 +104,33 @@ fetch(crossSpaceTokenListUrl)
                     USDC: ['cBridge'],
                     WBTC: ['cBridge'],
                     DAI: ['cBridge'],
+                },
+                'Conflux Core': {
+                    COMMON_TOKEN: ['ZG Portal'],
+                },
+            },
+            OKExChain: {
+                'Conflux Core': {
+                    COMMON_TOKEN: ['ZG Portal'],
+                },
+            },
+            Bitcoin: {
+                'Conflux Core': {
+                    COMMON_TOKEN: ['ZG Portal'],
+                },
+            },
+            'Conflux Core': {
+                Ethereum: {
+                    COMMON_TOKEN: ['ZG Portal'],
+                },
+                'BSC Chain': {
+                    COMMON_TOKEN: ['ZG Portal'],
+                },
+                OKExChain: {
+                    COMMON_TOKEN: ['ZG Portal'],
+                },
+                Bitcoin: {
+                    COMMON_TOKEN: ['ZG Portal'],
                 },
             },
         };
@@ -285,6 +318,10 @@ export const createHref = ({
         return `https://cbridge.celer.network/${destinationChain === 'Conflux eSpace' ? '1' : '1030'}/${
             destinationChain === 'Conflux eSpace' ? '1030' : '1'
         }/${token}`;
+    }
+
+    if (route === 'ZG Portal') {
+        return 'https://portal.zglabs.org/';
     }
     return '';
 };
