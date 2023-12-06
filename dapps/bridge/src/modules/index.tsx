@@ -29,7 +29,7 @@ const renderToken = (token: string) => (
             src={map.tokensIcon[token] ?? 'https://conflux-static.oss-cn-beijing.aliyuncs.com/icons/default.png'}
             alt=""
         />
-        {token}
+        {token === 'COMMON_TOKEN' ? 'Supports 50+ tokens' : token}
     </div>
 );
 const renderChain = (chain: string) => (
@@ -156,7 +156,7 @@ const Routes: React.FC = () => {
                                             src={map.tokensIcon[token] ?? 'https://conflux-static.oss-cn-beijing.aliyuncs.com/icons/default.png'}
                                             alt=""
                                         />
-                                        {token}
+                                        {token === 'COMMON_TOKEN' ? '50+ tokens' : token}
                                     </div>
 
                                     <div className="w-[40px] h-0 border border-[#A9ABB2] border-dashed -translate-y-[12px]" />
