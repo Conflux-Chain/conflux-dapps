@@ -1,5 +1,7 @@
 import React, { isValidElement } from 'react';
+import { useLocation } from 'react-router-dom';
 import WalletConnector from './WalletConnector';
+import SelectChainModule from './SelectChain'
 import MenuIcon from '../../assets/icons/menu.svg';
 import { changeExpand, useExpand } from '../../../../dapps/dapp-box/src/modules/Sidebar/sideBarStore';
 
@@ -20,9 +22,13 @@ const isMobile = () => {
 
 const Navbar: React.FC<Props> = ({ handleSwitchLocale, handleSwitchMode, dappIcon, dappName, Enhance }) => {
     const expand = useExpand();
+    const location = useLocation();
+    console.log(location)
+
 
     return (
         <>
+
             {!isMobile() && (
                 <nav className="h-[64px] flex-shrink-0">
                     <div className="container h-full xl:mx-auto flex justify-between items-center whitespace-nowrap">
@@ -33,7 +39,15 @@ const Navbar: React.FC<Props> = ({ handleSwitchLocale, handleSwitchMode, dappIco
                         </div>
 
                         <div className="flex justify-center items-center">
-                            <WalletConnector />
+                            {
+                                location.pathname.indexOf('/governance') > -1 ?
+                                    <>
+                                        <SelectChainModule />
+                                        <WalletConnector />
+                                    </>
+                                    :
+                                    <WalletConnector />
+                            }
                         </div>
                     </div>
                 </nav>
