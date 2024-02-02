@@ -75,4 +75,7 @@ export const posLockVotingEscrowContract = createContract<Contracts['posLockVoti
 export const utilContractAddress = isProduction ? 'cfx:achna9fyp9cep7f10198zr1a7e5dg8gu6ee3uy9nbp' : (Networks.core.chainId === '8888' ? 'NET8888:ACDWRU2F4FY3YZXN958FUBRSM62T0D90D2KG9449XG' : 'cfxtest:acc8c30wra8czb9ajz8sj6ug3x0u9vzsvuncee39mg');
 export const utilContract = createContract<Contracts['utilContract']>(UtilContract.abi);
 
+export const governanceContractAddressESpace = isProduction ? '' : '0x4d2b9D83bE08363cE05240157B1879137803156E';
+export const utilContractAddressESpace = isProduction ? '' : '0x56f56850F14Acc68E95B87B06cD11Ef63f7aEA3A';
+
 export default Contracts;

@@ -1,11 +1,12 @@
 import { create } from 'zustand';
 import { store as confluxStore, Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { store as ethereumStore } from '@cfxjs/use-wallet-react/ethereum';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { fetchChain, intervalFetchChain } from 'common/utils/fetchChain';
-import Networks, { isProduction } from 'common/conf/Networks';
+import Networks, { isProduction, spaceSeat, spaceRpcurl } from 'common/conf/Networks';
 import { calRemainTime } from 'common/utils/time';
 import dayjs from 'dayjs';
-import { posPoolContract, posLockVotingEscrowContract, utilContractAddress, utilContract } from './contracts';
+import { posPoolContract, posLockVotingEscrowContract, utilContractAddress, utilContract, utilContractAddressESpace } from './contracts';
 import { decodeHexResult } from 'common/utils/Contract';
 import { convertHexToCfx, convertCfxToHex, validateCfxAddress } from 'common/utils/addressUtils';
 import { currentVotingRoundEndBlockNumber } from './rewardInterestRate';
@@ -200,22 +201,32 @@ let unsubFetchPosLockData: VoidFunction | null;
 export const startTrackPosLockAmount = () => {
     const unSubExec: Function[] = [];
     const getAccount = () => confluxStore.getState().accounts?.[0];
-
+    const getEthereumAccount = () => ethereumStore.getState().accounts?.[0];
 
     const fetchPosLockData = async () => {
         unsubFetchPosLockData?.()
 
         const account = getAccount();
+        const ethereumAccount = getEthereumAccount() || '';
         if (!account || !validateCfxAddress(account)) {
             return;
         }
         const chainId = confluxStore.getState().chainId;
-        if (Networks.core.chainId != chainId) {
-            lockDaysAndBlockNumberStore.setState({
-                posLockArrOrigin: undefined
-            });
+
+        console.log(chainId)
+
+        if (!chainId) {
             return;
         }
+
+        const isESpace = spaceSeat(chainId) === 'eSpace';
+        const isCoreSpace = spaceSeat(chainId) === 'core';
+        // if (Networks.core.chainId != chainId) {
+        //     lockDaysAndBlockNumberStore.setState({
+        //         posLockArrOrigin: undefined
+        //     });
+        //     return;
+        // }
 
         const calTimeToUnlock = (unlockBlock: Unit) => {
             const { currentBlockNumber } = lockDaysAndBlockNumberStore.getState();
@@ -250,7 +261,7 @@ export const startTrackPosLockAmount = () => {
 
             let promises: Promise<any>[] | undefined = posLockArrOrigin?.map((item: PosLockOrigin) => {
                 return fetchChain({
-                    rpcUrl: Networks.core.rpcUrls[0],
+                    rpcUrl: spaceRpcurl(chainId),
                     method: 'cfx_call',
                     params: [
                         {
@@ -288,7 +299,7 @@ export const startTrackPosLockAmount = () => {
 
                 const unlockBlock = Unit.fromStandardUnit(currentVotingRoundEndBlockNumber() || 0).toString();
                 return fetchChain({
-                    rpcUrl: Networks.core.rpcUrls[0],
+                    rpcUrl: spaceRpcurl(chainId),
                     method: 'cfx_call',
                     params: [
                         {
@@ -319,7 +330,7 @@ export const startTrackPosLockAmount = () => {
         // fetch posPool
         const result = await fetch('https://raw.githubusercontent.com/conflux-fans/pos-pool/main/contract/gov_pools.json').then((response) => response.json());
 
-        const result8888 = [
+        result["net8888"] = [
             {
                 "name": "test8888",
                 "address": 'NET8888:ACATSCT5M6P0D5YMK6P11NDHRZAFH4P52EV7HNZ3G5',
@@ -328,30 +339,48 @@ export const startTrackPosLockAmount = () => {
             }
         ];
 
-        let posPool: PosPool[] = isProduction ? result.mainnet : Networks.core.chainId === '8888' ? result8888 : result.testnet;
+        let posPool: PosPool[]; // isProduction ? result.mainnet : Networks.core.chainId === '8888' ? result8888 : result.testnet;
 
+        const gov_pools: { [key: string]: boolean } = {
+            mainnet: isProduction && isCoreSpace,
+            testnet: !isProduction && isCoreSpace,
+            eSpaceMainnet: isProduction && isESpace,
+            eSpaceTestnet: !isProduction && isESpace,
+            net8888: Networks.core.chainId === '8888',
+        };
+
+        const getTrueKey = (gov_pools: { [key: string]: boolean }) => {
+            return Object.keys(gov_pools).find((key) => gov_pools[key] === true);
+        };
+
+        const key = getTrueKey(gov_pools);
+        posPool = key && result[key];
+
+
+        
         unsubFetchPosLockData?.()
         // fetch posLock
         unsubFetchPosLockData = intervalFetchChain(
             {
-                rpcUrl: Networks.core.rpcUrls[0],
-                method: 'cfx_call',
+                rpcUrl: spaceRpcurl(chainId),
+                method: isESpace ? 'eth_call' : 'cfx_call',
                 params: [
                     {
-                        to: utilContractAddress,
-                        data: utilContract.getStakeInfos(posPool.map(e => convertCfxToHex(e.address)), convertCfxToHex(account)).encodeABI(),
+                        to: isESpace ? utilContractAddressESpace : utilContractAddress,
+                        data: utilContract.getStakeInfos(posPool.map(e => isESpace ? e.address : convertCfxToHex(e.address)), isESpace ? ethereumAccount: convertCfxToHex(account)).encodeABI(),
                     },
                     'latest_state',
                 ],
-                equalKey: `Pos:lockAmount-${account}`,
+                equalKey: `Pos:lockAmount-${isESpace ? ethereumAccount : convertCfxToHex(account)}`,
             },
             {
                 intervalTime: 3000,
                 callback: (hexRes: string) => {
-
+                    console.log(hexRes)
                     const { posLockArrOrigin } = lockDaysAndBlockNumberStore.getState();
 
                     let result = decodeHexResult(utilContract.getStakeInfos(posPool.map(e => convertCfxToHex(e.address)), account)._method.outputs, hexRes)?.[0];
+                   
                     if (!result || result.length === 0) return;
                     let resultFilter = result.filter((item: any) => item.stakeAmount > 0);
                     const posLockArrOriginNew: PosLockOrigin[] = resultFilter.map((item: PosLockOrigin, index: number) => {
