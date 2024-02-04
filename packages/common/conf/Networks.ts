@@ -19,7 +19,7 @@ export const isProduction =
     !location.host.startsWith('192.168') &&
     !location.host.startsWith('dev-internal');
 
-export const spaceSeat = (chainId: string): 'core' | 'eSpace' | '' => {
+export const spaceSeat = (chainId?: string | undefined): 'core' | 'eSpace' | '' => {
     const chainIdToSpace: Record<string, 'core' | 'eSpace'> = {
         '1029': 'core',
         '1': 'core',
@@ -28,10 +28,10 @@ export const spaceSeat = (chainId: string): 'core' | 'eSpace' | '' => {
         '9007199254740991': 'eSpace',
     };
 
-    return chainIdToSpace[chainId] || '';
+    return chainId && chainIdToSpace[chainId] || '';
 };
 
-export const spaceRpcurl = (chainId: string): string => {
+export const spaceRpcurl = (chainId?: string | undefined): string => {
     return spaceSeat(chainId) === 'eSpace' ? Networks.eSpace.rpcUrls[0] : Networks.core.rpcUrls[0];
 }
 

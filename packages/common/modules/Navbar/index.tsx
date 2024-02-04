@@ -23,8 +23,6 @@ const isMobile = () => {
 const Navbar: React.FC<Props> = ({ handleSwitchLocale, handleSwitchMode, dappIcon, dappName, Enhance }) => {
     const expand = useExpand();
     const location = useLocation();
-    console.log(location)
-
 
     return (
         <>

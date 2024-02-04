@@ -76,6 +76,6 @@ export const utilContractAddress = isProduction ? 'cfx:achna9fyp9cep7f10198zr1a7
 export const utilContract = createContract<Contracts['utilContract']>(UtilContract.abi);
 
 export const governanceContractAddressESpace = isProduction ? '' : '0x4d2b9D83bE08363cE05240157B1879137803156E';
-export const utilContractAddressESpace = isProduction ? '' : '0x56f56850F14Acc68E95B87B06cD11Ef63f7aEA3A';
+export const utilContractAddressESpace = isProduction ? '' : '0x56f56850f14acc68e95b87b06cd11ef63f7aea3a';
 
 export default Contracts;

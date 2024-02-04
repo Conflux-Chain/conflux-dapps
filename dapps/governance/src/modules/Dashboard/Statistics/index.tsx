@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 
-import { Unit, useBalance, store, connect } from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { store as confluxStore, Unit, useBalance, connect } from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { store as ethereumStore, useBalance as useBalanceEth } from '@cfxjs/use-wallet-react/ethereum';
 import Button from 'common/components/Button';
 import { Link } from 'react-router-dom';
 import { usePosLockArrOrigin, usePowLockOrigin } from 'governance/src/store/lockDays&blockNumber';
+import { spaceSeat } from 'common/conf/Networks';
 import BalanceText from 'common/modules/BalanceText';
 import NotConnected from 'governance/src/assets//notConnected.svg';
 import TotalStake0 from 'governance/src/assets//totalStake0.svg';
@@ -26,22 +28,29 @@ const ToolTip = ({ des, ...props }: ToolTipProps) => {
 const zero = Unit.fromMinUnit(0);
 
 const Statistics: React.FC = () => {
-    const getAccount = () => store.getState().accounts?.[0];
+    const getAccount = () => confluxStore.getState().accounts?.[0];
+    const getEthereumAccount = () => ethereumStore.getState().accounts?.[0];
+
     const account = getAccount();
+    const ethereumAccount = getEthereumAccount() || '';
+
+    const chainId = confluxStore.getState().chainId || ethereumStore.getState().chainId;
+
+    const isESpace = spaceSeat(chainId) === 'eSpace';
 
     const posLockArrOrigin = usePosLockArrOrigin();
     const powLockOrigin = usePowLockOrigin();
 
     const posTotalStaked = posLockArrOrigin && posLockArrOrigin.length > 0 ? posLockArrOrigin.reduce((pre, cur) => pre.add(cur.stakeAmount), Unit.fromMinUnit(0)) : Unit.fromMinUnit(0);
-    const totalStaked = powLockOrigin?.stakeAmount && (posTotalStaked.add(powLockOrigin.stakeAmount));
+    const totalStaked = powLockOrigin?.stakeAmount ? (posTotalStaked.add(powLockOrigin.stakeAmount)) : posTotalStaked;
 
     const posTotalLocked = posLockArrOrigin && posLockArrOrigin.length > 0 ? posLockArrOrigin.reduce((pre, cur) => pre.add(cur.lockAmount), Unit.fromMinUnit(0)) : Unit.fromMinUnit(0);
-    const totalLocked = powLockOrigin?.lockAmount && (posTotalLocked.add(powLockOrigin.lockAmount));
+    const totalLocked = powLockOrigin?.lockAmount ? (posTotalLocked.add(powLockOrigin.lockAmount)) : posTotalLocked;
 
     const posTotalPower = posLockArrOrigin && posLockArrOrigin.length > 0 ? posLockArrOrigin.reduce((pre, cur) => pre.add(cur.votePower), Unit.fromMinUnit(0)) : Unit.fromMinUnit(0);
-    const totalPower = powLockOrigin?.votePower && (posTotalPower.add(powLockOrigin.votePower));
+    const totalPower = powLockOrigin?.votePower ? (posTotalPower.add(powLockOrigin.votePower)) : posTotalPower;
 
-    const balance = useBalance();
+    const balance = isESpace ? useBalanceEth() : useBalance();
 
     const totalBalance = balance?.add(totalStaked || 0);
 
@@ -91,18 +100,19 @@ const Statistics: React.FC = () => {
                 </div>
             </div>
             {
-                !account ?
-                    <div className='w-full flex flex-col justify-center my-[48px]'>
-                        <img className='w-fit m-auto' src={NotConnected} alt="Not connected" />
-                        <p className='mt-[12px] text-[16px] text-[#898D9A] text-center'><span className='text-[#808BE7] cursor-pointer' onClick={connect}>Connect Fluent Wallet</span> to see more</p>
-                    </div>
-                    :
+                account || ethereumAccount ?
                     totalStaked?.equals(zero) ?
                         <div className='w-full flex flex-col justify-center my-[48px]'>
                             <img className='w-fit m-auto' src={TotalStake0} alt="total stake 0" />
                         </div>
                         :
                         <></>
+                    :
+
+                    <div className='w-full flex flex-col justify-center my-[48px]'>
+                        <img className='w-fit m-auto' src={NotConnected} alt="Not connected" />
+                        <p className='mt-[12px] text-[16px] text-[#898D9A] text-center'><span className='text-[#808BE7] cursor-pointer' onClick={connect}>Connect Fluent Wallet</span> to see more</p>
+                    </div>
             }
         </div>
 

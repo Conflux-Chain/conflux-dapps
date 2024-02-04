@@ -8,7 +8,7 @@ import { calRemainTime } from 'common/utils/time';
 import dayjs from 'dayjs';
 import { posPoolContract, posLockVotingEscrowContract, utilContractAddress, utilContract, utilContractAddressESpace } from './contracts';
 import { decodeHexResult } from 'common/utils/Contract';
-import { convertHexToCfx, convertCfxToHex, validateCfxAddress } from 'common/utils/addressUtils';
+import { convertHexToCfx, convertCfxToHex, validateCfxAddress, validateHexAddress } from 'common/utils/addressUtils';
 import { currentVotingRoundEndBlockNumber } from './rewardInterestRate';
 
 export const BLOCK_AMOUNT_YEAR = Networks.core.chainId === '8888' ? Unit.fromMinUnit(28800) : Unit.fromMinUnit(63072000);
@@ -206,19 +206,17 @@ export const startTrackPosLockAmount = () => {
     const fetchPosLockData = async () => {
         unsubFetchPosLockData?.()
 
-        const account = getAccount();
+        const account = getAccount() || '';
         const ethereumAccount = getEthereumAccount() || '';
-        if (!account || !validateCfxAddress(account)) {
-            return;
-        }
-        const chainId = confluxStore.getState().chainId;
+        console.log(account, ethereumAccount)
+        // if (!(account || ethereumAccount)) {
+        //     return;
+        // }
 
+        
+        const chainId = confluxStore.getState().chainId || ethereumStore.getState().chainId;
         console.log(chainId)
-
-        if (!chainId) {
-            return;
-        }
-
+        if(!chainId) return;
         const isESpace = spaceSeat(chainId) === 'eSpace';
         const isCoreSpace = spaceSeat(chainId) === 'core';
         // if (Networks.core.chainId != chainId) {
@@ -262,17 +260,17 @@ export const startTrackPosLockAmount = () => {
             let promises: Promise<any>[] | undefined = posLockArrOrigin?.map((item: PosLockOrigin) => {
                 return fetchChain({
                     rpcUrl: spaceRpcurl(chainId),
-                    method: 'cfx_call',
+                    method: isESpace ? 'eth_call' : 'cfx_call',
                     params: [
                         {
-                            to: convertHexToCfx(item.pool, +Networks.core.chainId),
+                            to: isESpace ? item.pool : convertHexToCfx(item.pool, +Networks.core.chainId),
                             data: posPoolContract.votingEscrow().encodeABI(),
                         },
-                        'latest_state',
+                        isESpace ? 'latest' : 'latest_state',
                     ],
                 }).then((item) => {
                     const result = decodeHexResult(posPoolContract.votingEscrow()._method.outputs, item)?.[0];
-                    return convertHexToCfx(result, +Networks.core.chainId);
+                    return isESpace ? result : convertHexToCfx(result, +Networks.core.chainId);
                 });
             });
             promises && Promise.all(promises)
@@ -300,16 +298,16 @@ export const startTrackPosLockAmount = () => {
                 const unlockBlock = Unit.fromStandardUnit(currentVotingRoundEndBlockNumber() || 0).toString();
                 return fetchChain({
                     rpcUrl: spaceRpcurl(chainId),
-                    method: 'cfx_call',
+                    method: isESpace ? 'eth_call' : 'cfx_call',
                     params: [
                         {
                             to: item.votingEscrowAddress,
-                            data: posLockVotingEscrowContract.userVotePower(convertCfxToHex(account), unlockBlock).encodeABI(),
+                            data: posLockVotingEscrowContract.userVotePower(isESpace ? ethereumAccount : convertCfxToHex(account), unlockBlock).encodeABI(),
                         },
-                        'latest_state',
+                        isESpace ? 'latest' : 'latest_state',
                     ],
                 }).then((item) => {
-                    const result = decodeHexResult(posLockVotingEscrowContract.userVotePower(convertCfxToHex(account), unlockBlock)._method.outputs, item)?.[0];
+                    const result = decodeHexResult(posLockVotingEscrowContract.userVotePower(isESpace ? ethereumAccount : convertCfxToHex(account), unlockBlock)._method.outputs, item)?.[0];
                     return result;
                 });
             });
@@ -355,9 +353,7 @@ export const startTrackPosLockAmount = () => {
 
         const key = getTrueKey(gov_pools);
         posPool = key && result[key];
-
-
-        
+        console.log(result, gov_pools)
         unsubFetchPosLockData?.()
         // fetch posLock
         unsubFetchPosLockData = intervalFetchChain(
@@ -369,25 +365,23 @@ export const startTrackPosLockAmount = () => {
                         to: isESpace ? utilContractAddressESpace : utilContractAddress,
                         data: utilContract.getStakeInfos(posPool.map(e => isESpace ? e.address : convertCfxToHex(e.address)), isESpace ? ethereumAccount: convertCfxToHex(account)).encodeABI(),
                     },
-                    'latest_state',
+                    isESpace ? 'latest' : 'latest_state',
                 ],
                 equalKey: `Pos:lockAmount-${isESpace ? ethereumAccount : convertCfxToHex(account)}`,
             },
             {
                 intervalTime: 3000,
                 callback: (hexRes: string) => {
-                    console.log(hexRes)
                     const { posLockArrOrigin } = lockDaysAndBlockNumberStore.getState();
 
-                    let result = decodeHexResult(utilContract.getStakeInfos(posPool.map(e => convertCfxToHex(e.address)), account)._method.outputs, hexRes)?.[0];
-                   
+                    let result = decodeHexResult(utilContract.getStakeInfos(posPool.map(e => isESpace ? e.address : convertCfxToHex(e.address)), account)._method.outputs, hexRes)?.[0];
                     if (!result || result.length === 0) return;
                     let resultFilter = result.filter((item: any) => item.stakeAmount > 0);
                     const posLockArrOriginNew: PosLockOrigin[] = resultFilter.map((item: PosLockOrigin, index: number) => {
                         // stakeAmount is greater than 0 valid
                         const unlockBlock = Unit.fromMinUnit(item?.unlockBlock ?? '0');
                         const posPoolFilter: PosPoolFilterType | undefined = result.find((e: PosPoolFilterType) => e?.pool.toLocaleLowerCase() === item?.pool.toLocaleLowerCase());
-                        const posPoolJSON = posPool.find((e: PosPool) => convertCfxToHex(e.address).toLocaleLowerCase() === item.pool.toLocaleLowerCase());
+                        const posPoolJSON = posPool.find((e: PosPool) => (isESpace ? e.address : convertCfxToHex(e.address)).toLocaleLowerCase() === item.pool.toLocaleLowerCase());
                         const havePosLockArrOrigin = posLockArrOrigin && posLockArrOrigin[index]; // votingEscrow and futureUserVotePower needs to be obtained separately, so the previous default value is given
                         return {
                             votingEscrowAddress: havePosLockArrOrigin ? posLockArrOrigin[index]?.votingEscrowAddress : '', // votingEscrow
@@ -405,6 +399,7 @@ export const startTrackPosLockAmount = () => {
                             futureUserVotePower: havePosLockArrOrigin ? posLockArrOrigin[index]?.futureUserVotePower : Unit.fromMinUnit(0), // futureUserVotePower
                         }
                     })
+                    console.log(posLockArrOriginNew)
                     lockDaysAndBlockNumberStore.setState({ posLockArrOrigin: posLockArrOriginNew });
                     fetchVotingEscrow?.()
                 },
