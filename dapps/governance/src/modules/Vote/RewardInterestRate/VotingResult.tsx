@@ -1,12 +1,10 @@
-import React, { useMemo, memo } from 'react';
+import React, { useMemo } from 'react';
 import cx from 'clsx';
 import { Progress } from 'antd';
-import dayjs from 'dayjs';
-import { Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { store as confluxStore, Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { store as ethereumStore } from '@cfxjs/use-wallet-react/ethereum';
 import { useCurrentVote, usePreVote, usePrePreVote, usePosStakeForVotes, usePosLockArrOrigin, useVotingRights } from 'governance/src/store';
-import SvgLoading from 'pos/src/assets/Loading';
 import SuccessIcon from 'pos/src/assets/success.svg';
-import { AuthCoreSpace } from 'common/modules/AuthConnectButton';
 import Button from 'common/components/Button';
 import { showCastVotesModal } from './CastVotesModal';
 import Popper from 'common/components/Popper';
@@ -65,6 +63,9 @@ const Result: React.FC<{
     onClickPreValTip?: VoidFunction;
     onClickVotingValTip?: VoidFunction;
 }> = ({ type, voteDetail, preVoteDetail, prepreVoteDetail, posStakeForVotes, onClickPreValTip, onClickVotingValTip }) => {
+    const chainId = confluxStore.getState().chainId || ethereumStore.getState().chainId || '';
+
+
     const unit = TypeUnit[type];
 
     const totalVotingRights = useMemo(() => {
@@ -191,8 +192,7 @@ const Result: React.FC<{
                     ))
                 }
             </div>
-
-            <AuthCoreSpace
+            {/* <AuthCoreSpace
                 className="mt-[26px] !flex min-w-[96px] !h-[32px]"
                 size="large"
                 type="button"
@@ -207,7 +207,16 @@ const Result: React.FC<{
                         Vote
                     </Button>
                 )}
-            />
+            /> */}
+            <Button
+                        id="RewardInterestRate-costVotes"
+                        className="mt-[26px] !flex min-w-[96px] !h-[32px] !text-[14px]"
+                        size="large"
+                        onClick={() => showCastVotesModal({ type })}
+                        disabled={(votingRights && !isVotingPowRightsGreaterThan0) && (posLockArrOrigin && !isVotingPosRightsGreaterThan0)}
+                    >
+                        Vote
+                    </Button>
 
         </div>
     );

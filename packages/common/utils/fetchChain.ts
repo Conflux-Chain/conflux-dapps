@@ -44,4 +44,8 @@ const intervalFetchChain =
         }
     };
 
-export { fetchChain, intervalFetchChain };
+const clearEqualMap = () => {
+    equalMap.clear();
+}
+
+export { fetchChain, intervalFetchChain, clearEqualMap };

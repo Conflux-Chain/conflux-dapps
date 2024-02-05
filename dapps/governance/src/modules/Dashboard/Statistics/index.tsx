@@ -79,10 +79,12 @@ const Statistics: React.FC = () => {
                                 <span>PoS Stake</span>
                             </Button>
                         </Link>
-
-                        <Link to="/governance/pow-stake">
+                        {
+                            !isESpace && <Link to="/governance/pow-stake">
                             <Button className='w-[100px] ml-[16px]' variant='outlined'>PoW Stake</Button>
                         </Link>
+                        }
+                        
                     </div>
 
                 </div>

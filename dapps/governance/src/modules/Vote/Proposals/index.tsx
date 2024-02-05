@@ -186,31 +186,49 @@ const OpenedProposalDetail: React.FC = () => {
                     ))}
                 </div>
                 {status !== 'Closed' && (
-                    <AuthCoreSpace
-                        id={`proposer-${id}-vote-auth`}
-                        className="mt-[24px] w-[486px]"
-                        size="large"
-                        authContent={() => (
-                            <Button
-                                id={`proposer-${id}-vote`}
-                                size="large"
-                                className="mt-[24px] w-[486px]"
-                                disabled={(!isVotingRightsGraterThan0 && !isVotingPosRightsGreaterThan0) || selectOption === null}
-                                onClick={() => showCastVotesModal({
-                                    type: 'Proposals',
-                                    proposal: {
-                                        poolAddress: undefined,
-                                        proposalId: id,
-                                        optionId: selectOption!,
-                                        power: ''
-                                    }
-                                })
-                                }
-                            >
-                                Vote
-                            </Button>
-                        )}
-                    />
+                    <Button
+                    id={`proposer-${id}-vote`}
+                    size="large"
+                    className="mt-[24px] w-[486px]"
+                    disabled={(!isVotingRightsGraterThan0 && !isVotingPosRightsGreaterThan0) || selectOption === null}
+                    onClick={() => showCastVotesModal({
+                        type: 'Proposals',
+                        proposal: {
+                            poolAddress: undefined,
+                            proposalId: id,
+                            optionId: selectOption!,
+                            power: ''
+                        }
+                    })
+                    }
+                >
+                    Vote
+                </Button>
+                    // <AuthCoreSpace
+                    //     id={`proposer-${id}-vote-auth`}
+                    //     className="mt-[24px] w-[486px]"
+                    //     size="large"
+                    //     authContent={() => (
+                    //         <Button
+                    //             id={`proposer-${id}-vote`}
+                    //             size="large"
+                    //             className="mt-[24px] w-[486px]"
+                    //             disabled={(!isVotingRightsGraterThan0 && !isVotingPosRightsGreaterThan0) || selectOption === null}
+                    //             onClick={() => showCastVotesModal({
+                    //                 type: 'Proposals',
+                    //                 proposal: {
+                    //                     poolAddress: undefined,
+                    //                     proposalId: id,
+                    //                     optionId: selectOption!,
+                    //                     power: ''
+                    //                 }
+                    //             })
+                    //             }
+                    //         >
+                    //             Vote
+                    //         </Button>
+                    //     )}
+                    // />
                 )}
 
                 <div className="absolute bottom-[24px] right-[24px] flex justify-center gap-[12px] select-none">

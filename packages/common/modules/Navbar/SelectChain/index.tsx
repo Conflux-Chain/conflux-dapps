@@ -41,10 +41,15 @@ const DropdownChain: React.FC<{ hideDropdown: () => void; }> = ({ hideDropdown }
     return (
         <div className='w-full'>
             <div className='flex items-center h-[32px] hover:bg-[#808BE74D] cursor-default' onClick={() => {
-                switchToCore();
+                try {
+                    switchToCore()
+                } catch (error) {
+                    console.log(error)
+                }
+
                 hideDropdown();
             }}>
-                <img className='w-[16px] h-[16px] ml-[16px] mr-[4px]' src={CoreSpaceIcon} alt="" /> cSpace
+                <img className='w-[16px] h-[16px] ml-[16px] mr-[4px]' src={CoreSpaceIcon} alt="" />Core Space
             </div>
             <div className='flex items-center h-[32px] hover:bg-[#808BE74D] cursor-default' onClick={() => {
                 switchToESpace();

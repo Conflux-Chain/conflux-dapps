@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { store as confluxStore, Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
 import { store as ethereumStore } from '@cfxjs/use-wallet-react/ethereum';
 import { subscribeWithSelector } from 'zustand/middleware';
-import { fetchChain, intervalFetchChain } from 'common/utils/fetchChain';
+import { fetchChain, intervalFetchChain, clearEqualMap } from 'common/utils/fetchChain';
 import Networks, { isProduction, spaceSeat, spaceRpcurl } from 'common/conf/Networks';
 import { calRemainTime } from 'common/utils/time';
 import dayjs from 'dayjs';
@@ -40,7 +40,8 @@ export interface PosLockOrigin {
     unlockBlockDay?: string,
     unlockBlockTime?: number,
     votePower: Unit,
-    futureUserVotePower?: Unit
+    futureUserVotePower?: Unit,
+    poolContractAddress?: string,
 }
 interface PosPool {
     name: string,
@@ -182,8 +183,27 @@ export const startTrackPowLockAmount = () => {
         },
         { fireImmediately: true }
     ));
-
+    unSubExec.push(ethereumStore.subscribe(
+        (state) => state.accounts,
+        (accounts) => {
+            if (!accounts || !accounts[0]) {
+                unsubFetchPowLockData?.();
+                lockDaysAndBlockNumberStore.setState({ powLockOrigin: undefined });
+                return;
+            }
+            fetchPowLockData()
+        },
+        { fireImmediately: true }
+    ));
+    
     unSubExec.push(confluxStore.subscribe(
+        (state) => state.chainId,
+        () => {
+            fetchPowLockData()
+        },
+        { fireImmediately: true }
+    ));
+    unSubExec.push(ethereumStore.subscribe(
         (state) => state.chainId,
         () => {
             fetchPowLockData()
@@ -208,14 +228,14 @@ export const startTrackPosLockAmount = () => {
 
         const account = getAccount() || '';
         const ethereumAccount = getEthereumAccount() || '';
-        console.log(account, ethereumAccount)
+        console.log(account)
         // if (!(account || ethereumAccount)) {
         //     return;
         // }
 
         
         const chainId = confluxStore.getState().chainId || ethereumStore.getState().chainId;
-        console.log(chainId)
+
         if(!chainId) return;
         const isESpace = spaceSeat(chainId) === 'eSpace';
         const isCoreSpace = spaceSeat(chainId) === 'core';
@@ -353,7 +373,6 @@ export const startTrackPosLockAmount = () => {
 
         const key = getTrueKey(gov_pools);
         posPool = key && result[key];
-        console.log(result, gov_pools)
         unsubFetchPosLockData?.()
         // fetch posLock
         unsubFetchPosLockData = intervalFetchChain(
@@ -372,11 +391,13 @@ export const startTrackPosLockAmount = () => {
             {
                 intervalTime: 3000,
                 callback: (hexRes: string) => {
+                    console.log('获取：'+ethereumAccount+'的pos锁仓信息')
                     const { posLockArrOrigin } = lockDaysAndBlockNumberStore.getState();
 
                     let result = decodeHexResult(utilContract.getStakeInfos(posPool.map(e => isESpace ? e.address : convertCfxToHex(e.address)), account)._method.outputs, hexRes)?.[0];
                     if (!result || result.length === 0) return;
                     let resultFilter = result.filter((item: any) => item.stakeAmount > 0);
+                    // console.log(resultFilter)
                     const posLockArrOriginNew: PosLockOrigin[] = resultFilter.map((item: PosLockOrigin, index: number) => {
                         // stakeAmount is greater than 0 valid
                         const unlockBlock = Unit.fromMinUnit(item?.unlockBlock ?? '0');
@@ -399,7 +420,6 @@ export const startTrackPosLockAmount = () => {
                             futureUserVotePower: havePosLockArrOrigin ? posLockArrOrigin[index]?.futureUserVotePower : Unit.fromMinUnit(0), // futureUserVotePower
                         }
                     })
-                    console.log(posLockArrOriginNew)
                     lockDaysAndBlockNumberStore.setState({ posLockArrOrigin: posLockArrOriginNew });
                     fetchVotingEscrow?.()
                 },
@@ -408,22 +428,35 @@ export const startTrackPosLockAmount = () => {
     }
 
     unSubExec.push(confluxStore.subscribe(
-        (state) => state.accounts,
-        (accounts) => {
+        (state) => state,
+        (state) => {
+            const accounts = state.accounts;
+            const chainId = state.chainId;
             if (!accounts || !accounts[0]) {
                 unsubFetchPosLockData?.()
                 lockDaysAndBlockNumberStore.setState({ posLockArrOrigin: undefined });
                 return;
             }
-            fetchPosLockData()
+            if (accounts && chainId) {
+                fetchPosLockData()
+            }
         },
         { fireImmediately: true }
     ));
-
-    unSubExec.push(confluxStore.subscribe(
-        (state) => state.chainId,
-        () => {
-            fetchPosLockData()
+    unSubExec.push(ethereumStore.subscribe(
+        (state) => state,
+        (state) => {
+            const accounts = state.accounts;
+            const chainId = state.chainId;
+            if (!accounts || !accounts[0]) {
+                unsubFetchPosLockData?.();
+                lockDaysAndBlockNumberStore.setState({ posLockArrOrigin: undefined });
+            }
+            if (accounts && chainId) {
+                clearEqualMap();
+                fetchPosLockData()
+            }
+            
         },
         { fireImmediately: true }
     ));
