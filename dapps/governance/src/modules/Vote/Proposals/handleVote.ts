@@ -17,14 +17,14 @@ const handleVote = async ({ poolAddress, proposalId, optionId, power }: Proposal
     const isESpace = spaceSeat(chainId) === 'eSpace';
 
     const toContractAddress = isESpace ? governanceContractAddressESpace : governanceContractAddress;
-    console.log(toContractAddress)
-    console.log('0x102e78b92Be30e94203Adf676f50563cbe3A5525', proposalId, optionId, power)
+
     try {
-        // waitFluentKey = showWaitWallet('Fluent', { key: 'Vote' });
+        waitFluentKey = showWaitWallet('Fluent', { key: 'Vote' });
         const dataEncode = 
         {
             to: toContractAddress,
-            data: governanceContract.voteThroughPosPool('0x102e78b92Be30e94203Adf676f50563cbe3A5525', proposalId, optionId, power).encodeABI()
+            data: poolAddress ? governanceContract.voteThroughPosPool(poolAddress, proposalId, optionId, power).encodeABI()
+            : governanceContract.vote(proposalId, optionId, power).encodeABI()
         }
         const TxnHash = isESpace
             ? await sendTransactionEthereum(dataEncode)

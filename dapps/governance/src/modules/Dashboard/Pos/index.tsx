@@ -1,6 +1,6 @@
 import React from 'react';
-
-import { store, Unit } from '@cfxjs/use-wallet-react/ethereum';
+import { store as confluxStore } from "@cfxjs/use-wallet-react/conflux/Fluent";
+import { store as ethereumStore, Unit} from '@cfxjs/use-wallet-react/ethereum';
 import { usePosLockArrOrigin } from 'governance/src/store/lockDays&blockNumber';
 import { spaceSeat } from 'common/conf/Networks';
 import Table from '../../../components/Table';
@@ -12,9 +12,9 @@ import { showLockModal } from '../Pos/LockModal';
 const zero = Unit.fromMinUnit('0');
 
 const StakePos: React.FC = () => {
-    const chainId = store.getState().chainId;
+    const chainId = confluxStore.getState().chainId || ethereumStore.getState().chainId;
     const isESpace = spaceSeat(chainId) === 'eSpace';
-
+    console.log(isESpace)
     const posLockArrOrigin = usePosLockArrOrigin();
 
     const isShowPosLock = posLockArrOrigin && posLockArrOrigin.length > 0;

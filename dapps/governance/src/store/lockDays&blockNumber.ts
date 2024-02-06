@@ -41,7 +41,7 @@ export interface PosLockOrigin {
     unlockBlockTime?: number,
     votePower: Unit,
     futureUserVotePower?: Unit,
-    poolContractAddress?: string,
+    // poolContractAddress?: string,
 }
 interface PosPool {
     name: string,
@@ -338,6 +338,7 @@ export const startTrackPosLockAmount = () => {
                             posLockArrOrigin[index].futureUserVotePower = Unit.fromMinUnit(result);
                         }
                     });
+                    
                     lockDaysAndBlockNumberStore.setState({ posLockArrOrigin });
                 })
                 .catch((error) => {
