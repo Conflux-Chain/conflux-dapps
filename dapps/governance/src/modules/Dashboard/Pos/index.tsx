@@ -1,7 +1,7 @@
 import React from 'react';
-import { store as confluxStore } from "@cfxjs/use-wallet-react/conflux/Fluent";
-import { store as ethereumStore, Unit} from '@cfxjs/use-wallet-react/ethereum';
-import { usePosLockArrOrigin } from 'governance/src/store/lockDays&blockNumber';
+import { Unit} from '@cfxjs/use-wallet-react/ethereum';
+import { isSameChainNativeWallet } from 'common/hooks/useIsSameChainNativeWallet';
+import { useChainIdNative, usePosLockArrOrigin } from 'governance/src/store/lockDays&blockNumber';
 import { spaceSeat } from 'common/conf/Networks';
 import Table from '../../../components/Table';
 import CFX from 'common/assets/tokens/CFX.svg';
@@ -12,15 +12,16 @@ import { showLockModal } from '../Pos/LockModal';
 const zero = Unit.fromMinUnit('0');
 
 const StakePos: React.FC = () => {
-    const chainId = confluxStore.getState().chainId || ethereumStore.getState().chainId;
-    const isESpace = spaceSeat(chainId) === 'eSpace';
-    console.log(isESpace)
+
     const posLockArrOrigin = usePosLockArrOrigin();
+    const isSameChain = isSameChainNativeWallet();
+    const chainIdNative = useChainIdNative();
+    const isESpace = spaceSeat(chainIdNative) === 'eSpace';
 
     const isShowPosLock = posLockArrOrigin && posLockArrOrigin.length > 0;
 
     return (
-        isShowPosLock ?
+        isShowPosLock && isSameChain ?
             <div className='mt-[16px] rounded-[8px] p-[24px] bg-white shadow-md'>
                 <div className='w-full text-[16px] text-[#3D3F4C]'>
                     Staked in PoS Validators
@@ -42,7 +43,6 @@ const StakePos: React.FC = () => {
                                         :
                                         <div className='text-[#808BE7] cursor-pointer' onClick={() => showLockModal('lock', index)}>Create Lock</div>
                                 }
-
 
                             </div>,
                             <div>

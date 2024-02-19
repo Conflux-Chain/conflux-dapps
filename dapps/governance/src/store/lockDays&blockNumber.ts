@@ -64,6 +64,7 @@ interface LockDaysAndBlockNumberStore {
         votePower: Unit,
     },
     posLockArrOrigin?: PosLockOrigin[],
+    chainIdNative?: string,
 }
 
 interface PosPoolFilterType {
@@ -88,7 +89,8 @@ export const lockDaysAndBlockNumberStore = create(
             votingRightsPerCfx: undefined,
             posStakeAmount: undefined,
             powLockOrigin: undefined,
-            posLockArrOrigin: undefined
+            posLockArrOrigin: undefined,
+            chainIdNative: undefined,
         } as LockDaysAndBlockNumberStore)
     )
 );
@@ -228,17 +230,21 @@ export const startTrackPosLockAmount = () => {
 
         const account = getAccount() || '';
         const ethereumAccount = getEthereumAccount() || '';
-        console.log(account)
+        // console.log(account)
         // if (!(account || ethereumAccount)) {
         //     return;
         // }
 
         
-        const chainId = confluxStore.getState().chainId || ethereumStore.getState().chainId;
+        const chainId = lockDaysAndBlockNumberStore.getState().chainIdNative;// confluxStore.getState().chainId || ethereumStore.getState().chainId;
 
-        if(!chainId) return;
+        if(!chainId) {
+            const defaultChainId = localStorage.getItem("chainIdNative") || Networks.core.chainId;
+            lockDaysAndBlockNumberStore.setState({ chainIdNative: defaultChainId });
+            return;
+        }
         const isESpace = spaceSeat(chainId) === 'eSpace';
-        const isCoreSpace = spaceSeat(chainId) === 'core';
+        const isCoreSpace =  spaceSeat(chainId) !== 'eSpace'; //spaceSeat(chainId) === 'core';
         // if (Networks.core.chainId != chainId) {
         //     lockDaysAndBlockNumberStore.setState({
         //         posLockArrOrigin: undefined
@@ -462,6 +468,17 @@ export const startTrackPosLockAmount = () => {
         { fireImmediately: true }
     ));
 
+    unSubExec.push(lockDaysAndBlockNumberStore.subscribe(
+        (state) => state.chainIdNative,
+        (chainId) => {
+            if (chainId) {
+                clearEqualMap();
+                fetchPosLockData()
+            }
+        },
+        { fireImmediately: true }
+    ))
+
     return () => {
         unSubExec.forEach((unsub) => unsub());
     };
@@ -504,6 +521,7 @@ const selectors = {
     posStakeAmount: (state: LockDaysAndBlockNumberStore) => state.posStakeAmount,
     powLockOrigin: (state: LockDaysAndBlockNumberStore) => state.powLockOrigin,
     posLockArrOrigin: (state: LockDaysAndBlockNumberStore) => state.posLockArrOrigin,
+    chainIdNative: (state: LockDaysAndBlockNumberStore) => state.chainIdNative,
 };
 
 export const getCurrentBlockNumber = () => lockDaysAndBlockNumberStore.getState().currentBlockNumber;
@@ -523,3 +541,8 @@ export const useGapBlockNumber = () => lockDaysAndBlockNumberStore(selectors.gap
 export const usePosStakeAmount = () => lockDaysAndBlockNumberStore(selectors.posStakeAmount);
 export const usePowLockOrigin = () => lockDaysAndBlockNumberStore(selectors.powLockOrigin);
 export const usePosLockArrOrigin = () => lockDaysAndBlockNumberStore(selectors.posLockArrOrigin);
+export const useChainIdNative = () => lockDaysAndBlockNumberStore(selectors.chainIdNative);
+export const setChainIdNative = (chainIdNative: string) => {
+    lockDaysAndBlockNumberStore.setState({ chainIdNative });
+    localStorage.setItem("chainIdNative", chainIdNative);
+}

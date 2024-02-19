@@ -2,7 +2,8 @@ import React, { useState, useCallback, useEffect } from 'react';
 import cx from 'clsx';
 import Dropdown from 'common/components/Dropdown';
 import { switchToCore, switchToESpace } from 'common/modules/AuthConnectButton';
-import { useChainId } from '@cfxjs/use-wallet-react/ethereum';
+import { useChainIdNative, setChainIdNative } from 'governance/src/store/lockDays&blockNumber';
+import Networks from 'common/conf/Networks';
 import CoreSpaceIcon from 'governance/src/assets/coreSpaceIcon.svg';
 import ESpaceIcon from 'governance/src/assets/eSpaceIcon.svg';
 import ArrowDown from 'common/assets/icons/arrow-down.svg';
@@ -41,18 +42,15 @@ const DropdownChain: React.FC<{ hideDropdown: () => void; }> = ({ hideDropdown }
     return (
         <div className='w-full'>
             <div className='flex items-center h-[32px] hover:bg-[#808BE74D] cursor-default' onClick={() => {
-                try {
-                    switchToCore()
-                } catch (error) {
-                    console.log(error)
-                }
-
+                switchToCore()
+                setChainIdNative(Networks.core.chainId)
                 hideDropdown();
             }}>
                 <img className='w-[16px] h-[16px] ml-[16px] mr-[4px]' src={CoreSpaceIcon} alt="" />Core Space
             </div>
             <div className='flex items-center h-[32px] hover:bg-[#808BE74D] cursor-default' onClick={() => {
                 switchToESpace();
+                setChainIdNative(Networks.eSpace.chainId)
                 hideDropdown();
             }}>
                 <img className='w-[16px] h-[16px] ml-[16px] mr-[4px]' src={ESpaceIcon} alt="" /> eSpace
@@ -62,7 +60,7 @@ const DropdownChain: React.FC<{ hideDropdown: () => void; }> = ({ hideDropdown }
 }
 
 const SelectChainModule = () => {
-    const chainId = useChainId();
+    const chainId = useChainIdNative();
     return <Select>
         {(triggerDropdown, visible) => <div
             className={cx(

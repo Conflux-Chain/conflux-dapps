@@ -4,7 +4,6 @@ import { showWaitWallet, showActionSubmitted, hideWaitWallet } from 'common/comp
 import { showToast } from 'common/components/showPopup/Toast';
 import { governanceContract, governanceContractAddress, governanceContractAddressESpace } from "governance/src/store/contracts";
 import Networks, { spaceSeat } from "common/conf/Networks";
-import { convertCfxToHex } from 'common/utils/addressUtils';
 
 export interface ProposalType { poolAddress: string | undefined, proposalId: number; optionId: number; power: string }
 
