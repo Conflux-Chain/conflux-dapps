@@ -4,8 +4,9 @@ import { Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
 import { shortenAddress } from 'common/utils/addressUtils';
 import Button from 'common/components/Button';
 import BalanceText from 'common/modules/BalanceText';
-import { isSameChainNativeWallet } from 'common/hooks/useIsSameChainNativeWallet';
-import { SwitchChainButton } from 'governance/src/components/Button';
+import { useChainIdNative } from 'governance/src/store/lockDays&blockNumber';
+import { spaceSeat } from 'common/conf/Networks';
+import { AuthCoreSpace, AuthESpace } from 'common/modules/AuthConnectButton';
 import { showTipModal } from 'governance/src/components/TipModal';
 import Networks from 'common/conf/Networks';
 import Pagination from './Pagination';
@@ -97,7 +98,8 @@ const ProposalItem: React.FC<Proposal & { isOpen: boolean }> = ({ id, title, sta
 };
 
 const OpenedProposalDetail: React.FC = () => {
-    const isSameChain = isSameChainNativeWallet();
+    const chainIdNative = useChainIdNative();
+    const isESpace = spaceSeat(chainIdNative) === 'eSpace';
     const openedProposalId = useOpenedProposalId();
     const openedProposal = useOpenedProposal();
     const { proposer, description, proposalDiscussion, votesAtTime, options, id, status } = openedProposal! || {};
@@ -132,6 +134,24 @@ const OpenedProposalDetail: React.FC = () => {
 
     if (!openedProposal) return null;
 
+    const ButtonComponent = <Button
+        id={`proposer-${id}-vote`}
+        size="large"
+        className="mt-[24px] w-[486px]"
+        disabled={(!isVotingRightsGraterThan0 && !isVotingPosRightsGreaterThan0) || selectOption === null}
+        onClick={() => showCastVotesModal({
+            type: 'Proposals',
+            proposal: {
+                poolAddress: undefined,
+                proposalId: id,
+                optionId: selectOption!,
+                power: ''
+            }
+        })
+        }
+    >
+        Vote
+    </Button>
     return (
         <div className="proposal-itemWrapper absolute min-h-[560px] left-0 top-0 rounded-[8px] rounded-tl-none bg-white" id={`proposer-${id}`}>
             <ProposalItem {...openedProposal} isOpen={true} />
@@ -187,26 +207,28 @@ const OpenedProposalDetail: React.FC = () => {
                         />
                     ))}
                 </div>
-                {status !== 'Closed' ? isSameChain ? (
-                    <Button
-                        id={`proposer-${id}-vote`}
-                        size="large"
-                        className="mt-[24px] w-[486px]"
-                        disabled={(!isVotingRightsGraterThan0 && !isVotingPosRightsGreaterThan0) || selectOption === null}
-                        onClick={() => showCastVotesModal({
-                            type: 'Proposals',
-                            proposal: {
-                                poolAddress: undefined,
-                                proposalId: id,
-                                optionId: selectOption!,
-                                power: ''
-                            }
-                        })
-                        }
-                    >
-                        Vote
-                    </Button>
-                ) : <SwitchChainButton /> : <></>}
+                {status !== 'Closed' ? (
+                    isESpace ?
+                        <AuthESpace
+                            id={`proposer-${id}-vote-auth`}
+                            className="mt-[24px] w-[486px]"
+                            size="large"
+                            authContent={() => (
+                                ButtonComponent
+                            )}
+                        /> :
+                        <AuthCoreSpace
+                            id={`proposer-${id}-vote-auth`}
+                            className="mt-[24px] w-[486px]"
+                            size="large"
+                            authContent={() => (
+                                ButtonComponent
+                            )}
+                        />)
+                    : <></>
+
+
+                }
 
                 <div className="absolute bottom-[24px] right-[24px] flex justify-center gap-[12px] select-none">
                     <div

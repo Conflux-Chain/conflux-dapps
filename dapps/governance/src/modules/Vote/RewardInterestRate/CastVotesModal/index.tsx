@@ -63,7 +63,7 @@ const uintZero = Unit.fromStandardUnit(0);
 const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, proposal?: ProposalType }) => {
     const chainIdNative = useChainIdNative();
     const isESpace = spaceSeat(chainIdNative) === 'eSpace';
-    
+
     const { register, handleSubmit: withForm, control, watch } = useForm();
     const [inVoting, setInVoting] = useState(false);
     const [ticket, setTicket] = useState<ticketTypes>(isESpace ? 'pos' : 'pow');
@@ -72,7 +72,7 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
     const [posPoolIndex, setPosPoolIndex] = useState(0);
 
     const account = useAccount();
-   
+
     const votingRights = useVotingRights();
     const currentAccountVoted = useCurrentAccountVoted();
     const currentVotingRound = useCurrentVotingRound();
@@ -320,13 +320,14 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
                         <BalanceText className="text-[#3D3F4C]" balance={votingPosRemainRights} symbol={''} decimals={18} />
                 }
 
-
-
             </div>
 
-            <div className='text-[#3D3F4C] mt-[16px] bg-[#FCF1E8] px-[16px] py-[12px] text-[14px]'>
-                Your vote will be synchronized within <span className='text-[#808BE7]'>10</span> minutes.
-            </div>
+            {
+                isESpace && <div className='text-[#3D3F4C] mt-[16px] bg-[#FCF1E8] px-[16px] py-[12px] text-[14px]'>
+                    Your vote will be synchronized within <span className='text-[#808BE7]'>10</span> minutes.
+                </div>
+            }
+
 
             <div className='mt-[24px] border-dashed border-t-[1px]'></div>
 

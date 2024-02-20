@@ -1,16 +1,16 @@
 import React, { useMemo } from 'react';
 import cx from 'clsx';
 import { Progress } from 'antd';
-import { store as confluxStore, Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
-import { store as ethereumStore } from '@cfxjs/use-wallet-react/ethereum';
+import { Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
 import { useCurrentVote, usePreVote, usePrePreVote, usePosStakeForVotes, usePosLockArrOrigin, useVotingRights } from 'governance/src/store';
 import SuccessIcon from 'pos/src/assets/success.svg';
-import { isSameChainNativeWallet } from 'common/hooks/useIsSameChainNativeWallet';
 import Button from 'common/components/Button';
 import { showCastVotesModal } from './CastVotesModal';
 import Popper from 'common/components/Popper';
 import numFormat from 'common/utils/numFormat';
-import { SwitchChainButton } from 'governance/src/components/Button';
+import { AuthCoreSpace, AuthESpace } from 'common/modules/AuthConnectButton';
+import { useChainIdNative } from 'governance/src/store/lockDays&blockNumber';
+import { spaceSeat } from 'common/conf/Networks';
 
 const options = [
     {
@@ -66,7 +66,8 @@ const Result: React.FC<{
     onClickVotingValTip?: VoidFunction;
 }> = ({ type, voteDetail, preVoteDetail, prepreVoteDetail, posStakeForVotes, onClickPreValTip, onClickVotingValTip }) => {
 
-    const isSameChain = isSameChainNativeWallet();
+    const chainIdNative = useChainIdNative();
+    const isESpace = spaceSeat(chainIdNative) === 'eSpace';
 
     const unit = TypeUnit[type];
 
@@ -95,6 +96,16 @@ const Result: React.FC<{
     const percentUnit = posStakeForVotes && totalVotingRights && totalVotingRights.div(posStakeForVotes?.mul(Unit.fromMinUnit(0.05)));
 
     const percentNumber = percentUnit ? Number(percentUnit.toDecimalMinUnit()) * 100 : 0;
+
+    const ButtonComponent = <Button
+        id="RewardInterestRate-costVotes"
+        className="mt-[26px] !flex min-w-[96px] !h-[32px] !text-[14px]"
+        size="large"
+        onClick={() => showCastVotesModal({ type })}
+        disabled={(votingRights && !isVotingPowRightsGreaterThan0) && (posLockArrOrigin && !isVotingPosRightsGreaterThan0)}
+    >
+        Vote
+    </Button>
 
     return (
         <div className="w-full flex-1 border-[1px] border-solid rounded-[4px] p-[16px]">
@@ -194,36 +205,26 @@ const Result: React.FC<{
                     ))
                 }
             </div>
-            {/* <AuthCoreSpace
-                className="mt-[26px] !flex min-w-[96px] !h-[32px]"
-                size="large"
-                type="button"
-                authContent={() => (
-                    <Button
-                        id="RewardInterestRate-costVotes"
-                        className="mt-[26px] !flex min-w-[96px] !h-[32px] !text-[14px]"
-                        size="large"
-                        onClick={() => showCastVotesModal({ type })}
-                        disabled={(votingRights && !isVotingPowRightsGreaterThan0) && (posLockArrOrigin && !isVotingPosRightsGreaterThan0)}
-                    >
-                        Vote
-                    </Button>
-                )}
-            /> */}
             {
-                isSameChain ? <Button
-                    id="RewardInterestRate-costVotes"
-                    className="mt-[26px] !flex min-w-[96px] !h-[32px] !text-[14px]"
-                    size="large"
-                    onClick={() => showCastVotesModal({ type })}
-                    disabled={(votingRights && !isVotingPowRightsGreaterThan0) && (posLockArrOrigin && !isVotingPosRightsGreaterThan0)}
-                >
-                    Vote
-                </Button>
+                isESpace ?
+                    <AuthESpace
+                        className="mt-[26px] !flex min-w-[96px] !h-[32px]"
+                        size="large"
+                        type="button"
+                        authContent={() => (
+                            ButtonComponent
+                        )}
+                    />
                     :
-                    <SwitchChainButton />
+                    <AuthCoreSpace
+                        className="mt-[26px] !flex min-w-[96px] !h-[32px]"
+                        size="large"
+                        type="button"
+                        authContent={() => (
+                            ButtonComponent
+                        )}
+                    />
             }
-
 
         </div>
     );
