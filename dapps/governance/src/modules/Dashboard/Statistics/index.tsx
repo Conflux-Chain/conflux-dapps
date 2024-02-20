@@ -1,15 +1,17 @@
 import React from 'react';
 
-import { store as confluxStore, Unit, useBalance, connect } from '@cfxjs/use-wallet-react/conflux/Fluent';
-import { store as ethereumStore, useBalance as useBalanceEth } from '@cfxjs/use-wallet-react/ethereum';
+import { store as confluxStore, Unit, useBalance, connect as connectFluent } from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { store as ethereumStore, useBalance as useBalanceEth, connect as connectEthereum } from '@cfxjs/use-wallet-react/ethereum';
 import Button from 'common/components/Button';
 import { Link } from 'react-router-dom';
 import { useChainIdNative, usePosLockArrOrigin, usePowLockOrigin } from 'governance/src/store/lockDays&blockNumber';
 import { spaceSeat } from 'common/conf/Networks';
+import { switchToCore, switchToESpace } from 'common/modules/AuthConnectButton';
 import { isSameChainNativeWallet } from 'common/hooks/useIsSameChainNativeWallet';
 import BalanceText from 'common/modules/BalanceText';
 import NotConnected from 'governance/src/assets//notConnected.svg';
 import TotalStake0 from 'governance/src/assets//totalStake0.svg';
+import SwitchNetworkImg from 'governance/src/assets//SwitchNetwork.png';
 
 type ToolTipProps = {
     des: string;
@@ -58,6 +60,25 @@ const Statistics: React.FC = () => {
     const balance = isESpace ? useBalanceEth() : useBalance();
 
     const totalBalance = balance?.add(totalStaked || 0);
+
+    const totalStake0Component = <div className='w-full flex flex-col justify-center my-[48px]'>
+        <img className='w-fit m-auto' src={TotalStake0} alt="total stake 0" />
+    </div>
+
+    const switchNetworkComponent = <div className='w-full flex flex-col justify-center my-[48px]'>
+        <img className='w-fit m-auto' src={SwitchNetworkImg} alt="Not connected" />
+        <div className='mt-[12px] text-[16px] text-[#898D9A] text-center'>Click to</div>
+        <div className='text-[16px] text-[#808BE7] text-center cursor-pointer' onClick={isESpace ? switchToESpace : switchToCore}>Switch Wallet Network</div>
+    </div>
+
+    const ConnectWallet = (type: string) => {
+        return <div className='w-full flex flex-col justify-center my-[48px]'>
+            <img className='w-fit m-auto' src={NotConnected} alt="Not connected" />
+            <p className='mt-[12px] text-[16px] text-[#898D9A] text-center'>
+                <span className='text-[#808BE7] cursor-pointer' onClick={type === 'MetaMask' ? connectEthereum : connectFluent}>Connect {type} Wallet</span> to see more
+            </p>
+        </div>
+    }
 
     return (
         <div>
@@ -112,42 +133,26 @@ const Statistics: React.FC = () => {
                     ethereumAccount ?
                         isSameChain ?
                             totalStaked?.equals(zero) ?
-                                <div className='w-full flex flex-col justify-center my-[48px]'>
-                                    <img className='w-fit m-auto' src={TotalStake0} alt="total stake 0" />
-                                </div>
+                                totalStake0Component
                                 :
                                 <></>
                             :
-                            <div className='w-full flex flex-col justify-center my-[48px]'>
-                                <img className='w-fit m-auto' src={NotConnected} alt="Not connected" />
-                                <p className='mt-[12px] text-[16px] text-[#898D9A] text-center'>切换网络</p>
-                            </div>
+                            switchNetworkComponent
                         :
 
-                        <div className='w-full flex flex-col justify-center my-[48px]'>
-                            <img className='w-fit m-auto' src={NotConnected} alt="Not connected" />
-                            <p className='mt-[12px] text-[16px] text-[#898D9A] text-center'><span className='text-[#808BE7] cursor-pointer' onClick={connect}>Connect MetaMask Wallet</span> to see more</p>
-                        </div>
+                        ConnectWallet('MetaMask')
                     :
                     account ?
                         isSameChain ?
                             totalStaked?.equals(zero) ?
-                                <div className='w-full flex flex-col justify-center my-[48px]'>
-                                    <img className='w-fit m-auto' src={TotalStake0} alt="total stake 0" />
-                                </div>
+                                totalStake0Component
                                 :
                                 <></>
                             :
-                            <div className='w-full flex flex-col justify-center my-[48px]'>
-                                <img className='w-fit m-auto' src={NotConnected} alt="Not connected" />
-                                <p className='mt-[12px] text-[16px] text-[#898D9A] text-center'>切换网络</p>
-                            </div>
+                            switchNetworkComponent
                         :
 
-                        <div className='w-full flex flex-col justify-center my-[48px]'>
-                            <img className='w-fit m-auto' src={NotConnected} alt="Not connected" />
-                            <p className='mt-[12px] text-[16px] text-[#898D9A] text-center'><span className='text-[#808BE7] cursor-pointer' onClick={connect}>Connect Fluent Wallet</span> to see more</p>
-                        </div>
+                        ConnectWallet('Fluent')
             }
         </div>
 

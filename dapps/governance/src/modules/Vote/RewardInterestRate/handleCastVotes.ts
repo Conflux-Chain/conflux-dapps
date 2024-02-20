@@ -6,6 +6,7 @@ import { paramsControlContract, paramsControlContractAddress, posLockVotingEscro
 import { showWaitWallet, showActionSubmitted, hideWaitWallet, hideActionSubmitted } from 'common/components/showPopup/Modal';
 import { showToast } from 'common/components/showPopup/Toast';
 import Networks, { spaceSeat } from 'common/conf/Networks';
+import { useChainIdNative } from 'governance/src/store/lockDays&blockNumber';
 import { hideCastVotesModal } from './CastVotesModal';
 
 export interface Data {
@@ -87,13 +88,14 @@ export const handlePowCastVotes = async (data: Data, setInVoting: React.Dispatch
 };
 
 export const handlePosCastVotes = async (
+    chainIdNative: string | undefined,
     topicIndex: number,
     contractAddress: string | undefined,
     data: Data,
     setInVoting: React.Dispatch<React.SetStateAction<boolean>>,
 ) => {
-    const chainId = confluxStore.getState().chainId || ethereumStore.getState().chainId || '';
-    const isESpace = spaceSeat(chainId) === 'eSpace';
+    
+    const isESpace = spaceSeat(chainIdNative) === 'eSpace';
 
     let waitFluentKey: string | number = null!;
     let transactionSubmittedKey: string | number = null!;
@@ -134,6 +136,7 @@ export const handlePosCastVotes = async (
         const dataEncode = posLockVotingEscrowContract
             .castVote('0x' + currentVotingRound.toString(16), topicIndex, AllVoting[data['Type Count']][1])
             .encodeABI();
+        console.log(isESpace)
         const TxnHash = isESpace
             ? await sendTransactionEthereum({
                   to: contractAddress,

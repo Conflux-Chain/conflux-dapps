@@ -245,6 +245,8 @@ export const startTrackPosLockAmount = () => {
         }
         const isESpace = spaceSeat(chainId) === 'eSpace';
         const isCoreSpace =  spaceSeat(chainId) !== 'eSpace'; //spaceSeat(chainId) === 'core';
+        // console.log('isESpace：'+isESpace)
+        // console.log('isCoreSpace：'+isCoreSpace)
         // if (Networks.core.chainId != chainId) {
         //     lockDaysAndBlockNumberStore.setState({
         //         posLockArrOrigin: undefined
@@ -301,11 +303,16 @@ export const startTrackPosLockAmount = () => {
             });
             promises && Promise.all(promises)
                 .then((results) => {
+                    const newChainId = lockDaysAndBlockNumberStore.getState().chainIdNative;
+                    if (chainId !== newChainId) {
+                        return;
+                    }
                     results.forEach((result, index) => {
                         if (posLockArrOrigin) {
                             posLockArrOrigin[index].votingEscrowAddress = result;
                         }
                     });
+                    
                     lockDaysAndBlockNumberStore.setState({ posLockArrOrigin });
                     fetchFutureUserVotePower?.();
                 })
@@ -339,6 +346,10 @@ export const startTrackPosLockAmount = () => {
             });
             promises && Promise.all(promises)
                 .then((results) => {
+                    const newChainId = lockDaysAndBlockNumberStore.getState().chainIdNative;
+                    if (chainId !== newChainId) {
+                        return;
+                    }
                     results.forEach((result, index) => {
                         if (posLockArrOrigin) {
                             posLockArrOrigin[index].futureUserVotePower = Unit.fromMinUnit(result);
@@ -399,6 +410,10 @@ export const startTrackPosLockAmount = () => {
                 intervalTime: 3000,
                 callback: (hexRes: string) => {
                     console.log('获取：'+ethereumAccount+'的pos锁仓信息')
+                    const newChainId = lockDaysAndBlockNumberStore.getState().chainIdNative;
+                    if (chainId !== newChainId) {
+                        return;
+                    }
                     const { posLockArrOrigin } = lockDaysAndBlockNumberStore.getState();
 
                     let result = decodeHexResult(utilContract.getStakeInfos(posPool.map(e => isESpace ? e.address : convertCfxToHex(e.address)), account)._method.outputs, hexRes)?.[0];
@@ -472,6 +487,7 @@ export const startTrackPosLockAmount = () => {
         (state) => state.chainIdNative,
         (chainId) => {
             if (chainId) {
+                lockDaysAndBlockNumberStore.setState({ powLockOrigin: undefined, posLockArrOrigin: undefined });
                 clearEqualMap();
                 fetchPosLockData()
             }

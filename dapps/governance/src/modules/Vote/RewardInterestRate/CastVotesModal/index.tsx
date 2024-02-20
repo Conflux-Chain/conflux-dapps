@@ -16,7 +16,7 @@ import CFX from 'common/assets/tokens/CFX.svg';
 import './index.css';
 import handleVote, { ProposalType } from '../../Proposals/handleVote';
 import { ethers } from 'ethers';
-import { PosLockOrigin } from 'governance/src/store/lockDays&blockNumber';
+import { useChainIdNative, PosLockOrigin } from 'governance/src/store/lockDays&blockNumber';
 import BalanceText from 'common/modules/BalanceText';
 import { Proposal } from "governance/src/store/proposalList"
 import { spaceSeat } from 'common/conf/Networks';
@@ -61,8 +61,8 @@ const option = (e: PosLockOrigin) => {
 }
 const uintZero = Unit.fromStandardUnit(0);
 const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, proposal?: ProposalType }) => {
-    const chainId = confluxStore.getState().chainId || ethereumStore.getState().chainId || '';
-    const isESpace = spaceSeat(chainId) === 'eSpace';
+    const chainIdNative = useChainIdNative();
+    const isESpace = spaceSeat(chainIdNative) === 'eSpace';
     
     const { register, handleSubmit: withForm, control, watch } = useForm();
     const [inVoting, setInVoting] = useState(false);
@@ -73,7 +73,6 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
 
     const account = useAccount();
    
-
     const votingRights = useVotingRights();
     const currentAccountVoted = useCurrentAccountVoted();
     const currentVotingRound = useCurrentVotingRound();
@@ -199,7 +198,7 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
 
                 const votingEscrowAddress = posLockArrOrigin && posLockArrOrigin[posPoolIndex]?.votingEscrowAddress
                 const topicIndex = voteTypes.indexOf(type);
-                handlePosCastVotes(topicIndex, votingEscrowAddress, data as Data, setInVoting);
+                handlePosCastVotes(chainIdNative, topicIndex, votingEscrowAddress, data as Data, setInVoting);
 
             }
 
@@ -208,12 +207,12 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
         if (['Proposals'].includes(type) && proposal) {
             const power = ethers.utils.parseUnits(voteValue, 18).toString();
             if (ticket === 'pow') {
-                handleVote({ poolAddress: undefined, proposalId: proposal.proposalId, optionId: proposal.optionId, power: power })
+                handleVote({ chainIdNative, poolAddress: undefined, proposalId: proposal.proposalId, optionId: proposal.optionId, power: power })
             }
             else if (ticket === 'pos') {
                 console.log(posLockArrOrigin, posPoolIndex)
                 const poolContractAddress = posLockArrOrigin && posLockArrOrigin[posPoolIndex]?.pool;  // Warning: poolContractAddress 
-                handleVote({ poolAddress: poolContractAddress, proposalId: proposal.proposalId, optionId: proposal.optionId, power: power })
+                handleVote({ chainIdNative, poolAddress: poolContractAddress, proposalId: proposal.proposalId, optionId: proposal.optionId, power: power })
             }
 
         }

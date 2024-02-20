@@ -5,10 +5,12 @@ import { store as confluxStore, Unit } from '@cfxjs/use-wallet-react/conflux/Flu
 import { store as ethereumStore } from '@cfxjs/use-wallet-react/ethereum';
 import { useCurrentVote, usePreVote, usePrePreVote, usePosStakeForVotes, usePosLockArrOrigin, useVotingRights } from 'governance/src/store';
 import SuccessIcon from 'pos/src/assets/success.svg';
+import { isSameChainNativeWallet } from 'common/hooks/useIsSameChainNativeWallet';
 import Button from 'common/components/Button';
 import { showCastVotesModal } from './CastVotesModal';
 import Popper from 'common/components/Popper';
 import numFormat from 'common/utils/numFormat';
+import { SwitchChainButton } from 'governance/src/components/Button';
 
 const options = [
     {
@@ -63,8 +65,8 @@ const Result: React.FC<{
     onClickPreValTip?: VoidFunction;
     onClickVotingValTip?: VoidFunction;
 }> = ({ type, voteDetail, preVoteDetail, prepreVoteDetail, posStakeForVotes, onClickPreValTip, onClickVotingValTip }) => {
-    const chainId = confluxStore.getState().chainId || ethereumStore.getState().chainId || '';
 
+    const isSameChain = isSameChainNativeWallet();
 
     const unit = TypeUnit[type];
 
@@ -123,7 +125,7 @@ const Result: React.FC<{
                                     <img className="w-[20px] h-[20px]" src={SuccessIcon} alt="" />
                                     :
                                     <div className="voting-result-progress">
-                                        <Progress type="circle" percent={percentNumber} strokeWidth={15} strokeColor="#808BE7" showInfo={false}/>
+                                        <Progress type="circle" percent={percentNumber} strokeWidth={15} strokeColor="#808BE7" showInfo={false} />
                                     </div>
 
                             }
@@ -208,15 +210,20 @@ const Result: React.FC<{
                     </Button>
                 )}
             /> */}
-            <Button
-                        id="RewardInterestRate-costVotes"
-                        className="mt-[26px] !flex min-w-[96px] !h-[32px] !text-[14px]"
-                        size="large"
-                        onClick={() => showCastVotesModal({ type })}
-                        disabled={(votingRights && !isVotingPowRightsGreaterThan0) && (posLockArrOrigin && !isVotingPosRightsGreaterThan0)}
-                    >
-                        Vote
-                    </Button>
+            {
+                isSameChain ? <Button
+                    id="RewardInterestRate-costVotes"
+                    className="mt-[26px] !flex min-w-[96px] !h-[32px] !text-[14px]"
+                    size="large"
+                    onClick={() => showCastVotesModal({ type })}
+                    disabled={(votingRights && !isVotingPowRightsGreaterThan0) && (posLockArrOrigin && !isVotingPosRightsGreaterThan0)}
+                >
+                    Vote
+                </Button>
+                    :
+                    <SwitchChainButton />
+            }
+
 
         </div>
     );

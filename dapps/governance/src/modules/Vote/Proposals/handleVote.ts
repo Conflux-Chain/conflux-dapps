@@ -5,15 +5,13 @@ import { showToast } from 'common/components/showPopup/Toast';
 import { governanceContract, governanceContractAddress, governanceContractAddressESpace } from "governance/src/store/contracts";
 import Networks, { spaceSeat } from "common/conf/Networks";
 
-export interface ProposalType { poolAddress: string | undefined, proposalId: number; optionId: number; power: string }
+export interface ProposalType { chainIdNative: string | undefined, poolAddress: string | undefined, proposalId: number; optionId: number; power: string }
 
-const handleVote = async ({ poolAddress, proposalId, optionId, power }: ProposalType) => {
+const handleVote = async ({ chainIdNative, poolAddress, proposalId, optionId, power }: ProposalType) => {
     if (typeof proposalId !== 'number' || typeof optionId !== 'number') return;
     let waitFluentKey: string | number = null!;
     let transactionSubmittedKey: string | number = null!;
-
-    const chainId = confluxStore.getState().chainId || ethereumStore.getState().chainId || '';
-    const isESpace = spaceSeat(chainId) === 'eSpace';
+    const isESpace = spaceSeat(chainIdNative) === 'eSpace';
 
     const toContractAddress = isESpace ? governanceContractAddressESpace : governanceContractAddress;
 

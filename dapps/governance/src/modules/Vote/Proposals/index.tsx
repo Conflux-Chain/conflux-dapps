@@ -4,7 +4,8 @@ import { Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
 import { shortenAddress } from 'common/utils/addressUtils';
 import Button from 'common/components/Button';
 import BalanceText from 'common/modules/BalanceText';
-import { AuthCoreSpace } from 'common/modules/AuthConnectButton';
+import { isSameChainNativeWallet } from 'common/hooks/useIsSameChainNativeWallet';
+import { SwitchChainButton } from 'governance/src/components/Button';
 import { showTipModal } from 'governance/src/components/TipModal';
 import Networks from 'common/conf/Networks';
 import Pagination from './Pagination';
@@ -96,6 +97,7 @@ const ProposalItem: React.FC<Proposal & { isOpen: boolean }> = ({ id, title, sta
 };
 
 const OpenedProposalDetail: React.FC = () => {
+    const isSameChain = isSameChainNativeWallet();
     const openedProposalId = useOpenedProposalId();
     const openedProposal = useOpenedProposal();
     const { proposer, description, proposalDiscussion, votesAtTime, options, id, status } = openedProposal! || {};
@@ -185,51 +187,26 @@ const OpenedProposalDetail: React.FC = () => {
                         />
                     ))}
                 </div>
-                {status !== 'Closed' && (
+                {status !== 'Closed' ? isSameChain ? (
                     <Button
-                    id={`proposer-${id}-vote`}
-                    size="large"
-                    className="mt-[24px] w-[486px]"
-                    disabled={(!isVotingRightsGraterThan0 && !isVotingPosRightsGreaterThan0) || selectOption === null}
-                    onClick={() => showCastVotesModal({
-                        type: 'Proposals',
-                        proposal: {
-                            poolAddress: undefined,
-                            proposalId: id,
-                            optionId: selectOption!,
-                            power: ''
+                        id={`proposer-${id}-vote`}
+                        size="large"
+                        className="mt-[24px] w-[486px]"
+                        disabled={(!isVotingRightsGraterThan0 && !isVotingPosRightsGreaterThan0) || selectOption === null}
+                        onClick={() => showCastVotesModal({
+                            type: 'Proposals',
+                            proposal: {
+                                poolAddress: undefined,
+                                proposalId: id,
+                                optionId: selectOption!,
+                                power: ''
+                            }
+                        })
                         }
-                    })
-                    }
-                >
-                    Vote
-                </Button>
-                    // <AuthCoreSpace
-                    //     id={`proposer-${id}-vote-auth`}
-                    //     className="mt-[24px] w-[486px]"
-                    //     size="large"
-                    //     authContent={() => (
-                    //         <Button
-                    //             id={`proposer-${id}-vote`}
-                    //             size="large"
-                    //             className="mt-[24px] w-[486px]"
-                    //             disabled={(!isVotingRightsGraterThan0 && !isVotingPosRightsGreaterThan0) || selectOption === null}
-                    //             onClick={() => showCastVotesModal({
-                    //                 type: 'Proposals',
-                    //                 proposal: {
-                    //                     poolAddress: undefined,
-                    //                     proposalId: id,
-                    //                     optionId: selectOption!,
-                    //                     power: ''
-                    //                 }
-                    //             })
-                    //             }
-                    //         >
-                    //             Vote
-                    //         </Button>
-                    //     )}
-                    // />
-                )}
+                    >
+                        Vote
+                    </Button>
+                ) : <SwitchChainButton /> : <></>}
 
                 <div className="absolute bottom-[24px] right-[24px] flex justify-center gap-[12px] select-none">
                     <div
