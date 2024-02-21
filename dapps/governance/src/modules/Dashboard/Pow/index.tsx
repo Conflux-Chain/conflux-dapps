@@ -1,19 +1,22 @@
 import React from 'react';
-
 import { Unit } from '@cfxjs/use-wallet-react/ethereum';
-import { usePowLockOrigin, useTimeToUnlock } from 'governance/src/store/lockDays&blockNumber';
+import { isSameChainNativeWallet } from 'common/hooks/useIsSameChainNativeWallet';
+import { useChainIdNative, usePowLockOrigin, useTimeToUnlock } from 'governance/src/store/lockDays&blockNumber';
 import Table from '../../../components/Table';
 import { Link } from 'react-router-dom';
 import BalanceText from 'common/modules/BalanceText';
+import { spaceSeat } from 'common/conf/Networks';
 
 const StakePow: React.FC = () => {
     const powLockOrigin = usePowLockOrigin();
     const timeToUnlock = useTimeToUnlock();
+    const isSameChain = isSameChainNativeWallet();
+    const chainIdNative = useChainIdNative();
 
-    const isShowPowLock =  powLockOrigin && (powLockOrigin.lockAmount.greaterThan(Unit.fromMinUnit(0)) || powLockOrigin && powLockOrigin.stakeAmount.greaterThan(Unit.fromMinUnit(0)));
+    const isShowPowLock = powLockOrigin && (powLockOrigin.lockAmount.greaterThan(Unit.fromMinUnit(0)) || powLockOrigin && powLockOrigin.stakeAmount.greaterThan(Unit.fromMinUnit(0)));
 
     return (
-        isShowPowLock &&
+        isShowPowLock && isSameChain && spaceSeat(chainIdNative) === 'core' &&
         <div className='mt-[16px] rounded-[8px] p-[24px] bg-white shadow-md'>
             <div className='w-full text-[16px] text-[#3D3F4C]'>
                 Staked in PoW

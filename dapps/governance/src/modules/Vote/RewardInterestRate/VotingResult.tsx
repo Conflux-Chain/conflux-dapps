@@ -1,16 +1,16 @@
-import React, { useMemo, memo } from 'react';
+import React, { useMemo } from 'react';
 import cx from 'clsx';
 import { Progress } from 'antd';
-import dayjs from 'dayjs';
 import { Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
 import { useCurrentVote, usePreVote, usePrePreVote, usePosStakeForVotes, usePosLockArrOrigin, useVotingRights } from 'governance/src/store';
-import SvgLoading from 'pos/src/assets/Loading';
 import SuccessIcon from 'pos/src/assets/success.svg';
-import { AuthCoreSpace } from 'common/modules/AuthConnectButton';
 import Button from 'common/components/Button';
 import { showCastVotesModal } from './CastVotesModal';
 import Popper from 'common/components/Popper';
 import numFormat from 'common/utils/numFormat';
+import { AuthCoreSpace, AuthESpace } from 'common/modules/AuthConnectButton';
+import { useChainIdNative } from 'governance/src/store/lockDays&blockNumber';
+import { spaceSeat } from 'common/conf/Networks';
 
 const options = [
     {
@@ -65,6 +65,10 @@ const Result: React.FC<{
     onClickPreValTip?: VoidFunction;
     onClickVotingValTip?: VoidFunction;
 }> = ({ type, voteDetail, preVoteDetail, prepreVoteDetail, posStakeForVotes, onClickPreValTip, onClickVotingValTip }) => {
+
+    const chainIdNative = useChainIdNative();
+    const isESpace = spaceSeat(chainIdNative) === 'eSpace';
+
     const unit = TypeUnit[type];
 
     const totalVotingRights = useMemo(() => {
@@ -92,6 +96,15 @@ const Result: React.FC<{
     const percentUnit = posStakeForVotes && totalVotingRights && totalVotingRights.div(posStakeForVotes?.mul(Unit.fromMinUnit(0.05)));
 
     const percentNumber = percentUnit ? Number(percentUnit.toDecimalMinUnit()) * 100 : 0;
+    const ButtonComponent = <Button
+        id="RewardInterestRate-costVotes"
+        className="mt-[26px] !flex min-w-[96px] !h-[32px] !text-[14px]"
+        size="large"
+        onClick={() => showCastVotesModal({ type })}
+        disabled={(votingRights && !isVotingPowRightsGreaterThan0) && (posLockArrOrigin && !isVotingPosRightsGreaterThan0)}
+    >
+        Vote
+    </Button>
 
     return (
         <div className="w-full flex-1 border-[1px] border-solid rounded-[4px] p-[16px]">
@@ -122,7 +135,7 @@ const Result: React.FC<{
                                     <img className="w-[20px] h-[20px]" src={SuccessIcon} alt="" />
                                     :
                                     <div className="voting-result-progress">
-                                        <Progress type="circle" percent={percentNumber} strokeWidth={15} strokeColor="#808BE7" showInfo={false}/>
+                                        <Progress type="circle" percent={percentNumber} strokeWidth={15} strokeColor="#808BE7" showInfo={false} />
                                     </div>
 
                             }
@@ -191,23 +204,26 @@ const Result: React.FC<{
                     ))
                 }
             </div>
-
-            <AuthCoreSpace
-                className="mt-[26px] !flex min-w-[96px] !h-[32px]"
-                size="large"
-                type="button"
-                authContent={() => (
-                    <Button
-                        id="RewardInterestRate-costVotes"
-                        className="mt-[26px] !flex min-w-[96px] !h-[32px] !text-[14px]"
+            {
+                isESpace ?
+                    <AuthESpace
+                        className="mt-[26px] !flex min-w-[96px] !h-[32px]"
                         size="large"
-                        onClick={() => showCastVotesModal({ type })}
-                        disabled={(votingRights && !isVotingPowRightsGreaterThan0) && (posLockArrOrigin && !isVotingPosRightsGreaterThan0)}
-                    >
-                        Vote
-                    </Button>
-                )}
-            />
+                        type="button"
+                        authContent={() => (
+                            ButtonComponent
+                        )}
+                    />
+                    :
+                    <AuthCoreSpace
+                        className="mt-[26px] !flex min-w-[96px] !h-[32px]"
+                        size="large"
+                        type="button"
+                        authContent={() => (
+                            ButtonComponent
+                        )}
+                    />
+            }
 
         </div>
     );

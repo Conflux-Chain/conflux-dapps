@@ -1,7 +1,8 @@
 import React, { memo, useState, useMemo, useEffect } from 'react';
 import { Radio, Select } from 'antd';
 import { useForm, Controller } from 'react-hook-form';
-import { useAccount, Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { store as confluxStore, useAccount, Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { store as ethereumStore } from '@cfxjs/use-wallet-react/ethereum';
 import Button from 'common/components/Button';
 import Input from 'common/components/Input';
 import InputTextLastfix from 'common/components/Input/suffixes/TextLastfix';
@@ -15,9 +16,10 @@ import CFX from 'common/assets/tokens/CFX.svg';
 import './index.css';
 import handleVote, { ProposalType } from '../../Proposals/handleVote';
 import { ethers } from 'ethers';
-import { PosLockOrigin } from 'governance/src/store/lockDays&blockNumber';
+import { useChainIdNative, PosLockOrigin } from 'governance/src/store/lockDays&blockNumber';
 import BalanceText from 'common/modules/BalanceText';
 import { Proposal } from "governance/src/store/proposalList"
+import { spaceSeat } from 'common/conf/Networks';
 
 const CastVotesModal = new PopupClass();
 CastVotesModal.setListClassName('cast-votes-modal-wrapper');
@@ -59,9 +61,12 @@ const option = (e: PosLockOrigin) => {
 }
 const uintZero = Unit.fromStandardUnit(0);
 const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, proposal?: ProposalType }) => {
+    const chainIdNative = useChainIdNative();
+    const isESpace = spaceSeat(chainIdNative) === 'eSpace';
+
     const { register, handleSubmit: withForm, control, watch } = useForm();
     const [inVoting, setInVoting] = useState(false);
-    const [ticket, setTicket] = useState<ticketTypes>('pow');
+    const [ticket, setTicket] = useState<ticketTypes>(isESpace ? 'pos' : 'pow');
     const [voteRadio, setVoteRadio] = useState<OptionsTypes>(options[0]);
     const [voteValue, setVoteValue] = useState('');
     const [posPoolIndex, setPosPoolIndex] = useState(0);
@@ -122,7 +127,7 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
 
     const proposalList = useProposalList();
     const currentPage = useCurrentPage();
-    
+
     const proposalActive: Proposal | undefined = useMemo(() => {
         if (!proposalList || !proposal) return undefined;
         const active = proposalList?.find(e => e.id == proposal.proposalId);
@@ -193,7 +198,7 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
 
                 const votingEscrowAddress = posLockArrOrigin && posLockArrOrigin[posPoolIndex]?.votingEscrowAddress
                 const topicIndex = voteTypes.indexOf(type);
-                handlePosCastVotes(topicIndex, votingEscrowAddress, data as Data, setInVoting);
+                handlePosCastVotes(chainIdNative, topicIndex, votingEscrowAddress, data as Data, setInVoting);
 
             }
 
@@ -202,11 +207,11 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
         if (['Proposals'].includes(type) && proposal) {
             const power = ethers.utils.parseUnits(voteValue, 18).toString();
             if (ticket === 'pow') {
-                handleVote({ poolAddress: undefined, proposalId: proposal.proposalId, optionId: proposal.optionId, power: power })
+                handleVote({ chainIdNative, poolAddress: undefined, proposalId: proposal.proposalId, optionId: proposal.optionId, power: power })
             }
             else if (ticket === 'pos') {
-                const poolContractAddress = posLockArrOrigin && posLockArrOrigin[posPoolIndex]?.poolContractAddress;
-                handleVote({ poolAddress: poolContractAddress, proposalId: proposal.proposalId, optionId: proposal.optionId, power: power })
+                const poolContractAddress = posLockArrOrigin && posLockArrOrigin[posPoolIndex]?.pool;  // Warning: poolContractAddress 
+                handleVote({ chainIdNative, poolAddress: poolContractAddress, proposalId: proposal.proposalId, optionId: proposal.optionId, power: power })
             }
 
         }
@@ -249,25 +254,28 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
             />
             <div className="mb-[24px] text-[24px] leading-[32px] font-medium text-[#1B1B1C] text-center">Vote</div>
 
-            <div className='w-full h-[48px] mb-[24px] flex text-[16px]'>
-                <div
-                    className='flex-1 flex justify-center items-center border-l-[1px] border-t-[1px] border-b-[1px] border-[#808BE7] rounded-l-[4px] cursor-pointer'
-                    style={{
-                        color: ticket === 'pow' ? '#FFF' : '#808BE7',
-                        backgroundColor: ticket === 'pow' ? '#808BE7' : '#FFF'
-                    }}
-                    onClick={() => setTicket('pow')}>
-                    Vote
+            {
+                !isESpace && <div className='w-full h-[48px] mb-[24px] flex text-[16px]'>
+                    <div
+                        className='flex-1 flex justify-center items-center border-l-[1px] border-t-[1px] border-b-[1px] border-[#808BE7] rounded-l-[4px] cursor-pointer'
+                        style={{
+                            color: ticket === 'pow' ? '#FFF' : '#808BE7',
+                            backgroundColor: ticket === 'pow' ? '#808BE7' : '#FFF'
+                        }}
+                        onClick={() => setTicket('pow')}>
+                        Vote
+                    </div>
+                    <div
+                        className='flex-1 flex justify-center items-center  border-r-[1px] border-t-[1px] border-b-[1px] border-[#808BE7] rounded-r-[4px] cursor-pointer'
+                        style={{
+                            color: ticket === 'pos' ? '#FFF' : '#808BE7',
+                            backgroundColor: ticket === 'pos' ? '#808BE7' : '#FFF'
+                        }}
+                        onClick={() => setTicket('pos')}>
+                        Proxy Vote</div>
                 </div>
-                <div
-                    className='flex-1 flex justify-center items-center  border-r-[1px] border-t-[1px] border-b-[1px] border-[#808BE7] rounded-r-[4px] cursor-pointer'
-                    style={{
-                        color: ticket === 'pos' ? '#FFF' : '#808BE7',
-                        backgroundColor: ticket === 'pos' ? '#808BE7' : '#FFF'
-                    }}
-                    onClick={() => setTicket('pos')}>
-                    Proxy Vote</div>
-            </div>
+            }
+
 
             {
                 ticket === 'pos' &&
@@ -311,9 +319,13 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
                         <BalanceText className="text-[#3D3F4C]" balance={votingPosRemainRights} symbol={''} decimals={18} />
                 }
 
-
-
             </div>
+
+            {
+                isESpace && <div className='text-[#3D3F4C] mt-[16px] bg-[#FCF1E8] px-[16px] py-[12px] text-[14px]'>
+                    Your vote will be synchronized within <span className='text-[#808BE7]'>10</span> minutes.
+                </div>
+            }
 
 
             <div className='mt-[24px] border-dashed border-t-[1px]'></div>
@@ -341,7 +353,7 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
                 }
 
                 {
-                    type === 'Proposals' && proposalActive && 
+                    type === 'Proposals' && proposalActive &&
                     <div className='text-[#3D3F4C] text-[16px]'>
                         <div>#{proposalActive.id} {proposalActive.title}</div>
                     </div>
@@ -383,8 +395,21 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
 
 
             </div>
+            <Button
+                id="RewardInterestRate-vote"
+                className="max-w-[396px] mx-auto mt-[24px]"
+                fullWidth
+                size="large"
+                onClick={onSubmit}
+                loading={inVoting}
+                disabled={!isValueRightsThanRemainingVote}
+            >
+                {
+                    isVoted && ticket === 'pow' ? 'Change Vote' : 'Vote'
+                }
 
-            <AuthCoreSpace
+            </Button>
+            {/* <AuthCoreSpace
                 id="RewardInterestRate-vote-auth"
                 className="max-w-[396px] mx-auto mt-[24px]"
                 size="large"
@@ -406,7 +431,7 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
 
                     </Button>
                 )}
-            />
+            /> */}
         </div>
     );
 });

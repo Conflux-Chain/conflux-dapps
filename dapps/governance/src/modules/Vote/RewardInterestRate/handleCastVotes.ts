@@ -1,10 +1,11 @@
 import type React from 'react';
-import { sendTransaction, Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { store as confluxStore, sendTransaction, Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { store as ethereumStore, sendTransaction as sendTransactionEthereum } from '@cfxjs/use-wallet-react/ethereum';
 import { rewardRateStore, trackCurrentAccountVotedChangeOnce } from 'governance/src/store';
 import { paramsControlContract, paramsControlContractAddress, posLockVotingEscrowContract } from 'governance/src/store/contracts';
 import { showWaitWallet, showActionSubmitted, hideWaitWallet, hideActionSubmitted } from 'common/components/showPopup/Modal';
 import { showToast } from 'common/components/showPopup/Toast';
-import Networks from 'common/conf/Networks';
+import Networks, { spaceSeat } from 'common/conf/Networks';
 import { hideCastVotesModal } from './CastVotesModal';
 
 export interface Data {
@@ -55,13 +56,11 @@ export const handlePowCastVotes = async (data: Data, setInVoting: React.Dispatch
                     Unit.fromStandardUnit(data['Storage Point-Increase'] || 0).toHexMinUnit(),
                     Unit.fromStandardUnit(data['Storage Point-Decrease'] || 0).toHexMinUnit(),
                 ],
-            ]
-        ]
+            ],
+        ];
         const TxnHash = await sendTransaction({
             to: paramsControlContractAddress,
-            data: paramsControlContract
-                .castVote('0x' + currentVotingRound.toString(16), [AllVoting[data['Type Count']]])
-                .encodeABI(),
+            data: paramsControlContract.castVote('0x' + currentVotingRound.toString(16), [AllVoting[data['Type Count']]]).encodeABI(),
         });
         hideCastVotesModal();
         transactionSubmittedKey = showActionSubmitted(TxnHash, 'Vote', { duration: 8888, blockExplorerUrl: Networks.core.blockExplorerUrls[0] });
@@ -81,14 +80,22 @@ export const handlePowCastVotes = async (data: Data, setInVoting: React.Dispatch
                     title: `Vote failed: `,
                     text: (err as any)?.message ?? '',
                 },
-                { type: 'failed', duration: 30000 }
+                { type: 'failed', duration: 30000 },
             );
         }
     }
 };
 
+export const handlePosCastVotes = async (
+    chainIdNative: string | undefined,
+    topicIndex: number,
+    contractAddress: string | undefined,
+    data: Data,
+    setInVoting: React.Dispatch<React.SetStateAction<boolean>>,
+) => {
+    
+    const isESpace = spaceSeat(chainIdNative) === 'eSpace';
 
-export const handlePosCastVotes = async (topicIndex: number, contractAddress: string | undefined, data: Data, setInVoting: React.Dispatch<React.SetStateAction<boolean>>) => {
     let waitFluentKey: string | number = null!;
     let transactionSubmittedKey: string | number = null!;
     const { currentVotingRound } = rewardRateStore.getState();
@@ -98,7 +105,7 @@ export const handlePosCastVotes = async (topicIndex: number, contractAddress: st
 
     try {
         setInVoting(true);
-        waitFluentKey = showWaitWallet('Fluent', { key: 'Vote' });
+        waitFluentKey = showWaitWallet(isESpace ? 'MetaMask' : 'Fluent', { key: 'Vote' });
         const AllVoting: [string, [string, string, string]][] = [
             [
                 '0',
@@ -123,14 +130,18 @@ export const handlePosCastVotes = async (topicIndex: number, contractAddress: st
                     Unit.fromStandardUnit(data['Storage Point-Increase'] || 0).toHexMinUnit(),
                     Unit.fromStandardUnit(data['Storage Point-Decrease'] || 0).toHexMinUnit(),
                 ],
-            ]
-        ]
-        const TxnHash = await sendTransaction({
-            to: contractAddress,
-            data: posLockVotingEscrowContract
-                .castVote('0x' + currentVotingRound.toString(16), topicIndex, AllVoting[data['Type Count']][1])
-                .encodeABI(),
-        });
+            ],
+        ];
+        const dataEncode = posLockVotingEscrowContract
+            .castVote('0x' + currentVotingRound.toString(16), topicIndex, AllVoting[data['Type Count']][1])
+            .encodeABI();
+
+        const TxnHash = isESpace
+            ? await sendTransactionEthereum({
+                  to: contractAddress,
+                  data: dataEncode,
+              })
+            : await sendTransaction({ to: contractAddress, data: dataEncode });
         hideCastVotesModal();
         transactionSubmittedKey = showActionSubmitted(TxnHash, 'Vote', { duration: 8888, blockExplorerUrl: Networks.core.blockExplorerUrls[0] });
         trackCurrentAccountVotedChangeOnce(() => {
@@ -149,7 +160,7 @@ export const handlePosCastVotes = async (topicIndex: number, contractAddress: st
                     title: `Vote failed: `,
                     text: (err as any)?.message ?? '',
                 },
-                { type: 'failed', duration: 30000 }
+                { type: 'failed', duration: 30000 },
             );
         }
     }
