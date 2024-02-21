@@ -30,8 +30,6 @@ const ToolTip = ({ des, ...props }: ToolTipProps) => {
 
 const zero = Unit.fromMinUnit(0);
 
-
-
 const Statistics: React.FC = () => {
     const getAccount = () => confluxStore.getState().accounts?.[0];
     const getEthereumAccount = () => ethereumStore.getState().accounts?.[0];

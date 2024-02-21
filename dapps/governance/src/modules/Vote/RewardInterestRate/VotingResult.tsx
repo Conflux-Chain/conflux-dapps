@@ -96,7 +96,6 @@ const Result: React.FC<{
     const percentUnit = posStakeForVotes && totalVotingRights && totalVotingRights.div(posStakeForVotes?.mul(Unit.fromMinUnit(0.05)));
 
     const percentNumber = percentUnit ? Number(percentUnit.toDecimalMinUnit()) * 100 : 0;
-
     const ButtonComponent = <Button
         id="RewardInterestRate-costVotes"
         className="mt-[26px] !flex min-w-[96px] !h-[32px] !text-[14px]"
