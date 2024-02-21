@@ -90,7 +90,7 @@ export const lockDaysAndBlockNumberStore = create(
             posStakeAmount: undefined,
             powLockOrigin: undefined,
             posLockArrOrigin: undefined,
-            chainIdNative: undefined,
+            chainIdNative: localStorage.getItem("chainIdNative") || Networks.core.chainId,
         } as LockDaysAndBlockNumberStore)
     )
 );
@@ -230,29 +230,11 @@ export const startTrackPosLockAmount = () => {
 
         const account = getAccount() || '';
         const ethereumAccount = getEthereumAccount() || '';
-        // console.log(account)
-        // if (!(account || ethereumAccount)) {
-        //     return;
-        // }
 
-        
         const chainId = lockDaysAndBlockNumberStore.getState().chainIdNative;// confluxStore.getState().chainId || ethereumStore.getState().chainId;
 
-        if(!chainId) {
-            const defaultChainId = localStorage.getItem("chainIdNative") || Networks.core.chainId;
-            lockDaysAndBlockNumberStore.setState({ chainIdNative: defaultChainId });
-            return;
-        }
         const isESpace = spaceSeat(chainId) === 'eSpace';
         const isCoreSpace =  spaceSeat(chainId) !== 'eSpace'; //spaceSeat(chainId) === 'core';
-        // console.log('isESpace：'+isESpace)
-        // console.log('isCoreSpace：'+isCoreSpace)
-        // if (Networks.core.chainId != chainId) {
-        //     lockDaysAndBlockNumberStore.setState({
-        //         posLockArrOrigin: undefined
-        //     });
-        //     return;
-        // }
 
         const calTimeToUnlock = (unlockBlock: Unit) => {
             const { currentBlockNumber } = lockDaysAndBlockNumberStore.getState();
@@ -409,7 +391,6 @@ export const startTrackPosLockAmount = () => {
             {
                 intervalTime: 3000,
                 callback: (hexRes: string) => {
-                    console.log('获取：'+ethereumAccount+'的pos锁仓信息')
                     const newChainId = lockDaysAndBlockNumberStore.getState().chainIdNative;
                     if (chainId !== newChainId) {
                         return;
@@ -419,7 +400,6 @@ export const startTrackPosLockAmount = () => {
                     let result = decodeHexResult(utilContract.getStakeInfos(posPool.map(e => isESpace ? e.address : convertCfxToHex(e.address)), account)._method.outputs, hexRes)?.[0];
                     if (!result || result.length === 0) return;
                     let resultFilter = result.filter((item: any) => item.stakeAmount > 0);
-                    // console.log(resultFilter)
                     const posLockArrOriginNew: PosLockOrigin[] = resultFilter.map((item: PosLockOrigin, index: number) => {
                         // stakeAmount is greater than 0 valid
                         const unlockBlock = Unit.fromMinUnit(item?.unlockBlock ?? '0');

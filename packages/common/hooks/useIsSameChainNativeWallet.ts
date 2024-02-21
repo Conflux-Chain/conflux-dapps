@@ -16,10 +16,10 @@ export const isSameChainNativeWallet = () => {
     useEffect(() => {
         const chainId = chainIdNative === confluxChainId ? confluxChainId : chainIdNative === ethereumChainId ? ethereumChainId : '';
 
-        if (notInstalledEthereum && notInstalledFluent) {
-            setIsSame(true);
-            return;
-        }
+        // if (notInstalledEthereum && notInstalledFluent) {
+        //     setIsSame(true);
+        //     return;
+        // }
         if (!isEthereumActive && spaceSeat(chainIdNative) === 'eSpace') {
             setIsSame(false);
             return;

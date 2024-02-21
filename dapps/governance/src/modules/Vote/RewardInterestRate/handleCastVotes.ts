@@ -6,7 +6,6 @@ import { paramsControlContract, paramsControlContractAddress, posLockVotingEscro
 import { showWaitWallet, showActionSubmitted, hideWaitWallet, hideActionSubmitted } from 'common/components/showPopup/Modal';
 import { showToast } from 'common/components/showPopup/Toast';
 import Networks, { spaceSeat } from 'common/conf/Networks';
-import { useChainIdNative } from 'governance/src/store/lockDays&blockNumber';
 import { hideCastVotesModal } from './CastVotesModal';
 
 export interface Data {
@@ -106,7 +105,7 @@ export const handlePosCastVotes = async (
 
     try {
         setInVoting(true);
-        waitFluentKey = showWaitWallet('Fluent', { key: 'Vote' });
+        waitFluentKey = showWaitWallet(isESpace ? 'MetaMask' : 'Fluent', { key: 'Vote' });
         const AllVoting: [string, [string, string, string]][] = [
             [
                 '0',
@@ -136,7 +135,7 @@ export const handlePosCastVotes = async (
         const dataEncode = posLockVotingEscrowContract
             .castVote('0x' + currentVotingRound.toString(16), topicIndex, AllVoting[data['Type Count']][1])
             .encodeABI();
-        console.log(isESpace)
+
         const TxnHash = isESpace
             ? await sendTransactionEthereum({
                   to: contractAddress,

@@ -1,5 +1,5 @@
-import { store as confluxStore, sendTransaction } from "@cfxjs/use-wallet-react/conflux/Fluent";
-import { store as ethereumStore, sendTransaction as sendTransactionEthereum } from '@cfxjs/use-wallet-react/ethereum';
+import { sendTransaction } from "@cfxjs/use-wallet-react/conflux/Fluent";
+import { sendTransaction as sendTransactionEthereum } from '@cfxjs/use-wallet-react/ethereum';
 import { showWaitWallet, showActionSubmitted, hideWaitWallet } from 'common/components/showPopup/Modal';
 import { showToast } from 'common/components/showPopup/Toast';
 import { governanceContract, governanceContractAddress, governanceContractAddressESpace } from "governance/src/store/contracts";
@@ -16,7 +16,7 @@ const handleVote = async ({ chainIdNative, poolAddress, proposalId, optionId, po
     const toContractAddress = isESpace ? governanceContractAddressESpace : governanceContractAddress;
 
     try {
-        waitFluentKey = showWaitWallet('Fluent', { key: 'Vote' });
+        waitFluentKey = showWaitWallet(isESpace ? 'MetaMask' : 'Fluent', { key: 'Vote' });
         const dataEncode = 
         {
             to: toContractAddress,

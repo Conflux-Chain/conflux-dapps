@@ -142,6 +142,7 @@ const OpenedProposalDetail: React.FC = () => {
         onClick={() => showCastVotesModal({
             type: 'Proposals',
             proposal: {
+                chainIdNative: chainIdNative,
                 poolAddress: undefined,
                 proposalId: id,
                 optionId: selectOption!,

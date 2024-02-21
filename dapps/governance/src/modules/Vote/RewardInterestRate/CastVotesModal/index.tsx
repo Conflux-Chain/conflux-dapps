@@ -210,7 +210,6 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
                 handleVote({ chainIdNative, poolAddress: undefined, proposalId: proposal.proposalId, optionId: proposal.optionId, power: power })
             }
             else if (ticket === 'pos') {
-                console.log(posLockArrOrigin, posPoolIndex)
                 const poolContractAddress = posLockArrOrigin && posLockArrOrigin[posPoolIndex]?.pool;  // Warning: poolContractAddress 
                 handleVote({ chainIdNative, poolAddress: poolContractAddress, proposalId: proposal.proposalId, optionId: proposal.optionId, power: power })
             }
