@@ -11,6 +11,7 @@ import numFormat from 'common/utils/numFormat';
 import { AuthCoreSpace, AuthESpace } from 'common/modules/AuthConnectButton';
 import { useChainIdNative } from 'governance/src/store/lockDays&blockNumber';
 import { spaceSeat } from 'common/conf/Networks';
+import { isSameChainNativeWallet } from 'common/hooks/useIsSameChainNativeWallet';
 
 const options = [
     {
@@ -68,6 +69,7 @@ const Result: React.FC<{
 
     const chainIdNative = useChainIdNative();
     const isESpace = spaceSeat(chainIdNative) === 'eSpace';
+    const isSameChain = isSameChainNativeWallet();
 
     const unit = TypeUnit[type];
 
@@ -98,7 +100,7 @@ const Result: React.FC<{
     const percentNumber = percentUnit ? Number(percentUnit.toDecimalMinUnit()) * 100 : 0;
     const ButtonComponent = <Button
         id="RewardInterestRate-costVotes"
-        className="mt-[26px] !flex min-w-[96px] !h-[32px] !text-[14px]"
+        className={`mt-[26px] !flex min-w-[96px] !text-[14px] !h-[32px]`}
         size="large"
         onClick={() => showCastVotesModal({ type })}
         disabled={(votingRights && !isVotingPowRightsGreaterThan0) && (posLockArrOrigin && !isVotingPosRightsGreaterThan0)}
@@ -207,7 +209,7 @@ const Result: React.FC<{
             {
                 isESpace ?
                     <AuthESpace
-                        className="mt-[26px] !flex min-w-[96px] !h-[32px]"
+                        className={`mt-[26px] !flex min-w-[96px] ${!isSameChain && isESpace ? '!whitespace-break-spaces' : '!h-[32px]'}`}
                         size="large"
                         type="button"
                         authContent={() => (
@@ -216,7 +218,7 @@ const Result: React.FC<{
                     />
                     :
                     <AuthCoreSpace
-                        className="mt-[26px] !flex min-w-[96px] !h-[32px]"
+                    className={`mt-[26px] !flex min-w-[96px] !h-[32px]`}
                         size="large"
                         type="button"
                         authContent={() => (
