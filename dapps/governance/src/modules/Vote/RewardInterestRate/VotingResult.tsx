@@ -100,7 +100,7 @@ const Result: React.FC<{
     const percentNumber = percentUnit ? Number(percentUnit.toDecimalMinUnit()) * 100 : 0;
     const ButtonComponent = <Button
         id="RewardInterestRate-costVotes"
-        className={`mt-[26px] !flex min-w-[96px] !text-[14px] !h-[32px]`}
+        className="mt-[26px] !flex min-w-[96px] !h-[32px] !text-[14px]"
         size="large"
         onClick={() => showCastVotesModal({ type })}
         disabled={(votingRights && !isVotingPowRightsGreaterThan0) && (posLockArrOrigin && !isVotingPosRightsGreaterThan0)}
@@ -143,10 +143,6 @@ const Result: React.FC<{
                             }
                         </div>
                     </Popper>
-
-
-
-
 
                 </div>
 
@@ -218,7 +214,7 @@ const Result: React.FC<{
                     />
                     :
                     <AuthCoreSpace
-                    className={`mt-[26px] !flex min-w-[96px] !h-[32px]`}
+                        className="mt-[26px] !flex min-w-[96px] !h-[32px]"
                         size="large"
                         type="button"
                         authContent={() => (
