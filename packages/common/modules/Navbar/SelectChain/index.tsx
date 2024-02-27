@@ -71,11 +71,11 @@ const SelectChainModule = () => {
             )}
             onClick={triggerDropdown}
         >
-            <img className='w-[16px] h-[16px] mr-[4px]' src={chainId && ['71', '1030'].includes(chainId) ? ESpaceIcon : CoreSpaceIcon} alt="" />
+            <img className='w-[16px] h-[16px] mr-[4px]' src={chainId && ['71', '1030', '8889'].includes(chainId) ? ESpaceIcon : CoreSpaceIcon} alt="" />
             <div className='flex-1'>
                 {
 
-                    chainId && ['71', '1030'].includes(chainId) ? 'eSpace' : 'Core Space'
+                    chainId && ['71', '1030', '8889'].includes(chainId) ? 'eSpace' : 'Core Space'
                 }
             </div>
             <img src={ArrowDown} alt="arrow down" className="arrow-down ml-[4px] mr-[16px] w-[16px] h-[16px] transition-transform" draggable="false" />

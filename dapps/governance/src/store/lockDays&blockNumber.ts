@@ -3,7 +3,7 @@ import { store as confluxStore, Unit } from '@cfxjs/use-wallet-react/conflux/Flu
 import { store as ethereumStore } from '@cfxjs/use-wallet-react/ethereum';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { fetchChain, intervalFetchChain, clearEqualMap } from 'common/utils/fetchChain';
-import Networks, { isProduction, spaceSeat, spaceRpcurl } from 'common/conf/Networks';
+import Networks, { isProduction, spaceSeat, spaceRpcurl, isLocal8888 } from 'common/conf/Networks';
 import { calRemainTime } from 'common/utils/time';
 import dayjs from 'dayjs';
 import { posPoolContract, posLockVotingEscrowContract, utilContractAddress, utilContract, utilContractAddressESpace } from './contracts';
@@ -356,6 +356,14 @@ export const startTrackPosLockAmount = () => {
                 "website": ""
             }
         ];
+        result["net8889"] = [
+            {
+                "name": "test8889",
+                "address": '0x02d4b0fC5357f80FB41aFc57bF1e3D724C5Ccf4f',
+                "icon": "https://confluxnetwork.org/favicon.ico",
+                "website": ""
+            }
+        ];
 
         let posPool: PosPool[]; // isProduction ? result.mainnet : Networks.core.chainId === '8888' ? result8888 : result.testnet;
 
@@ -364,15 +372,20 @@ export const startTrackPosLockAmount = () => {
             testnet: !isProduction && isCoreSpace,
             eSpaceMainnet: isProduction && isESpace,
             eSpaceTestnet: !isProduction && isESpace,
-            net8888: Networks.core.chainId === '8888',
         };
 
         const getTrueKey = (gov_pools: { [key: string]: boolean }) => {
             return Object.keys(gov_pools).find((key) => gov_pools[key] === true);
         };
 
-        const key = getTrueKey(gov_pools);
+        let key = getTrueKey(gov_pools);
+        if((location.host.startsWith('net8888') || isLocal8888) && chainId === '8888') {
+            key = 'net8888';
+        } else if((location.host.startsWith('net8888') || isLocal8888) && chainId === '8889') {
+            key = 'net8889';
+        }
         posPool = key && result[key];
+
         unsubFetchPosLockData?.()
         // fetch posLock
         unsubFetchPosLockData = intervalFetchChain(
