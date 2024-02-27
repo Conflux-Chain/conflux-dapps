@@ -141,11 +141,11 @@ const AllNetworks: Record<string, Network> = {
     },
 };
 
-export const isChain8888 = location.host.startsWith('net8888') || import.meta.env.VITE_DEVNET_CHAIN === '8888';
+export const isDevnetChain = location.host.startsWith('net8888') || import.meta.env.VITE_DEVNET_CHAIN === '8888';
 
 const Networks = {
-    core: AllNetworks[isProduction ? '1029' : isChain8888 ? '8888' : import.meta.env.VITE_CORE_NETWORK || '1'],
-    eSpace: AllNetworks[isProduction ? '1030' : isChain8888 ? '8889' : '71'],
+    core: AllNetworks[isProduction ? '1029' : isDevnetChain ? '8888' : import.meta.env.VITE_CORE_NETWORK || '1'],
+    eSpace: AllNetworks[isProduction ? '1030' : isDevnetChain ? '8889' : '71'],
     bsc: AllNetworks[isProduction ? '56' : '97'],
     etc: AllNetworks[isProduction ? '63' : '63'],
 } as const;

@@ -3,7 +3,7 @@ import { store as confluxStore, Unit } from '@cfxjs/use-wallet-react/conflux/Flu
 import { store as ethereumStore } from '@cfxjs/use-wallet-react/ethereum';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { fetchChain, intervalFetchChain, clearEqualMap } from 'common/utils/fetchChain';
-import Networks, { isProduction, spaceSeat, spaceRpcurl, isChain8888 } from 'common/conf/Networks';
+import Networks, { isProduction, spaceSeat, spaceRpcurl, isDevnetChain } from 'common/conf/Networks';
 import { calRemainTime } from 'common/utils/time';
 import dayjs from 'dayjs';
 import { posPoolContract, posLockVotingEscrowContract, utilContractAddress, utilContract, utilContractAddressESpace } from './contracts';
@@ -375,9 +375,9 @@ export const startTrackPosLockAmount = () => {
         };
 
         const getTrueKey = (gov_pools: { [key: string]: boolean }) => {
-            if(isChain8888 && chainId === '8888') {
+            if(isDevnetChain && chainId === '8888') {
                 return 'net8888';
-            } else if(isChain8888 && chainId === '8889') {
+            } else if(isDevnetChain && chainId === '8889') {
                 return 'net8889';
             }
             return Object.keys(gov_pools).find((key) => gov_pools[key] === true);
