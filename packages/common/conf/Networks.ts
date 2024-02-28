@@ -23,8 +23,10 @@ export const spaceSeat = (chainId?: string | undefined): 'core' | 'eSpace' | '' 
     const chainIdToSpace: Record<string, 'core' | 'eSpace'> = {
         '1029': 'core',
         '1': 'core',
+        '8888': 'core',
         '1030': 'eSpace',
         '71': 'eSpace',
+        '8889': 'eSpace',
         '9007199254740991': 'eSpace',
     };
 
@@ -115,6 +117,17 @@ const AllNetworks: Record<string, Network> = {
             decimals: 18,
         },
     },
+    '8889': {
+        chainId: '8889',
+        chainName: 'Conflux 8889',
+        rpcUrls: ['http://net8889eth.confluxrpc.com'],
+        blockExplorerUrls: ['https://net8889eth.confluxscan.net'],
+        nativeCurrency: {
+            name: 'Conflux',
+            symbol: 'CFX',
+            decimals: 18,
+        },
+    },
     '63': {
         chainId: '63',
         chainName: 'ETC Mordor',
@@ -128,9 +141,11 @@ const AllNetworks: Record<string, Network> = {
     },
 };
 
+export const isDevnetChain = location.host.startsWith('net8888') || import.meta.env.VITE_DEVNET_CHAIN === '8888';
+
 const Networks = {
-    core: AllNetworks[isProduction ? '1029' : location.host.startsWith('net8888') ? '8888' : import.meta.env.VITE_CORE_NETWORK || '1'],
-    eSpace: AllNetworks[isProduction ? '1030' : '71'],
+    core: AllNetworks[isProduction ? '1029' : isDevnetChain ? '8888' : import.meta.env.VITE_CORE_NETWORK || '1'],
+    eSpace: AllNetworks[isProduction ? '1030' : isDevnetChain ? '8889' : '71'],
     bsc: AllNetworks[isProduction ? '56' : '97'],
     etc: AllNetworks[isProduction ? '63' : '63'],
 } as const;

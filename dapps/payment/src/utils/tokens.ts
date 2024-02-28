@@ -23,6 +23,15 @@ const config = {
             icon: DEFAULT_ICON,
         },
     ],
+    '8889': [
+        {
+            eSpace_address: '',
+            name: 'Faucet USDT',
+            symbol: 'USDT',
+            decimals: 18,
+            icon: DEFAULT_ICON,
+        },
+    ],
 };
 
 export default config;
