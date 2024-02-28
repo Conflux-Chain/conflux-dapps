@@ -65,14 +65,17 @@ interface Contracts {
 export const stakingContract = createContract<Contracts['stakingContract']>(StakingContract.abi);
 export const stakingContractAddress = convertHexToCfx('0x0888000000000000000000000000000000000002', +Networks.core.chainId);
 export const governanceContract = createContract<Contracts['governanceContract']>(GovernanceContract.abi);
-export const governanceContractAddress = isProduction ? 'cfx:acev1c6tz2gu832fwdj45vxm71sffpat4yewvpteau' : (Networks.core.chainId === '8888' ? 'NET8888:ACB7V6XWTWKXRVE9CBZFBASYJFUGGM57AA8YGT7DVK' : 'cfxtest:achxp4p0bcsngpz6b5mv11p2wsn2u51sdjuyzjfm8f');
+export const governanceContractAddress = isProduction ? 'cfx:acd1xg56needgaj9br1dw251135ag1y8fat0zk0arr' : (Networks.core.chainId === '8888' ? 'NET8888:ACB7V6XWTWKXRVE9CBZFBASYJFUGGM57AA8YGT7DVK' : 'cfxtest:achxp4p0bcsngpz6b5mv11p2wsn2u51sdjuyzjfm8f');
 export const posContract = createContract<Contracts['posContract']>(PosContract.abi);
 export const posContractAddress = convertHexToCfx('0x0888000000000000000000000000000000000005', +Networks.core.chainId);
 export const paramsControlContract = createContract<Contracts['paramsControlContract']>(ParamsControlContract.abi);
 export const paramsControlContractAddress = convertHexToCfx('0x0888000000000000000000000000000000000007', +Networks.core.chainId);
 export const posPoolContract = createContract<Contracts['posPoolContract']>(PosPoolContract.abi);
 export const posLockVotingEscrowContract = createContract<Contracts['posLockVotingEscrowContract']>(posLockVotingEscrow.abi);
-export const utilContractAddress = isProduction ? '' : (Networks.core.chainId === '8888' ? 'NET8888:ACDWRU2F4FY3YZXN958FUBRSM62T0D90D2KG9449XG' : 'cfxtest:acc8c30wra8czb9ajz8sj6ug3x0u9vzsvuncee39mg');
+export const utilContractAddress = isProduction ? 'cfx:achna9fyp9cep7f10198zr1a7e5dg8gu6ee3uy9nbp' : (Networks.core.chainId === '8888' ? 'NET8888:ACDWRU2F4FY3YZXN958FUBRSM62T0D90D2KG9449XG' : 'cfxtest:acc8c30wra8czb9ajz8sj6ug3x0u9vzsvuncee39mg');
 export const utilContract = createContract<Contracts['utilContract']>(UtilContract.abi);
+
+export const governanceContractAddressESpace = isProduction ? '' : '0x95Af72EaC6f5e08b6Ab51874582FA8F8C5E93D28';
+export const utilContractAddressESpace = isProduction ? '' : '0x56f56850f14acc68e95b87b06cd11ef63f7aea3a';
 
 export default Contracts;

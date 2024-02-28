@@ -8,7 +8,7 @@ import {
   TypeTransaction,
   ProxyUrlPrefix,
 } from '../constants'
-import {KeyOfCfx} from '../constants/chainConfig'
+import {KeyOfCfx, KeyOfBtc} from '../constants/chainConfig'
 import {requestUserOperationList} from '../utils/api'
 import {useTxState} from '../state/transaction'
 import {useShuttleState} from '../state'
@@ -17,7 +17,7 @@ import {useAllTokenList, mapToken} from '../hooks/useTokenList'
 import {appendTxs, updateTx} from '../utils/index'
 import {
   useTransactionNotification,
-  // useClaimNotification,
+  useClaimNotification,
 } from '../pages/components'
 import {format} from 'js-conflux-sdk/dist/js-conflux-sdk.umd.min.js'
 import Big from 'big.js'
@@ -29,7 +29,7 @@ export const useUpdateTxs = () => {
   const {txClaimModalShown} = useShuttleState()
   const tokenList = useAllTokenList()
   const txNotificationShow = useTransactionNotification()
-  // const claimNotificationShow = useClaimNotification()
+  const claimNotificationShow = useClaimNotification()
   window._transactions = new Map(Object.entries(transactions))
   useEffect(() => {
     const update = () => {
@@ -97,8 +97,8 @@ export const useUpdateTxs = () => {
           if (list) {
             const newList = list.map(item => mapData(item, tokenList))
             const mappedData = _mapListToMap(newList)
-            pendingCommonTxs.forEach((item) => {
-              const {hash, amount, fromChain, toChain, fromToken} = item
+            pendingCommonTxs.forEach((item, index) => {
+              const {hash, amount, fromChain, toChain, fromToken, status} = item
               const {display_symbol} = fromToken
               const apiData = mappedData.get(hash)
               const {status: newStatus} = apiData || {}
@@ -111,22 +111,22 @@ export const useUpdateTxs = () => {
                   value: amount,
                 })
               }
-              // if (
-              //   toChain !== KeyOfBtc &&
-              //   status === ShuttleStatus.pending &&
-              //   newStatus === ShuttleStatus.waiting &&
-              //   !txClaimModalShown
-              // ) {
-              //   //Claim Notification
-              //   claimNotificationShow({
-              //     key: index,
-              //     symbol: display_symbol,
-              //     fromChain,
-              //     toChain,
-              //     value: amount,
-              //     hash,
-              //   })
-              // }
+              if (
+                toChain !== KeyOfBtc &&
+                status === ShuttleStatus.pending &&
+                newStatus === ShuttleStatus.waiting &&
+                !txClaimModalShown
+              ) {
+                //Claim Notification
+                claimNotificationShow({
+                  key: index,
+                  symbol: display_symbol,
+                  fromChain,
+                  toChain,
+                  value: amount,
+                  hash,
+                })
+              }
             })
             appendTxs(trans, newList)
             setTransactions(trans)
@@ -139,7 +139,7 @@ export const useUpdateTxs = () => {
     }
     let timeInterval
     if (cfxAddress) {
-      timeInterval = setInterval(() => update(), 10000)
+      timeInterval = setInterval(() => update(), 30000)
     }
     return () => {
       timeInterval && clearInterval(timeInterval)
@@ -230,7 +230,9 @@ export function mapData(item = {}, tokenList) {
   data.toAddress = to_addr
   data.tx_type = TypeTransaction.transaction
   data.hash = nonce_or_txid?.split('_')[0]
-  data.amount = new Big(convertDecimal(amount || 0, 'divide', data.decimals)).toString()
+  data.amount = new Big(
+    convertDecimal(amount || 0, 'divide', data.decimals),
+  ).toString()
   data.tx_to = tx_to
   data.tx_input = tx_input
   data.cfxAddress = user_addr

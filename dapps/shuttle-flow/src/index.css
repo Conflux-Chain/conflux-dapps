@@ -4,34 +4,56 @@
 
 @layer base {
   @font-face {
-    font-family: 'Metropolis';
-    src: url(https://conflux-static.oss-cn-beijing.aliyuncs.com/fonts/Metropolis-Regular.otf)
-      format('opentype');
+    font-family: 'Circular Std';
+    src: url(https://conflux-static.oss-cn-beijing.aliyuncs.com/fonts/Circular-Std-Book.ttf)
+      format('truetype');
     font-weight: 400;
   }
   @font-face {
-    font-family: 'Metropolis';
-    src: url(https://conflux-static.oss-cn-beijing.aliyuncs.com/fonts/Metropolis-Medium.otf)
-      format('opentype');
+    font-family: 'Circular Std';
+    src: url(https://conflux-static.oss-cn-beijing.aliyuncs.com/fonts/Circular-Std-Book-Italic.ttf)
+      format('truetype');
+    font-style: italic;
+    font-weight: 400;
+  }
+  @font-face {
+    font-family: 'Circular Std';
+    src: url(https://conflux-static.oss-cn-beijing.aliyuncs.com/fonts/Circular-Std-Medium.ttf)
+      format('truetype');
     font-weight: 500;
   }
   @font-face {
-    font-family: 'Metropolis';
-    src: url(https://conflux-static.oss-cn-beijing.aliyuncs.com/fonts/Metropolis-Bold.otf)
-      format('opentype');
+    font-family: 'Circular Std';
+    src: url(https://conflux-static.oss-cn-beijing.aliyuncs.com/fonts/Circular-Std-Medium-Italic.ttf)
+      format('truetype');
+    font-style: italic;
+    font-weight: 500;
+  }
+  @font-face {
+    font-family: 'Circular Std';
+    src: url(https://conflux-static.oss-cn-beijing.aliyuncs.com/fonts/Circular-Std-Bold.ttf)
+      format('truetype');
     font-weight: 700;
   }
   @font-face {
-    font-family: 'Metropolis';
-    src: url(https://conflux-static.oss-cn-beijing.aliyuncs.com/fonts/Metropolis-Black.otf)
-      format('opentype');
+    font-family: 'Circular Std';
+    src: url(https://conflux-static.oss-cn-beijing.aliyuncs.com/fonts/Circular-Std-Bold-Italic.ttf)
+      format('truetype');
+    font-style: italic;
+    font-weight: 700;
+  }
+  @font-face {
+    font-family: 'Circular Std';
+    src: url(https://conflux-static.oss-cn-beijing.aliyuncs.com/fonts/Circular-Std-Black.ttf)
+      format('truetype');
     font-weight: 800;
   }
   @font-face {
-    font-family: 'Audiowide';
-    src: url(https://conflux-static.oss-cn-beijing.aliyuncs.com/fonts/Audiowide-Regular.ttf)
+    font-family: 'Circular Std';
+    src: url(https://conflux-static.oss-cn-beijing.aliyuncs.com/fonts/Circular-Std-Black-Italic.ttf)
       format('truetype');
-    font-weight: 400;
+    font-style: italic;
+    font-weight: 800;
   }
 }
 
@@ -48,19 +70,6 @@ strong {
   @apply text-warning-dark;
 }
 
-input::-input-placeholder {
-  color: rgba(0,0,0,0.9)!important;
-}
-input::-webkit-input-placeholder {
-  color: rgba(0,0,0,0.9)!important;
-}
-input::-moz-input-placeholder {
-  color: rgba(0,0,0,0.9)!important;
-}
-input::-ms-input-placeholder {
-  color: rgba(0,0,0,0.9)!important;
-}
-
 #root {
   @apply font-body;
   display: flex;
@@ -71,9 +80,7 @@ input::-ms-input-placeholder {
 body,
 html {
   height: 100%;
-  overflow: hidden;
 }
-
 
 .light {
   --color-primary-10: #f0fcfa;
@@ -90,8 +97,8 @@ html {
   --color-gray-10: #f7f8fa;
   --color-gray-20: #eaecef;
   --color-gray-40: #a9abb2;
-  --color-gray-60: #424242;
-  --color-gray-80: #111111;
+  --color-gray-60: #898d9a;
+  --color-gray-80: #3d3f4c;
   --color-gray-90: #2a2c33;
   --color-gray-100: #1b1b1c;
   --shadow-common: 2px 8px 44px #e3edff;
@@ -137,8 +144,4 @@ html {
   --color-gray-60: #a9abb2;
   --color-gray-80: #eaecef;
   @apply bg-home;
-}
-
-body > iframe {
-  display: none;
 }

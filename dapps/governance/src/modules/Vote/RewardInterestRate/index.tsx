@@ -23,7 +23,6 @@ const RewardInterestRate: React.FC = () => {
                 <span className="px-[10px] min-w-[40px] h-[28px] leading-[28px] rounded-[4px] text-[14px] text-[#808BE7] font-medium bg-[#F0F3FF] text-center">
                     Round {currentVotingRound}
                 </span>
-                <div className="text-[22px] text-[#3D3F4C] font-medium">Vote to decide PoW and PoS reward parameters</div>
             </div>
 
             <div className="mt-[16px] flex justify-between">
@@ -46,7 +45,7 @@ const RewardInterestRate: React.FC = () => {
                 </div>
                 <div className="">
                     <div className="flex justify-end mb-[12px] text-[16px] ">
-                        <div className="text-[#898D9A]">Voting End: </div>
+                        <div className="text-[#898D9A]">Voting End: &nbsp;</div>
                         <div className='text-[#3D3F4C]'>{currentVotingRoundEndTimestamp ? dayjs(currentVotingRoundEndTimestamp).format('YYYY-MM-DD HH:mm:ss') : '--'}</div>
                     </div>
                     <Countdown />

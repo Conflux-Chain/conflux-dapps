@@ -29,7 +29,7 @@ const renderToken = (token: string) => (
             src={map.tokensIcon[token] ?? 'https://conflux-static.oss-cn-beijing.aliyuncs.com/icons/default.png'}
             alt=""
         />
-        {token}
+        {token === 'COMMON_TOKEN' ? 'Supports 50+ tokens' : token}
     </div>
 );
 const renderChain = (chain: string) => (
@@ -70,18 +70,6 @@ const Index: React.FC = () => {
                     {sourceChain && <Routes />}
                 </div>
                 <div className="cross-space-module mx-auto mt-[16px] mb-[24px] text-[14px] text-[#898D9A] leading-[18px] font-normal whitespace-nowrap">
-                    <div>
-                        Assets directly across between Conflux and other chains.{' '}
-                        <Link className="group text-[#808BE7] hover:text-[#808BE7] hover:underline" to="/shuttle-flow" target="_blank">
-                            ShuttleFlow
-                            <img
-                                src={ArrowLeft}
-                                alt="go to ShuttleFlow"
-                                className="inline-block w-[12px] h-[12px] ml-[2px] rotate-180 -translate-y-[1px] group-hover:translate-x-1 transition-all"
-                            />
-                        </Link>
-                    </div>
-
                     <div className="mt-[4px]">
                         Assets directly across between Conflux eSpace and BSC.{' '}
                         <Link className="group text-[#808BE7] hover:text-[#808BE7] hover:underline" to="/espace-bridge/espace-cross-chain" target="_blank">
@@ -130,7 +118,6 @@ const Routes: React.FC = () => {
     const sourceChain = useSourceChain()!;
     const destinationChain = useDestinationChain()!;
     const token = useToken()!;
-
     const routes = data?.[sourceChain]?.[destinationChain]?.[token];
 
     return (
@@ -169,7 +156,7 @@ const Routes: React.FC = () => {
                                             src={map.tokensIcon[token] ?? 'https://conflux-static.oss-cn-beijing.aliyuncs.com/icons/default.png'}
                                             alt=""
                                         />
-                                        {token}
+                                        {token === 'COMMON_TOKEN' ? '50+ tokens' : token}
                                     </div>
 
                                     <div className="w-[40px] h-0 border border-[#A9ABB2] border-dashed -translate-y-[12px]" />

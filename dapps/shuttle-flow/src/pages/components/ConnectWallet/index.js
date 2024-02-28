@@ -45,14 +45,15 @@ function ConnectWallet({
       )}
       {size === 'large' && (
         <Button
+          fullWidth
           size="small"
-          className={`${className} w-[170px]`}
+          className={className}
           onClick={onConnect}
           variant="outlined"
           startIcon={walletIcon}
           {...props}
         >
-          {`${t('connect')}`}
+          {`${t('connect')} ${walletConfig?.name}`}
         </Button>
       )}
       {open && (
