@@ -4,7 +4,12 @@
 }
 
 #conflux-hub-root > .scrollbar__wrapper {
-    @apply flex-1 px-0 bg-[#f8f9ff] h-full;
+    @apply flex-1 px-[32px] bg-[#f8f9ff] h-full;
+}
+
+#conflux-hub-root.root-mobile > .scrollbar__wrapper {
+    @apply px-0;
+
 }
 
 #conflux-hub-root > .scrollbar__wrapper > .scrollbar__scroller {

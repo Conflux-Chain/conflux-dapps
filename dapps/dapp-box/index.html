@@ -1,18 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/src/assets/ConfluxHub.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Cross-chain your assets between Conflux Core, eSpace and Multi-chain" />
-    <meta name="keywords" content="Conflux eSpace, Conflux Core, Cross-chain, Cross-space">
-    <title>ConfluxHub - Conflux extension toolbox</title>
-    <script>
-        var global = window;
-    </script>
-  </head>
-  <body class="light">
-    <div id="conflux-hub-root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" type="image/svg+xml" href="/src/assets/ConfluxHub.svg" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="Cross-chain your assets between Conflux Core, eSpace and Multi-chain" />
+        <meta name="keywords" content="Conflux eSpace, Conflux Core, Cross-chain, Cross-space" />
+        <title>ConfluxHub - Conflux extension toolbox</title>
+        <script>
+            var global = window;
+        </script>
+    </head>
+    <body class="light">
+        <div id="conflux-hub-root"></div>
+        <script type="module" src="/src/main.tsx"></script>
+        <script>
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            if (isMobile) {
+                const rootEle = document.querySelector('#conflux-hub-root');
+                if (rootEle) {
+                    rootEle.classList.add('root-mobile');
+                }
+            }
+        </script>
+    </body>
 </html>
