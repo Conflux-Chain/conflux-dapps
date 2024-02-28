@@ -44,7 +44,7 @@ const AllNetworks: Record<string, Network> = {
         chainId: '1029',
         chainName: 'Conflux Hydra',
         rpcUrls: ['https://main.confluxrpc.com'],
-        blockExplorerUrls: ['https://confluxscan.net'],
+        blockExplorerUrls: ['https://confluxscan.io'],
         nativeCurrency: {
             name: 'Conflux',
             symbol: 'CFX',
@@ -55,7 +55,7 @@ const AllNetworks: Record<string, Network> = {
         chainId: '1030',
         chainName: 'Conflux eSpace',
         rpcUrls: ['https://evm.confluxrpc.com'],
-        blockExplorerUrls: ['https://evm.confluxscan.net'],
+        blockExplorerUrls: ['https://evm.confluxscan.io'],
         nativeCurrency: {
             name: 'Conflux',
             symbol: 'CFX',
@@ -66,7 +66,7 @@ const AllNetworks: Record<string, Network> = {
         chainId: '1',
         chainName: 'Conflux Testnet',
         rpcUrls: ['https://test.confluxrpc.com'],
-        blockExplorerUrls: ['https://testnet.confluxscan.net'],
+        blockExplorerUrls: ['https://testnet.confluxscan.io'],
         nativeCurrency: {
             name: 'Conflux',
             symbol: 'CFX',
@@ -77,7 +77,7 @@ const AllNetworks: Record<string, Network> = {
         chainId: '71',
         chainName: 'Conflux eSpace (Testnet)',
         rpcUrls: ['https://evmtestnet.confluxrpc.com'],
-        blockExplorerUrls: ['https://evmtestnet.confluxscan.net'],
+        blockExplorerUrls: ['https://evmtestnet.confluxscan.io'],
         nativeCurrency: {
             name: 'Conflux',
             symbol: 'CFX',
@@ -110,7 +110,7 @@ const AllNetworks: Record<string, Network> = {
         chainId: '8888',
         chainName: 'Conflux 8888',
         rpcUrls: ['https://net8888cfx.confluxrpc.com'],
-        blockExplorerUrls: ['https://net8888cfx.confluxscan.net'],
+        blockExplorerUrls: ['https://net8888cfx.confluxscan.io'],
         nativeCurrency: {
             name: 'Conflux',
             symbol: 'CFX',
@@ -121,7 +121,7 @@ const AllNetworks: Record<string, Network> = {
         chainId: '8889',
         chainName: 'Conflux 8889',
         rpcUrls: ['https://net8889eth.confluxrpc.com'],
-        blockExplorerUrls: ['https://net8889eth.confluxscan.net'],
+        blockExplorerUrls: ['https://net8889eth.confluxscan.io'],
         nativeCurrency: {
             name: 'Conflux',
             symbol: 'CFX',
