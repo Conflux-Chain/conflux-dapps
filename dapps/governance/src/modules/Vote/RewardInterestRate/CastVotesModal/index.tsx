@@ -1,15 +1,13 @@
 import React, { memo, useState, useMemo, useEffect } from 'react';
 import { Radio, Select } from 'antd';
 import { useForm, Controller } from 'react-hook-form';
-import { store as confluxStore, useAccount, Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
-import { store as ethereumStore } from '@cfxjs/use-wallet-react/ethereum';
+import { useAccount, Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
 import Button from 'common/components/Button';
 import Input from 'common/components/Input';
 import InputTextLastfix from 'common/components/Input/suffixes/TextLastfix';
 import InputMAXSuffix from 'common/components/Input/suffixes/MAX';
 import { PopupClass } from 'common/components/Popup';
-import { AuthCoreSpace } from 'common/modules/AuthConnectButton';
-import { useVotingRights, useCurrentAccountVoted, useCurrentVotingRound, useProposalList, useCurrentPage, usePageSize, useActiveProposalUserVotePow, useActiveProposalUserVotePos, usePosLockArrOrigin } from 'governance/src/store';
+import { useVotingRights, useCurrentAccountVoted, useCurrentVotingRound, useProposalList, useCurrentPage, useActiveProposalUserVotePow, useActiveProposalUserVotePos, usePosLockArrOrigin, getCurrentBlockNumber, useCurrentVotingRoundStartBlockNumber, useCurrentVotingRoundEndBlockNumber } from 'governance/src/store';
 import Close from 'common/assets/icons//close.svg';
 import { handlePowCastVotes, handlePosCastVotes, type Data } from '../handleCastVotes';
 import CFX from 'common/assets/tokens/CFX.svg';
@@ -60,6 +58,8 @@ const option = (e: PosLockOrigin) => {
     )
 }
 const uintZero = Unit.fromStandardUnit(0);
+const BLOCK_15_MIN = Unit.fromMinUnit(15 * 60 * 2);
+const BLOCK_2_MIN = Unit.fromMinUnit(2 * 60 * 2);
 const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, proposal?: ProposalType }) => {
     const chainIdNative = useChainIdNative();
     const isESpace = spaceSeat(chainIdNative) === 'eSpace';
@@ -80,6 +80,18 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
     const activeProposalUserVotePos = useActiveProposalUserVotePos();
 
     const posLockArrOrigin = usePosLockArrOrigin();
+
+    const currentVotingRoundStartBlockNumber = useCurrentVotingRoundStartBlockNumber();
+    const currentVotingRoundEndBlockNumber = useCurrentVotingRoundEndBlockNumber();
+
+
+    const currentBlockNumber = getCurrentBlockNumber();
+
+    const isESpaceStartLock = currentBlockNumber && currentVotingRoundStartBlockNumber && currentVotingRoundEndBlockNumber && currentBlockNumber.lessThan(currentVotingRoundStartBlockNumber.add(BLOCK_2_MIN)) &&
+        currentBlockNumber.greaterThan(currentVotingRoundStartBlockNumber);
+    const isESpaceEndLock = currentBlockNumber && currentVotingRoundStartBlockNumber && currentVotingRoundEndBlockNumber && currentBlockNumber.greaterThan(currentVotingRoundEndBlockNumber.sub(BLOCK_15_MIN)) && currentBlockNumber.lessThan(currentVotingRoundEndBlockNumber);
+
+    const isESpaceLock = isESpace && type !== 'Proposals' && (isESpaceStartLock || isESpaceEndLock);
 
     const remainingVotePow = useMemo(() => {
         if (proposal && activeProposalUserVotePow && activeProposalUserVotePow[proposal.proposalId] && activeProposalUserVotePow[proposal.proposalId][proposal?.optionId]) {
@@ -114,7 +126,7 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
     const isValueRightsThanRemainingVote =
         ticket === 'pow' ?
             remainingVotePow && votingRights && voteValue && votingRemainRights.greaterThanOrEqualTo(Unit.fromStandardUnit(voteValue))
-            : posLockArrOrigin && voteValue ? votingPosRemainRights.greaterThanOrEqualTo(Unit.fromStandardUnit(voteValue)) : false;
+            : posLockArrOrigin && voteValue && !isESpaceLock ? votingPosRemainRights.greaterThanOrEqualTo(Unit.fromStandardUnit(voteValue)) : false;
 
     const futureUserVotePower = posLockArrOrigin && posLockArrOrigin[posPoolIndex]?.futureUserVotePower;
 
@@ -322,15 +334,23 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
             </div>
 
             {
-                isESpace && <div className='text-[#3D3F4C] mt-[16px] bg-[#FCF1E8] px-[16px] py-[12px] text-[14px]'>
+                isESpace && !isESpaceLock ? <div className='text-[#3D3F4C] mt-[16px] bg-[#FCF1E8] px-[16px] py-[12px] text-[14px]'>
                     Your vote will be synchronized within <span className='text-[#808BE7]'>10</span> minutes.
                 </div>
+                    :
+                    <div className='text-[#F0955F] mt-[16px] bg-[#FCF1E8] px-[16px] py-[12px] text-[14px] border-[1px] border-[#F0955F] rounded-[4px]'>
+                        {
+                            isESpaceStartLock && 'This round voting results are being settled, next round will open in about two minutes.'
+                        }
+                        {
+                            isESpaceEndLock && 'This round voting results are being settled, eSpace voting has stopped.'
+                        }
+                    </div>
             }
-
 
             <div className='mt-[24px] border-dashed border-t-[1px]'></div>
 
-            <div className='mt-[24px] p-[12px] border-[1px] border-[#EAECEF] rounded-[4px] bg-[#FAFBFD]'>
+            <div className={`mt-[24px] p-[12px] border-[1px] border-[#EAECEF] rounded-[4px] bg-[#FAFBFD] ${isESpaceLock && 'opacity-40'}`}>
                 {
                     type !== 'Proposals' &&
                     <>
@@ -341,7 +361,7 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
                             <div className="ml-[8px] text-[16px] text-[#3D3F4C] font-medium">{TypeTitle[type]}</div>
                         </div>
                         <div className='mt-[12px] w-full'>
-                            <Radio.Group className='w-full !flex justify-between' value={voteRadio} onChange={(e) => {
+                            <Radio.Group className='w-full !flex justify-between' value={voteRadio} disabled={isESpaceLock} onChange={(e) => {
                                 selectDefaultValue(e.target.value)
                             }}>
                                 {
@@ -376,6 +396,7 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
                         max={inputMaxAmount}
                         value={voteValue}
                         bindAccout={account}
+                        disabled={isESpaceLock}
                         onChange={(e) => setVoteValue(e.target.value)}
                         suffix={[<></>, <><InputMAXSuffix className='!right-[113px]' /><InputTextLastfix text={'Voting Power'} /> </>]}
                     />
