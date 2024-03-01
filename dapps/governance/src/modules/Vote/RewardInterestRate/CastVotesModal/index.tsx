@@ -334,18 +334,20 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
             </div>
 
             {
-                isESpace && !isESpaceLock ? <div className='text-[#3D3F4C] mt-[16px] bg-[#FCF1E8] px-[16px] py-[12px] text-[14px]'>
-                    Your vote will be synchronized within <span className='text-[#808BE7]'>10</span> minutes.
-                </div>
-                    :
-                    <div className='text-[#F0955F] mt-[16px] bg-[#FCF1E8] px-[16px] py-[12px] text-[14px] border-[1px] border-[#F0955F] rounded-[4px]'>
-                        {
-                            isESpaceStartLock && 'This round voting results are being settled, next round will open in about two minutes.'
-                        }
-                        {
-                            isESpaceEndLock && 'This round voting results are being settled, eSpace voting has stopped.'
-                        }
+                isESpace ?
+                    !isESpaceLock ? <div className='text-[#3D3F4C] mt-[16px] bg-[#FCF1E8] px-[16px] py-[12px] text-[14px]'>
+                        Your vote will be synchronized within <span className='text-[#808BE7]'>10</span> minutes.
                     </div>
+                        :
+                        <div className='text-[#F0955F] mt-[16px] bg-[#FCF1E8] px-[16px] py-[12px] text-[14px] border-[1px] border-[#F0955F] rounded-[4px]'>
+                            {
+                                isESpaceStartLock && 'This round voting results are being settled, next round will open in about two minutes.'
+                            }
+                            {
+                                isESpaceEndLock && 'This round voting results are being settled, eSpace voting has stopped.'
+                            }
+                        </div>
+                    : <></>
             }
 
             <div className='mt-[24px] border-dashed border-t-[1px]'></div>
