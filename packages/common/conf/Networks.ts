@@ -19,6 +19,24 @@ export const isProduction =
     !location.host.startsWith('192.168') &&
     !location.host.startsWith('dev-internal');
 
+export const spaceSeat = (chainId?: string | undefined): 'core' | 'eSpace' | '' => {
+    const chainIdToSpace: Record<string, 'core' | 'eSpace'> = {
+        '1029': 'core',
+        '1': 'core',
+        '8888': 'core',
+        '1030': 'eSpace',
+        '71': 'eSpace',
+        '8889': 'eSpace',
+        '9007199254740991': 'eSpace',
+    };
+
+    return chainId && chainIdToSpace[chainId] || '';
+};
+
+export const spaceRpcurl = (chainId?: string | undefined): string => {
+    return spaceSeat(chainId) === 'eSpace' ? Networks.eSpace.rpcUrls[0] : Networks.core.rpcUrls[0];
+}
+
 export const isStage = location.host.startsWith('stage');
 
 const AllNetworks: Record<string, Network> = {
@@ -26,7 +44,7 @@ const AllNetworks: Record<string, Network> = {
         chainId: '1029',
         chainName: 'Conflux Hydra',
         rpcUrls: ['https://main.confluxrpc.com'],
-        blockExplorerUrls: ['https://confluxscan.net'],
+        blockExplorerUrls: ['https://confluxscan.io'],
         nativeCurrency: {
             name: 'Conflux',
             symbol: 'CFX',
@@ -37,7 +55,7 @@ const AllNetworks: Record<string, Network> = {
         chainId: '1030',
         chainName: 'Conflux eSpace',
         rpcUrls: ['https://evm.confluxrpc.com'],
-        blockExplorerUrls: ['https://evm.confluxscan.net'],
+        blockExplorerUrls: ['https://evm.confluxscan.io'],
         nativeCurrency: {
             name: 'Conflux',
             symbol: 'CFX',
@@ -48,7 +66,7 @@ const AllNetworks: Record<string, Network> = {
         chainId: '1',
         chainName: 'Conflux Testnet',
         rpcUrls: ['https://test.confluxrpc.com'],
-        blockExplorerUrls: ['https://testnet.confluxscan.net'],
+        blockExplorerUrls: ['https://testnet.confluxscan.io'],
         nativeCurrency: {
             name: 'Conflux',
             symbol: 'CFX',
@@ -59,7 +77,7 @@ const AllNetworks: Record<string, Network> = {
         chainId: '71',
         chainName: 'Conflux eSpace (Testnet)',
         rpcUrls: ['https://evmtestnet.confluxrpc.com'],
-        blockExplorerUrls: ['https://evmtestnet.confluxscan.net'],
+        blockExplorerUrls: ['https://evmtestnet.confluxscan.io'],
         nativeCurrency: {
             name: 'Conflux',
             symbol: 'CFX',
@@ -91,8 +109,19 @@ const AllNetworks: Record<string, Network> = {
     '8888': {
         chainId: '8888',
         chainName: 'Conflux 8888',
-        rpcUrls: ['http://net8888cfx.confluxrpc.com'],
-        blockExplorerUrls: ['https://net8888cfx.confluxscan.net'],
+        rpcUrls: ['https://net8888cfx.confluxrpc.com'],
+        blockExplorerUrls: ['https://net8888cfx.confluxscan.io'],
+        nativeCurrency: {
+            name: 'Conflux',
+            symbol: 'CFX',
+            decimals: 18,
+        },
+    },
+    '8889': {
+        chainId: '8889',
+        chainName: 'Conflux 8889',
+        rpcUrls: ['https://net8889eth.confluxrpc.com'],
+        blockExplorerUrls: ['https://net8889eth.confluxscan.io'],
         nativeCurrency: {
             name: 'Conflux',
             symbol: 'CFX',
@@ -112,9 +141,11 @@ const AllNetworks: Record<string, Network> = {
     },
 };
 
+export const isDevnetChain = location.host.startsWith('net8888') || import.meta.env.VITE_DEVNET_CHAIN === '8888';
+
 const Networks = {
-    core: AllNetworks[isProduction ? '1029' : location.host.startsWith('net8888') ? '8888' : import.meta.env.VITE_CORE_NETWORK || '1'],
-    eSpace: AllNetworks[isProduction ? '1030' : '71'],
+    core: AllNetworks[isProduction ? '1029' : isDevnetChain ? '8888' : import.meta.env.VITE_CORE_NETWORK || '1'],
+    eSpace: AllNetworks[isProduction ? '1030' : isDevnetChain ? '8889' : '71'],
     bsc: AllNetworks[isProduction ? '56' : '97'],
     etc: AllNetworks[isProduction ? '63' : '63'],
 } as const;

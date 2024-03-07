@@ -85,13 +85,13 @@ const DropdownContent: React.FC<{ hideDropdown: () => void; }>= ({ hideDropdown 
                         {isMetaMaskHostedByFluent &&
                             <div className='flex items-center h-[20px] text-[14px] text-[#3d3f4c]'>
                                 <span className='text-[#2959B4] mr-[6px]'>Core Chain: </span>
-                                {shortenAddress(confluxAccount)}
+                                {confluxAccount?.startsWith('0x') ? '--' : shortenAddress(confluxAccount)}
                             </div>
                         }
                         {isMetaMaskHostedByFluent &&
                             <div className='mt-[12px] flex items-center h-[20px] text-[14px] text-[#3d3f4c]'>
                                 <span className='text-[#15C184] mr-[6px]'>{isInCrossSpace ? 'eSpace' : 'Ethereum'} Chain: </span>
-                                {shortenAddress(ethereumAccount)}
+                                {ethereumAccount?.startsWith('0x') ? shortenAddress(ethereumAccount) : '--'}
                             </div>
                         }
                     </>

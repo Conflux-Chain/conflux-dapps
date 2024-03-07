@@ -1,7 +1,8 @@
 import React from 'react';
-
-import { Unit } from '@cfxjs/use-wallet-react/ethereum';
-import { usePosLockArrOrigin } from 'governance/src/store/lockDays&blockNumber';
+import { Unit} from '@cfxjs/use-wallet-react/ethereum';
+import { isSameChainNativeWallet } from 'common/hooks/useIsSameChainNativeWallet';
+import { useChainIdNative, usePosLockArrOrigin } from 'governance/src/store/lockDays&blockNumber';
+import { spaceSeat } from 'common/conf/Networks';
 import Table from '../../../components/Table';
 import CFX from 'common/assets/tokens/CFX.svg';
 
@@ -13,11 +14,14 @@ const zero = Unit.fromMinUnit('0');
 const StakePos: React.FC = () => {
 
     const posLockArrOrigin = usePosLockArrOrigin();
+    const isSameChain = isSameChainNativeWallet();
+    const chainIdNative = useChainIdNative();
+    const isESpace = spaceSeat(chainIdNative) === 'eSpace';
 
     const isShowPosLock = posLockArrOrigin && posLockArrOrigin.length > 0;
 
     return (
-        isShowPosLock ?
+        isShowPosLock && isSameChain ?
             <div className='mt-[16px] rounded-[8px] p-[24px] bg-white shadow-md'>
                 <div className='w-full text-[16px] text-[#3D3F4C]'>
                     Staked in PoS Validators
@@ -34,18 +38,17 @@ const StakePos: React.FC = () => {
                             <div>
                                 <BalanceText id="Pos Lock Balance" balance={item.lockAmount} symbol="CFX" decimals={18} />
                                 {
-                                    item.lockAmount && !item.lockAmount.equals(Unit.fromMinUnit(0)) ?
+                                    isESpace ? <></> : item.lockAmount && !item.lockAmount.equals(Unit.fromMinUnit(0)) ?
                                         <div className='text-[#808BE7] cursor-pointer' onClick={() => showLockModal('more', index)}>Lock</div>
                                         :
                                         <div className='text-[#808BE7] cursor-pointer' onClick={() => showLockModal('lock', index)}>Create Lock</div>
                                 }
 
-
                             </div>,
                             <div>
                                 <div>{item.unlockBlockDay?.toString()}</div>
                                 {
-                                    item.unlockBlock && item.unlockBlock.greaterThan(zero) &&
+                                    isESpace ? <></> : item.unlockBlock && item.unlockBlock.greaterThan(zero) &&
                                     <div className='text-[#808BE7] cursor-pointer' onClick={() => showLockModal('extend', index)}>Extend</div>
                                 }
 

@@ -184,7 +184,7 @@ export const startTrackProposalList = intervalFetchChain(
                                 let posLockArr = getPosLockArrOrigin()
 
                                 return posLockArr ? posLockArr.map((pool, poolIndex) => {
-                                    const poolContractAddress = pool.poolContractAddress;
+                                    const poolContractAddress = convertHexToCfx(pool.pool, Networks.core.chainId); // Warning: poolContractAddress 
                                     return poolContractAddress && fetchChain({
                                         rpcUrl: Networks.core.rpcUrls[0],
                                         method: 'cfx_call',

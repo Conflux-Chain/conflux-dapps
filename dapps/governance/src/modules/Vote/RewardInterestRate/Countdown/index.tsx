@@ -52,10 +52,10 @@ const Countdown: React.FC = () => {
 
     return (
         <div className="flex justify-center gap-[10px]" ref={domRef}>
-            {units.map((unit, index) => <>
-                <CountdownUnit key={unit} unit={unit} />
+            {units.map((unit, index) => <div className='flex justify-center gap-[10px]' key={unit}>
+                <CountdownUnit unit={unit} />
                 {index < 2 && <span className='mt-[2px] text-[#898D9A]'>:</span>}
-            </>)}
+            </div>)}
         </div>
     );
 }
