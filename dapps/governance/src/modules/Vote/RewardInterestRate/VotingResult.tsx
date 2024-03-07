@@ -103,7 +103,9 @@ const Result: React.FC<{
         className="mt-[26px] !flex min-w-[96px] !h-[32px] !text-[14px]"
         size="large"
         onClick={() => showCastVotesModal({ type })}
-        disabled={(votingRights && !isVotingPowRightsGreaterThan0) && (posLockArrOrigin && !isVotingPosRightsGreaterThan0)}
+        disabled={
+            (votingRights && !isVotingPowRightsGreaterThan0) && (posLockArrOrigin && !isVotingPosRightsGreaterThan0) 
+            || (isESpace && !isVotingPosRightsGreaterThan0)}
     >
         Vote
     </Button>
