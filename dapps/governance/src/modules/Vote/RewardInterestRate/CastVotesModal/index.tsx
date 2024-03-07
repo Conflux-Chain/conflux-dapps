@@ -126,7 +126,9 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
     const isValueRightsThanRemainingVote =
         ticket === 'pow' ?
             remainingVotePow && votingRights && voteValue && votingRemainRights.greaterThanOrEqualTo(Unit.fromStandardUnit(voteValue))
-            : posLockArrOrigin && voteValue && !isESpaceLock ? votingPosRemainRights.greaterThanOrEqualTo(Unit.fromStandardUnit(voteValue)) : false;
+            : posLockArrOrigin && voteValue && voteValue !== '0' && !isESpaceLock
+                ? votingPosRemainRights.greaterThanOrEqualTo(Unit.fromStandardUnit(voteValue)) 
+                : false;
 
     const futureUserVotePower = posLockArrOrigin && posLockArrOrigin[posPoolIndex]?.futureUserVotePower;
 
