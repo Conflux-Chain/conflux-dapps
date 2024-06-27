@@ -26,7 +26,7 @@ CastVotesModal.setAnimatedSize(false);
 
 const { Option } = Select;
 
-const voteTypes = ['PoW block rewards', 'PoS APY', 'Storage Point', 'Proposals'] as const;
+const voteTypes = ['PoW block rewards', 'PoS APY', 'Storage Point', 'Base Fee Sharing Prop', 'Proposals'] as const;
 const options = ['Increase', 'Unchange', 'Decrease'] as const;
 type OptionsTypes = typeof options[number];
 type VoteTypes = typeof voteTypes[number];
@@ -35,13 +35,23 @@ interface Voting {
     powBaseReward: [Unit, Unit, Unit];
     interestRate: [Unit, Unit, Unit];
     storagePoint: [Unit, Unit, Unit];
+    baseFeeShareProp: [Unit, Unit, Unit];
     proposals?: [Unit, Unit, Unit];
 }
+// Rename
 const TypeTitle = {
     'PoW block rewards': 'PoW Base Block Reward',
     'PoS APY': 'Interest rate',
-    'Storage Point': 'Storage Point Porp',
+    'Storage Point': 'Storage Point Prop',
+    'Base Fee Sharing Prop': 'Base Fee Sharing Prop',
     'Proposals': 'Proposals'
+}
+const filterType = {
+    'PoS APY': 'interestRate',
+    'PoW block rewards': 'powBaseReward',
+    'Storage Point': 'storagePoint',
+    'Base Fee Sharing Prop': 'baseFeeShareProp',
+    'Proposals': 'proposals'
 }
 
 let hasInit: boolean = false;
@@ -154,12 +164,6 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
     }, [account]);
 
     const isVoted = useMemo(() => {
-        const filterType = {
-            'PoS APY': 'interestRate',
-            'PoW block rewards': 'powBaseReward',
-            'Storage Point': 'storagePoint',
-            'Proposals': 'proposals'
-        }
 
         return currentAccountVoted?.[filterType[type] as keyof Voting]?.reduce((a, b) => a.add(b), uintZero)?.greaterThan(uintZero);
 
@@ -189,8 +193,8 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
     }, []);
 
     const onSubmit = () => {
-        // for PoW block rewards, PoS APY, Storage Point Vote
-        if (['PoW block rewards', 'PoS APY', 'Storage Point'].includes(type) && type !== 'Proposals') {
+        // for PoW block rewards, PoS APY, Storage Point, Base Fee Sharing Prop Vote
+        if (['PoW block rewards', 'PoS APY', 'Storage Point', 'Base Fee Sharing Prop'].includes(type) && type !== 'Proposals') {
 
             if (ticket === 'pow') {
                 let data: Data = {
@@ -232,12 +236,6 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
 
     const defaultValue = (radio: string) => {
 
-        const filterType = {
-            'PoS APY': 'interestRate',
-            'PoW block rewards': 'powBaseReward',
-            'Storage Point': 'storagePoint',
-            'Proposals': 'proposals'
-        }
         const filterIndex = options.map((e, i) => e === radio ? i : 0).filter(e => e !== 0)[0] || 0;
 
         // UI ['Increase', 'Unchange', 'Decrease']

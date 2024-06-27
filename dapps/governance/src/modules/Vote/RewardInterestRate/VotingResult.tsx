@@ -34,6 +34,7 @@ const tenTousands = Unit.fromMinUnit(10000);
 const displayInterestRate = (value?: Unit) => Number(value?.div(tenTousands).toDecimalMinUnit()).toFixed(2) ?? '--';
 const displayPowBaseReward = (value?: Unit) => value?.toDecimalStandardUnit(2) ?? '--';
 const displayStoragePoint = (value?: Unit) => value?.toDecimalStandardUnit(2) ?? '--';
+const displayBaseFeeShareProp = (value?: Unit) => value?.toDecimalStandardUnit(2) ?? '--';
 
 interface VoteDetail {
     voting?: [Unit, Unit, Unit];
@@ -43,18 +44,20 @@ interface VoteDetail {
 const TypeTitle = {
     'PoW block rewards': 'PoW Base Block Reward',
     'PoS APY': 'Interest rate',
-    'Storage Point': 'Storage Point Porp',
-    'Proposals': 'Proposals'
+    'Storage Point': 'Storage Point Prop',
+    'Proposals': 'Proposals',
+    'Base Fee Sharing Prop': 'Base Fee Sharing Prop'
 }
 
 const TypeUnit = {
     'PoW block rewards': ' CFX/Block',
     'PoS APY': '%',
     'Storage Point': '',
-    'Proposals': 'Proposals'
+    'Proposals': 'Proposals',
+    'Base Fee Sharing Prop': '%'
 }
 
-const voteTypes = ['PoW block rewards', 'PoS APY', 'Storage Point', 'Proposals'] as const;
+const voteTypes = ['PoW block rewards', 'PoS APY', 'Storage Point', 'Proposals', 'Base Fee Sharing Prop'] as const;
 type VoteTypes = typeof voteTypes[number];
 
 const Result: React.FC<{
@@ -114,7 +117,7 @@ const Result: React.FC<{
     </Button>
 
     return (
-        <div className="w-full flex-1 border-[1px] border-solid rounded-[4px] p-[16px]">
+        <div className="max-w-[347px] flex-[1_0_calc(33.333%-25px)] flex-1 border-[1px] border-solid rounded-[4px] p-[16px]">
             <div className="mb-[12px] flex items-center">
                 <div className='w-full flex justify-between items-center'>
                     <div
@@ -162,6 +165,7 @@ const Result: React.FC<{
                         {type === 'PoW block rewards' && displayPowBaseReward(prepreVoteDetail?.value)}
                         {type === 'PoS APY' && displayInterestRate(prepreVoteDetail?.value)}
                         {type === 'Storage Point' && displayStoragePoint(prepreVoteDetail?.value)}
+                        {type === 'Base Fee Sharing Prop' && displayBaseFeeShareProp(prepreVoteDetail?.value)}
                         {unit}
                     </div>
                 </div>
@@ -173,6 +177,7 @@ const Result: React.FC<{
                         {type === 'PoW block rewards' && displayPowBaseReward(preVoteDetail?.value)}
                         {type === 'PoS APY' && displayInterestRate(preVoteDetail?.value)}
                         {type === 'Storage Point' && displayStoragePoint(preVoteDetail?.value)}
+                        {type === 'Base Fee Sharing Prop' && displayBaseFeeShareProp(preVoteDetail?.value)}
                         {unit}
                     </div>
                 </div>
@@ -188,6 +193,7 @@ const Result: React.FC<{
                     {type === 'PoW block rewards' && displayPowBaseReward(voteDetail?.value)}
                     {type === 'PoS APY' && displayInterestRate(voteDetail?.value)}
                     {type === 'Storage Point' && displayStoragePoint(voteDetail?.value)}
+                    {type === 'Base Fee Sharing Prop' && displayBaseFeeShareProp(voteDetail?.value)}
                     {unit}
                 </div>
             </div>
@@ -237,7 +243,6 @@ const Index: React.FC = () => {
     const preVote = usePreVote();
     const prepreVote = usePrePreVote();
     const posStakeForVotes = usePosStakeForVotes();
-
     return (
         <>
             <Result
@@ -259,6 +264,13 @@ const Index: React.FC = () => {
                 voteDetail={currentVote?.storagePoint}
                 preVoteDetail={preVote?.storagePoint}
                 prepreVoteDetail={prepreVote?.storagePoint}
+                posStakeForVotes={posStakeForVotes}
+            />
+            <Result
+                type="Base Fee Sharing Prop"
+                voteDetail={currentVote?.baseFeeShareProp}
+                preVoteDetail={preVote?.baseFeeShareProp}
+                prepreVoteDetail={prepreVote?.baseFeeShareProp}
                 posStakeForVotes={posStakeForVotes}
             />
         </>
