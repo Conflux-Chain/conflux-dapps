@@ -32,6 +32,7 @@ interface Voting {
     powBaseReward: [Unit, Unit, Unit];
     interestRate: [Unit, Unit, Unit];
     storagePoint: [Unit, Unit, Unit];
+    baseFeeShareProp: [Unit, Unit, Unit];
     proposals?: [Unit, Unit, Unit];
 }
 
@@ -48,6 +49,10 @@ interface Vote {
         voting: [Unit, Unit, Unit];
         value: Unit;
     };
+    baseFeeShareProp: {
+        voting: [Unit, Unit, Unit];
+        value: Unit;
+    };
 }
 
 interface RewardRateStore {
@@ -57,6 +62,7 @@ interface RewardRateStore {
         powBaseReward: [string, string, string];
         interestRate: [string, string, string];
         storagePoint: [string, string, string];
+        baseFeeShareProp: [string, string, string];
     };
     currentVote?: Vote;
     currentVotingRoundStartBlockNumber?: Unit;
@@ -71,11 +77,13 @@ interface RewardRateStore {
         powBaseReward: string;
         interestRate: string;
         storagePoint: string;
+        baseFeeShareProp: string;
     };
     preVotingOrigin?: {
         powBaseReward: [string, string, string];
         interestRate: [string, string, string];
         storagePoint: [string, string, string];
+        baseFeeShareProp: [string, string, string];
     };
     currentAccountVoted: Voting | undefined;
     posStakeForVotes?: Unit;
@@ -84,6 +92,7 @@ interface RewardRateStore {
 
 const zero = Unit.fromMinUnit(0);
 const two = Unit.fromMinUnit(2);
+const standard_1 = Unit.fromStandardUnit(1);
 
 const initState = {
     currentVotingRound: undefined,
@@ -157,11 +166,13 @@ rewardRateStore.subscribe(
                         powBaseReward: [res[0][1][1], res[0][1][0], res[0][1][2]] as [string, string, string],
                         interestRate: [res[1][1][1], res[1][1][0], res[1][1][2]] as [string, string, string],
                         storagePoint: [res[2][1][1], res[2][1][0], res[2][1][2]] as [string, string, string],
+                        baseFeeShareProp: [res[3][1][1], res[3][1][0], res[3][1][2]] as [string, string, string],
                     };
                     const currentVoting = {
                         powBaseReward: currentVotingOrigin.powBaseReward.map((val: string) => Unit.fromMinUnit(val)) as [Unit, Unit, Unit],
                         interestRate: currentVotingOrigin.interestRate.map((val: string) => Unit.fromMinUnit(val)) as [Unit, Unit, Unit],
                         storagePoint: currentVotingOrigin.storagePoint.map((val: string) => Unit.fromMinUnit(val)) as [Unit, Unit, Unit],
+                        baseFeeShareProp: currentVotingOrigin.baseFeeShareProp.map((val: string) => Unit.fromMinUnit(val)) as [Unit, Unit, Unit],
                     };
 
                     rewardRateStore.setState({ currentVotingOrigin, currentVoting });
@@ -201,18 +212,20 @@ rewardRateStore.subscribe(
             },
             {
                 intervalTime: 20000,
-                callback: (result: { powBaseReward: string; interestRate: string; storagePointProp: string; }) => {
+                callback: (result: { powBaseReward: string; interestRate: string; storagePointProp: string; baseFeeShareProp: string; }) => {
                     if (typeof result !== 'object') return;
                     //  currentExecValueOrigin.storagePoint = String(1/(1+1)*1e18); // Mock: Burn x/(1+x), keep 1/(1+x) 
 
                     const currentExecValueOrigin = {
                         powBaseReward: result.powBaseReward,
                         interestRate: result.interestRate,
-                        storagePoint: result.storagePointProp
+                        storagePoint: result.storagePointProp,
+                        baseFeeShareProp: result.baseFeeShareProp
                     }
-                    const x = Unit.fromMinUnit(currentExecValueOrigin.storagePoint ?? 0);
-                    const constant_1 = Unit.fromStandardUnit(1);
-                    const storagePoint = Unit.fromStandardUnit(x.div(x.add(constant_1))); // x/(1+x)
+
+                    const storage = Unit.fromMinUnit(currentExecValueOrigin.storagePoint ?? 0);
+                    const storagePoint = Unit.fromStandardUnit(storage.div(storage.add(standard_1))); // storage/(1+storage)
+                    
                     rewardRateStore.setState({ currentExecValueOrigin });
                     rewardRateStore.setState({
                         prepreVote: {
@@ -228,6 +241,10 @@ rewardRateStore.subscribe(
                                 voting: [zero, zero, zero],
                                 value: storagePoint,
                             },
+                            baseFeeShareProp: {
+                                voting: [zero, zero, zero],
+                                value: Unit.fromMinUnit(currentExecValueOrigin.baseFeeShareProp ?? 0),
+                            }
                         }
                     })
                 },
@@ -265,11 +282,13 @@ rewardRateStore.subscribe(
                                 powBaseReward: [res[0][1][1], res[0][1][2], res[0][1][0]] as [string, string, string],
                                 interestRate: [res[1][1][1], res[1][1][2], res[1][1][0]] as [string, string, string],
                                 storagePoint: [res[2][1][1], res[2][1][2], res[2][1][0]] as [string, string, string],
+                                baseFeeShareProp: [res[3][1][1], res[3][1][2], res[3][1][0]] as [string, string, string],
                             };
                             const currentAccountVoted = {
                                 powBaseReward: currentAccountVotedOrigin.powBaseReward.map((val: string) => Unit.fromMinUnit(val)) as [Unit, Unit, Unit],
                                 interestRate: currentAccountVotedOrigin.interestRate.map((val: string) => Unit.fromMinUnit(val)) as [Unit, Unit, Unit],
                                 storagePoint: currentAccountVotedOrigin.storagePoint.map((val: string) => Unit.fromMinUnit(val)) as [Unit, Unit, Unit],
+                                baseFeeShareProp: currentAccountVotedOrigin.baseFeeShareProp.map((val: string) => Unit.fromMinUnit(val)) as [Unit, Unit, Unit],
                             };
                             rewardRateStore.setState({ currentAccountVoted });
                         },
@@ -304,6 +323,7 @@ rewardRateStore.subscribe(
                         powBaseReward: [preVotingR[0][1][1], preVotingR[0][1][0], preVotingR[0][1][2]] as [string, string, string],
                         interestRate: [preVotingR[1][1][1], preVotingR[1][1][0], preVotingR[1][1][2]] as [string, string, string],
                         storagePoint: [preVotingR[2][1][1], preVotingR[2][1][0], preVotingR[2][1][2]] as [string, string, string],
+                        baseFeeShareProp: [preVotingR[3][1][1], preVotingR[3][1][0], preVotingR[3][1][2]] as [string, string, string],
                     };
 
                     rewardRateStore.setState({ preVotingOrigin });
@@ -391,19 +411,21 @@ const calcPreVote = (currentVotingRound: number) => {
     const { currentExecValueOrigin, preVotingOrigin, posStakeForPreVotes } = rewardRateStore.getState();
     if (!currentExecValueOrigin || !preVotingOrigin || !posStakeForPreVotes) return;
     
-    const x = Unit.fromMinUnit(currentExecValueOrigin.storagePoint ?? 0);
-    const constant_1 = Unit.fromStandardUnit(1);
-    const storagePoint = Unit.fromStandardUnit(x.div(x.add(constant_1))); // x/(1+x)
+    const storage = Unit.fromMinUnit(currentExecValueOrigin.storagePoint ?? 0);
+    const storagePoint = Unit.fromStandardUnit(storage.div(storage.add(standard_1))); // storage/(1+storage)
+    
     const currentExecValue = {
         powBaseReward: Unit.fromMinUnit(currentExecValueOrigin?.powBaseReward ?? 0),
         interestRate: Unit.fromMinUnit(currentExecValueOrigin?.interestRate ?? 0),
         storagePoint: storagePoint,
+        baseFeeShareProp: Unit.fromMinUnit(currentExecValueOrigin?.baseFeeShareProp ?? 0),
     };
 
     const preVoting = {
         powBaseReward: preVotingOrigin?.powBaseReward.map((val: string) => Unit.fromMinUnit(val)) as [Unit, Unit, Unit],
         interestRate: preVotingOrigin?.interestRate.map((val: string) => Unit.fromMinUnit(val)) as [Unit, Unit, Unit],
         storagePoint: preVotingOrigin?.storagePoint.map((val: string) => Unit.fromMinUnit(val)) as [Unit, Unit, Unit],
+        baseFeeShareProp: preVotingOrigin?.baseFeeShareProp.map((val: string) => Unit.fromMinUnit(val)) as [Unit, Unit, Unit],
     } as Voting;
 
     if (currentVotingRound > 1) {
@@ -422,6 +444,10 @@ const calcPreVote = (currentVotingRound: number) => {
                         voting: [zero, zero, zero],
                         value: currentExecValue.storagePoint,
                     },
+                    baseFeeShareProp: {
+                        voting: [zero, zero, zero],
+                        value: currentExecValue.baseFeeShareProp,
+                    }
                 },
                 preVoting,
                 posStakeForPreVotes
@@ -442,6 +468,10 @@ const calcPreVote = (currentVotingRound: number) => {
                     voting: [zero, zero, zero],
                     value: currentExecValue.storagePoint,
                 },
+                baseFeeShareProp: {
+                    voting: [zero, zero, zero],
+                    value: currentExecValue.baseFeeShareProp,
+                }
             },
             currentExecValueOrigin,
         });
@@ -461,7 +491,7 @@ rewardRateStore.subscribe((state) => state.currentVoting, calcCurrentVote, { fir
 rewardRateStore.subscribe((state) => state.preVote, calcCurrentVote, { fireImmediately: true });
 
 const calcNextVotingValue = (curVote: Vote, nextVoting: Voting, posStakeForPreVotes?: Unit): Vote => {
-    const calcValue = (type: 'powBaseReward' | 'interestRate' | 'storagePoint') => {
+    const calcValue = (type: 'powBaseReward' | 'interestRate' | 'storagePoint' | 'baseFeeShareProp') => {
         const totalOptionVotes = nextVoting[type][0].add(nextVoting[type][1]).add(nextVoting[type][2]);
         if (posStakeForPreVotes && totalOptionVotes.lessThan(posStakeForPreVotes.mul(Unit.fromMinUnit(0.05)))) {
             return curVote[type].value;
@@ -489,6 +519,10 @@ const calcNextVotingValue = (curVote: Vote, nextVoting: Voting, posStakeForPreVo
             value: calcValue('storagePoint'),
             voting: nextVoting.storagePoint,
         },
+        baseFeeShareProp: {
+            value: calcValue('baseFeeShareProp'),
+            voting: nextVoting.baseFeeShareProp,
+        }
     };
 };
 
