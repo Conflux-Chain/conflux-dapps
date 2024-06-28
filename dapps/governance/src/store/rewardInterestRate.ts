@@ -166,7 +166,7 @@ rewardRateStore.subscribe(
                         powBaseReward: [res[0][1][1], res[0][1][0], res[0][1][2]] as [string, string, string],
                         interestRate: [res[1][1][1], res[1][1][0], res[1][1][2]] as [string, string, string],
                         storagePoint: [res[2][1][1], res[2][1][0], res[2][1][2]] as [string, string, string],
-                        baseFeeShareProp: [res[3][1][1], res[3][1][0], res[3][1][2]] as [string, string, string], // warning
+                        baseFeeShareProp: [res[3][1][1], res[3][1][0], res[3][1][2]] as [string, string, string],
                     };
                     const currentVoting = {
                         powBaseReward: currentVotingOrigin.powBaseReward.map((val: string) => Unit.fromMinUnit(val)) as [Unit, Unit, Unit],
@@ -243,7 +243,7 @@ rewardRateStore.subscribe(
                             },
                             baseFeeShareProp: {
                                 voting: [zero, zero, zero],
-                                value: Unit.fromMinUnit(currentExecValueOrigin.baseFeeShareProp ?? 0), // warning
+                                value: Unit.fromMinUnit(currentExecValueOrigin.baseFeeShareProp ?? 0),
                             }
                         }
                     })
@@ -282,7 +282,7 @@ rewardRateStore.subscribe(
                                 powBaseReward: [res[0][1][1], res[0][1][2], res[0][1][0]] as [string, string, string],
                                 interestRate: [res[1][1][1], res[1][1][2], res[1][1][0]] as [string, string, string],
                                 storagePoint: [res[2][1][1], res[2][1][2], res[2][1][0]] as [string, string, string],
-                                baseFeeShareProp: [res[3][1][1], res[3][1][2], res[3][1][0]] as [string, string, string], // warning
+                                baseFeeShareProp: [res[3][1][1], res[3][1][2], res[3][1][0]] as [string, string, string],
                             };
                             const currentAccountVoted = {
                                 powBaseReward: currentAccountVotedOrigin.powBaseReward.map((val: string) => Unit.fromMinUnit(val)) as [Unit, Unit, Unit],
@@ -323,7 +323,7 @@ rewardRateStore.subscribe(
                         powBaseReward: [preVotingR[0][1][1], preVotingR[0][1][0], preVotingR[0][1][2]] as [string, string, string],
                         interestRate: [preVotingR[1][1][1], preVotingR[1][1][0], preVotingR[1][1][2]] as [string, string, string],
                         storagePoint: [preVotingR[2][1][1], preVotingR[2][1][0], preVotingR[2][1][2]] as [string, string, string],
-                        baseFeeShareProp: [preVotingR[3][1][1], preVotingR[3][1][0], preVotingR[3][1][2]] as [string, string, string], // warning
+                        baseFeeShareProp: [preVotingR[3][1][1], preVotingR[3][1][0], preVotingR[3][1][2]] as [string, string, string],
                     };
 
                     rewardRateStore.setState({ preVotingOrigin });
