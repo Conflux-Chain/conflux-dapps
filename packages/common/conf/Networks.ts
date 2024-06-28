@@ -141,12 +141,12 @@ const AllNetworks: Record<string, Network> = {
     },
 };
 
-export const isTestCoreChain = location.host.startsWith('net8888') ? '8888' : (import.meta.env.VITE_CORE_NETWORK || '1');
-export const isTestEvmChain = location.host.startsWith('net8888') ? '8889' : (import.meta.env.VITE_EVM_NETWORK || '71'); // 8889 Tested under 8888 domin name
+export const isTestCoreChainId = location.host.startsWith('net8888') ? '8888' : location.host.startsWith('test') ? '1' : import.meta.env.VITE_LOCAL_CORE_NETWORK;
+export const isTestEvmChainId = location.host.startsWith('net8888') ? '8889' : location.host.startsWith('test') ? '71' : import.meta.env.VITE_LOCAL_EVM_NETWORK; // 8889 Tested under 8888 domin name
 
 const Networks = {
-    core: AllNetworks[isProduction ? '1029' : isTestCoreChain],
-    eSpace: AllNetworks[isProduction ? '1030' : isTestEvmChain],
+    core: AllNetworks[isProduction ? '1029' : isTestCoreChainId],
+    eSpace: AllNetworks[isProduction ? '1030' : isTestEvmChainId],
     bsc: AllNetworks[isProduction ? '56' : '97'],
     etc: AllNetworks[isProduction ? '63' : '63'],
 } as const;
