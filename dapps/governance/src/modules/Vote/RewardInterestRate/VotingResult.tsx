@@ -27,14 +27,15 @@ const options = [
         color: '#F0955F',
     },
 ] as const;
-
+const standard_1 = Unit.fromStandardUnit(1);
 const zero = Unit.fromMinUnit(0);
 const oneHundred = Unit.fromMinUnit(100);
 const tenTousands = Unit.fromMinUnit(10000);
 const displayInterestRate = (value?: Unit) => Number(value?.div(tenTousands).toDecimalMinUnit()).toFixed(2) ?? '--';
 const displayPowBaseReward = (value?: Unit) => value?.toDecimalStandardUnit(2) ?? '--';
 const displayStoragePoint = (value?: Unit) => value?.toDecimalStandardUnit(2) ?? '--';
-const displayBaseFeeShareProp = (value?: Unit) => value?.toDecimalStandardUnit(2) ?? '--';
+// The calculation formula is quoted from https://github.com/Conflux-Chain/CIPs/blob/master/CIPs/cip-137.md
+const displayBaseFeeShareProp = (value?: Unit) => Number(value?.div(value.add(standard_1)).mul(100).toDecimalMinUnit()).toFixed() ?? '--';
 
 interface VoteDetail {
     voting?: [Unit, Unit, Unit];

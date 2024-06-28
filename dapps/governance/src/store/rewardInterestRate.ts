@@ -222,9 +222,10 @@ rewardRateStore.subscribe(
                         storagePoint: result.storagePointProp,
                         baseFeeShareProp: result.baseFeeShareProp
                     }
-                    const x = Unit.fromMinUnit(currentExecValueOrigin.storagePoint ?? 0);
-                    const constant_1 = Unit.fromStandardUnit(1);
-                    const storagePoint = Unit.fromStandardUnit(x.div(x.add(constant_1))); // x/(1+x)
+
+                    const storage = Unit.fromMinUnit(currentExecValueOrigin.storagePoint ?? 0);
+                    const storagePoint = Unit.fromStandardUnit(storage.div(storage.add(standard_1))); // storage/(1+storage)
+                    
                     rewardRateStore.setState({ currentExecValueOrigin });
                     rewardRateStore.setState({
                         prepreVote: {
@@ -413,14 +414,11 @@ const calcPreVote = (currentVotingRound: number) => {
     const storage = Unit.fromMinUnit(currentExecValueOrigin.storagePoint ?? 0);
     const storagePoint = Unit.fromStandardUnit(storage.div(storage.add(standard_1))); // storage/(1+storage)
     
-    const base_fee = Unit.fromMinUnit(currentExecValueOrigin.baseFeeShareProp ?? 0);
-    const baseFeeShareProp = Unit.fromStandardUnit(base_fee.div(base_fee.add(standard_1))); // base_fee/(1+base_fee)
-    
     const currentExecValue = {
         powBaseReward: Unit.fromMinUnit(currentExecValueOrigin?.powBaseReward ?? 0),
         interestRate: Unit.fromMinUnit(currentExecValueOrigin?.interestRate ?? 0),
         storagePoint: storagePoint,
-        baseFeeShareProp: baseFeeShareProp,
+        baseFeeShareProp: Unit.fromMinUnit(currentExecValueOrigin?.baseFeeShareProp ?? 0),
     };
 
     const preVoting = {
