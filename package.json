@@ -22,7 +22,7 @@
         "shuttle-flow/**/rc-motion": "2.4.1"
     },
     "scripts": {
-        "build": "turbo run build --scope=cross-space --scope=hub --scope=shuttle-flow",
+        "build": "turbo run build --scope=cross-space --scope=hub",
         "lint": "turbo run lint",
         "format": "prettier --write \"**/*.{ts,tsx,md}\"",
         "dev": "turbo run dev --scope=hub",
