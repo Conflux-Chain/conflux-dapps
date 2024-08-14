@@ -19,7 +19,7 @@
         "lodash-es": "^4.17.21",
         "react": "^18.1.0",
         "react-dom": "^18.1.0",
-        "react-hook-form": "^7.32.0",
+        "react-hook-form": "7.32.0",
         "react-spring": "^9.4.5",
         "react-use-clipboard": "^1.0.8",
         "tippy.js": "^6.3.7",
