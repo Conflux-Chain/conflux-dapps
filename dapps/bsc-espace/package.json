@@ -7,12 +7,12 @@
         "build": "vite build"
     },
     "dependencies": {
-        "@cfxjs/use-wallet-react": "0.0.2",
+        "@cfxjs/use-wallet-react": "0.0.3-0",
         "@fluent-wallet/estimate-tx": "^0.2.0",
         "@react-spring/web": "^9.4.5",
         "@tippyjs/react": "^4.2.6",
         "clsx": "^1.1.1",
-        "custom-react-scrollbar": "^0.0.2",
+        "custom-react-scrollbar": "^0.0.3-0",
         "decimal.js": "^10.3.1",
         "lodash-es": "^4.17.21",
         "react": "^18.1.0",
