@@ -13,7 +13,7 @@
     "@tippyjs/react": "^4.2.6",
     "clsx": "^1.1.1",
     "custom-keyboard": "^0.0.0",
-    "custom-react-scrollbar": "^0.0.3-1",
+    "custom-react-scrollbar": "^0.0.2",
     "dayjs": "^1.11.3",
     "decimal.js": "^10.3.1",
     "jsbi": "^4.3.0",
