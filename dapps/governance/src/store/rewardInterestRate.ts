@@ -410,7 +410,6 @@ rewardRateStore.subscribe(
 const calcPreVote = (currentVotingRound: number) => {
     const { currentExecValueOrigin, preVotingOrigin, posStakeForPreVotes } = rewardRateStore.getState();
     if (!currentExecValueOrigin || !preVotingOrigin || !posStakeForPreVotes) return;
-
     const storage = Unit.fromMinUnit(currentExecValueOrigin.storagePoint ?? 0);
     const storagePoint = Unit.fromStandardUnit(storage.div(storage.add(standard_1))); // storage/(1+storage)
     
@@ -505,10 +504,10 @@ const calcNextVotingValue = (curVote: Vote, nextVoting: Voting, posStakeForPreVo
         );
         if (type === 'storagePoint') {
             const storagePoint = curVote[type].value;
-            const storage = storagePoint.div(Unit.fromStandardUnit(1).sub(storagePoint));
+            const storage = storagePoint.div(standard_1.sub(storagePoint));
             const newStorage = Unit.fromStandardUnit(storage).mul(product);
             // Convert back to storagePoint using: storagePoint = storage/(1+storage)
-            return Unit.fromStandardUnit(newStorage.div(newStorage.add(Unit.fromStandardUnit(1))).toDecimalMinUnit());
+            return Unit.fromStandardUnit(newStorage.div(newStorage.add(standard_1)).toDecimalMinUnit());
         }
         return curVote[type].value.mul(product);
     };
