@@ -33,7 +33,7 @@ const oneHundred = Unit.fromMinUnit(100);
 const tenTousands = Unit.fromMinUnit(10000);
 const displayInterestRate = (value?: Unit) => Number(value?.div(tenTousands).toDecimalMinUnit()).toFixed(2) ?? '--';
 const displayPowBaseReward = (value?: Unit) => value?.toDecimalStandardUnit(2) ?? '--';
-const displayStoragePoint = (value?: Unit) => value?.toDecimalStandardUnit(2) ?? '--';
+const displayStoragePoint = (value?: Unit) => Number(value?.mul(100).toDecimalStandardUnit(2)).toFixed() ?? '--';
 // The calculation formula is quoted from https://github.com/Conflux-Chain/CIPs/blob/master/CIPs/cip-137.md
 const displayBaseFeeShareProp = (value?: Unit) => Number(value?.div(value.add(standard_1)).mul(100).toDecimalMinUnit()).toFixed() ?? '--';
 
@@ -53,7 +53,7 @@ const TypeTitle = {
 const TypeUnit = {
     'PoW block rewards': ' CFX/Block',
     'PoS APY': '%',
-    'Storage Point': '',
+    'Storage Point': '%',
     'Proposals': 'Proposals',
     'Base Fee Sharing Prop': '%'
 }
