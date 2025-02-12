@@ -15,7 +15,7 @@ const Main: React.FC = () => {
     useEffect(startTrackRewardInterestRate, []);
 
     return (
-        <div className="mx-auto w-[1140px] pt-[16px] pb-[24px]">
+        <div className="mx-auto w-full max-w-[1140px] pt-[16px] pb-[24px]">
             {/* <Header /> */}
             <Tabs />
             <Outlet />

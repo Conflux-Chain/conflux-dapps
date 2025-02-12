@@ -80,46 +80,42 @@ const Statistics: React.FC = () => {
 
     return (
         <div>
-            <div className='mt-[16px] flex gap-[24px]'>
+            <div className='mt-[16px] flex flex-col sm:flex-row gap-[16px] sm:gap-[24px]'>
                 <div className='w-full p-[16px] rounded-[8px] bg-white shadow-md'>
                     <div className='text-[12px] text-[#898D9A]'>Total Balance</div>
-                    <BalanceText className='text-[16px] text-[#1B1B1C]' id="Dashboard Total Balance" balance={isSameChain ? totalBalance : false} symbol="CFX" decimals={18} />
+                    <BalanceText className='text-[14px] sm:text-[16px] text-[#1B1B1C]' id="Dashboard Total Balance" balance={isSameChain ? totalBalance : false} symbol="CFX" decimals={18} />
                 </div>
                 <div className='w-full p-[16px] rounded-[8px] bg-white shadow-md'>
-                    <div className='text-[13px] text-[#898D9A]'>Available Balance</div>
+                    <div className='text-[12px] text-[#898D9A]'>Available Balance</div>
                     <BalanceText
-                        className="text-[16px] text-[#3D3F4C]"
+                        className="text-[14px] sm:text-[16px] text-[#3D3F4C]"
                         id="Dashboard Available Balance"
                         balance={isSameChain ? balance : false}
                         symbol={'CFX'}
                         decimals={18}
                     />
-                    <div className='flex mt-[16px]'>
-
+                    <div className='flex mt-[16px] flex-wrap gap-[16px]'>
                         <Link to="https://www.conflux-pos-validators.com/" target='_block'>
-                            <Button
-                                className='w-[100px] relative'>
+                            <Button className='w-[100px] relative'>
                                 <ToolTip des="APY: ~10%+" />
                                 <span>PoS Stake</span>
                             </Button>
                         </Link>
                         {
                             !isESpace && <Link to="/governance/pow-stake">
-                                <Button className='w-[100px] ml-[16px]' variant='outlined'>PoW Stake</Button>
+                                <Button className='w-[100px]' variant='outlined'>PoW Stake</Button>
                             </Link>
                         }
-
                     </div>
-
                 </div>
                 <div className='w-full p-[16px] rounded-[8px] bg-white shadow-md'>
                     <div className='text-[12px] text-[#898D9A]'>Total Staked</div>
-                    <BalanceText className='text-[16px] text-[#1B1B1C]' id="Dashboard Total Staked" balance={isSameChain ? totalStaked : false} symbol="CFX" decimals={18} />
+                    <BalanceText className='text-[14px] sm:text-[16px] text-[#1B1B1C]' id="Dashboard Total Staked" balance={isSameChain ? totalStaked : false} symbol="CFX" decimals={18} />
                 </div>
                 <div className='w-full p-[16px] rounded-[8px] bg-white shadow-md'>
                     <div className='text-[12px] text-[#898D9A]'>Total Locked</div>
-                    <BalanceText className='text-[16px] text-[#1B1B1C]' id="Dashboard Total Locked" balance={isSameChain ? totalLocked : false} symbol="CFX" decimals={18} />
-                    <div className='mt-[16px] text-[14px]'>
+                    <BalanceText className='text-[14px] sm:text-[16px] text-[#1B1B1C]' id="Dashboard Total Locked" balance={isSameChain ? totalLocked : false} symbol="CFX" decimals={18} />
+                    <div className='mt-[16px] text-[12px] sm:text-[14px]'>
                         <span className='text-[#898D9A]'>Voting Power:</span>
                         <BalanceText className='text-[#3D3F4C]' id="Dashboard Voting Power" balance={isSameChain ? totalPower : false} symbol="" />
                     </div>
