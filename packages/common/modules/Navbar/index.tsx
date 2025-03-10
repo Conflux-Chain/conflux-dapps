@@ -44,7 +44,7 @@ const Navbar: React.FC<Props> = ({ handleSwitchLocale, handleSwitchMode, dappIco
                             ) : location.pathname.startsWith('/native-usdt0') ? (
                                 <></>
                             ) : (
-                                <SelectChainModule />
+                                <WalletConnector />
                             )}
                         </div>
                     </div>
@@ -60,7 +60,7 @@ const Navbar: React.FC<Props> = ({ handleSwitchLocale, handleSwitchMode, dappIco
                             {location.pathname.startsWith('/native-usdt0') ? (
                                 <></>
                             ) : (
-                                <SelectChainModule />
+                                <WalletConnector />
                             )}
                         </div>
                     </div>
