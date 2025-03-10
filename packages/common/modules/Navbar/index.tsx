@@ -1,7 +1,7 @@
 import React, { isValidElement } from 'react';
 import { useLocation } from 'react-router-dom';
 import WalletConnector from './WalletConnector';
-import SelectChainModule from './SelectChain'
+import SelectChainModule from './SelectChain';
 import MenuIcon from '../../assets/icons/menu.svg';
 import { changeExpand, useExpand } from '../../../../dapps/dapp-box/src/modules/Sidebar/sideBarStore';
 
@@ -26,7 +26,6 @@ const Navbar: React.FC<Props> = ({ handleSwitchLocale, handleSwitchMode, dappIco
 
     return (
         <>
-
             {!isMobile() && (
                 <nav className="h-[64px] flex-shrink-0">
                     <div className="container h-full xl:mx-auto flex justify-between items-center whitespace-nowrap">
@@ -37,15 +36,16 @@ const Navbar: React.FC<Props> = ({ handleSwitchLocale, handleSwitchMode, dappIco
                         </div>
 
                         <div className="flex justify-center items-center">
-                            {
-                                location.pathname.indexOf('/governance') > -1 ?
-                                    <>
-                                        <SelectChainModule />
-                                        <WalletConnector />
-                                    </>
-                                    :
+                            {location.pathname.indexOf('/governance') > -1 ? (
+                                <>
+                                    <SelectChainModule />
                                     <WalletConnector />
-                            }
+                                </>
+                            ) : location.pathname.startsWith('/native-usdt0') ? (
+                                <></>
+                            ) : (
+                                <WalletConnector />
+                            )}
                         </div>
                     </div>
                 </nav>
@@ -57,7 +57,11 @@ const Navbar: React.FC<Props> = ({ handleSwitchLocale, handleSwitchMode, dappIco
                             {!expand && <img src={MenuIcon} className="h-[20px] w-[20px]" />}
                         </div>
                         <div className="flex justify-center items-center">
-                            <WalletConnector />
+                            {location.pathname.startsWith('/native-usdt0') ? (
+                                <></>
+                            ) : (
+                                <WalletConnector />
+                            )}
                         </div>
                     </div>
                 </nav>
