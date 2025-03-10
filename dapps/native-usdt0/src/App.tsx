@@ -1,11 +1,13 @@
 import bgEmpowering from './assets/bgEmpowering.png';
 import bgNative from './assets/bgNative.png';
+import bgNativeMobile from './assets/bgNativeMobile.png';
 import Bridge from './assets/Bridge.png';
 import Convert from './assets/Convert.png';
 import learnMore from './assets/learnMore.png';
 import arrowUp from './assets/arrow-up.svg';
 import arrow from './assets/arrow.svg';
 import { useState, useEffect } from 'react';
+import { isProduction } from 'common/conf/Networks';
 
 interface EarnItem {
     icon: string;
@@ -28,7 +30,9 @@ const App = () => {
     useEffect(() => {
         const fetchConfig = async () => {
             try {
-                const response = await fetch('https://cdn.jsdelivr.net/gh/conflux-fans/ustd0-link@main/config.json');
+                const timestamp = Date.now();
+                const env = isProduction ? 'main' : 'dev';
+                const response = await fetch(`https://cdn.jsdelivr.net/gh/conflux-fans/ustd0-link@${env}/config.json?t=${timestamp}`);
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
@@ -45,28 +49,47 @@ const App = () => {
         };
 
         fetchConfig();
+        const rootEle = document.querySelector('#conflux-hub-root');
+        if (rootEle) {
+            rootEle.classList.add('root-no-px');
+        }
     }, []);
 
     return (
-        <div className="min-h-screen relative">
-            {/* Hero Section */}
-            <div className="w-full">
-                <div className="w-full max-w-[450px] pt-[180px] m-auto absolute left-0 right-0">
-                    <div className="w-[438px] text-[#3D3F4C] text-[38px] font-medium leading-[40px] relative z-20 text-center">
+        <div className="min-h-screen  relative">
+            <div className="w-full hidden sm:block relative">
+                <div className="w-full max-w-[700px] m-auto absolute left-0 right-0">
+                    <img className="w-full absolute z-[9]" src={bgNative} alt="Empowering" />
+                </div>
+
+                <div className="w-full max-w-[450px] pt-[180px] m-auto  left-0 right-0">
+                    <div className="w-[438px] text-[#3D3F4C] text-[38px] font-medium leading-[40px] relative z-[9] text-center">
                         Native <span className="text-[#00B988]">USDT0</span> Now Live Convert, Bridge, Earn
                     </div>
-                    <div className="text-[#3D3F4C] text-[16px] pt-[16px] relative z-20">Empowering and Elevating the Conflux eSpace DeFi Ecosystem</div>
-                </div>
-                <div className="w-full max-w-[700px] m-auto absolute left-0 right-0">
-                    <img className="w-full absolute z-10" src={bgNative} alt="Empowering" />
+                    <div className="text-[#3D3F4C] text-[16px] pt-[16px] relative z-[9]">Empowering and Elevating the Conflux eSpace DeFi Ecosystem</div>
                 </div>
 
-                <img className="w-[100%] pt-[230px] absolute left-0 right-0 z-10 " src={bgEmpowering} alt="Native" />
+                <div
+                    className="w-full pb-[400px] [@media(min-width:1720px)]:pb-[25%] mb-[-50px] mt-[-100px] relative z-[9]"
+                    style={{ backgroundImage: `url(${bgEmpowering})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}
+                ></div>
 
-                <img className="w-[16px] pt-[430px] absolute left-0 right-0 z-10 m-auto " src={arrow} alt="arrow" />
+                <img className="w-[16px] mt-[-100px] absolute left-0 right-0 z-[9] m-auto " src={arrow} alt="arrow" />
             </div>
 
-            <div className="w-full mx-auto pt-[350px] md:pt-[520px] px-4 flex flex-col md:flex-row gap-6 relative z-20">
+            <div className="w-full min-w-[375px] block sm:hidden pb-[30%]">
+                <div className="w-full max-w-[450px] pt-[48%] m-auto absolute left-0 right-0">
+                    <div className="w-full text-[#3D3F4C] text-[32px] font-medium leading-[40px] relative z-[9] text-center">
+                        Native <span className="text-[#00B988]">USDT0</span> Now Live Convert, Bridge, Earn
+                    </div>
+                    <div className="text-[#3D3F4C] text-[14px] text-center pt-[16px] relative z-[9]">
+                        Empowering and Elevating the Conflux eSpace DeFi Ecosystem
+                    </div>
+                </div>
+                <img className="w-full absolute z-[8]" src={bgNativeMobile} alt="Empowering" />
+            </div>
+
+            <div className="w-full max-w-[1536px] mx-auto pt-[80%] sm:pt-0 px-4 flex flex-col md:flex-row gap-6 relative z-[9]">
                 <div className="flex-1 bg-white rounded-2xl p-6 shadow-lg">
                     <div className="md:flex md:items-start">
                         <div className="flex mb-4 md:mb-0 ">
@@ -101,13 +124,13 @@ const App = () => {
                 </div>
             </div>
 
-            <div className="w-full mx-auto mt-8 px-4 relative z-20">
+            <div className="w-full max-w-[1536px] mx-auto mt-8 px-4 relative z-[9]">
                 <div className="">
                     <div className="text-[#3D3F4C] text-[24px] font-medium mb-2">Earn</div>
                     <div className="text-[#898D9A] text-[14px] mb-6">Utilize USDT0 in DeFi for maximum gains.</div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 [@media(min-width:321px)_and_(max-width:639px)]:grid-cols-2">
-                        {config?.earn.map((item, index) => (
+                        {config?.earn?.map((item, index) => (
                             <a
                                 key={index}
                                 className="bg-white rounded-xl p-6 flex items-center justify-between border border-gray-100 hover:border-[#00B988] hover:bg-[#f5fbf9] transition-colors cursor-pointer group"
@@ -127,7 +150,7 @@ const App = () => {
                 </div>
             </div>
 
-            <div className="w-full mx-auto mt-12 px-4 relative z-20 ">
+            <div className="w-full max-w-[1536px] mx-auto mt-12 px-4 relative z-[9] ">
                 <div className="bg-[#2D2E36] rounded-2xl p-6 sm:p-12 shadow-lg flex flex-col-reverse lg:flex-row gap-2 justify-between">
                     <div className="flex-1 flex flex-col justify-between lg:py-10">
                         <div className="text-white text-[24px] font-medium mb-4">Tether's Innovative Stablecoin Technology</div>
