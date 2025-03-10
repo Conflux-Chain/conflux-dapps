@@ -12,7 +12,7 @@ import { useNotSupportMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHos
 import './index.css';
 import { useExpand, changeExpand } from './sideBarStore';
 
-const dappsSupportMetaMaskHostedByFluent = ['eSpace Bridge', 'Governance', 'Web3 Paywall', 'Bridge', 'Pos'];
+const dappsSupportMetaMaskHostedByFluent = ['eSpace Bridge', 'Governance', 'Web3 Paywall', 'Bridge', 'Pos', 'Native USDT0'];
 
 const Sidebar: React.FC = () => {
     const navigate = useNavigate();
