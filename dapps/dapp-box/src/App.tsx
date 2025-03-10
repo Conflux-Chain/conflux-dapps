@@ -118,7 +118,7 @@ const App = () => {
                 LocalStorage.setItem({ key: 'locale', data: locale });
                 return locale;
             }),
-        [],
+        []
     );
 
     return (
@@ -135,8 +135,6 @@ const App = () => {
 
 const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?: () => void }> = ({ handleSwitchLocale, handleSwitchMode }) => {
     const currentDapp = useCurrentDapp();
-
-    const [isNavbarVisible, setIsNavbarVisible] = useState(true);
 
     const { pathname } = useLocation();
     useEffect(() => {
@@ -176,25 +174,18 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                 document.body.style.zoom = 1;
             };
         }
-        if (pathname.startsWith('/native-usdt0')) {
-            setIsNavbarVisible(false);
-        } else {
-            setIsNavbarVisible(true);
-        }
     }, [pathname]);
 
     return (
         <CustomScrollbar contentClassName="main-scroll">
             <ErrorBoundary>
-                {isNavbarVisible && (
-                    <Navbar
-                        handleSwitchLocale={handleSwitchLocale}
-                        handleSwitchMode={handleSwitchMode}
-                        dappName={currentDapp.name}
-                        dappIcon={currentDapp.icon}
-                        Enhance={currentDapp.NavbarEnhance}
-                    />
-                )}
+                <Navbar
+                    handleSwitchLocale={handleSwitchLocale}
+                    handleSwitchMode={handleSwitchMode}
+                    dappName={currentDapp.name}
+                    dappIcon={currentDapp.icon}
+                    Enhance={currentDapp.NavbarEnhance}
+                />
                 <SideBarMask />
                 <Routes>
                     <Route key="native-usdt0" path="native-usdt0" element={<Outlet />}>
