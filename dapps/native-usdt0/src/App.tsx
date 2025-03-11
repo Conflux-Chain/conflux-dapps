@@ -8,6 +8,7 @@ import arrowUp from './assets/arrow-up.svg';
 import arrow from './assets/arrow.svg';
 import { useState, useEffect } from 'react';
 import { isProduction } from 'common/conf/Networks';
+import './App.css';
 
 interface EarnItem {
     icon: string;
@@ -90,7 +91,7 @@ const App = () => {
             </div>
 
             <div className="w-full max-w-[1536px] mx-auto pt-[80%] sm:pt-0 px-4 flex flex-col md:flex-row gap-6 relative z-[9]">
-                <div className="flex-1 bg-white rounded-2xl p-6 shadow-[0_10px_10px_0_rgba(164,170,216,0.08)]">
+                <div className="flex-1 bg-white rounded-2xl p-6 primary-card-shadow">
                     <div className="md:flex md:items-start">
                         <div className="flex mb-4 md:mb-0 ">
                             <img src={Convert} alt="Convert" className="w-[120px] h-[120px]" />
@@ -106,7 +107,7 @@ const App = () => {
                         </div>
                     </div>
                 </div>
-                <div className="flex-1 bg-white rounded-2xl p-6 shadow-[0_10px_10px_0_rgba(164,170,216,0.08)]">
+                <div className="flex-1 bg-white rounded-2xl p-6 primary-card-shadow">
                     <div className="md:flex md:items-start">
                         <div className="flex j mb-4 md:mb-0 md:justify-start">
                             <img src={Bridge} alt="Bridge" className="w-[120px] h-[120px]" />
