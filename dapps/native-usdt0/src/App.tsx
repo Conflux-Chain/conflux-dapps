@@ -8,6 +8,7 @@ import arrowUp from './assets/arrow-up.svg';
 import arrow from './assets/arrow.svg';
 import { useState, useEffect } from 'react';
 import { isProduction } from 'common/conf/Networks';
+import './App.css';
 
 interface EarnItem {
     icon: string;
@@ -56,7 +57,7 @@ const App = () => {
     }, []);
 
     return (
-        <div className="min-h-screen  relative">
+        <div className="min-h-screen relative">
             <div className="w-full hidden sm:block relative">
                 <div className="w-full max-w-[700px] m-auto absolute left-0 right-0">
                     <img className="w-full absolute z-[9]" src={bgNative} alt="Empowering" />
@@ -90,7 +91,7 @@ const App = () => {
             </div>
 
             <div className="w-full max-w-[1536px] mx-auto pt-[80%] sm:pt-0 px-4 flex flex-col md:flex-row gap-6 relative z-[9]">
-                <div className="flex-1 bg-white rounded-2xl p-6 shadow-lg">
+                <div className="flex-1 bg-white rounded-2xl p-6 primary-card-shadow">
                     <div className="md:flex md:items-start">
                         <div className="flex mb-4 md:mb-0 ">
                             <img src={Convert} alt="Convert" className="w-[120px] h-[120px]" />
@@ -106,7 +107,7 @@ const App = () => {
                         </div>
                     </div>
                 </div>
-                <div className="flex-1 bg-white rounded-2xl p-6 shadow-lg">
+                <div className="flex-1 bg-white rounded-2xl p-6 primary-card-shadow">
                     <div className="md:flex md:items-start">
                         <div className="flex j mb-4 md:mb-0 md:justify-start">
                             <img src={Bridge} alt="Bridge" className="w-[120px] h-[120px]" />
@@ -139,7 +140,7 @@ const App = () => {
                             >
                                 <div className="flex items-center">
                                     <img src={item.icon} alt={item.name} className="w-8 h-8" />
-                                    <div className="ml-3 text-[#3D3F4C] font-medium text-sm">{item.name}</div>
+                                    <div className="ml-3 text-[#3D3F4C] font-medium text-sm sm:text-[18px]">{item.name}</div>
                                 </div>
                                 <div className="hidden group-hover:block">
                                     <img src={arrowUp} alt="arrow-up" className="w-5 h-5 text-[#00B988]" />
