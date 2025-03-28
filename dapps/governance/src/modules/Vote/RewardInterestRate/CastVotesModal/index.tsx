@@ -20,7 +20,7 @@ import { Proposal } from "governance/src/store/proposalList"
 import { spaceSeat } from 'common/conf/Networks';
 
 const CastVotesModal = new PopupClass();
-CastVotesModal.setListClassName('cast-votes-modal-wrapper');
+
 CastVotesModal.setItemWrapperClassName('toast-item-wrapper');
 CastVotesModal.setAnimatedSize(false);
 
@@ -255,7 +255,7 @@ const CastVotesModalContent = memo(({ type, proposal }: { type: VoteTypes, propo
 
 
     return (
-        <div className="cast-votes-modal relative w-[444px] p-[24px] bg-white rounded-[4px]">
+        <div className="relative w-[calc(100vw-32px)] md:w-[444px] p-4 md:p-[24px] mx-auto bg-white rounded-[4px]">
             <img
                 className="absolute right-[12px] top-[13px] w-[16px] h-[16px] cursor-pointer hover:scale-110 transition-transform select-none z-20"
                 onClick={hideCastVotesModal}
