@@ -29,7 +29,7 @@ const App: React.FC = () => {
             <div className="text-[16px] leading-[22px] mt-[12px] text-[#A9ABB2]">{i18n.description}</div>
             <div className="text-[16px] leading-[22px] mt-[4px] text-[#A9ABB2]">
                 {i18n.click_here}
-                <a className="text-[#808BE7] hover:underline" href="https://www.conflux-pos-validators.com/" rel="" target="_blank">Conflux PoS Validators</a>
+                <a className="text-[#808BE7] hover:underline" href="https://conflux-pos-validators.org/" rel="" target="_blank">Conflux PoS Validators</a>
             </div>
 
             <ConnectTip />
