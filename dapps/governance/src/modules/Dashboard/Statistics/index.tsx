@@ -96,7 +96,7 @@ const Statistics: React.FC = () => {
                     />
                     <div className='flex mt-[16px]'>
 
-                        <Link to="https://www.conflux-pos-validators.com/" target='_block'>
+                        <Link to="https://conflux-pos-validators.org/" target='_block'>
                             <Button
                                 className='w-[100px] relative'>
                                 <ToolTip des="APY: ~10%+" />
