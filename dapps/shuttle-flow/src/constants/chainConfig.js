@@ -64,8 +64,8 @@ export const ChainIdsOec = {
  */
 export const KeyOfCfx = 'cfx'
 export const ScanUrlCfx = IS_DEV
-  ? 'https://testnet.confluxscan.io'
-  : 'https://confluxscan.io'
+  ? 'https://testnet.confluxscan.org'
+  : 'https://confluxscan.org'
 export const ChainIdsCfx = {
   MAINNET: {id: 1029, name: 'Hydra'},
   TESTNET: {id: 1, name: 'Testnet'},

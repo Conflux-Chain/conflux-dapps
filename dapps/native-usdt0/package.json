@@ -1,0 +1,27 @@
+{
+    "name": "native-usdt0",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "vite --port 3008 --host",
+        "build": "tsc -b && vite build"
+    },
+    "dependencies": {
+        "@tanstack/react-query": "^5.8.4",
+        "autoprefixer": "^10.4.16",
+        "postcss": "^8.4.31",
+        "react": "18.2.0",
+        "superkey": "*",
+        "viem": "2.x",
+        "wagmi": "^2.14.12",
+        "zustand": "^5.0.3"
+    },
+    "devDependencies": {
+        "@types/react": "18.0.27",
+        "@vitejs/plugin-react": "3.0.1",
+        "tailwindcss": "^3.3.5",
+        "typescript": "5.7.3",
+        "vite": "4.0.4"
+    }
+}
