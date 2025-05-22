@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { Button, Input, Modal, Form, InputNumber, Radio } from 'antd';
 import { postAPP } from 'payment/src/utils/request';
-import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
+import { useAccount } from '@cfx-kit/react-utils/dist/AccountManage';
 import { AuthESpace } from 'common/modules/AuthConnectButton';
 import { showToast } from 'common/components/showPopup/Toast';
 import Tip from 'payment/src/components/Tip';

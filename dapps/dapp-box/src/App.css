@@ -34,3 +34,7 @@
 body {
     @apply overflow-y-hidden;
 }
+
+:root {
+    --wcm-z-index: 1001 !important;
+}
