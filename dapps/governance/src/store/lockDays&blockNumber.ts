@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { store as confluxStore, Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
-import { store as ethereumStore } from '@cfxjs/use-wallet-react/ethereum';
+import { store as ethereumStore } from '@cfx-kit/react-utils/dist/AccountManage';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { fetchChain, intervalFetchChain, clearEqualMap } from 'common/utils/fetchChain';
 import Networks, { isProduction, spaceSeat, spaceRpcurl, isTestCoreChainId, isTestEvmChainId } from 'common/conf/Networks';
