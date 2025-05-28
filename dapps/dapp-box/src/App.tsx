@@ -126,7 +126,7 @@ const App = () => {
 
 const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?: () => void }> = ({ handleSwitchLocale, handleSwitchMode }) => {
     const currentDapp = useCurrentDapp();
-
+    
     const { pathname } = useLocation();
     useEffect(() => {
         hideAllToast();
