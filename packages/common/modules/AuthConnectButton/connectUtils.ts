@@ -2,7 +2,7 @@ import { showToast } from 'common/components/showPopup/Toast';
 import { connect, store as coreStore, type addChain as AddChain, type switchChain as SwitchChain } from '@cfxjs/use-wallet-react/conflux/Fluent';
 import { type switchChain as SwitchChainEthereum, getCurrentWalletName as getCurrentEthereumWalletName } from '@cfx-kit/react-utils/dist/AccountManage';
 import { validateCfxAddress } from 'common/utils/addressUtils';
-import { requestCorePermission } from 'common/hooks/useMetaMaskHostedByFluent';
+import { waitForCorePermission } from 'common/hooks/useMetaMaskHostedByFluent';
 import { type Network } from '../../conf/Networks';
 
 export async function connectToConflux() {
@@ -10,11 +10,11 @@ export async function connectToConflux() {
     const currentCoreAccount = coreStore.getState().accounts?.[0];
     if (currentEthereumWalletName === 'Fluent' && !validateCfxAddress(currentCoreAccount || '')) {
         try {
-            await requestCorePermission();
+            await waitForCorePermission();
             showToast('Connect to Core Success!', { type: 'success' });
         } catch (err) {
             if ((err as any)?.code === 4001) {
-                showToast('You must agree to the cross-space permission request.', { type: 'failed' });
+                showToast('You cancel the connection request.', { type: 'failed' });
             }
         }
     } else {

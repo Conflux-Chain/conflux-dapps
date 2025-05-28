@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { store as coreStore } from '@cfxjs/use-wallet-react/conflux/Fluent';
-import { connect, useRegisteredWallets, createPrioritySorter, getAccount, disconnect } from '@cfx-kit/react-utils/dist/AccountManage';
-import { requestEthereumPermission } from 'common/hooks/useMetaMaskHostedByFluent';
+import { connect, useRegisteredWallets, createPrioritySorter, getAccount, useAccount } from '@cfx-kit/react-utils/dist/AccountManage';
+import { waitForEthereumPermission } from 'common/hooks/useMetaMaskHostedByFluent';
 import { showToast } from 'common/components/showPopup/Toast';
 import { PopupClass } from 'common/components/Popup';
 import Spin from 'common/components/Spin';
@@ -17,23 +17,16 @@ const prioritySorter = createPrioritySorter(['Fluent', 'MetaMask', 'WalletConnec
 
 const WalletSelectModalContent: React.FC<{ resolve: (value: string[]) => void; reject: (error: any) => void }> = memo(({ resolve, reject }) => {
     const wallets = useRegisteredWallets(prioritySorter);
+    const account = useAccount();
 
     const handleClickWallet = async (walletName: string) => {
         try {
             if (walletName === 'Fluent') {
-                if (coreStore.getState().status === 'active') {
-                    await requestEthereumPermission();
-                    await new Promise((resolve) => setTimeout(resolve, 300));
-                }
+                await waitForEthereumPermission();
             }
 
             await connect(walletName);
             const account = getAccount();
-            if (!account?.startsWith('0x')) {
-                await disconnect();
-                showToast('You must agree to the cross-space permission request.', { type: 'failed' });
-                return;
-            }
             if (!account) {
                 showToast('Error account address.', { type: 'failed' });
                 return;
@@ -63,13 +56,16 @@ const WalletSelectModalContent: React.FC<{ resolve: (value: string[]) => void; r
             <p className="px-[24px] mb-[8px] text-black text-[14px] font-medium text-left">Connect to eSpace</p>
             {wallets.map((wallet) => (
                 <div
-                    className={clsx('px-[24px] flex items-center h-[48px] hover:bg-[#808BE74D] cursor-pointer', inActivating && wallet.status !== 'in-activating' && 'pointer-events-none opacity-50')}
+                    className={clsx(
+                        'px-[24px] flex items-center h-[48px] hover:bg-[#808BE74D] cursor-pointer',
+                        inActivating && wallet.status !== 'in-activating' && 'pointer-events-none opacity-50',
+                    )}
                     key={wallet.walletName}
                     onClick={() => handleClickWallet(wallet.walletName)}
                 >
                     <img className="w-[24px] h-[24px] mr-[8px]" src={wallet.walletIcon} alt={wallet.walletName} />
                     <span className="text-black text-[14px] font-medium text-left">{wallet.walletName}</span>
-                    {coreStore.getState().status === 'active' && wallet.walletName === 'Fluent' && (
+                    {coreStore.getState().status === 'active' && wallet.walletName === 'Fluent' && account && !account.startsWith('0x') && (
                         <span className="ml-[4px] text-[#44D7B6] text-[12px] text-left"> (Cross Space Request)</span>
                     )}
                     {wallet.status === 'in-activating' && <Spin className="ml-[6px] text-black text-[14px]" />}

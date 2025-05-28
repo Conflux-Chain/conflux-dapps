@@ -63,7 +63,7 @@ const WalletConnector: React.FC<Props> = ({ authSpace }) => {
     const activeConnections = useMemo(() => connections.filter(({ status }) => status === 'active'), [connections]);
 
     const isAllConnected = useMemo(() => unActiveConnections?.length === 0, [unActiveConnections]);
-    console.log(isAllConnected);
+
     return (
         <ConnectorDropdown currentEthereumWallet={currentEthereumWallet}>
             {(triggerDropdown, visible) => (
