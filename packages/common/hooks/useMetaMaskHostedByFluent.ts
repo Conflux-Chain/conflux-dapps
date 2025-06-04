@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
-import { completeDetect as completeDetectCore, store as coreStore, requestCrossNetworkPermission, setCrossNetworkChain, useStatus as useCoreStatus} from '@cfxjs/use-wallet-react/conflux/Fluent';
-import { getCurrentWalletName as getCurrentEthereumWalletName, useCurrentWalletName as useCurrentEthereumWalletName, useCurrentWalletName, getAccount as getEthereumAccount, connect as connectEthereum } from '@cfx-kit/react-utils/dist/AccountManage';
+import { completeDetect as completeDetectCore, store as coreStore, requestCrossNetworkPermission, setCrossNetworkChain, useStatus as useCoreStatus, connect as connectCoreFluent } from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { store as ethereumFluentStore } from '@cfxjs/use-wallet-react/ethereum/Fluent';
+import { getCurrentWalletName as getCurrentEthereumWalletName, useCurrentWalletName as useCurrentEthereumWalletName } from '@cfx-kit/react-utils/dist/AccountManage';
 import { validateCfxAddress, validateHexAddress } from 'common/utils/addressUtils';
 import Networks from 'common/conf/Networks';
 import { showToast } from 'common/components/showPopup/Toast';
@@ -43,16 +43,14 @@ export async function waitForCorePermission() {
     }
 }
 
+
 export async function waitForEthereumPermission() {
-    if (coreStore.getState().status === 'active') {
-        await requestEthereumPermission();
-    } else {
-        await connectEthereum('Fluent');
-    }
+    await requestEthereumPermission();
     await new Promise((resolve) => setTimeout(resolve, 300));
-    while (!validateHexAddress(getEthereumAccount() ?? '')) {
+    while (!validateHexAddress(ethereumFluentStore.getState().accounts?.[0] ?? '')) {
         showToast('You must agree to the cross-space permission request.', { type: 'failed' });
         await requestCorePermission();
         await new Promise((resolve) => setTimeout(resolve, 300));
     }
+    await connectCoreFluent();
 }
