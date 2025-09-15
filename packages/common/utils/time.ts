@@ -14,7 +14,7 @@ export const calRemainTime = (_milliseconds: string | number, unit: 'day' | 'hou
     day = Math.floor(hour / 24);
     hour = hour % 24;
 
-    const agoOrLater = milliseconds >= 0 ? 'ago' : 'later';
+    const agoOrLater = milliseconds >= 0 ? 'later' : 'ago';
 
     const remainTime = {
         day: Math.abs(day),
@@ -28,7 +28,8 @@ export const calRemainTime = (_milliseconds: string | number, unit: 'day' | 'hou
     }
 
     if (unit === 'all-without-seconds') {
-        return unitsWithoutSeconds.map((_unit) => `${remainTime[_unit]} ${_unit}s`).join(', ') + ` ${agoOrLater}`;
+        const reversedAgoOrLater = milliseconds >= 0 ? 'ago' : 'later';
+        return unitsWithoutSeconds.map((_unit) => `${remainTime[_unit]} ${_unit}s`).join(', ') + ` ${reversedAgoOrLater}`;
     }
 
     if (unit === 'all') {
