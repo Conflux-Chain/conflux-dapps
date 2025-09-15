@@ -14,7 +14,7 @@ export const calRemainTime = (_milliseconds: string | number, unit: 'day' | 'hou
     day = Math.floor(hour / 24);
     hour = hour % 24;
 
-    const agoOrLater = milliseconds >= 0 ? 'later' : 'ago';
+    const agoOrLater = milliseconds >= 0 ? 'ago' : 'later';
 
     const remainTime = {
         day: Math.abs(day),
