@@ -33,4 +33,6 @@ yarn-error.log*
 
 # lock
 pnpm-lock.yaml
-yarn.lock
+
+# Keep the yarn.lock file to lock dependency versions.
+# yarn.lock
