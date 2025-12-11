@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import CustomScrollbar from 'custom-react-scrollbar';
 import ErrorBoundary from './modules/ErrorBoundary';
 import Navbar from 'common/modules/Navbar';
@@ -7,21 +7,9 @@ import { LocaleContext } from 'common/hooks/useI18n';
 import { ModeContext } from 'common/hooks/useMode';
 import Sidebar from 'hub/src/modules/Sidebar';
 import CrossSpace from 'cross-space/src/modules';
-import BscEspace from 'bsc-espace/src/modules';
-import Airdrop from 'airdrop/src/modules';
-import GovernanceDashboard from 'governance/src/modules/Dashboard';
-import GovernancePowStake from 'governance/src/modules/PowStake';
-import Vote from 'governance/src/modules/Vote';
-import Proposals from 'governance/src/modules/Vote/Proposals';
-import RewardInterestRate from 'governance/src/modules/Vote/RewardInterestRate';
-import Bridge from 'bridge/src/modules';
-import ESpaceBridgeEnter from 'hub/src/modules/ESpaceBridgeEnter';
-import GovernanceNavbarEnhance from 'hub/src/modules/NavbarEnhance/Governance';
 import useCurrentDapp from 'hub/src/hooks/useCurrentDapp';
 import BridgeIcon from 'hub/src/assets/Bridge.svg';
-import GovernanceIcon from 'hub/src/assets/governance.svg';
 import PosIcon from 'hub/src/assets/Pos.svg';
-import AirdropIcon from 'hub/src/assets/Airdrop.svg';
 import { hideAllToast } from 'common/components/showPopup/Toast';
 import LocalStorage from 'localstorage-enhance';
 import Pos from 'pos/src/modules';
@@ -33,27 +21,10 @@ import { SideBarMask } from './modules/SidebarMask';
 
 export const dapps = [
     {
-        name: 'Bridge',
+        name: 'Cross Space',
         icon: BridgeIcon,
-        path: 'bridge',
+        path: 'cross-space',
         index: true,
-    },
-    {
-        name: 'eSpace Airdrop',
-        icon: AirdropIcon,
-        path: 'espace-airdrop',
-        element: <Airdrop />,
-    },
-    {
-        name: 'Governance',
-        icon: GovernanceIcon,
-        path: 'governance',
-        link: 'governance/dashboard',
-        element: <GovernanceDashboard />,
-        NavbarEnhance: {
-            type: 'childRoutes' as 'childRoutes',
-            Content: <GovernanceNavbarEnhance />,
-        },
     },
     {
         name: 'Web3 Paywall',
@@ -180,28 +151,11 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                 />
                 <SideBarMask />
                 <Routes>
-                    <Route key="espace-bridge" path="espace-bridge" element={<Outlet />}>
-                        <Route index element={<ESpaceBridgeEnter />} />
-                        <Route key="cross-space" path="cross-space" element={<CrossSpace />} />
-                        <Route key="espace-cross-chain" path="espace-cross-chain" element={<BscEspace />} />
-                    </Route>
-                    <Route key="espace-airdrop" path="espace-airdrop" element={<Airdrop />} />
-                    <Route key="governance" path="governance" element={<Outlet />}>
-                        <Route key="governance-dashboard" path="dashboard" element={<GovernanceDashboard />} />
-                        <Route key="governance-dashboard-pow-stake" path="pow-stake" element={<GovernancePowStake />} />
-                        <Route key="governance-vote" path="vote" element={<Vote />}>
-                            <Route index element={<RewardInterestRate />} />
-                            <Route key="governance-vote-proposals" path="proposals" element={<Proposals />} />
-                            <Route key="governance-vote-onchain-dao-voting" path="onchain-dao-voting" element={<RewardInterestRate />} />
-                        </Route>
-                    </Route>
-                    <Route path="governance/" element={<Navigate to="/governance/dashboard" />} />
-                    <Route path="governance/*" element={<Navigate to="/governance/dashboard" />} />
-                    <Route path="bridge" element={<Bridge />} />
+                    <Route key="cross-space" path="cross-space" element={<CrossSpace />} />
 
                     <Route key="payment" path="payment/*" element={<Payment />} />
                     <Route key="pos" path="pos/*" element={<Pos />} />
-                    <Route path="*" element={<Navigate to="bridge" />} />
+                    <Route path="*" element={<Navigate to="cross-space" />} />
                 </Routes>
             </ErrorBoundary>
         </CustomScrollbar>
