@@ -19,7 +19,6 @@ import useCurrentDapp from 'hub/src/hooks/useCurrentDapp';
 import BridgeIcon from 'hub/src/assets/Bridge.svg';
 import GovernanceIcon from 'hub/src/assets/governance.svg';
 import PosIcon from 'hub/src/assets/Pos.svg';
-import NativeUsdt0Icon from 'hub/src/assets/native-usdt0.svg';
 import { hideAllToast } from 'common/components/showPopup/Toast';
 import LocalStorage from 'localstorage-enhance';
 import Pos from 'pos/src/modules';
@@ -28,15 +27,8 @@ import PaymentNavbarEnhance from 'hub/src/modules/NavbarEnhance/Payment';
 import PaymentIcon from 'payment/src/assets/logo-light.png';
 import './App.css';
 import { SideBarMask } from './modules/SidebarMask';
-import NativeUsdt0 from 'native-usdt0/src/App';
 
 export const dapps = [
-    {
-        name: 'Native USDT0',
-        icon: NativeUsdt0Icon,
-        path: 'native-usdt0',
-        index: true,
-    },
     {
         name: 'Bridge',
         icon: BridgeIcon,
@@ -179,9 +171,6 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                 />
                 <SideBarMask />
                 <Routes>
-                    <Route key="native-usdt0" path="native-usdt0" element={<Outlet />}>
-                        <Route index element={<NativeUsdt0 />} />
-                    </Route>
                     <Route key="espace-bridge" path="espace-bridge" element={<Outlet />}>
                         <Route index element={<ESpaceBridgeEnter />} />
                         <Route key="cross-space" path="cross-space" element={<CrossSpace />} />
