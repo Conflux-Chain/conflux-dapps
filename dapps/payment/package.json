@@ -8,7 +8,7 @@
     },
     "dependencies": {
         "@cfxjs/use-wallet-enhance-react": "0.0.1-13",
-        "@cfxjs/use-wallet-react": "0.0.6",
+        "@cfxjs/use-wallet-react": "0.0.9",
         "@cfx-kit/react-utils": "0.0.52",
         "@fluent-wallet/estimate-tx": "^0.2.0",
         "@metamask/providers": "^9.1.0",
