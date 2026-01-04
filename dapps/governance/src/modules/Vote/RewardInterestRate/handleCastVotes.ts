@@ -1,6 +1,6 @@
 import type React from 'react';
-import { store as confluxStore, sendTransaction, Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
-import { store as ethereumStore, sendTransaction as sendTransactionEthereum } from '@cfxjs/use-wallet-react/ethereum';
+import { sendTransaction, Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { sendTransaction as sendTransactionEthereum } from '@cfx-kit/react-utils/dist/AccountManage';
 import { rewardRateStore, trackCurrentAccountVotedChangeOnce } from 'governance/src/store';
 import { paramsControlContract, paramsControlContractAddress, posLockVotingEscrowContract } from 'governance/src/store/contracts';
 import { showWaitWallet, showActionSubmitted, hideWaitWallet, hideActionSubmitted } from 'common/components/showPopup/Modal';
@@ -19,6 +19,9 @@ export interface Data {
     'Storage Point-Decrease'?: string;
     'Storage Point-Increase'?: string;
     'Storage Point-Unchange'?: string;
+    'Base Fee Sharing Prop-Decrease'?: string;
+    'Base Fee Sharing Prop-Increase'?: string;
+    'Base Fee Sharing Prop-Unchange'?: string;
 }
 
 export const handlePowCastVotes = async (data: Data, setInVoting: React.Dispatch<React.SetStateAction<boolean>>) => {
@@ -57,6 +60,14 @@ export const handlePowCastVotes = async (data: Data, setInVoting: React.Dispatch
                     Unit.fromStandardUnit(data['Storage Point-Decrease'] || 0).toHexMinUnit(),
                 ],
             ],
+            [
+                '3',
+                [
+                    Unit.fromStandardUnit(data['Base Fee Sharing Prop-Unchange'] || 0).toHexMinUnit(),
+                    Unit.fromStandardUnit(data['Base Fee Sharing Prop-Increase'] || 0).toHexMinUnit(),
+                    Unit.fromStandardUnit(data['Base Fee Sharing Prop-Decrease'] || 0).toHexMinUnit(),
+                ],
+            ]
         ];
         const TxnHash = await sendTransaction({
             to: paramsControlContractAddress,
@@ -131,6 +142,14 @@ export const handlePosCastVotes = async (
                     Unit.fromStandardUnit(data['Storage Point-Decrease'] || 0).toHexMinUnit(),
                 ],
             ],
+            [
+                '3',
+                [
+                    Unit.fromStandardUnit(data['Base Fee Sharing Prop-Unchange'] || 0).toHexMinUnit(),
+                    Unit.fromStandardUnit(data['Base Fee Sharing Prop-Increase'] || 0).toHexMinUnit(),
+                    Unit.fromStandardUnit(data['Base Fee Sharing Prop-Decrease'] || 0).toHexMinUnit(),
+                ],
+            ]
         ];
         const dataEncode = posLockVotingEscrowContract
             .castVote('0x' + currentVotingRound.toString(16), topicIndex, AllVoting[data['Type Count']][1])

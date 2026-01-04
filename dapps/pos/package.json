@@ -7,7 +7,8 @@
         "build": "vite build"
     },
     "dependencies": {
-        "@cfxjs/use-wallet-react": "0.0.2-6",
+        "@cfxjs/use-wallet-react": "0.0.9",
+        "@cfx-kit/react-utils": "0.0.52",
         "@ethersproject/keccak256": "^5.6.1",
         "@fluent-wallet/estimate-tx": "^0.2.0",
         "@tippyjs/react": "^4.2.6",
@@ -19,7 +20,7 @@
         "lodash-es": "^4.17.21",
         "react": "^18.1.0",
         "react-dom": "^18.1.0",
-        "react-hook-form": "^7.32.0",
+        "react-hook-form": "7.32.0",
         "react-spring": "^9.4.5",
         "react-use-clipboard": "^1.0.8",
         "tippy.js": "^6.3.7",

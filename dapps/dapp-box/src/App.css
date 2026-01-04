@@ -7,9 +7,12 @@
     @apply flex-1 px-[32px] bg-[#f8f9ff] h-full;
 }
 
+#conflux-hub-root.root-no-px > .scrollbar__wrapper {
+    @apply px-0;
+}
+
 #conflux-hub-root.root-mobile > .scrollbar__wrapper {
     @apply px-0;
-
 }
 
 #conflux-hub-root > .scrollbar__wrapper > .scrollbar__scroller {
@@ -30,4 +33,8 @@
 
 body {
     @apply overflow-y-hidden;
+}
+
+:root {
+    --wcm-z-index: 1001 !important;
 }

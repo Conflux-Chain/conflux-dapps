@@ -1,14 +1,14 @@
 import { create } from 'zustand';
 import { store as confluxStore, Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
-import { store as ethereumStore } from '@cfxjs/use-wallet-react/ethereum';
+import { store as ethereumStore } from '@cfx-kit/react-utils/dist/AccountManage';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { fetchChain, intervalFetchChain, clearEqualMap } from 'common/utils/fetchChain';
-import Networks, { isProduction, spaceSeat, spaceRpcurl, isDevnetChain } from 'common/conf/Networks';
+import Networks, { isProduction, spaceSeat, spaceRpcurl, isTestCoreChainId, isTestEvmChainId } from 'common/conf/Networks';
 import { calRemainTime } from 'common/utils/time';
 import dayjs from 'dayjs';
 import { posPoolContract, posLockVotingEscrowContract, utilContractAddress, utilContract, utilContractAddressESpace } from './contracts';
 import { decodeHexResult } from 'common/utils/Contract';
-import { convertHexToCfx, convertCfxToHex, validateCfxAddress, validateHexAddress } from 'common/utils/addressUtils';
+import { convertHexToCfx, convertCfxToHex, validateCfxAddress } from 'common/utils/addressUtils';
 import { currentVotingRoundEndBlockNumber } from './rewardInterestRate';
 
 export const BLOCK_AMOUNT_YEAR = Networks.core.chainId === '8888' ? Unit.fromMinUnit(28800) : Unit.fromMinUnit(63072000);
@@ -375,9 +375,9 @@ export const startTrackPosLockAmount = () => {
         };
 
         const getTrueKey = (gov_pools: { [key: string]: boolean }) => {
-            if(isDevnetChain && chainId === '8888') {
+            if(isTestCoreChainId && chainId === '8888') {
                 return 'net8888';
-            } else if(isDevnetChain && chainId === '8889') {
+            } else if(isTestEvmChainId && chainId === '8889') {
                 return 'net8889';
             }
             return Object.keys(gov_pools).find((key) => gov_pools[key] === true);

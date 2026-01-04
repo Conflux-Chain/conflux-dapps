@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-import { store, useBalance } from '@cfxjs/use-wallet-react/ethereum';
+import { store, useBalance } from '@cfx-kit/react-utils/dist/AccountManage';
 import { createBalanceTracker } from '@cfxjs/use-wallet-enhance-react';
 import CRC20TokenABI from 'common/contracts/ERC20.json';
 import createContract from 'common/utils/Contract';
