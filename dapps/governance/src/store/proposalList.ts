@@ -310,7 +310,8 @@ const formatProposal = (proposal: any, currentBlockNumber = getCurrentBlockNumbe
         votesAtBlockNumber: proposal[3],
         votesAtTime: calRemainTime(
             currentBlockNumber.sub(Unit.fromMinUnit(proposal[3])).div(BLOCK_SPEED).mul(Unit.fromMinUnit(1000)).toDecimalMinUnit(),
-            'all-without-seconds'
+            'all-without-seconds',
+            'past'
         ),
         options: proposal[4]?.map?.((option: string, index: number) => ({
             content: option,

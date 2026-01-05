@@ -44,7 +44,11 @@ const LockModalContent: React.FC<{ type: Type }> = memo(({ type }) => {
     );
     const estimateGapBlockNumber = type === 'add' ? currentGapBlockNumber : chooseGapBlockNumber;
     const timeToUnlock = useMemo(
-        () => (estimateGapBlockNumber ? calRemainTime(estimateGapBlockNumber.div(BLOCK_SPEED).mul(Unit.fromMinUnit(1000)).toDecimalMinUnit()) : undefined),
+        () => (estimateGapBlockNumber ? calRemainTime(
+            estimateGapBlockNumber.div(BLOCK_SPEED).mul(Unit.fromMinUnit(1000)).toDecimalMinUnit(),
+            'largest',
+            'future'
+        ) : undefined),
         [estimateGapBlockNumber]
     );
 
