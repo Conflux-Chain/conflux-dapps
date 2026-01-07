@@ -8,8 +8,9 @@
     },
     "dependencies": {
         "@cfxjs/use-wallet-enhance-react": "0.0.1-13",
-        "@cfxjs/use-wallet-react": "^0.0.9",
-        "@fluent-wallet/estimate-tx": "0.2.4",
+        "@cfxjs/use-wallet-react": "0.0.9",
+        "@cfx-kit/react-utils": "0.0.52",
+       "@fluent-wallet/estimate-tx": "0.2.4",
         "@metamask/providers": "^9.1.0",
         "@react-spring/web": "^9.4.5",
         "@tippyjs/react": "^4.2.6",
