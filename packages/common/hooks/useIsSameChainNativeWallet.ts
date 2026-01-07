@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useChainId as useConfluxChainId } from '@cfxjs/use-wallet-react/conflux/Fluent';
-import { useChainId as useEthereumChainId, useStatus as useEthereumStatus } from '@cfx-kit/react-utils/dist/AccountManage';
+import { useChainId as useEthereumChainId, useStatus as useEthereumStatus } from '@cfxjs/use-wallet-react/ethereum';
 import { useChainIdNative } from 'governance/src/store/lockDays&blockNumber';
 import { spaceSeat } from 'common/conf/Networks';
 

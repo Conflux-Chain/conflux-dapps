@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import useClipboard from 'react-use-clipboard';
 import { shortenAddress } from 'common/utils/addressUtils';
 import { useAccount as useFluentAccount, useStatus as useFluentStatus, Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
-import { useStatus as useMetaMaskStatus, useAccount as useMetaMaskAccount } from '@cfx-kit/react-utils/dist/AccountManage';
+import { useStatus as useMetaMaskStatus, useAccount as useMetaMaskAccount } from '@cfxjs/use-wallet-react/ethereum';
 import {
     useMaxAvailableBalance,
     useCurrentTokenBalance,
@@ -544,6 +544,7 @@ const Withdraw2Core: React.FC<{ isShow: boolean; inTransfer: boolean; setInTrans
                 id="eSpace2Core-auth-withdraw"
                 size="large"
                 fullWidth
+                onClick={handleClick}
                 tabIndex={isShow ? 7 : -1}
                 type="button"
                 authContent={() => (

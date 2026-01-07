@@ -69,8 +69,20 @@ const Index: React.FC = () => {
 
                     {sourceChain && <Routes />}
                 </div>
-                <div className="cross-space-module mx-auto my-[16px] text-[14px] text-[#898D9A] leading-[18px] font-normal whitespace-nowrap">
-                    <div>
+                <div className="cross-space-module mx-auto mt-[16px] mb-[24px] text-[14px] text-[#898D9A] leading-[18px] font-normal whitespace-nowrap">
+                    <div className="mt-[4px]">
+                        Assets directly across between Conflux eSpace and BSC.{' '}
+                        <Link className="group text-[#808BE7] hover:text-[#808BE7] hover:underline" to="/espace-bridge/espace-cross-chain" target="_blank">
+                            Chain Bridge
+                            <img
+                                src={ArrowLeft}
+                                alt="go to chain bridge"
+                                className="inline-block w-[12px] h-[12px] ml-[2px] rotate-180 -translate-y-[1px] group-hover:translate-x-1 transition-all"
+                            />
+                        </Link>
+                    </div>
+
+                    <div className="mt-[4px]">
                         Assets across Conflux space.{' '}
                         <Link className="group text-[#808BE7] hover:text-[#808BE7] hover:underline" to="/espace-bridge/cross-space" target="_blank">
                             Space Bridge

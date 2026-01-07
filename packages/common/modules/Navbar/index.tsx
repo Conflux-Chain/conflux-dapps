@@ -1,9 +1,7 @@
-import React, { isValidElement, useMemo } from 'react';
+import React, { isValidElement } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useChainIdNative } from 'governance/src/store/lockDays&blockNumber';
-import { spaceSeat } from 'common/conf/Networks';
-import WalletConnector from './WalletConnectorNew';
-import SelectChainModule from './SelectChain';
+import WalletConnector from './WalletConnector';
+import SelectChainModule from './SelectChain'
 import MenuIcon from '../../assets/icons/menu.svg';
 import { changeExpand, useExpand } from '../../../../dapps/dapp-box/src/modules/Sidebar/sideBarStore';
 
@@ -25,14 +23,10 @@ const isMobile = () => {
 const Navbar: React.FC<Props> = ({ handleSwitchLocale, handleSwitchMode, dappIcon, dappName, Enhance }) => {
     const expand = useExpand();
     const location = useLocation();
-    const chainIdNative = useChainIdNative();
-    const isCoreSpace = spaceSeat(chainIdNative) === 'core';
-    const isGovernance = useMemo(() => location.pathname.indexOf('/governance') > -1, [location.pathname]);
-    const isPos = useMemo(() => location.pathname.indexOf('/pos') > -1, [location.pathname]);
-    const authSpace = useMemo(() => isPos ? 'Core' : isGovernance ? (isCoreSpace ? 'Core' : 'eSpace') : 'All', [isCoreSpace, isGovernance, isPos]);
 
     return (
         <>
+
             {!isMobile() && (
                 <nav className="h-[64px] flex-shrink-0">
                     <div className="container h-full xl:mx-auto flex justify-between items-center whitespace-nowrap">
@@ -43,16 +37,15 @@ const Navbar: React.FC<Props> = ({ handleSwitchLocale, handleSwitchMode, dappIco
                         </div>
 
                         <div className="flex justify-center items-center">
-                            {location.pathname.indexOf('/governance') > -1 ? (
-                                <>
-                                    <SelectChainModule />
-                                    <WalletConnector authSpace={authSpace} />
-                                </>
-                            ) : location.pathname.startsWith('/native-usdt0') ? (
-                                <></>
-                            ) : (
-                                <WalletConnector authSpace={authSpace} />
-                            )}
+                            {
+                                location.pathname.indexOf('/governance') > -1 ?
+                                    <>
+                                        <SelectChainModule />
+                                        <WalletConnector />
+                                    </>
+                                    :
+                                    <WalletConnector />
+                            }
                         </div>
                     </div>
                 </nav>
@@ -64,11 +57,7 @@ const Navbar: React.FC<Props> = ({ handleSwitchLocale, handleSwitchMode, dappIco
                             {!expand && <img src={MenuIcon} className="h-[20px] w-[20px]" />}
                         </div>
                         <div className="flex justify-center items-center">
-                            {location.pathname.startsWith('/native-usdt0') ? (
-                                <></>
-                            ) : (
-                                <WalletConnector authSpace={authSpace} />
-                            )}
+                            <WalletConnector />
                         </div>
                     </div>
                 </nav>

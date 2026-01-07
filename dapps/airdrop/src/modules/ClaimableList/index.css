@@ -1,0 +1,3 @@
+.airdrop-claimable-token + .airdrop-claimable-token {
+    @apply mt-[16px];
+}

@@ -1,13 +1,8 @@
 import React, { useState, useCallback, useEffect, useRef, memo, useMemo } from 'react';
 import cx from 'clsx';
 import useI18n from 'common/hooks/useI18n';
-import { useStatus as useCoreStatus, useChainId as useCoreChainId, watchAsset as watchAssetCore } from '@cfxjs/use-wallet-react/conflux/Fluent';
-import {
-    useStatus as useEthereumStatus,
-    useChainId as useEthereumChainId,
-    watchAsset as watchAssetEthereum,
-    useCurrentWalletName as useEthereumCurrentWalletName,
-} from '@cfx-kit/react-utils/dist/AccountManage';
+import { useStatus as useFluentStatus, useChainId as useFluentChainId, watchAsset as watchAssetFluent } from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { useStatus as useMetaMaskStatus, useChainId as useMetaMaskChainId, watchAsset as watchAssetMetaMask } from '@cfxjs/use-wallet-react/ethereum';
 import { shortenAddress } from 'common/utils/addressUtils';
 import { debounce, escapeRegExp } from 'lodash-es';
 import { useSingleton } from '@tippyjs/react';
@@ -50,49 +45,48 @@ const TokenListDropdown: React.FC<{ children: (triggerDropdown: () => void, visi
     space,
 }) => {
     const isMetaMaskHostedByFluent = useIsMetaMaskHostedByFluent();
-    const currentEthereumWalletName = useEthereumCurrentWalletName();
     const [visible, setVisible] = useState(false);
 
     const { currentToken, setCurrentToken } = useToken();
-    const ethereumChainId = useEthereumChainId();
-    const ethereumStatus = useEthereumStatus();
-    const coreStatus = useCoreStatus();
-    const coreChainId = useCoreChainId();
+    const metaMaskChainId = useMetaMaskChainId();
+    const metaMaskStatus = useMetaMaskStatus();
+    const fluentStatus = useFluentStatus();
+    const fluentChainId = useFluentChainId();
 
     const triggerDropdown = useCallback(() => {
         const pre = visible;
         let disabled: boolean | string | Content = false;
-        if (!pre && coreStatus === 'not-installed') disabled = 'Please install Fluent first.';
-        else if (!pre && !ethereumStatus) {
-            if (currentToken.isNative) disabled = 'To cross space CRC20 token, please connect to eSpace first.';
+        if (!pre && fluentStatus === 'not-installed') disabled = 'Please install Fluent first.';
+        else if (!pre && metaMaskStatus === 'not-installed') {
+            if (currentToken.isNative) disabled = 'To cross space CRC20 token, please install MetaMask first.';
             else
                 disabled = {
-                    text: 'To cross space CRC20 token, please connect to eSpace first.',
+                    text: 'To cross space CRC20 token, please install MetaMask first.',
                     onClickCancel: () => setCurrentToken(nativeToken),
                     cancelButtonText: 'Switch Token to CFX',
                 };
-        } else if (!pre && coreStatus === 'not-active') {
+        } else if (!pre && fluentStatus === 'not-active') {
             disabled = {
-                text: `Please connect to Core Space first.`,
+                text: `Please connect to Fluent first.`,
                 onClickOk: connectToConflux,
                 okButtonText: 'Connect',
             };
-        } else if (!pre && ethereumStatus === 'not-active') {
+        } else if (!pre && metaMaskStatus === 'not-active') {
             disabled = {
-                text: `To cross space CRC20 token, please connect to eSpace first.`,
+                text: `To cross space CRC20 token, please connect to ${isMetaMaskHostedByFluent ? 'Fluent' : 'MetaMask'} first.`,
                 onClickOk: isMetaMaskHostedByFluent ? connectToConflux : connectToEthereum,
                 okButtonText: 'Connect',
                 ...(currentToken.isNative ? {} : { onClickCancel: () => setCurrentToken(nativeToken), cancelButtonText: 'Switch Token to CFX' }),
             };
-        } else if (!pre && Networks.core?.chainId !== coreChainId && !isMetaMaskHostedByFluent) {
+        } else if (!pre && Networks.core?.chainId !== fluentChainId && !isMetaMaskHostedByFluent) {
             disabled = {
                 text: `Please switch Fluent to ${Networks.core.chainName} first.`,
                 onClickOk: switchToCore,
                 okButtonText: 'Switch',
             };
-        } else if (!pre && Networks.eSpace?.chainId !== ethereumChainId && !isMetaMaskHostedByFluent) {
+        } else if (!pre && Networks.eSpace?.chainId !== metaMaskChainId && !isMetaMaskHostedByFluent) {
             disabled = {
-                text: `To cross space CRC20 token, please switch ${currentEthereumWalletName} to ${Networks.eSpace.chainName} first.`,
+                text: `To cross space CRC20 token, please switch ${isMetaMaskHostedByFluent ? 'Fluent' : 'MetaMask'} to ${Networks.eSpace.chainName} first.`,
                 onClickOk: switchToESpace,
                 okButtonText: 'Switch',
                 ...(currentToken.isNative ? {} : { onClickCancel: () => setCurrentToken(nativeToken), cancelButtonText: 'Switch Token to CFX' }),
@@ -106,21 +100,21 @@ const TokenListDropdown: React.FC<{ children: (triggerDropdown: () => void, visi
         }
 
         setVisible(!pre);
-    }, [visible, currentToken, ethereumChainId, ethereumStatus, coreStatus, coreChainId, Networks.core, Networks.eSpace, isMetaMaskHostedByFluent]);
+    }, [visible, currentToken, metaMaskChainId, metaMaskStatus, fluentStatus, fluentChainId, Networks.core, Networks.eSpace, isMetaMaskHostedByFluent]);
 
     const hideDropdown = useCallback(() => setVisible(false), []);
     useEffect(() => {
         setVisible((pre) => {
             if (
-                coreStatus === 'not-active' ||
-                ethereumStatus === 'not-active' ||
-                Networks.core?.chainId !== coreChainId ||
-                Networks.eSpace?.chainId !== ethereumChainId
+                fluentStatus === 'not-active' ||
+                metaMaskStatus === 'not-active' ||
+                Networks.core?.chainId !== fluentChainId ||
+                Networks.eSpace?.chainId !== metaMaskChainId
             )
                 return false;
             return pre;
         });
-    }, [coreStatus, ethereumStatus, coreChainId, ethereumChainId, Networks.core, Networks.eSpace]);
+    }, [fluentStatus, metaMaskStatus, fluentChainId, metaMaskChainId, Networks.core, Networks.eSpace]);
 
     useEffect(() => {
         function onKeyDown(evt: KeyboardEvent) {
@@ -138,7 +132,7 @@ const TokenListDropdown: React.FC<{ children: (triggerDropdown: () => void, visi
             visible={visible}
             onClickOutside={hideDropdown}
             className="relative flex flex-col md:w-[432px] w-[324px] pt-[16px] rounded-[4px] bg-white shadow contain-content overflow-hidden"
-            Content={<DropdownContent fromSpace={space} visible={visible} hideDropdown={hideDropdown} currentEthereumWalletName={currentEthereumWalletName} />}
+            Content={<DropdownContent fromSpace={space} visible={visible} hideDropdown={hideDropdown} />}
             appendTo={document.body}
         >
             {children(triggerDropdown, visible)}
@@ -147,7 +141,7 @@ const TokenListDropdown: React.FC<{ children: (triggerDropdown: () => void, visi
 };
 
 let showSearchingTimer: NodeJS.Timeout | null = null;
-const DropdownContent: React.FC<{ fromSpace: 'core' | 'eSpace'; visible: boolean; hideDropdown: () => void; currentEthereumWalletName: string | null }> = ({ visible, fromSpace, hideDropdown, currentEthereumWalletName }) => {
+const DropdownContent: React.FC<{ fromSpace: 'core' | 'eSpace'; visible: boolean; hideDropdown: () => void }> = ({ visible, fromSpace, hideDropdown }) => {
     const i18n = useI18n(transitions);
     const { currentToken, setCurrentToken, commonTokens, deleteFromCommonTokens } = useToken();
     const inputRef = useRef<HTMLInputElement>(null!);
@@ -172,7 +166,7 @@ const DropdownContent: React.FC<{ fromSpace: 'core' | 'eSpace'; visible: boolean
     const [searchToken, setSearchToken] = useState<'waiting' | 'searching' | false | Token>('waiting');
     const handleFilterChange = useCallback<React.FormEventHandler<HTMLInputElement>>(
         debounce((evt) => setFilter((evt.target as HTMLInputElement).value), 200),
-        [],
+        []
     );
 
     useEffect(() => {
@@ -189,7 +183,7 @@ const DropdownContent: React.FC<{ fromSpace: 'core' | 'eSpace'; visible: boolean
                 (token.isNative
                     ? [token.core_space_name, token.core_space_symbol]
                     : [token.core_space_name, token.core_space_symbol, token.evm_space_name, token.evm_space_symbol, token.native_address, token.mapped_address]
-                ).some((str) => str.search(new RegExp(escapeRegExp(filter), 'i')) !== -1),
+                ).some((str) => str.search(new RegExp(escapeRegExp(filter), 'i')) !== -1)
             )
         ) {
             setSearchToken('waiting');
@@ -220,15 +214,15 @@ const DropdownContent: React.FC<{ fromSpace: 'core' | 'eSpace'; visible: boolean
             (token.isNative
                 ? [token.core_space_name, token.core_space_symbol]
                 : [token.core_space_name, token.core_space_symbol, token.evm_space_name, token.evm_space_symbol, token.native_address, token.mapped_address]
-            ).some((str) => str.search(new RegExp(escapeRegExp(filter), 'i')) !== -1),
+            ).some((str) => str.search(new RegExp(escapeRegExp(filter), 'i')) !== -1)
         );
     }, [filter, searchToken, tokenList]);
 
     const [viewInScanSource, viewInScanSingleton] = useSingleton();
     const [addToWalletSource, addToWalletSingleton] = useSingleton();
     const [deleteFromListSource, deleteFromListSingleton] = useSingleton();
-    const walletStatus = (space === 'core' ? useCoreStatus : useEthereumStatus)();
-    const walletChainId = (space === 'core' ? useCoreChainId : useEthereumChainId)();
+    const walletStatus = (space === 'core' ? useFluentStatus : useMetaMaskStatus)();
+    const walletChainId = (space === 'core' ? useFluentChainId : useMetaMaskChainId)();
     const currentNetwork = Networks[space];
     const chainMatched = walletChainId === currentNetwork.chainId;
 
@@ -255,7 +249,7 @@ const DropdownContent: React.FC<{ fromSpace: 'core' | 'eSpace'; visible: boolean
                                 'shrink-0 px-[16px] h-[32px] leading-[32px] rounded-[18px] border border-[#EAECEF] text-center text-[14px] cursor-pointer hover:border-[#808BE7] transition-colors',
                                 (commonToken.isNative ? currentToken.isNative : commonToken.native_address === currentToken.native_address)
                                     ? 'bg-[#808BE7] text-white pointer-events-none'
-                                    : 'text-[#3D3F4C]',
+                                    : 'text-[#3D3F4C]'
                             )}
                             onClick={() => {
                                 setCurrentToken(commonToken);
@@ -310,13 +304,12 @@ const DropdownContent: React.FC<{ fromSpace: 'core' | 'eSpace'; visible: boolean
                         hideDropdown={hideDropdown}
                         inSearch={!!filter}
                         currentNetwork={currentNetwork}
-                        currentEthereumWalletName={currentEthereumWalletName}
                         {...token}
                     />
                 ))}
             </CustomScrollbar>
             <Tooltip text="View in Scan" singleton={viewInScanSource} />
-            <Tooltip text={`Add To ${space === 'core' ? 'Fluent' : currentEthereumWalletName}`} singleton={addToWalletSource} />
+            <Tooltip text={`Add To ${space === 'core' ? 'Fluent' : 'MetaMask'}`} singleton={addToWalletSource} />
             <Tooltip text="Delete from TokenList" singleton={deleteFromListSource} />
         </>
     );
@@ -328,14 +321,13 @@ interface TokenItemProps extends Token {
     hideDropdown: () => void;
     isCurrent: boolean;
     space: 'core' | 'eSpace';
-    walletStatus: ReturnType<typeof useCoreStatus> | ReturnType<typeof useEthereumStatus>;
+    walletStatus: ReturnType<typeof useFluentStatus>;
     chainMatched: boolean;
     viewInScanSingleton: ReturnType<typeof useSingleton>[1];
     addToWalletSingleton: ReturnType<typeof useSingleton>[1];
     deleteFromListSingleton: ReturnType<typeof useSingleton>[1];
     inSearch: boolean;
     currentNetwork?: Network;
-    currentEthereumWalletName: string | null;
 }
 
 const TokenItem = memo<TokenItemProps>(
@@ -352,7 +344,6 @@ const TokenItem = memo<TokenItemProps>(
         viewInScanSingleton,
         addToWalletSingleton,
         deleteFromListSingleton,
-        currentEthereumWalletName,
         ...token
     }) => {
         const { core_space_symbol, core_space_name, evm_space_symbol, evm_space_name, native_address, mapped_address, nativeSpace, icon, decimals } = token;
@@ -364,7 +355,7 @@ const TokenItem = memo<TokenItemProps>(
             async (evt) => {
                 evt.stopPropagation();
                 try {
-                    await (space === 'core' ? watchAssetCore : watchAssetEthereum)({
+                    await (space === 'core' ? watchAssetFluent : watchAssetMetaMask)({
                         type: 'ERC20',
                         options: {
                             address: usedTokenAddress,
@@ -373,12 +364,12 @@ const TokenItem = memo<TokenItemProps>(
                             image: icon,
                         },
                     });
-                    showToast(`Add ${symbol} to ${space === 'core' ? 'Fluent' : currentEthereumWalletName} success!`, { type: 'success' });
+                    showToast(`Add ${symbol} to ${space === 'core' ? 'Fluent' : 'MetaMask'} success!`, { type: 'success' });
                 } catch (err) {
-                    console.error(`Add ${symbol} to ${space === 'core' ? 'Fluent' : currentEthereumWalletName} failed!`);
+                    console.error(`Add ${symbol} to ${space === 'core' ? 'Fluent' : 'MetaMask'} failed!`);
                 }
             },
-            [space],
+            [space]
         );
 
         const handleClickDelete = useCallback<React.MouseEventHandler<HTMLImageElement>>(
@@ -386,7 +377,7 @@ const TokenItem = memo<TokenItemProps>(
                 evt.stopPropagation();
                 setTimeout(() => deleteSearchToken(token, { isCurrent, setCurrentToken, deleteFromCommonTokens }), 100);
             },
-            [isCurrent],
+            [isCurrent]
         );
 
         return (
@@ -394,7 +385,7 @@ const TokenItem = memo<TokenItemProps>(
                 className={cx(
                     'relative flex justify-between items-center h-[56px] pl-[16px] pr-[20px] bg-white',
                     isCurrent ? 'bg-[#808BE7] bg-opacity-30' : 'hover:bg-[#808BE7] hover:bg-opacity-10 cursor-pointer',
-                    { 'cursor-not-allowed': !token.isNative && !nativeSpace },
+                    { 'cursor-not-allowed': !token.isNative && !nativeSpace }
                 )}
                 onClick={() => {
                     if (!token.isNative && !nativeSpace) return;
@@ -434,7 +425,7 @@ const TokenItem = memo<TokenItemProps>(
                 {!token.isNative && !token.nativeSpace && <div className="text-[12px] text-[#A9ABB2]">This token can't cross space</div>}
             </div>
         );
-    },
+    }
 );
 
 export default TokenListDropdown;
