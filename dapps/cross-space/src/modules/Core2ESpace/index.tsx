@@ -4,7 +4,7 @@ import cx from 'clsx';
 import { shortenAddress } from 'common/utils/addressUtils';
 import { useForm } from 'react-hook-form';
 import { useAccount as useFluentAccount, useStatus as useFluentStatus, Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
-import { useStatus as useMetaMaskStatus, useAccount as useMetaMaskAccount } from '@cfx-kit/react-utils/dist/AccountManage';
+import { useStatus as useMetaMaskStatus, useAccount as useMetaMaskAccount, provider } from '@cfxjs/use-wallet-react/ethereum';
 import { useMaxAvailableBalance, useCurrentTokenBalance, useNeedApprove, useToken, setTransferBalance } from 'cross-space/src/store/index';
 import { useIsMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFluent';
 import { AuthCoreSpace } from 'common/modules/AuthConnectButton';
@@ -113,7 +113,7 @@ const Transfer2ESpace: React.FC<{ isShow: boolean }> = memo(({ isShow }) => {
             if (!eSpaceReceivedRef.current) return;
             eSpaceReceivedRef.current.textContent = _val ? `${numFormat(_val)}` : '0';
         },
-        [currentToken],
+        [currentToken]
     );
 
     useEffect(() => setAmount(''), [fluentAccount, currentToken]);
@@ -122,12 +122,14 @@ const Transfer2ESpace: React.FC<{ isShow: boolean }> = memo(({ isShow }) => {
         if (metaMaskStatus === 'active') {
             setValue('eSpaceAccount', metaMaskAccount!);
             setIsLockMetaMaskAccount(true);
-        } else if (metaMaskStatus === undefined || metaMaskStatus === 'not-active') {
-            connectToEthereum().then((accounts) => {
-                if (accounts?.[0]) {
-                    setValue('eSpaceAccount', accounts[0]);
-                    setIsLockMetaMaskAccount(true);
-                }
+        } else if (metaMaskStatus === 'not-active') {
+            connectToEthereum().then(() => {
+                provider!.request({ method: 'eth_accounts' }).then((accounts) => {
+                    if (accounts?.[0]) {
+                        setValue('eSpaceAccount', accounts[0]);
+                        setIsLockMetaMaskAccount(true);
+                    }
+                });
             });
         }
     }, [metaMaskAccount, metaMaskStatus]);
@@ -152,7 +154,7 @@ const Transfer2ESpace: React.FC<{ isShow: boolean }> = memo(({ isShow }) => {
 
             return setAmount(evt.target.value);
         },
-        [maxAvailableBalance, currentToken?.decimals],
+        [maxAvailableBalance, currentToken?.decimals]
     );
 
     const handleClickMax = useCallback(() => {
@@ -169,7 +171,7 @@ const Transfer2ESpace: React.FC<{ isShow: boolean }> = memo(({ isShow }) => {
                 }
             });
         }),
-        [],
+        []
     );
 
     const isBalanceGreaterThan0 = maxAvailableBalance && Unit.greaterThan(maxAvailableBalance, Unit.fromStandardUnit(0));
@@ -272,15 +274,15 @@ const Transfer2ESpace: React.FC<{ isShow: boolean }> = memo(({ isShow }) => {
                             id="core2eSpace-eSpaceAccount-useMetaMaskAccount"
                             className={cx(
                                 'relative flex justify-center items-center w-[36px] h-[36px] ml-[12px] rounded-full border border-[#EAECEF] cursor-pointer',
-                                { 'pointer-events-none': isUsedCurrentMetaMaskAccount },
+                                { 'pointer-events-none': isUsedCurrentMetaMaskAccount }
                             )}
                             onClick={onClickUseMetaMaskAccount}
                             tabIndex={isShow ? 3 : -1}
                             type="button"
                         >
-                            <img src={isMetaMaskHostedByFluent ? Fluent : MetaMask} alt="use Ethereum account" className="w-[24px] h-[24px]" />
+                            <img src={isMetaMaskHostedByFluent ? Fluent : MetaMask} alt="use MetaMask account" className="w-[24px] h-[24px]" />
                             {isUsedCurrentMetaMaskAccount ? (
-                                <img src={Success} alt="use Ethereum account success" className="absolute -bottom-[4px] w-[10px] h-[10px]" />
+                                <img src={Success} alt="use metamask account success" className="absolute -bottom-[4px] w-[10px] h-[10px]" />
                             ) : (
                                 <span className="absolute flex justify-center items-center w-[12px] h-[12px] -bottom-[5px] rounded-full border border-[#EAECEF] bg-white">
                                     <img src={ArrowLeft} alt="arrow left" className="w-[8px] h-[8px]" />

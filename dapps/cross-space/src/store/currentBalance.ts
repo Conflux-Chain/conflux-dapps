@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { store as fluentStore, Unit, provider as fluentProvider } from '@cfxjs/use-wallet-react/conflux/Fluent';
-import { store as metaMaskStore } from '@cfx-kit/react-utils/dist/AccountManage';
+import { store as metaMaskStore } from '@cfxjs/use-wallet-react/ethereum';
 import { debounce } from 'lodash-es';
 import Contracts from './contracts';
 import { convertCfxToHex } from 'common/utils/addressUtils';
@@ -10,6 +10,7 @@ import { estimate } from '@fluent-wallet/estimate-tx';
 import { currentTokenStore, getCurrentToken, type Token } from './currentToken';
 import Networks from 'common/conf/Networks';
 import type { ValueOf } from 'tsconfig/types/enhance';
+
 
 interface BalanceStore {
     currentTokenBalance?: Unit;
@@ -226,7 +227,7 @@ export const startSubBalance = () => {
             balanceTimer = setInterval(getBalance, 1500) as unknown as number;
         }
 
-        unSubExec.push((walletStore as typeof fluentStore).subscribe(state => state.accounts, trackCurrentTokenBalance, { fireImmediately: true }));
+        unSubExec.push(walletStore.subscribe(state => state.accounts, trackCurrentTokenBalance, { fireImmediately: true }));
         unSubExec.push(currentTokenStore.subscribe(state => state.currentToken, trackCurrentTokenBalance, { fireImmediately: true }));
         unSubExec.push(() => {
             clearBalanceTimer();
@@ -513,7 +514,7 @@ const createTrackBalanceChangeOnce = ({
     balanceStore,
     balanceSelector,
 }: {
-    walletStore?: typeof fluentStore | typeof metaMaskStore;
+    walletStore?: typeof fluentStore;
     balanceStore: typeof eSpaceBalanceStore;
     balanceSelector: ValueOf<typeof selectors>;
 }) => (callback: () => void) => {
@@ -542,8 +543,8 @@ const createTrackBalanceChangeOnce = ({
     }
 
     if (walletStore) {
-        unsubAccount = (walletStore as typeof fluentStore).subscribe(state => state.accounts, clearUnsub);
-        unsubChainId = (walletStore as typeof fluentStore).subscribe(state => state.chainId, clearUnsub);
+        unsubAccount = walletStore.subscribe(state => state.accounts, clearUnsub);
+        unsubChainId = walletStore.subscribe(state => state.chainId, clearUnsub);
     }
 
     unsubBalance = balanceStore.subscribe(balanceSelector as typeof selectors['currentTokenBalance'], () => {

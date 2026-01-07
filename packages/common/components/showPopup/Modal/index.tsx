@@ -4,7 +4,7 @@ import { PopupClass } from 'common/components/Popup';
 import Success from 'common/assets/icons/success.svg';
 import Close from 'common/assets/icons//close.svg';
 import Spin from 'common/components/Spin';
-import { getCurrentWalletName } from '@cfx-kit/react-utils/dist/AccountManage';
+import { isMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFluent';
 
 const WaitWalletModal = new PopupClass();
 
@@ -16,7 +16,7 @@ const TransactionSubmittedModal = new PopupClass();
 TransactionSubmittedModal.setItemWrapperClassName('toast-item-wrapper');
 TransactionSubmittedModal.setAnimatedSize(false);
 
-const WaitWalletContent: React.FC<{ wallet: string; tip?: string; }> = memo(({ wallet, tip }) => {
+const WaitWalletContent: React.FC<{ wallet: 'Fluent' | 'MetaMask'; tip?: string; }> = memo(({ wallet, tip }) => {
     return (
         <div className="w-[340px] min-h-[150px] p-[24px] text-center bg-gray-200 rounded-[8px]">
             <Spin className='mx-auto text-[36px] text-[#808BE7]' />
@@ -59,7 +59,7 @@ const TransactionSubmittedContent: React.FC<{ TxnHash: string; action: string; b
 
 export const showWaitWallet = (wallet: 'Fluent' | 'MetaMask', config?: any) =>
     WaitWalletModal.show({
-        Content: <WaitWalletContent wallet={wallet === 'MetaMask' ? (getCurrentWalletName() ?? 'MetaMask') : wallet} tip={config?.tip} />,
+        Content: <WaitWalletContent wallet={isMetaMaskHostedByFluent && wallet === 'MetaMask' ? 'Fluent' : wallet} tip={config?.tip} />,
         duration: 0,
         showMask: true,
         animationType: 'door',

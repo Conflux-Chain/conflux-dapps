@@ -8,13 +8,16 @@ import ConfluxHub from 'hub/src/assets/ConfluxHub.svg';
 import ConfluxHubText from 'hub/src/assets/ConfluxHub-text.svg';
 import Expand from 'hub/src/assets/expand.svg';
 import { dapps } from 'hub/src/App';
+import { useNotSupportMetaMaskHostedByFluent } from 'common/hooks/useMetaMaskHostedByFluent';
 import './index.css';
 import { useExpand, changeExpand } from './sideBarStore';
 
+const dappsSupportMetaMaskHostedByFluent = ['eSpace Bridge', 'Governance', 'Web3 Paywall', 'Bridge', 'Pos'];
 
 const Sidebar: React.FC = () => {
     const navigate = useNavigate();
     const currentDapp = useCurrentDapp();
+    useNotSupportMetaMaskHostedByFluent(dappsSupportMetaMaskHostedByFluent.includes(currentDapp?.name) ? undefined : currentDapp?.name);
 
     const expand = useExpand();
 

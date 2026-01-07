@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Modal, InputNumber, Select, Row, Col, Button, Spin } from 'antd';
 import { deposit, getAllowance, approve, getMaxCFXInOfExactAPPCoin, depositCFX } from 'payment/src/utils/request';
-import { useAccount } from '@cfx-kit/react-utils/dist/AccountManage';
+import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
 import { AuthESpace } from 'common/modules/AuthConnectButton';
 import { showToast } from 'common/components/showPopup/Toast';
 import { ethers } from 'ethers';

@@ -7,7 +7,7 @@ import { Row, Col } from 'antd';
 import Deposit from 'payment/src/modules/Common/Deposit';
 import { useFrom } from 'payment/src/utils/hooks';
 import { useBoundProviderStore } from 'payment/src/store';
-import { useAccount } from '@cfx-kit/react-utils/dist/AccountManage';
+import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
     address: string;

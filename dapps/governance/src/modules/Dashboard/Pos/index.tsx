@@ -1,5 +1,5 @@
 import React from 'react';
-import { Unit} from '@cfxjs/use-wallet-react/conflux';
+import { Unit} from '@cfxjs/use-wallet-react/ethereum';
 import { isSameChainNativeWallet } from 'common/hooks/useIsSameChainNativeWallet';
 import { useChainIdNative, usePosLockArrOrigin } from 'governance/src/store/lockDays&blockNumber';
 import { spaceSeat } from 'common/conf/Networks';

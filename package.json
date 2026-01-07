@@ -20,9 +20,7 @@
         "shuttle-flow/**/rc-tooltip": "5.1.1",
         "shuttle-flow/**/rc-trigger": "5.1.1",
         "shuttle-flow/**/rc-util": "5.19.3",
-        "shuttle-flow/**/rc-motion": "2.4.1",
-        "@cfxjs/use-wallet-react": "0.0.9",
-        "@cfxjs/use-wallet-enhance-react/**/@cfxjs/use-wallet-react": "0.0.9"
+        "shuttle-flow/**/rc-motion": "2.4.1"
     },
     "scripts": {
         "build": "turbo run build --scope=cross-space --scope=hub",
@@ -45,9 +43,7 @@
         "dev:payment": "turbo run dev --scope=payment",
         "build:payment": "turbo run build --scope=payment",
         "dev:shuttle-flow": "turbo run dev --scope=shuttle-flow",
-        "build:shuttle-flow": "turbo run build --scope=shuttle-flow",
-        "dev:native-usdt0": "turbo run dev --scope=native-usdt0",
-        "build:native-usdt0": "turbo run build --scope=native-usdt0"
+        "build:shuttle-flow": "turbo run build --scope=shuttle-flow"
     },
     "devDependencies": {
         "@types/node": "latest",

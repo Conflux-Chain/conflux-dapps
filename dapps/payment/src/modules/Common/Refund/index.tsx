@@ -4,7 +4,7 @@ import { withdrawRequest } from 'payment/src/utils/request';
 import { AuthESpace } from 'common/modules/AuthConnectButton';
 import { showToast } from 'common/components/showPopup/Toast';
 import { useBoundProviderStore } from 'payment/src/store';
-import { useAccount } from '@cfx-kit/react-utils/dist/AccountManage';
+import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
     appAddr: string;

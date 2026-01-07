@@ -10,7 +10,7 @@ import BSCIcon from 'common/assets/chains/BSC.svg';
 import BTCIcon from 'common/assets/chains/BTC.svg';
 import EthereumIcon from 'common/assets/chains/Ethereum.svg';
 import HECOIcon from 'common/assets/chains/HECO.svg';
-// import OECIcon from 'common/assets/chains/OEC.svg';
+import OECIcon from 'common/assets/chains/OEC.svg';
 import Networks from 'common/conf/Networks';
 
 const CommonTokenCount = 16;
@@ -53,7 +53,7 @@ export const map: Record<'shuttleFlowChains' | 'shuttleFlowFromTokenAddress' | '
         'Conflux Core': 'cfx',
         Ethereum: 'eth',
         'BSC Chain': 'bsc',
-        // OKExChain: 'oec',
+        OKExChain: 'oec',
         // 'HECO Chain': 'heco',
         Bitcoin: 'btc',
     },
@@ -67,7 +67,7 @@ export const map: Record<'shuttleFlowChains' | 'shuttleFlowFromTokenAddress' | '
         'Conflux Core': CFXIcon,
         Ethereum: EthereumIcon,
         'BSC Chain': BSCIcon,
-        // OKExChain: OECIcon,
+        OKExChain: OECIcon,
         'HECO Chain': HECOIcon,
         Bitcoin: BTCIcon,
     },
@@ -85,18 +85,16 @@ fetch(crossSpaceTokenListUrl)
                     WBTC: ['cBridge'],
                     DAI: ['cBridge'],
                 },
-                // Disabled: eSpace -> BSC
-                // 'BSC Chain': {
-                //     CFX: ['Chain Bridge'],
-                // },
+                'BSC Chain': {
+                    CFX: ['Chain Bridge'],
+                },
             },
             'BSC Chain': {
-                // Disabled: BSC -> eSpace
-                // 'Conflux eSpace': {
-                //     CFX: ['Chain Bridge'],
-                // },
+                'Conflux eSpace': {
+                    CFX: ['Chain Bridge'],
+                },
                 'Conflux Core': {
-                    COMMON_TOKEN: ['KinetFlow'],
+                    COMMON_TOKEN: ['ZG Portal'],
                 },
             },
             Ethereum: {
@@ -108,38 +106,35 @@ fetch(crossSpaceTokenListUrl)
                     DAI: ['cBridge'],
                 },
                 'Conflux Core': {
-                    COMMON_TOKEN: ['KinetFlow'],
+                    COMMON_TOKEN: ['ZG Portal'],
                 },
             },
-
-            // OKExChain: {
-            //     'Conflux Core': {
-            //         COMMON_TOKEN: ['ZG Portal'],
-            //     },
-            // },
+            OKExChain: {
+                'Conflux Core': {
+                    COMMON_TOKEN: ['ZG Portal'],
+                },
+            },
             Bitcoin: {
                 'Conflux Core': {
-                    COMMON_TOKEN: ['KinetFlow'],
+                    COMMON_TOKEN: ['ZG Portal'],
                 },
             },
             'Conflux Core': {
                 Ethereum: {
-                    COMMON_TOKEN: ['KinetFlow'],
+                    COMMON_TOKEN: ['ZG Portal'],
                 },
                 'BSC Chain': {
-                    COMMON_TOKEN: ['KinetFlow'],
+                    COMMON_TOKEN: ['ZG Portal'],
                 },
-                // Disabled: Conflux Core -> OKExChain
-                // OKExChain: {
-                //     COMMON_TOKEN: ['ZG Portal'],
-                // },
+                OKExChain: {
+                    COMMON_TOKEN: ['ZG Portal'],
+                },
                 Bitcoin: {
-                    COMMON_TOKEN: ['KinetFlow'],
+                    COMMON_TOKEN: ['ZG Portal'],
                 },
             },
         };
-        const enabledShuttleFlowChainNames = Object.keys(map.shuttleFlowChains).filter((chain) => chain !== 'OKExChain');
-        enabledShuttleFlowChainNames.forEach((chain) => {
+        Object.keys(map.shuttleFlowChains).forEach((chain) => {
             if (!data[chain]) {
                 data[chain] = {};
             }
@@ -193,16 +188,8 @@ fetch(crossSpaceTokenListUrl)
             hasReset = true;
         }
 
-        if (!hasReset && preSourceChain && preToken) {
-            const sourceData = data?.[preSourceChain];
-            const destinationData = preDestinationChain ? sourceData?.[preDestinationChain] : undefined;
-
-            if (!destinationData) {
-                const destinationChain = resetDestinationChains(preSourceChain)!;
-                resetTokens(preSourceChain, destinationChain);
-            } else if (!destinationData[preToken]) {
-                resetTokens(preSourceChain, preDestinationChain!);
-            }
+        if (!hasReset && preSourceChain && preDestinationChain && preToken && !data[preSourceChain][preDestinationChain][preToken]) {
+            resetTokens(preSourceChain, preDestinationChain);
         }
 
         LocalStorage.setItem({ data: map, key: 'maps', namespace });
@@ -335,10 +322,6 @@ export const createHref = ({
 
     if (route === 'ZG Portal') {
         return 'https://portal.zglabs.org/';
-    }
-
-    if (route === 'KinetFlow') {
-        return 'https://www.kinetflow.io/'
     }
     return '';
 };

@@ -3,12 +3,7 @@ import { dapps } from '../App';
 
 const useCurrentDapp = () => {
     const { pathname } = useLocation();
-    let currentDappPath = pathname.split('/')[1];
-
-    if (currentDappPath === 'espace-bridge') {
-        currentDappPath = 'bridge';
-    }
-
+    const currentDappPath = pathname.split('/')[1] || 'espace-bridge';
     return dapps.find(dapp => dapp.path === currentDappPath)! || dapps[0];
 }
 

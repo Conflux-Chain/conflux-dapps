@@ -1,6 +1,6 @@
 import type React from 'react';
 import { sendTransaction, Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
-import { sendTransaction as sendTransactionEthereum } from '@cfx-kit/react-utils/dist/AccountManage';
+import { sendTransaction as sendTransactionEthereum } from '@cfxjs/use-wallet-react/ethereum';
 import { rewardRateStore, trackCurrentAccountVotedChangeOnce } from 'governance/src/store';
 import { paramsControlContract, paramsControlContractAddress, posLockVotingEscrowContract } from 'governance/src/store/contracts';
 import { showWaitWallet, showActionSubmitted, hideWaitWallet, hideActionSubmitted } from 'common/components/showPopup/Modal';

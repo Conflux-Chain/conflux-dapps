@@ -1,5 +1,5 @@
 import { sendTransaction as sendTransactionWithFluent, Unit } from '@cfxjs/use-wallet-react/conflux/Fluent';
-import { store as metaMaskStore } from '@cfx-kit/react-utils/dist/AccountManage';
+import { store as metaMaskStore } from '@cfxjs/use-wallet-react/ethereum';
 import { currentTokenStore, eSpaceBalanceStore, Contracts, trackBalanceChangeOnce, mirrorAddressStore } from 'cross-space/src/store/index';
 import { showWaitWallet, showActionSubmitted, hideWaitWallet, hideActionSubmitted } from 'common/components/showPopup/Modal';
 import { showToast } from 'common/components/showPopup/Toast';
