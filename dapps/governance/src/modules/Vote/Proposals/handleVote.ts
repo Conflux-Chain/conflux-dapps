@@ -1,5 +1,5 @@
 import { sendTransaction } from "@cfxjs/use-wallet-react/conflux/Fluent";
-import { sendTransaction as sendTransactionEthereum } from '@cfxjs/use-wallet-react/ethereum';
+import { sendTransaction as sendTransactionEthereum } from '@cfx-kit/react-utils/dist/AccountManage';
 import { showWaitWallet, showActionSubmitted, hideWaitWallet } from 'common/components/showPopup/Modal';
 import { showToast } from 'common/components/showPopup/Toast';
 import { governanceContract, governanceContractAddress, governanceContractAddressESpace } from "governance/src/store/contracts";

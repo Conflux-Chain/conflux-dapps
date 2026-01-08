@@ -15,7 +15,7 @@ import lodash, { defer } from 'lodash-es';
 import { showToast } from 'common/components/showPopup/Toast';
 import { ethers } from 'ethers';
 import { CONTRACT_ABI } from 'payment/src/contracts/constants';
-import { personalSign } from '@cfxjs/use-wallet-react/ethereum';
+import { personalSign } from '@cfx-kit/react-utils/dist/AccountManage';
 // @ts-ignore
 import { binary_to_base58 } from 'base58-js';
 import { ONE_DAY_SECONDS } from './constants';
