@@ -4,7 +4,7 @@ import { subscribeWithSelector } from 'zustand/middleware';
 import LocalStorage from 'localstorage-enhance';
 import Cache from 'common/utils/LRUCache';
 import CFX from 'cross-space/src/assets/CFX.svg';
-import { store as metaMaskStore } from '@cfxjs/use-wallet-react/ethereum';
+import { store as metaMaskStore } from '@cfx-kit/react-utils/dist/AccountManage';
 
 export const nativeToken = {
     core_space_name: "Conflux Network",
@@ -50,7 +50,7 @@ const selectors = {
 
 export const startSubToken = () => {
     const unsub = metaMaskStore.subscribe(state => state.status, (status) => {
-        if (status === 'not-installed') {
+        if (!status || status === 'not-installed') {
             currentTokenStore.setState({ currentToken: nativeToken });
             LocalStorage.setItem({ key: 'currentToken', data: nativeToken, namespace: 'cross-space' });
         }

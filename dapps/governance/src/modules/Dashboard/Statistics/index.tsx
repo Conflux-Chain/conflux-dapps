@@ -1,7 +1,7 @@
 import React from 'react';
-
-import { store as confluxStore, Unit, useBalance, connect as connectFluent } from '@cfxjs/use-wallet-react/conflux/Fluent';
-import { store as ethereumStore, useBalance as useBalanceEth, connect as connectEthereum } from '@cfxjs/use-wallet-react/ethereum';
+import { store as confluxStore, Unit, useBalance } from '@cfxjs/use-wallet-react/conflux/Fluent';
+import { store as ethereumStore, useBalance as useBalanceEth } from '@cfx-kit/react-utils/dist/AccountManage';
+import { connectToConflux, connectToEthereum } from 'common/modules/AuthConnectButton';
 import Button from 'common/components/Button';
 import { Link } from 'react-router-dom';
 import { useChainIdNative, usePosLockArrOrigin, usePowLockOrigin } from 'governance/src/store/lockDays&blockNumber';
@@ -20,12 +20,12 @@ type ToolTipProps = {
 const ToolTip = ({ des, ...props }: ToolTipProps) => {
     return (
         <div
-            className='bg-white absolute z-10 top-[-14px] py-[2px] px-[4px] left-0 padding text-[#808BE7] border-[1px] border-solid border-[#808BE7] rounded-tl-[9px] rounded-r-[9px] text-xs'
+            className="bg-white absolute z-10 top-[-14px] py-[2px] px-[4px] left-0 padding text-[#808BE7] border-[1px] border-solid border-[#808BE7] rounded-tl-[9px] rounded-r-[9px] text-xs"
             {...props}
         >
             {des}
         </div>
-    )
+    );
 };
 
 const zero = Unit.fromMinUnit(0);
@@ -45,48 +45,76 @@ const Statistics: React.FC = () => {
 
     const posLockArrOrigin = usePosLockArrOrigin();
     const powLockOrigin = usePowLockOrigin();
+    const eSpaceBalance = useBalanceEth();
+    const coreBalance = useBalance();
 
-    const posTotalStaked = posLockArrOrigin && posLockArrOrigin.length > 0 ? posLockArrOrigin.reduce((pre, cur) => pre.add(cur.stakeAmount), Unit.fromMinUnit(0)) : Unit.fromMinUnit(0);
-    const totalStaked = isCoreSpace && powLockOrigin?.stakeAmount ? (posTotalStaked.add(powLockOrigin.stakeAmount)) : posTotalStaked;
+    const posTotalStaked =
+        posLockArrOrigin && posLockArrOrigin.length > 0
+            ? posLockArrOrigin.reduce((pre, cur) => pre.add(cur.stakeAmount), Unit.fromMinUnit(0))
+            : Unit.fromMinUnit(0);
+    const totalStaked = isCoreSpace && powLockOrigin?.stakeAmount ? posTotalStaked.add(powLockOrigin.stakeAmount) : posTotalStaked;
 
-    const posTotalLocked = posLockArrOrigin && posLockArrOrigin.length > 0 ? posLockArrOrigin.reduce((pre, cur) => pre.add(cur.lockAmount), Unit.fromMinUnit(0)) : Unit.fromMinUnit(0);
-    const totalLocked = isCoreSpace && powLockOrigin?.lockAmount ? (posTotalLocked.add(powLockOrigin.lockAmount)) : posTotalLocked;
+    const posTotalLocked =
+        posLockArrOrigin && posLockArrOrigin.length > 0
+            ? posLockArrOrigin.reduce((pre, cur) => pre.add(cur.lockAmount), Unit.fromMinUnit(0))
+            : Unit.fromMinUnit(0);
+    const totalLocked = isCoreSpace && powLockOrigin?.lockAmount ? posTotalLocked.add(powLockOrigin.lockAmount) : posTotalLocked;
 
-    const posTotalPower = posLockArrOrigin && posLockArrOrigin.length > 0 ? posLockArrOrigin.reduce((pre, cur) => pre.add(cur.votePower), Unit.fromMinUnit(0)) : Unit.fromMinUnit(0);
-    const totalPower = isCoreSpace && powLockOrigin?.votePower ? (posTotalPower.add(powLockOrigin.votePower)) : posTotalPower;
+    const posTotalPower =
+        posLockArrOrigin && posLockArrOrigin.length > 0
+            ? posLockArrOrigin.reduce((pre, cur) => pre.add(cur.votePower), Unit.fromMinUnit(0))
+            : Unit.fromMinUnit(0);
+    const totalPower = isCoreSpace && powLockOrigin?.votePower ? posTotalPower.add(powLockOrigin.votePower) : posTotalPower;
 
-    const balance = isESpace ? useBalanceEth() : useBalance();
+    const balance = isESpace ? eSpaceBalance : coreBalance;
 
     const totalBalance = balance?.add(totalStaked || 0);
 
-    const totalStake0Component = <div className='w-full flex flex-col justify-center my-[48px]'>
-        <img className='w-fit m-auto' src={TotalStake0} alt="total stake 0" />
-    </div>
+    const totalStake0Component = (
+        <div className="w-full flex flex-col justify-center my-[48px]">
+            <img className="w-fit m-auto" src={TotalStake0} alt="total stake 0" />
+        </div>
+    );
 
-    const switchNetworkComponent = <div className='w-full flex flex-col justify-center my-[48px]'>
-        <img className='w-fit m-auto' src={SwitchNetworkImg} alt="Not connected" />
-        <div className='mt-[12px] text-[16px] text-[#898D9A] text-center'>Click to</div>
-        <div className='text-[16px] text-[#808BE7] text-center cursor-pointer' onClick={isESpace ? switchToESpace : switchToCore}>Switch Wallet Network</div>
-    </div>
+    const switchNetworkComponent = (
+        <div className="w-full flex flex-col justify-center my-[48px]">
+            <img className="w-fit m-auto" src={SwitchNetworkImg} alt="Not connected" />
+            <div className="mt-[12px] text-[16px] text-[#898D9A] text-center">Click to</div>
+            <div className="text-[16px] text-[#808BE7] text-center cursor-pointer" onClick={isESpace ? switchToESpace : switchToCore}>
+                Switch Wallet Network
+            </div>
+        </div>
+    );
 
     const ConnectWallet = (type: string) => {
-        return <div className='w-full flex flex-col justify-center my-[48px]'>
-            <img className='w-fit m-auto' src={NotConnected} alt="Not connected" />
-            <p className='mt-[12px] text-[16px] text-[#898D9A] text-center'>
-                <span className='text-[#808BE7] cursor-pointer' onClick={type === 'MetaMask' ? connectEthereum : connectFluent}>Connect {type} Wallet</span> to see more
-            </p>
-        </div>
-    }
+        return (
+            <div className="w-full flex flex-col justify-center my-[48px]">
+                <img className="w-fit m-auto" src={NotConnected} alt="Not connected" />
+                <p className="mt-[12px] text-[16px] text-[#898D9A] text-center">
+                    <span className="text-[#808BE7] cursor-pointer" onClick={type === 'MetaMask' ? connectToEthereum : connectToConflux}>
+                        Connect to {type === 'MetaMask' ? 'eSpace' : 'Core'}
+                    </span>{' '}
+                    to see more
+                </p>
+            </div>
+        );
+    };
 
     return (
         <div>
-            <div className='mt-[16px] flex gap-[24px]'>
-                <div className='w-full p-[16px] rounded-[8px] bg-white shadow-md'>
-                    <div className='text-[12px] text-[#898D9A]'>Total Balance</div>
-                    <BalanceText className='text-[16px] text-[#1B1B1C]' id="Dashboard Total Balance" balance={isSameChain ? totalBalance : false} symbol="CFX" decimals={18} />
+            <div className="mt-[16px] flex gap-[24px]">
+                <div className="w-full p-[16px] rounded-[8px] bg-white shadow-md">
+                    <div className="text-[12px] text-[#898D9A]">Total Balance</div>
+                    <BalanceText
+                        className="text-[16px] text-[#1B1B1C]"
+                        id="Dashboard Total Balance"
+                        balance={isSameChain ? totalBalance : false}
+                        symbol="CFX"
+                        decimals={18}
+                    />
                 </div>
-                <div className='w-full p-[16px] rounded-[8px] bg-white shadow-md'>
-                    <div className='text-[13px] text-[#898D9A]'>Available Balance</div>
+                <div className="w-full p-[16px] rounded-[8px] bg-white shadow-md">
+                    <div className="text-[13px] text-[#898D9A]">Available Balance</div>
                     <BalanceText
                         className="text-[16px] text-[#3D3F4C]"
                         id="Dashboard Available Balance"
@@ -94,66 +122,76 @@ const Statistics: React.FC = () => {
                         symbol={'CFX'}
                         decimals={18}
                     />
-                    <div className='flex mt-[16px]'>
-
-                        <Link to="https://conflux-pos-validators.org/" target='_block'>
-                            <Button
-                                className='w-[100px] relative'>
+                    <div className="flex mt-[16px]">
+                        <Link to="https://conflux-pos-validators.org/" target="_block">
+                            <Button className="w-[100px] relative">
                                 <ToolTip des="APY: ~10%+" />
                                 <span>PoS Stake</span>
                             </Button>
                         </Link>
-                        {
-                            !isESpace && <Link to="/governance/pow-stake">
-                                <Button className='w-[100px] ml-[16px]' variant='outlined'>PoW Stake</Button>
+                        {!isESpace && (
+                            <Link to="/governance/pow-stake">
+                                <Button className="w-[100px] ml-[16px]" variant="outlined">
+                                    PoW Stake
+                                </Button>
                             </Link>
-                        }
-
+                        )}
                     </div>
-
                 </div>
-                <div className='w-full p-[16px] rounded-[8px] bg-white shadow-md'>
-                    <div className='text-[12px] text-[#898D9A]'>Total Staked</div>
-                    <BalanceText className='text-[16px] text-[#1B1B1C]' id="Dashboard Total Staked" balance={isSameChain ? totalStaked : false} symbol="CFX" decimals={18} />
+                <div className="w-full p-[16px] rounded-[8px] bg-white shadow-md">
+                    <div className="text-[12px] text-[#898D9A]">Total Staked</div>
+                    <BalanceText
+                        className="text-[16px] text-[#1B1B1C]"
+                        id="Dashboard Total Staked"
+                        balance={isSameChain ? totalStaked : false}
+                        symbol="CFX"
+                        decimals={18}
+                    />
                 </div>
-                <div className='w-full p-[16px] rounded-[8px] bg-white shadow-md'>
-                    <div className='text-[12px] text-[#898D9A]'>Total Locked</div>
-                    <BalanceText className='text-[16px] text-[#1B1B1C]' id="Dashboard Total Locked" balance={isSameChain ? totalLocked : false} symbol="CFX" decimals={18} />
-                    <div className='mt-[16px] text-[14px]'>
-                        <span className='text-[#898D9A]'>Voting Power:</span>
-                        <BalanceText className='text-[#3D3F4C]' id="Dashboard Voting Power" balance={isSameChain ? totalPower : false} symbol="" />
+                <div className="w-full p-[16px] rounded-[8px] bg-white shadow-md">
+                    <div className="text-[12px] text-[#898D9A]">Total Locked</div>
+                    <BalanceText
+                        className="text-[16px] text-[#1B1B1C]"
+                        id="Dashboard Total Locked"
+                        balance={isSameChain ? totalLocked : false}
+                        symbol="CFX"
+                        decimals={18}
+                    />
+                    <div className="mt-[16px] text-[14px]">
+                        <span className="text-[#898D9A]">Voting Power:</span>
+                        <BalanceText className="text-[#3D3F4C]" id="Dashboard Voting Power" balance={isSameChain ? totalPower : false} symbol="" />
                     </div>
                 </div>
             </div>
 
-            {
-                isESpace ?
-                    ethereumAccount ?
-                        isSameChain ?
-                            totalStaked?.equals(zero) ?
-                                totalStake0Component
-                                :
-                                <></>
-                            :
-                            switchNetworkComponent
-                        :
-
-                        ConnectWallet('MetaMask')
-                    :
-                    account ?
-                        isSameChain ?
-                            totalStaked?.equals(zero) ?
-                                totalStake0Component
-                                :
-                                <></>
-                            :
-                            switchNetworkComponent
-                        :
-
-                        ConnectWallet('Fluent')
-            }
+            {isESpace ? (
+                ethereumAccount ? (
+                    isSameChain ? (
+                        totalStaked?.equals(zero) ? (
+                            totalStake0Component
+                        ) : (
+                            <></>
+                        )
+                    ) : (
+                        switchNetworkComponent
+                    )
+                ) : (
+                    ConnectWallet('MetaMask')
+                )
+            ) : account ? (
+                isSameChain ? (
+                    totalStaked?.equals(zero) ? (
+                        totalStake0Component
+                    ) : (
+                        <></>
+                    )
+                ) : (
+                    switchNetworkComponent
+                )
+            ) : (
+                ConnectWallet('Fluent')
+            )}
         </div>
-
     );
 };
 

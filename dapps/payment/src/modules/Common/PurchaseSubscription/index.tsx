@@ -8,7 +8,7 @@ import {
     getMaxCFXInOfExactAPPCoin,
     purchaseSubscriptionCFX,
 } from 'payment/src/utils/request';
-import { useAccount } from '@cfxjs/use-wallet-react/ethereum';
+import { useAccount } from '@cfx-kit/react-utils/dist/AccountManage';
 import { AuthESpace } from 'common/modules/AuthConnectButton';
 import { showToast } from 'common/components/showPopup/Toast';
 import { ethers } from 'ethers';
@@ -50,7 +50,7 @@ export default ({
             '2. The resource provider will provide corresponding resources based on the content of the subscription service you pay.',
             '3. You can use the allowed cryptocurrencies to exchange for APP coins, the platform will obtain the Dex quotation to calculate the estimated payment amount, or go to <a href="https://app.swappi.io/#/swap" target="_blank">https://app.swappi.io/#/swap</a> to learn more.',
         ],
-        []
+        [],
     );
     const account = useAccount();
     const [modalLoading, setModalLoading] = useState(false);
@@ -144,7 +144,7 @@ export default ({
                 }
             }
         },
-        [account, token.eSpace_address, appAddr, appcoinValue, isCFX]
+        [account, token.eSpace_address, appAddr, appcoinValue, isCFX],
     );
 
     // check selected token allowance
