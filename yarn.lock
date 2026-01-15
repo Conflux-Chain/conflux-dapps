@@ -1329,7 +1329,7 @@
   resolved "https://registry.yarnpkg.com/@cfxjs/use-wallet-enhance/-/use-wallet-enhance-0.0.4.tgz#3c457115aca7ef5b4fe4ef62c5d44bc329b3df36"
   integrity sha512-magE8pYyLz9tMikUGlP57Anx6zyrsJp65PKOFeyfBuvsNTxzotEAzfcFaVmkSxREdcYvVpx8TdT9LacmoW8u0w==
 
-"@cfxjs/use-wallet-react@0.0.9", "@cfxjs/use-wallet-react@^0.0.6", "@cfxjs/use-wallet-react@latest":
+"@cfxjs/use-wallet-react@0.0.4", "@cfxjs/use-wallet-react@0.0.9", "@cfxjs/use-wallet-react@^0.0.6", "@cfxjs/use-wallet-react@latest":
   version "0.0.9"
   resolved "https://registry.yarnpkg.com/@cfxjs/use-wallet-react/-/use-wallet-react-0.0.9.tgz#0fa7b7320af6d215b6b769e1e121ea6f4ffe6984"
   integrity sha512-Udz+4/YgtPfQgiRs+D2dYXygGqAYLnyAldNdiaa1Zapa2irqhQksQKbEIeqFIn+gWlgKcX2UpreKgl6i9d7r5g==
@@ -2036,6 +2036,18 @@
     "@fluent-wallet/utils" "0.0.3"
     elliptic "6.5.4"
 
+"@fluent-wallet/account@1.0.8":
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/@fluent-wallet/account/-/account-1.0.8.tgz#800524b5f366d8ef5bcf76793855ceaef0a154e7"
+  integrity sha512-ntqEv8AMLEPIeAp+tMI+OeP2050/+yp8LlPNWWulfMNDVHxV6sibE2QQwc06sQcxzpk76yvezO+b1ARduWbUJQ==
+  dependencies:
+    "@ethersproject/address" "5.6.1"
+    "@ethersproject/transactions" "5.6.2"
+    "@ethersproject/wallet" "5.6.2"
+    "@fluent-wallet/consts" "0.0.27"
+    "@fluent-wallet/utils" "0.0.6"
+    elliptic "6.5.4"
+
 "@fluent-wallet/base32-address@0.1.3":
   version "0.1.3"
   resolved "https://registry.yarnpkg.com/@fluent-wallet/base32-address/-/base32-address-0.1.3.tgz#883f958c7a3475b6a246418945151b9139ea5722"
@@ -2056,6 +2068,18 @@
     "@fluent-wallet/account" "1.0.3"
     "@fluent-wallet/consts" "0.0.24"
     "@fluent-wallet/utils" "0.0.3"
+    "@thi.ng/cache" "1.0.94"
+    "@thi.ng/memoize" "2.1.21"
+    js-conflux-sdk "2.1.2"
+
+"@fluent-wallet/base32-address@0.1.9":
+  version "0.1.9"
+  resolved "https://registry.yarnpkg.com/@fluent-wallet/base32-address/-/base32-address-0.1.9.tgz#7491048127e446b7be304e89d167ab46557b80f8"
+  integrity sha512-dMmhgkAwmvjR4ZkSYjMW5mpjO9tGCwziTixjAlxpSxvHA3QSSbn9cuXc/D1CqEb/4m2KXi8gQjLEJkXAqTN8Rg==
+  dependencies:
+    "@fluent-wallet/account" "1.0.8"
+    "@fluent-wallet/consts" "0.0.27"
+    "@fluent-wallet/utils" "0.0.6"
     "@thi.ng/cache" "1.0.94"
     "@thi.ng/memoize" "2.1.21"
     js-conflux-sdk "2.1.2"
@@ -2094,12 +2118,25 @@
   resolved "https://registry.yarnpkg.com/@fluent-wallet/consts/-/consts-0.0.25.tgz#26e24691ad3808e7d2afc3a2754ebd9fb2d47cab"
   integrity sha512-jQb6mP7T6bdunsk4IcZdIWCpXB9TG07XUboao3TK/geELal/K6DAC06UVzLjT8YovuPRoJVtDuHAPYNFCb/NxA==
 
+"@fluent-wallet/consts@0.0.27":
+  version "0.0.27"
+  resolved "https://registry.yarnpkg.com/@fluent-wallet/consts/-/consts-0.0.27.tgz#776a3b59f007fc9be0ee51bc7c6ac68d66ed6516"
+  integrity sha512-AO6NAl7EANhpU5uzrz1T9ergBg9yo4BbjzRZbnjIoe6cJA7J0coBBVDdMBpBEBsU2T/bblbm78WbU/GDW+G1Iw==
+
 "@fluent-wallet/detect-address-type@0.0.2":
   version "0.0.2"
   resolved "https://registry.yarnpkg.com/@fluent-wallet/detect-address-type/-/detect-address-type-0.0.2.tgz#c60c9340f2505c083e9843a5b30bc36d7c85ac21"
   integrity sha512-Fb2toVScAbrzUtFmmWhgsCFWFCsDxuSkMLrCrc+SV/c0UiisD/4W6yZLZ1ZWcVaQekGJ6NxvpLkvc6wOiw8/YA==
   dependencies:
     "@fluent-wallet/base32-address" "0.1.3"
+    "@fluent-wallet/checks" "0.0.3"
+
+"@fluent-wallet/detect-address-type@0.0.8":
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/@fluent-wallet/detect-address-type/-/detect-address-type-0.0.8.tgz#ba580b7443854b7948b9fb626bb29bba895ea55a"
+  integrity sha512-fKVVzC/ooRTJXdOhUiDG1RxJJUPFcFGuAcK3p/Z6Ht7EGyAJZ1WjMu/bkBoWIgCz3uaF6gJpDoF0kzLXoqtehg==
+  dependencies:
+    "@fluent-wallet/base32-address" "0.1.9"
     "@fluent-wallet/checks" "0.0.3"
 
 "@fluent-wallet/estimate-tx@0.2.4":
@@ -2113,12 +2150,34 @@
     big.js "6.2.0"
     bn.js "5.2.1"
 
+"@fluent-wallet/estimate-tx@^0.2.0":
+  version "0.2.10"
+  resolved "https://registry.yarnpkg.com/@fluent-wallet/estimate-tx/-/estimate-tx-0.2.10.tgz#f6852112a7165e25c421966133c5141b76c8f731"
+  integrity sha512-v8dEXZ2s7NRKfo9mhvWgZmZnuFIU3Uykf66SuG8hPhdg9RfhR6LJYotSrivdwsl3tRkA/OqWqGIZ9VQEwXHY6A==
+  dependencies:
+    "@fluent-wallet/consts" "0.0.27"
+    "@fluent-wallet/detect-address-type" "0.0.8"
+    "@fluent-wallet/utils" "0.0.6"
+    big.js "6.2.0"
+    bn.js "5.2.1"
+
 "@fluent-wallet/utils@0.0.3":
   version "0.0.3"
   resolved "https://registry.yarnpkg.com/@fluent-wallet/utils/-/utils-0.0.3.tgz#5f0e51e29ad9e9e33fc38e73d8d68fed710f48ac"
   integrity sha512-q8flh0L54FZD2Z3qaUbBr1Wb5VY8j+LETsqucRrhllCsTZoAQj02eGcs8nTQ8Dxtt773/qT2x24uV8sd5osUGg==
   dependencies:
     bn.js "5.2.0"
+    is-hex-prefixed "^1.0.0"
+    randombytes "^2.1.0"
+    strip-hex-prefix "^1.0.0"
+
+"@fluent-wallet/utils@0.0.6":
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/@fluent-wallet/utils/-/utils-0.0.6.tgz#212918eaab302e9762bdf7bf49b3a4340fac6329"
+  integrity sha512-J8dYU5upjv1EDPq9nDrivSWL4/wnZoxXMcbeBxhr5DCnDvFcYwacsd3zENOsA3V1XGOHbqC0Duni78SRMfx2XQ==
+  dependencies:
+    "@spruceid/siwe-parser" "3.0.0"
+    bn.js "5.2.1"
     is-hex-prefixed "^1.0.0"
     randombytes "^2.1.0"
     strip-hex-prefix "^1.0.0"
@@ -2653,7 +2712,7 @@
   resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-1.7.0.tgz#5d9e33af2c7d04fee35de1519b80c958b2e35e39"
   integrity sha512-HXydb0DgzTpDPwbVeDGCG1gIu7X6+AuU6Zl6av/E/KG8LMsvPntvq+w17CHRpKBmN6Ybdrt1eP3k4cj8DJa78w==
 
-"@noble/hashes@1.8.0", "@noble/hashes@^1.4.0", "@noble/hashes@^1.8.0", "@noble/hashes@~1.8.0":
+"@noble/hashes@1.8.0", "@noble/hashes@^1.1.2", "@noble/hashes@^1.4.0", "@noble/hashes@^1.8.0", "@noble/hashes@~1.8.0":
   version "1.8.0"
   resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-1.8.0.tgz#cee43d801fcef9644b11b8194857695acd5f815a"
   integrity sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A==
@@ -2987,6 +3046,14 @@
   integrity sha512-MZPUxrmFubI36XS1DI3qmI0YdN1gks62JtFZvxR67ljjSNCeK6U08Zx4msEWOXuofgqUt6zPHSi1H9fbjR/NRA==
   dependencies:
     "@sinonjs/commons" "^1.7.0"
+
+"@spruceid/siwe-parser@3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@spruceid/siwe-parser/-/siwe-parser-3.0.0.tgz#8af48683d77aed6dbd1abf541e1b064dc64be10e"
+  integrity sha512-Y92k63ilw/8jH9Ry4G2e7lQd0jZAvb0d/Q7ssSD0D9mp/Zt2aCXIc3g0ny9yhplpAx1QXHsMz/JJptHK/zDGdw==
+  dependencies:
+    "@noble/hashes" "^1.1.2"
+    apg-js "^4.4.0"
 
 "@stylelint/postcss-css-in-js@^0.37.2":
   version "0.37.3"
@@ -4671,6 +4738,11 @@ anymatch@^3.0.0, anymatch@^3.0.3, anymatch@^3.1.3, anymatch@~3.1.2:
   dependencies:
     normalize-path "^3.0.0"
     picomatch "^2.0.4"
+
+apg-js@^4.4.0:
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/apg-js/-/apg-js-4.4.0.tgz#09dcecab0731fbde233b9f2352fdd2d07e56b2cf"
+  integrity sha512-fefmXFknJmtgtNEXfPwZKYkMFX4Fyeyz+fNF6JWp87biGOPslJbCBVU158zvKRZfHBKnJDy8CMM40oLFGkXT8Q==
 
 aproba@^1.1.1:
   version "1.2.0"
