@@ -85,16 +85,14 @@ fetch(crossSpaceTokenListUrl)
                     WBTC: ['cBridge'],
                     DAI: ['cBridge'],
                 },
-                // Disabled: eSpace -> BSC
-                // 'BSC Chain': {
-                //     CFX: ['Chain Bridge'],
-                // },
+                'BSC Chain': {
+                    CFX: ['Chain Bridge'],
+                },
             },
             'BSC Chain': {
-                // Disabled: BSC -> eSpace
-                // 'Conflux eSpace': {
-                //     CFX: ['Chain Bridge'],
-                // },
+                'Conflux eSpace': {
+                    CFX: ['Chain Bridge'],
+                },
                 'Conflux Core': {
                     COMMON_TOKEN: ['KinetFlow'],
                 },
@@ -193,16 +191,8 @@ fetch(crossSpaceTokenListUrl)
             hasReset = true;
         }
 
-        if (!hasReset && preSourceChain && preToken) {
-            const sourceData = data?.[preSourceChain];
-            const destinationData = preDestinationChain ? sourceData?.[preDestinationChain] : undefined;
-
-            if (!destinationData) {
-                const destinationChain = resetDestinationChains(preSourceChain)!;
-                resetTokens(preSourceChain, destinationChain);
-            } else if (!destinationData[preToken]) {
-                resetTokens(preSourceChain, preDestinationChain!);
-            }
+        if (!hasReset && preSourceChain && preDestinationChain && preToken && !data[preSourceChain][preDestinationChain][preToken]) {
+            resetTokens(preSourceChain, preDestinationChain);
         }
 
         LocalStorage.setItem({ data: map, key: 'maps', namespace });
