@@ -1,0 +1,39 @@
+{
+    "name": "bsc-espace",
+    "version": "0.0.0",
+    "private": true,
+    "scripts": {
+        "dev": "vite --port 3003 --host",
+        "build": "vite build"
+    },
+    "dependencies": {
+        "@cfxjs/use-wallet-react": "0.0.4",
+        "@fluent-wallet/estimate-tx": "^0.2.0",
+        "@react-spring/web": "^9.4.5",
+        "@tippyjs/react": "^4.2.6",
+        "clsx": "^1.1.1",
+        "custom-react-scrollbar": "^0.0.2",
+        "decimal.js": "^10.3.1",
+        "lodash-es": "^4.17.21",
+        "react": "^18.1.0",
+        "react-dom": "^18.1.0",
+        "react-hook-form": "7.32.0",
+        "tippy.js": "^6.3.7",
+        "zustand": "^4.0.0",
+        "web3": "^1.7.3"
+    },
+    "devDependencies": {
+        "@types/lodash-es": "^4.17.6",
+        "@types/react": "^18.0.12",
+        "@types/react-dom": "^18.0.5",
+        "@vitejs/plugin-react": "^1.3.2",
+        "autoprefixer": "^10.4.7",
+        "common": "*",
+        "config": "*",
+        "postcss": "^8.4.14",
+        "tailwindcss": "^3.1.2",
+        "tsconfig": "*",
+        "vite": "^2.9.12"
+    },
+    "license": "MIT"
+}
