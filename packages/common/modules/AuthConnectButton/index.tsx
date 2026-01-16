@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import Networks from '../../conf/Networks';
+import Networks, { type Network } from '../../conf/Networks';
 import AuthConnectButton, { type Props } from './AuthConnectButton';
 import {
     addChain as addConfluxChain,
@@ -63,6 +63,34 @@ export const AuthESpace: React.FC<PropsEnhance> = ({ showLogo = false, checkChai
             checkChainMatch,
         }),
         [walletName, status, chainId, showLogo, checkChainMatch],
+    );
+
+    return <AuthConnectButton authInfo={authInfo} {...props} connectTextType="wallet" />;
+};
+
+export const AuthEthereum: React.FC<PropsEnhance & { network: Network; logo?: string }> = ({
+    network,
+    logo,
+    showLogo = false,
+    checkChainMatch = true,
+    ...props
+}) => {
+    const status = useEthereumStatus();
+    const chainId = useEthereumChainId();
+    const walletName = useCurrentWalletName();
+
+    const authInfo = useMemo<Props['authInfo']>(
+        () => ({
+            walletName: walletName || 'eSpace',
+            logo: showLogo && typeof logo === 'string' ? logo : undefined,
+            network,
+            showWalletSelectModal: showESpaceWalletSelectModal,
+            switchChain: switchEthereumChain,
+            currentStatus: status,
+            currentChainId: chainId,
+            checkChainMatch,
+        }),
+        [walletName, status, chainId, showLogo, checkChainMatch, network, logo],
     );
 
     return <AuthConnectButton authInfo={authInfo} {...props} connectTextType="wallet" />;
@@ -148,4 +176,13 @@ export const switchToESpace = () => {
     const currentWalletName = getCurrentWalletName();
     if (!currentWalletName) return;
     return switchToChain({ walletName: currentWalletName, network: Networks.eSpace, switchChain: switchEthereumChain });
+};
+export const switchToEthereum = (network: Network) => {
+    const currentWalletName = getCurrentWalletName();
+    if (!currentWalletName) return;
+    return switchToChain({
+        walletName: currentWalletName,
+        network,
+        switchChain: switchEthereumChain,
+    });
 };
