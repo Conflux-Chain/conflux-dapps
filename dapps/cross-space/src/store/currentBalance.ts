@@ -11,6 +11,33 @@ import { currentTokenStore, getCurrentToken, type Token } from './currentToken';
 import Networks from 'common/conf/Networks';
 import type { ValueOf } from 'tsconfig/types/enhance';
 
+type JsonRpcError = { code?: number; message?: string; data?: unknown };
+type JsonRpcResponse<T> = { jsonrpc?: string; id?: number | string | null; result?: T; error?: JsonRpcError };
+
+async function rpcCall<T>(rpcUrl: string, method: string, params?: unknown[]): Promise<T> {
+    const response = await fetch(rpcUrl, {
+        body: JSON.stringify({
+            jsonrpc: '2.0',
+            method,
+            ...(params ? { params } : {}),
+            id: 1,
+        }),
+        headers: { 'content-type': 'application/json' },
+        method: 'POST',
+    });
+    const json = (await response.json()) as JsonRpcResponse<T>;
+    if (!response.ok) {
+        throw new Error(`RPC http error: ${response.status}`);
+    }
+    if (json.error) {
+        throw new Error(json.error.message || 'RPC error');
+    }
+    if (json.result === undefined) {
+        throw new Error('Invalid RPC response');
+    }
+    return json.result;
+}
+
 interface BalanceStore {
     currentTokenBalance?: Unit;
     transferBalance?: Unit;
@@ -398,9 +425,59 @@ export const startSubBalance = () => {
                 }, 50) as unknown as number;
 
                 if (balanceStore === coreBalanceStore) {
-                    // estimate Fluent max available balance
                     const { crossSpaceContract, crossSpaceContractAddress } = Contracts;
-                    if (!fluentProvider || !crossSpaceContract || !crossSpaceContractAddress) return;
+                    if (!crossSpaceContract || !crossSpaceContractAddress) {
+                        balanceStore.setState({ maxAvailableBalance: currentTokenBalance });
+                        clearUndefinedTimer();
+                        return;
+                    }
+
+                    const fallbackByRpc = async () => {
+                        // Fallback for non-Fluent providers (e.g. OneKey)
+                        const rpcUrl = Networks.core.rpcUrls[0];
+                        const tx = {
+                            from: account,
+                            to: crossSpaceContractAddress,
+                            data: crossSpaceContract.transferEVM('0xFBBEd826c29b88BCC428B6fa0cfE6b0908653676').encodeABI(),
+                            value: '0x0',
+                        };
+
+                        try {
+                            const [estimateRes, gasPrice] = await Promise.all([
+                                rpcCall<{ gasLimit: string; storageCollateralized: string }>(rpcUrl, 'cfx_estimateGasAndCollateral', [tx, 'latest_state']),
+                                rpcCall<string>(rpcUrl, 'cfx_gasPrice'),
+                            ]);
+
+                            const gasFee = Unit.mul(Unit.fromMinUnit(estimateRes.gasLimit), Unit.fromMinUnit(gasPrice));
+                            const storageFee = Unit.div(
+                                Unit.mul(Unit.fromMinUnit(estimateRes.storageCollateralized), Unit.fromMinUnit('1000000000000000000')),
+                                Unit.fromMinUnit(1024),
+                            );
+                            const txFee = Unit.add(gasFee, storageFee);
+
+                            balanceStore.setState({
+                                maxAvailableBalance: Unit.greaterThan(currentTokenBalance, txFee)
+                                    ? Unit.sub(currentTokenBalance, txFee)
+                                    : Unit.fromMinUnit(0),
+                            });
+                        } catch {
+                            console.warn('Failed to estimate gas fee, fallback to 0.1');
+                            const buffer = Unit.fromStandardUnit('0.1', 18);
+                            balanceStore.setState({
+                                maxAvailableBalance: Unit.greaterThan(currentTokenBalance, buffer)
+                                    ? Unit.sub(currentTokenBalance, buffer)
+                                    : Unit.fromMinUnit(0),
+                            });
+                        } finally {
+                            clearUndefinedTimer();
+                        }
+                    };
+
+                    if (!fluentProvider) {
+                        void fallbackByRpc();
+                        return;
+                    }
+
                     estimate(
                         {
                             from: account,
@@ -420,66 +497,42 @@ export const startSubBalance = () => {
                         .then((estimateRes) => {
                             balanceStore.setState({ maxAvailableBalance: Unit.fromMinUnit(estimateRes.nativeMaxDrip) });
                         })
-                        .catch((err) => {
-                            balanceStore.setState({ maxAvailableBalance: undefined });
-                            // console.error('Get fluent max available balance error: ', err);
-                        })
+                        .catch(() => fallbackByRpc())
                         .finally(clearUndefinedTimer);
-                } else {
-                    // estimate MetaMask max available balance
-                    const eSpaceNetwork = Networks.eSpace;
+	                } else {
+	                    // estimate MetaMask max available balance
+	                    const eSpaceNetwork = Networks.eSpace;
 
-                    Promise.all([
-                        fetch(eSpaceNetwork.rpcUrls[0], {
-                            body: JSON.stringify({
-                                jsonrpc: '2.0',
-                                method: 'eth_estimateGas',
-                                params: [
-                                    {
-                                        from: account,
-                                        to: '0x8a4c531EED1205E0eE6E34a1092e0298173a659d',
-                                        value: Unit.lessThan(currentTokenBalance, Unit.fromStandardUnit('16e-12'))
-                                            ? Unit.fromStandardUnit(0).toHexMinUnit()
-                                            : Unit.sub(currentTokenBalance, Unit.fromStandardUnit('16e-12')).toHexMinUnit(),
-                                    },
-                                    'latest',
-                                ],
-                                id: 1,
-                            }),
-                            headers: { 'content-type': 'application/json' },
-                            method: 'POST',
-                        })
-                            .then((response) => response.json())
-                            .then((res) => res?.result),
-                        fetch(eSpaceNetwork.rpcUrls[0], {
-                            body: JSON.stringify({
-                                jsonrpc: '2.0',
-                                method: 'eth_gasPrice',
-                                id: 1,
-                            }),
-                            headers: { 'content-type': 'application/json' },
-                            method: 'POST',
-                        })
-                            .then((response) => response.json())
-                            .then((res) => res?.result),
-                    ])
-                        .then(([estimateGas, gasPrice]) => {
-                            const gasFee = Unit.mul(Unit.mul(Unit.fromMinUnit(estimateGas), Unit.fromMinUnit(gasPrice)), Unit.fromMinUnit('1.5'));
-                            balanceStore.setState({
-                                maxAvailableBalance: Unit.greaterThan(currentTokenBalance, gasFee)
-                                    ? Unit.sub(currentTokenBalance, gasFee)
-                                    : Unit.fromMinUnit(0),
-                            });
-                        })
-                        .catch((err) => {
-                            balanceStore.setState({ maxAvailableBalance: undefined });
-                            // console.error('Get MetaMask max available balance error: ', err);
-                        })
-                        .finally(clearUndefinedTimer);
-                }
-            } else {
-                balanceStore.setState({ maxAvailableBalance: currentTokenBalance });
-            }
+	                    Promise.all([
+	                        rpcCall<string>(eSpaceNetwork.rpcUrls[0], 'eth_estimateGas', [
+	                            {
+	                                from: account,
+	                                to: '0x8a4c531EED1205E0eE6E34a1092e0298173a659d',
+	                                value: Unit.lessThan(currentTokenBalance, Unit.fromStandardUnit('16e-12'))
+	                                    ? Unit.fromStandardUnit(0).toHexMinUnit()
+	                                    : Unit.sub(currentTokenBalance, Unit.fromStandardUnit('16e-12')).toHexMinUnit(),
+	                            },
+	                            'latest',
+	                        ]),
+	                        rpcCall<string>(eSpaceNetwork.rpcUrls[0], 'eth_gasPrice'),
+	                    ])
+	                        .then(([estimateGas, gasPrice]) => {
+	                            const gasFee = Unit.mul(Unit.mul(Unit.fromMinUnit(estimateGas), Unit.fromMinUnit(gasPrice)), Unit.fromMinUnit('1.5'));
+	                            balanceStore.setState({
+	                                maxAvailableBalance: Unit.greaterThan(currentTokenBalance, gasFee)
+	                                    ? Unit.sub(currentTokenBalance, gasFee)
+	                                    : Unit.fromMinUnit(0),
+	                            });
+	                        })
+	                        .catch((err) => {
+	                            balanceStore.setState({ maxAvailableBalance: undefined });
+	                            // console.error('Get MetaMask max available balance error: ', err);
+	                        })
+	                        .finally(clearUndefinedTimer);
+	                }
+	            } else {
+	                balanceStore.setState({ maxAvailableBalance: currentTokenBalance });
+	            }
         }, 50);
 
         const unsub1 = balanceStore.subscribe(state => state.currentTokenBalance, subCurrentTokenBalanceChange);
