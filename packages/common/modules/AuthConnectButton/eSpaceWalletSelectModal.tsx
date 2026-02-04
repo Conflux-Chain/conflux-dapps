@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { store as coreStore } from '@cfxjs/use-wallet-react/conflux/Fluent';
-import { connect, useRegisteredWallets, createPrioritySorter, getAccount, useAccount } from '@cfx-kit/react-utils/dist/AccountManage';
+import { connect, useRegisteredWallets, createPrioritySorter, getAccount, useAccount, type WalletItem } from '@cfx-kit/react-utils/dist/AccountManage';
 import { waitForEthereumPermission } from 'common/hooks/useMetaMaskHostedByFluent';
 import { showToast } from 'common/components/showPopup/Toast';
 import { PopupClass } from 'common/components/Popup';
@@ -14,18 +14,30 @@ ESpaceWalletSelectModal.setItemWrapperClassName('toast-item-wrapper');
 ESpaceWalletSelectModal.setAnimatedSize(false);
 
 const prioritySorter = createPrioritySorter(['Fluent', 'MetaMask', 'WalletConnect']);
+const FLUENT_WEBSITE = 'https://fluentwallet.com';
 
 const WalletSelectModalContent: React.FC<{ resolve: (value: string[]) => void; reject: (error: any) => void }> = memo(({ resolve, reject }) => {
     const wallets = useRegisteredWallets(prioritySorter);
     const account = useAccount();
 
-    const handleClickWallet = async (walletName: string) => {
+    const handleClickWallet = async (wallet: WalletItem) => {
+        if (wallet.walletName === 'Fluent' && wallet.status === 'not-installed') {
+            showToast(
+                { title: 'Fluent Not Installed', text: 'Redirecting you to Fluent Wallet website...' },
+                { type: 'info' },
+            );
+            if (typeof window !== 'undefined') {
+                window.open(FLUENT_WEBSITE, '_blank', 'noopener,noreferrer');
+            }
+            return;
+        }
+
         try {
-            if (walletName === 'Fluent') {
+            if (wallet.walletName === 'Fluent') {
                 await waitForEthereumPermission();
             }
 
-            await connect(walletName);
+            await connect(wallet.walletName);
             const account = getAccount();
             if (!account) {
                 showToast('Error account address.', { type: 'failed' });
@@ -33,7 +45,7 @@ const WalletSelectModalContent: React.FC<{ resolve: (value: string[]) => void; r
             }
             hideESpaceWallet();
             resolve([account]);
-            showToast(`Connect to ${walletName} Success!`, { type: 'success' });
+            showToast(`Connect to ${wallet.walletName} Success!`, { type: 'success' });
         } catch (error) {
             console.log(error);
             if ((error as any)?.code === 4001) {
@@ -61,7 +73,7 @@ const WalletSelectModalContent: React.FC<{ resolve: (value: string[]) => void; r
                         inActivating && wallet.status !== 'in-activating' && 'pointer-events-none opacity-50',
                     )}
                     key={wallet.walletName}
-                    onClick={() => handleClickWallet(wallet.walletName)}
+                    onClick={() => handleClickWallet(wallet)}
                 >
                     <img className="w-[24px] h-[24px] mr-[8px]" src={wallet.walletIcon} alt={wallet.walletName} />
                     <span className="text-black text-[14px] font-medium text-left">{wallet.walletName}</span>

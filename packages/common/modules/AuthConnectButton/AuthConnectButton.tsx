@@ -117,9 +117,14 @@ const AuthConnectButton: React.FC<Props> = ({ authInfo, authContent, connectText
             {currentStatus === 'active' && !isChainMatch && connectTextType === 'wallet' && `${compiled(i18n.switchTo, { walletName, chainName })}`}
             {(!currentStatus || currentStatus === 'not-active') && connectTextType === 'specific' && `${walletName !== 'eSpace' ? compiled(i18n.connect_specific, { walletName, chainName }) : compiled(i18n.connect_specific_no_wallet, { chainName })}`}
             {(!currentStatus || currentStatus === 'not-active') && connectTextType === 'concise' && `${walletName !== 'eSpace' ? compiled(i18n.connect_concise, { walletName }) : compiled(i18n.connect_concise_no_wallet, { chainName })}`}
-            {(!currentStatus || currentStatus === 'not-active') && connectTextType === 'wallet' && `${i18n.connect_wallet}`}
+            {(!currentStatus ||
+                currentStatus === 'not-active' ||
+                currentStatus === 'not-installed' ||
+                currentStatus === 'chain-error') &&
+                connectTextType === 'wallet' &&
+                `${i18n.connect_wallet}`}
             {currentStatus === 'in-activating' && `${compiled(i18n.connecting, { walletName })}`}
-            {currentStatus === 'not-installed' && `${compiled(i18n.not_installed, { walletName })}`}
+            {currentStatus === 'not-installed' && connectTextType !== 'wallet' && `${compiled(i18n.not_installed, { walletName })}`}
         </Button>
     );
 };
