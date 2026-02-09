@@ -1,7 +1,8 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { PopupClass } from 'common/components/Popup';
-import { Unit, useAccount } from '@cfxjs/use-wallet-react/ethereum';
+import { Unit } from '@cfxjs/use-wallet-react/conflux';
+import { useAccount } from '@cfx-kit/react-utils/dist/AccountManage';
 import { Select } from 'antd';
 import dayjs from 'dayjs';
 

@@ -8,7 +8,6 @@ import { ModeContext } from 'common/hooks/useMode';
 import Sidebar from 'hub/src/modules/Sidebar';
 import CrossSpace from 'cross-space/src/modules';
 import BscEspace from 'bsc-espace/src/modules';
-import Airdrop from 'airdrop/src/modules';
 import GovernanceDashboard from 'governance/src/modules/Dashboard';
 import GovernancePowStake from 'governance/src/modules/PowStake';
 import Vote from 'governance/src/modules/Vote';
@@ -21,7 +20,6 @@ import useCurrentDapp from 'hub/src/hooks/useCurrentDapp';
 import BridgeIcon from 'hub/src/assets/Bridge.svg';
 import GovernanceIcon from 'hub/src/assets/governance.svg';
 import PosIcon from 'hub/src/assets/Pos.svg';
-import AirdropIcon from 'hub/src/assets/Airdrop.svg';
 import { hideAllToast } from 'common/components/showPopup/Toast';
 import LocalStorage from 'localstorage-enhance';
 import Pos from 'pos/src/modules';
@@ -37,12 +35,6 @@ export const dapps = [
         icon: BridgeIcon,
         path: 'bridge',
         index: true,
-    },
-    {
-        name: 'eSpace Airdrop',
-        icon: AirdropIcon,
-        path: 'espace-airdrop',
-        element: <Airdrop />,
     },
     {
         name: 'Governance',
@@ -127,7 +119,6 @@ const App = () => {
 
 const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?: () => void }> = ({ handleSwitchLocale, handleSwitchMode }) => {
     const currentDapp = useCurrentDapp();
-
     const { pathname } = useLocation();
     useEffect(() => {
         hideAllToast();
@@ -185,7 +176,6 @@ const DappContent: React.FC<{ handleSwitchLocale?: () => void; handleSwitchMode?
                         <Route key="cross-space" path="cross-space" element={<CrossSpace />} />
                         <Route key="espace-cross-chain" path="espace-cross-chain" element={<BscEspace />} />
                     </Route>
-                    <Route key="espace-airdrop" path="espace-airdrop" element={<Airdrop />} />
                     <Route key="governance" path="governance" element={<Outlet />}>
                         <Route key="governance-dashboard" path="dashboard" element={<GovernanceDashboard />} />
                         <Route key="governance-dashboard-pow-stake" path="pow-stake" element={<GovernancePowStake />} />

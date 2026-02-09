@@ -1,4 +1,4 @@
-import { store as walletStore } from '@cfxjs/use-wallet-react/ethereum';
+import { store as walletStore } from '@cfx-kit/react-utils/dist/AccountManage';
 import { validateHexAddress, convertHexToCfx, validateCfxAddress } from 'common/utils/addressUtils';
 
 export const checkPosData = (posdata: string) => {

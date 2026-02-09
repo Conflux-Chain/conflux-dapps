@@ -9,8 +9,6 @@ import { escapeRegExp } from 'lodash-es';
 import { useTokenList } from 'cross-space/src/components/TokenList/tokenListStore';
 import { startSub, setCurrentToken } from 'cross-space/src/store';
 import { completeDetect as completeDetectConflux } from '@cfxjs/use-wallet-react/conflux/Fluent';
-import { completeDetect as completeDetectEthereum } from '@cfxjs/use-wallet-react/ethereum';
-import { useMetaMaskHostedByFluentRqPermissions } from 'common/hooks/useMetaMaskHostedByFluent';
 import './index.css';
 
 const transitions = {
@@ -29,7 +27,7 @@ const Apps: React.FC = () => {
 
     useEffect(() => {
         let unsub: undefined | (() => void);
-        Promise.all([completeDetectConflux(), completeDetectEthereum()]).then(() => (unsub = startSub()));
+        completeDetectConflux().then(() => (unsub = startSub()));
 
         return () => {
             if (typeof unsub === 'function') {
@@ -37,7 +35,6 @@ const Apps: React.FC = () => {
             }
         };
     }, []);
-    useMetaMaskHostedByFluentRqPermissions();
 
     const hasInit = useRef(false);
     const tokenList = useTokenList();

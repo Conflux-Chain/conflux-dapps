@@ -12,7 +12,6 @@
         ]
     },
     "resolutions": {
-        "@cfxjs/use-wallet-react": "^0.0.9",
         "shuttle-flow/**/react": "17.0.2",
         "shuttle-flow/**/react-dom": "17.0.2",
         "shuttle-flow/**/rc-dropdown": "2.4.1",
@@ -20,7 +19,9 @@
         "shuttle-flow/**/rc-tooltip": "5.1.1",
         "shuttle-flow/**/rc-trigger": "5.1.1",
         "shuttle-flow/**/rc-util": "5.19.3",
-        "shuttle-flow/**/rc-motion": "2.4.1"
+        "shuttle-flow/**/rc-motion": "2.4.1",
+        "@cfxjs/use-wallet-react": "0.0.9",
+        "@cfxjs/use-wallet-enhance-react/**/@cfxjs/use-wallet-react": "0.0.9"
     },
     "scripts": {
         "build": "turbo run build --scope=cross-space --scope=hub",
@@ -36,14 +37,14 @@
         "build:bsc-espace": "turbo run build --scope=bsc-espace",
         "dev:etc-espace": "turbo run dev --scope=bsc-espace",
         "build:etc-espace": "turbo run build --scope=bsc-espace",
-        "dev:airdrop": "turbo run dev --scope=airdrop",
-        "build:airdrop": "turbo run build --scope=airdrop",
         "dev:governance": "turbo run dev --scope=governance",
         "build:governance": "turbo run build --scope=governance",
         "dev:payment": "turbo run dev --scope=payment",
         "build:payment": "turbo run build --scope=payment",
         "dev:shuttle-flow": "turbo run dev --scope=shuttle-flow",
-        "build:shuttle-flow": "turbo run build --scope=shuttle-flow"
+        "build:shuttle-flow": "turbo run build --scope=shuttle-flow",
+        "dev:native-usdt0": "turbo run dev --scope=native-usdt0",
+        "build:native-usdt0": "turbo run build --scope=native-usdt0"
     },
     "devDependencies": {
         "@types/node": "latest",

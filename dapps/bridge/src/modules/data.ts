@@ -10,7 +10,7 @@ import BSCIcon from 'common/assets/chains/BSC.svg';
 import BTCIcon from 'common/assets/chains/BTC.svg';
 import EthereumIcon from 'common/assets/chains/Ethereum.svg';
 import HECOIcon from 'common/assets/chains/HECO.svg';
-import OECIcon from 'common/assets/chains/OEC.svg';
+// import OECIcon from 'common/assets/chains/OEC.svg';
 import Networks from 'common/conf/Networks';
 
 const CommonTokenCount = 16;
@@ -53,7 +53,7 @@ export const map: Record<'shuttleFlowChains' | 'shuttleFlowFromTokenAddress' | '
         'Conflux Core': 'cfx',
         Ethereum: 'eth',
         'BSC Chain': 'bsc',
-        OKExChain: 'oec',
+        // OKExChain: 'oec',
         // 'HECO Chain': 'heco',
         Bitcoin: 'btc',
     },
@@ -67,7 +67,7 @@ export const map: Record<'shuttleFlowChains' | 'shuttleFlowFromTokenAddress' | '
         'Conflux Core': CFXIcon,
         Ethereum: EthereumIcon,
         'BSC Chain': BSCIcon,
-        OKExChain: OECIcon,
+        // OKExChain: OECIcon,
         'HECO Chain': HECOIcon,
         Bitcoin: BTCIcon,
     },
@@ -94,7 +94,7 @@ fetch(crossSpaceTokenListUrl)
                     CFX: ['Chain Bridge'],
                 },
                 'Conflux Core': {
-                    COMMON_TOKEN: ['ZG Portal'],
+                    COMMON_TOKEN: ['KinetFlow'],
                 },
             },
             Ethereum: {
@@ -106,35 +106,38 @@ fetch(crossSpaceTokenListUrl)
                     DAI: ['cBridge'],
                 },
                 'Conflux Core': {
-                    COMMON_TOKEN: ['ZG Portal'],
+                    COMMON_TOKEN: ['KinetFlow'],
                 },
             },
-            OKExChain: {
-                'Conflux Core': {
-                    COMMON_TOKEN: ['ZG Portal'],
-                },
-            },
+
+            // OKExChain: {
+            //     'Conflux Core': {
+            //         COMMON_TOKEN: ['ZG Portal'],
+            //     },
+            // },
             Bitcoin: {
                 'Conflux Core': {
-                    COMMON_TOKEN: ['ZG Portal'],
+                    COMMON_TOKEN: ['KinetFlow'],
                 },
             },
             'Conflux Core': {
                 Ethereum: {
-                    COMMON_TOKEN: ['ZG Portal'],
+                    COMMON_TOKEN: ['KinetFlow'],
                 },
                 'BSC Chain': {
-                    COMMON_TOKEN: ['ZG Portal'],
+                    COMMON_TOKEN: ['KinetFlow'],
                 },
-                OKExChain: {
-                    COMMON_TOKEN: ['ZG Portal'],
-                },
+                // Disabled: Conflux Core -> OKExChain
+                // OKExChain: {
+                //     COMMON_TOKEN: ['ZG Portal'],
+                // },
                 Bitcoin: {
-                    COMMON_TOKEN: ['ZG Portal'],
+                    COMMON_TOKEN: ['KinetFlow'],
                 },
             },
         };
-        Object.keys(map.shuttleFlowChains).forEach((chain) => {
+        const enabledShuttleFlowChainNames = Object.keys(map.shuttleFlowChains).filter((chain) => chain !== 'OKExChain');
+        enabledShuttleFlowChainNames.forEach((chain) => {
             if (!data[chain]) {
                 data[chain] = {};
             }
@@ -322,6 +325,10 @@ export const createHref = ({
 
     if (route === 'ZG Portal') {
         return 'https://portal.zglabs.org/';
+    }
+
+    if (route === 'KinetFlow') {
+        return 'https://www.kinetflow.io/'
     }
     return '';
 };
